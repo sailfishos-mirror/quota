@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quota.c,v 1.9 2002/03/27 16:21:26 jkar8572 Exp $"
+#ident "$Id: quota.c,v 1.10 2002/04/08 12:06:44 jkar8572 Exp $"
 
 /*
  * Disk quota reporting program.
@@ -154,42 +154,52 @@ int showquotas(int type, qid_t id)
 	char timebuf[MAXTIMELEN];
 	char name[MAXNAMELEN];
 	struct quota_handle **handles;
-	int lines = 0, over = 0;
+	int lines = 0, bover, iover, over;
 	time_t now;
 
 	time(&now);
 	id2name(id, type, name);
 	handles = create_handle_list(0, NULL, type, fmt, IOI_READONLY);
 	qlist = getprivs(id, handles);
+	over = 0;
 	for (q = qlist; q; q = q->dq_next) {
+		bover = iover = 0;
 		if (!vflag && !q->dq_dqb.dqb_isoftlimit && !q->dq_dqb.dqb_ihardlimit
 		    && !q->dq_dqb.dqb_bsoftlimit && !q->dq_dqb.dqb_bhardlimit)
 			continue;
 		msgi = NULL;
-		if (q->dq_dqb.dqb_ihardlimit && q->dq_dqb.dqb_curinodes >= q->dq_dqb.dqb_ihardlimit)
+		if (q->dq_dqb.dqb_ihardlimit && q->dq_dqb.dqb_curinodes >= q->dq_dqb.dqb_ihardlimit) {
 			msgi = _("File limit reached on");
+			iover = 1;
+		}
 		else if (q->dq_dqb.dqb_isoftlimit
 			 && q->dq_dqb.dqb_curinodes >= q->dq_dqb.dqb_isoftlimit) {
-			if (q->dq_dqb.dqb_itime > now)
+			if (q->dq_dqb.dqb_itime > now) {
 				msgi = _("In file grace period on");
+				iover = 2;
+			}
 			else {
 				msgi = _("Over file quota on");
-				over = 1;
+				iover = 3;
 			}
 		}
 		msgb = NULL;
-		if (q->dq_dqb.dqb_bhardlimit
-		    && toqb(q->dq_dqb.dqb_curspace) >= q->dq_dqb.dqb_bhardlimit)
+		if (q->dq_dqb.dqb_bhardlimit && toqb(q->dq_dqb.dqb_curspace) >= q->dq_dqb.dqb_bhardlimit) {
 				msgb = _("Block limit reached on");
+				bover = 1;
+		}
 		else if (q->dq_dqb.dqb_bsoftlimit
 			 && toqb(q->dq_dqb.dqb_curspace) >= q->dq_dqb.dqb_bsoftlimit) {
-			if (q->dq_dqb.dqb_btime > now)
+			if (q->dq_dqb.dqb_btime > now) {
 				msgb = _("In block grace period on");
+				bover = 2;
+			}
 			else {
 				msgb = _("Over block quota on");
-				over = 1;
+				bover = 3;
 			}
 		}
+		over |= bover | iover;
 		if (qflag) {
 			if ((msgi || msgb) && !lines++)
 				heading(type, id, name, "");
@@ -208,20 +218,20 @@ int showquotas(int type, qid_t id)
 				printf("%s\n%15s", q->dq_h->qh_quotadev, "");
 			else
 				printf("%15s", q->dq_h->qh_quotadev);
-			if (msgb)
+			if (bover)
 				difftime2str(q->dq_dqb.dqb_btime, timebuf);
 			space2str(toqb(q->dq_dqb.dqb_curspace), numbuf[0], sflag);
 			space2str(q->dq_dqb.dqb_bsoftlimit, numbuf[1], sflag);
 			space2str(q->dq_dqb.dqb_bhardlimit, numbuf[2], sflag);
-			printf(" %7s%c %6s %7s %7s", numbuf[0], msgb ? '*' : ' ', numbuf[1],
-			       numbuf[2], msgb ? timebuf : "");
-			if (msgi)
+			printf(" %7s%c %6s %7s %7s", numbuf[0], bover ? '*' : ' ', numbuf[1],
+			       numbuf[2], bover > 1 ? timebuf : "");
+			if (iover)
 				difftime2str(q->dq_dqb.dqb_itime, timebuf);
 			number2str(q->dq_dqb.dqb_curinodes, numbuf[0], sflag);
 			number2str(q->dq_dqb.dqb_isoftlimit, numbuf[1], sflag);
 			number2str(q->dq_dqb.dqb_ihardlimit, numbuf[2], sflag);
-			printf(" %7s%c %6s %7s %7s\n", numbuf[0], msgi ? '*' : ' ', numbuf[1],
-			       numbuf[2], msgi ? timebuf : "");
+			printf(" %7s%c %6s %7s %7s\n", numbuf[0], iover ? '*' : ' ', numbuf[1],
+			       numbuf[2], iover > 1 ? timebuf : "");
 			continue;
 		}
 	}
@@ -229,7 +239,7 @@ int showquotas(int type, qid_t id)
 		heading(type, id, name, _("none"));
 	freeprivs(qlist);
 	dispose_handle_list(handles);
-	return over;
+	return over > 0 ? 1 : 0;
 }
 
 void heading(int type, qid_t id, char *name, char *tag)
