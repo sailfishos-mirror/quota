@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.17 2004/01/06 12:19:31 jkar8572 Exp $
+ * Version: $Id: warnquota.c,v 1.18 2004/01/07 12:37:48 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -137,7 +137,8 @@ struct adminstable {
 };
 
 int qtab_i = 0, fmt = -1, flags;
-char mailserv[CNF_BUFFER];
+char maildev[CNF_BUFFER];
+struct quota_handle *maildev_handle;
 char *configfile = WARNQUOTA_CONF, *quotatabfile = QUOTATAB, *adminsfile = ADMINSFILE;
 char *progname;
 quotatable_t *quotatable;
@@ -231,20 +232,25 @@ void add_offence(struct dquot *dquot, char *name)
 int deliverable(struct dquot *dquot)
 {
 	time_t now;
+	struct dquot *mdquot;
 	
-	if((strlen(mailserv) == 0) || (strcasecmp(mailserv, "false") == 0))
-		return(1);
+	if (!maildev[0])
+		return 1;
 
 	time(&now);
 	
-	if (((dquot->dq_dqb.dqb_bhardlimit && toqb(dquot->dq_dqb.dqb_curspace) >= dquot->dq_dqb.dqb_bhardlimit)
-		 || ((dquot->dq_dqb.dqb_bsoftlimit && toqb(dquot->dq_dqb.dqb_curspace) >= dquot->dq_dqb.dqb_bsoftlimit)
-	 		&& (dquot->dq_dqb.dqb_btime && dquot->dq_dqb.dqb_btime <= now)))
-	 		&& ((strcasecmp(mailserv, "true") == 0)
-	 		|| (strcasecmp(mailserv, dquot->dq_h->qh_quotadev) == 0)))
-	  return(0);
-	
-	return(1);
+	if (!strcasecmp(maildev, "any") && 
+	   ((dquot->dq_dqb.dqb_bhardlimit && toqb(dquot->dq_dqb.dqb_curspace) >= dquot->dq_dqb.dqb_bhardlimit)
+	   || ((dquot->dq_dqb.dqb_bsoftlimit && toqb(dquot->dq_dqb.dqb_curspace) >= dquot->dq_dqb.dqb_bsoftlimit)
+	   && (dquot->dq_dqb.dqb_btime && dquot->dq_dqb.dqb_btime <= now))))
+		return 0;
+	mdquot = maildev_handle->qh_ops->read_dquot(maildev_handle, dquot->dq_id);
+	if (mdquot &&
+	   ((mdquot->dq_dqb.dqb_bhardlimit && toqb(mdquot->dq_dqb.dqb_curspace) >= mdquot->dq_dqb.dqb_bhardlimit)
+	   || ((mdquot->dq_dqb.dqb_bsoftlimit && toqb(mdquot->dq_dqb.dqb_curspace) >= mdquot->dq_dqb.dqb_bsoftlimit)
+	   && (mdquot->dq_dqb.dqb_btime && mdquot->dq_dqb.dqb_btime <= now))))
+		return 0;
+	return 1;
 }
 
 int check_offence(struct dquot *dquot, char *name)
@@ -591,7 +597,7 @@ int readconfigfile(const char *filename, struct configparams *config)
 	sstrncpy(config->cc_to, CC_TO, CNF_BUFFER);
 	sstrncpy(config->support, SUPPORT, CNF_BUFFER);
 	sstrncpy(config->phone, PHONE, CNF_BUFFER);
-	sstrncpy(mailserv, "false", CNF_BUFFER);
+	maildev[0] = 0;
 	config->user_signature = config->user_message = config->group_signature = config->group_message = NULL;
 	config->use_ldap_mail = 0;
 
@@ -655,7 +661,7 @@ int readconfigfile(const char *filename, struct configparams *config)
 				sstrncpy(config->phone, value, CNF_BUFFER);
 			else if (!strcmp(var, "MAILSERV")) {
 				/* set the global */
-				sstrncpy(mailserv, value, CNF_BUFFER);
+				sstrncpy(maildev, value, CNF_BUFFER);
 			} else if (!strcmp(var, "MESSAGE")) {
 				config->user_message = sstrdup(value);
 				create_eoln(config->user_message);
@@ -771,6 +777,14 @@ int get_groupadmins(void)
 	return 0;
 }
 
+struct quota_handle *find_handle_dev(char *dev, struct quota_handle **handles)
+{
+	int i;
+
+	for (i = 0; handles[i] && strcmp(dev, handles[i]->qh_quotadev); i++);
+	return handles[i];
+}
+
 void warn_quota(void)
 {
 	struct quota_handle **handles;
@@ -784,6 +798,10 @@ void warn_quota(void)
 
 	if (flags & FL_USER) {
 		handles = create_handle_list(0, NULL, USRQUOTA, -1, IOI_LOCALONLY | IOI_READONLY | IOI_OPENFILE, (flags & FL_NOAUTOFS ? MS_NO_AUTOFS : 0));
+		if (!maildev[0] || !strcasecmp(maildev, "any"))
+			maildev_handle = NULL;
+		else
+			maildev_handle = find_handle_dev(maildev, handles);
 		for (i = 0; handles[i]; i++)
 			handles[i]->qh_ops->scan_dquots(handles[i], check_offence);
 		dispose_handle_list(handles);
@@ -792,6 +810,10 @@ void warn_quota(void)
 		if (get_groupadmins() < 0)
 			wc_exit(1);
 		handles = create_handle_list(0, NULL, GRPQUOTA, -1, IOI_LOCALONLY | IOI_READONLY | IOI_OPENFILE, (flags & FL_NOAUTOFS ? MS_NO_AUTOFS : 0));
+		if (!maildev[0] || !strcasecmp(maildev, "any"))
+			maildev_handle = NULL;
+		else
+			maildev_handle = find_handle_dev(maildev, handles);
 		for (i = 0; handles[i]; i++)
 			handles[i]->qh_ops->scan_dquots(handles[i], check_offence);
 		dispose_handle_list(handles);
