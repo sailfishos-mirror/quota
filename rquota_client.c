@@ -9,7 +9,7 @@
  *
  *          This part does the rpc-communication with the rquotad.
  *
- * Version: $Id: rquota_client.c,v 1.1 2001/03/23 12:03:27 jkar8572 Exp $
+ * Version: $Id: rquota_client.c,v 1.2 2001/06/07 17:51:43 jkar8572 Exp $
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <signal.h>
+#include <time.h>
 
 #include "mntopt.h"
 #include "rquota.h"
@@ -41,6 +42,8 @@
 /* Convert network format of quotas to utils one */
 static inline void clinet2utildqblk(struct util_dqblk *u, struct rquota *n)
 {
+	time_t now;
+	
 	/* Copy the quota */
 	u->dqb_bhardlimit = n->rq_bhardlimit;
 	u->dqb_bsoftlimit = n->rq_bsoftlimit;
@@ -48,8 +51,15 @@ static inline void clinet2utildqblk(struct util_dqblk *u, struct rquota *n)
 	u->dqb_isoftlimit = n->rq_fsoftlimit;
 	u->dqb_curinodes = n->rq_curfiles;
 	u->dqb_curspace = n->rq_curblocks * n->rq_bsize;
-	u->dqb_btime = n->rq_btimeleft;
-	u->dqb_itime = n->rq_ftimeleft;
+	time(&now);
+	if (n->rq_btimeleft)
+		u->dqb_btime = n->rq_btimeleft + now;
+	else
+		u->dqb_btime = 0;
+	if (n->rq_ftimeleft)
+		u->dqb_itime = n->rq_ftimeleft + now;
+	else
+		u->dqb_itime = 0;
 	/* Convert from remote block size */
 	if (n->rq_bsize != RPC_DQBLK_SIZE) {
 		int conversion_unit;
@@ -71,14 +81,23 @@ static inline void clinet2utildqblk(struct util_dqblk *u, struct rquota *n)
 /* Convert utils format of quotas to network one */
 static inline void cliutil2netdqblk(struct sq_dqblk *n, struct util_dqblk *u)
 {
+	time_t now;
+
+	time(&now);
 	n->rq_bhardlimit = u->dqb_bhardlimit;
 	n->rq_bsoftlimit = u->dqb_bsoftlimit;
 	n->rq_fhardlimit = u->dqb_ihardlimit;
 	n->rq_fsoftlimit = u->dqb_isoftlimit;
 	n->rq_curblocks = toqb(u->dqb_curspace);
 	n->rq_curfiles = u->dqb_curinodes;
-	n->rq_btimeleft = u->dqb_btime;
-	n->rq_ftimeleft = u->dqb_itime;
+	if (u->dqb_btime)
+		n->rq_btimeleft = u->dqb_btime - now;
+	else
+		n->rq_btimeleft = 0;
+	if (u->dqb_itime)
+		n->rq_ftimeleft = u->dqb_itime - now;
+	else
+		n->rq_ftimeleft = 0;
 }
 
 /*

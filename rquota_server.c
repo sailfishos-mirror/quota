@@ -9,7 +9,7 @@
  *
  *          This part does the lookup of the info.
  *
- * Version: $Id: rquota_server.c,v 1.2 2001/05/02 09:32:22 jkar8572 Exp $
+ * Version: $Id: rquota_server.c,v 1.3 2001/06/07 17:51:43 jkar8572 Exp $
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
@@ -26,6 +26,7 @@
 #include <paths.h>
 #include <stdio.h>
 #include <syslog.h>
+#include <time.h>
 #include <netdb.h>
 #ifdef HOST_ACCESS
 #include <tcpd.h>
@@ -77,26 +78,44 @@ int in_group(gid_t * gids, u_int len, gid_t gid)
 
 static inline void servnet2utildqblk(struct util_dqblk *u, sq_dqblk * n)
 {
+	time_t now;
+
+	time(&now);
 	u->dqb_bhardlimit = n->rq_bhardlimit;
 	u->dqb_bsoftlimit = n->rq_bsoftlimit;
 	u->dqb_ihardlimit = n->rq_fhardlimit;
 	u->dqb_isoftlimit = n->rq_fsoftlimit;
 	u->dqb_curspace = n->rq_curblocks << RPC_DQBLK_SIZE_BITS;
 	u->dqb_curinodes = n->rq_curfiles;
-	u->dqb_btime = n->rq_btimeleft;
-	u->dqb_itime = n->rq_ftimeleft;
+	if (n->rq_btimeleft)
+		u->dqb_btime = n->rq_btimeleft + now;
+	else
+		u->dqb_btime = 0;
+	if (n->rq_ftimeleft)
+		u->dqb_itime = n->rq_ftimeleft + now;
+	else
+		u->dqb_itime = 0;
 }
 
 static inline void servutil2netdqblk(struct rquota *n, struct util_dqblk *u)
 {
+	time_t now;
+
+	time(&now);
 	n->rq_bhardlimit = u->dqb_bhardlimit;
 	n->rq_bsoftlimit = u->dqb_bsoftlimit;
 	n->rq_fhardlimit = u->dqb_ihardlimit;
 	n->rq_fsoftlimit = u->dqb_isoftlimit;
 	n->rq_curblocks = (u->dqb_curspace + RPC_DQBLK_SIZE - 1) >> RPC_DQBLK_SIZE_BITS;
 	n->rq_curfiles = u->dqb_curinodes;
-	n->rq_btimeleft = u->dqb_btime;
-	n->rq_ftimeleft = u->dqb_itime;
+	if (u->dqb_btime)
+		n->rq_btimeleft = u->dqb_btime - now;
+	else
+		n->rq_btimeleft = 0;
+	if (u->dqb_itime)
+		n->rq_ftimeleft = u->dqb_itime - now;
+	else
+		n->rq_ftimeleft = 0;
 }
 
 setquota_rslt *setquotainfo(int flags, caddr_t * argp, struct svc_req *rqstp)
