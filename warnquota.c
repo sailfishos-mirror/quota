@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.4 2001/11/09 08:10:42 jkar8572 Exp $
+ * Version: $Id: warnquota.c,v 1.5 2001/11/09 08:17:35 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -242,7 +242,11 @@ void get_quotatable(void)
 		if (buffer[0] == '#' ||	/* comment */
 		    !quotatable[qtab_i].devname || !quotatable[qtab_i].devdesc ||
 		    strlen(quotatable[qtab_i].devname) < 2 ||
-		    strlen(quotatable[qtab_i].devdesc) < 2 /* stupid root */ )qtab_i--;
+		    strlen(quotatable[qtab_i].devdesc) < 2 /* stupid root */ ) {
+			if (buffer[0] != '#' && buffer[0] != '\n')
+				errstr(_("Possible error in quotatab. Ignoring %s\n"), buffer);
+			qtab_i--;
+		}
 	}
 	fclose(fp);
 	free(filename);
@@ -333,12 +337,12 @@ void readconfigfile(const char *filename, struct configparams *config)
 				strncpy(config->phone, value, CNF_BUFFER);
 			}
 			else {	/* not matched at all */
-				errstr( "Error in config file (line %d), ignoring\n",
+				errstr(_("Error in config file (line %d), ignoring\n"),
 					line);
 			}
 		}
 		else {		/* no '=' char in this line */
-			errstr( "Possible error in config file (line %d), ignoring\n",
+			errstr(_("Possible error in config file (line %d), ignoring\n"),
 				line);
 		}
 	}
