@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.40 2004/03/15 14:30:25 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.41 2004/09/06 14:35:10 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -899,13 +899,14 @@ static int detect_filename_format(struct mntent *mnt, int type)
 	char *option;
 	struct stat statbuf;
 	char namebuf[PATH_MAX];
+	int journal = 0;
 
 	if (type == USRQUOTA) {
 		if ((option = hasmntopt(mnt, MNTOPT_USRQUOTA)))
 			option += strlen(MNTOPT_USRQUOTA);
 		else if (hasmntopt(mnt, MNTOPT_USRJQUOTA)) {
-			errstr(_("Cannot detect quota format for journalled quota on %s\n"), mnt->mnt_dir);
-			return -1;
+			journal = 1;
+			option += strlen(MNTOPT_USRJQUOTA);
 		}
 		else if ((option = hasmntopt(mnt, MNTOPT_QUOTA)))
 			option += strlen(MNTOPT_QUOTA);
@@ -914,13 +915,35 @@ static int detect_filename_format(struct mntent *mnt, int type)
 		if ((option = hasmntopt(mnt, MNTOPT_GRPQUOTA)))
 			option += strlen(MNTOPT_GRPQUOTA);
 		else if (hasmntopt(mnt, MNTOPT_GRPJQUOTA)) {
-			errstr(_("Cannot detect quota format for journalled quota on %s\n"), mnt->mnt_dir);
-			return -1;
+			journal = 1;
+			option += strlen(MNTOPT_GRPJQUOTA);
 		}
 	}
 	if (!option)
 		die(2, _("Cannot find quota option on filesystem %s with quotas!\n"), mnt->mnt_dir);
-	if (*option == '=')	/* If the file name is specified we can't detect quota format from it... */
+	if (journal) {
+		int fmt;
+		char fmtbuf[64], *space;
+		
+		if (!(option = hasmntopt(mnt, MNTOPT_JQFMT))) {
+jquota_err:
+			errstr(_("Cannot detect quota format for journalled quota on %s\n"), mnt->mnt_dir);
+			return -1;
+		}
+		option += strlen(MNTOPT_JQFMT);
+		if (*option != '=')
+			goto jquota_err;
+		space = strchr(option, ' ');
+		if (!space)
+			space = option + strlen(option);
+		if (space-option > sizeof(fmtbuf))
+			goto jquota_err;
+		sstrncpy(fmtbuf, option+1, space-option+1);
+		if ((fmt = name2fmt(fmtbuf)) == QF_ERROR)
+			goto jquota_err;
+		return fmt;
+	}
+	else if (*option == '=')	/* If the file name is specified we can't detect quota format from it... */
 		return -1;
 	snprintf(namebuf, PATH_MAX, "%s/%s.%s", mnt->mnt_dir, basenames[QF_VFSV0], extensions[type]);
 	if (!stat(namebuf, &statbuf))

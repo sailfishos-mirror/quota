@@ -24,5 +24,6 @@
 #define MNTOPT_RSQUASH		"rsquash"	/* root as ordinary user */
 #define MNTOPT_BIND		"bind"		/* binded mount */
 #define MNTOPT_LOOP		"loop"		/* loopback mount */
+#define MNTOPT_JQFMT		"jqfmt"		/* journaled quota format */
 
 #endif
