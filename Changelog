@@ -1,4 +1,8 @@
 Changes in quota-tools from 3.11 to 3.12
+* fixed bug in quotaon(8) reporting (Paul Szabo)
+* added manpages for xqmstats & quotastats (Max Vozeler)
+* fixed a few memleaks (Jan Kara)
+* fixed bug when root had no usage and limits (Jan Kara)
 * added a few perl wrappers for LDAP (Stefan Adams)
 * added note about availability of -r option to manpages (Jan Kara)
 * maximal number of groups is now got via sysconf (Nathan Scott)

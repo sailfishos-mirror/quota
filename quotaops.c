@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaops.c,v 1.13 2004/04/20 19:33:05 jkar8572 Exp $"
+#ident "$Id: quotaops.c,v 1.14 2004/05/24 19:39:15 jkar8572 Exp $"
 
 #include <rpc/rpc.h>
 #include <sys/types.h>
@@ -112,6 +112,8 @@ struct dquot *getprivs(qid_t id, struct quota_handle **handles, int quiet)
 				}
 				break;
 			case GRPQUOTA:
+				if (geteuid() == 0)
+					break;
 				ngroups = sysconf(_SC_NGROUPS_MAX);
 				if (ngroups > NGROUPS) {
 					gidsetp = malloc(ngroups * sizeof(gid_t));
@@ -119,11 +121,13 @@ struct dquot *getprivs(qid_t id, struct quota_handle **handles, int quiet)
 						errstr(_("%s: gid set allocation (%d): %s\n"), name, ngroups, strerror(errno));
 						return (struct dquot *)NULL;
 					}
-				} else {
-					gidsetp = &gidset[0];
 				}
+				else
+					gidsetp = &gidset[0];
 				ngroups = getgroups(ngroups, gidsetp);
 				if (ngroups < 0) {
+					if (gidsetp != gidset)
+						free(gidsetp);
 					errstr(_("%s: error while trying getgroups(): %s\n"), name, strerror(errno));
 					return (struct dquot *)NULL;
 				}
@@ -131,8 +135,9 @@ struct dquot *getprivs(qid_t id, struct quota_handle **handles, int quiet)
 				for (j = 0; j < ngroups; j++)
 					if (id == gidsetp[j])
 						break;
-
-				if (j >= ngroups && geteuid() != 0) {
+				if (gidsetp != gidset)
+					free(gidsetp);
+				if (j >= ngroups) {
 					gid2group(id, name);
 					errstr(_("%s (gid %d): Permission denied\n"),
 						name, id);

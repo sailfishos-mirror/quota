@@ -115,6 +115,8 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 		h->qh_fd = -1;
 		h->qh_fmt = fmt;
 	}
+	free(qfname);	/* We don't need it anymore */
+	qfname = NULL;
 
 	if (h->qh_fmt == QF_VFSOLD)
 		h->qh_ops = &quotafile_ops_1;

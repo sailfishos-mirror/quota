@@ -662,6 +662,11 @@ static struct dquot *v2_read_dquot(struct quota_handle *h, qid_t id)
 			    strerror(errno));
 		}
 		v2_disk2memdqblk(&dquot->dq_dqb, &ddquot);
+		/* Unescape all-zero structure (it can be on disk after a crash) */
+		if (!dquot->dq_id && !dquot->dq_dqb.dqb_bhardlimit && !dquot->dq_dqb.dqb_bsoftlimit &&
+		    !dquot->dq_dqb.dqb_curspace && !dquot->dq_dqb.dqb_ihardlimit && !dquot->dq_dqb.dqb_isoftlimit &&
+		    !dquot->dq_dqb.dqb_curinodes && !dquot->dq_dqb.dqb_btime && dquot->dq_dqb.dqb_itime == 1)
+			dquot->dq_dqb.dqb_itime = 0;
 	}
 	return dquot;
 }
@@ -791,8 +796,10 @@ static int v2_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct d
 			die(4, _("Can't sync quotas on device %s: %s\n"), h->qh_quotadev,
 			    strerror(errno));
 	lseek(h->qh_fd, V2_DQINFOOFF, SEEK_SET);
-	if (read(h->qh_fd, &ddqinfo, sizeof(ddqinfo)) != sizeof(ddqinfo))
+	if (read(h->qh_fd, &ddqinfo, sizeof(ddqinfo)) != sizeof(ddqinfo)) {
+		free(dquot);
 		return -1;
+	}
 	info->dqi_blocks = __le32_to_cpu(ddqinfo.dqi_blocks);
 	dquot->dq_h = h;
 	bitmap = smalloc((info->dqi_blocks + 7) >> 3);

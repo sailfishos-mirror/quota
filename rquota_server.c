@@ -9,7 +9,7 @@
  *
  *          This part does the lookup of the info.
  *
- * Version: $Id: rquota_server.c,v 1.14 2003/12/02 13:04:20 jkar8572 Exp $
+ * Version: $Id: rquota_server.c,v 1.15 2004/05/24 19:39:15 jkar8572 Exp $
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
@@ -187,8 +187,11 @@ setquota_rslt *setquotainfo(int flags, caddr_t * argp, struct svc_req *rqstp)
 		dquot->dq_dqb.dqb_curspace = dqblk.dqb_curspace;
 		dquot->dq_dqb.dqb_curinodes = dqblk.dqb_curinodes;
 	}
-	if (handles[0]->qh_ops->commit_dquot(dquot, COMMIT_LIMITS) == -1)
+	if (handles[0]->qh_ops->commit_dquot(dquot, COMMIT_LIMITS) == -1) {
+		free(dquot);
 		goto out;
+	}
+	free(dquot);
 	result.status = Q_OK;
 out:
 	dispose_handle_list(handles);
@@ -264,6 +267,7 @@ getquota_rslt *getquotainfo(int flags, caddr_t * argp, struct svc_req * rqstp)
 		result.getquota_rslt_u.gqr_rquota.rq_active =
 			QIO_ENABLED(handles[0]) ? TRUE : FALSE;
 		servutil2netdqblk(&result.getquota_rslt_u.gqr_rquota, &dquot->dq_dqb);
+		free(dquot);
 	}
 out:
 	dispose_handle_list(handles);

@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaon.c,v 1.17 2003/07/15 22:40:34 jkar8572 Exp $"
+#ident "$Id: quotaon.c,v 1.18 2004/05/24 19:39:15 jkar8572 Exp $"
 
 /*
  * Turn quota on/off for a filesystem.
@@ -172,6 +172,9 @@ static int print_state(struct mntent *mnt, int type)
 		if (kernel_formats & (1 << QF_XFS))
 			on = kern_quota_on(mnt->mnt_fsname, type, 1 << QF_XFS) != -1;
 	}
+	else if (kernel_iface == IFACE_GENERIC)
+		/* PSz 28 Apr 04  Have V0 and OLD set, try both */
+		on = kern_quota_on(mnt->mnt_fsname, type, kernel_formats) != -1;
 	else if (kernel_formats & (1 << QF_VFSV0))
 		on = kern_quota_on(mnt->mnt_fsname, type, 1 << QF_VFSV0) != -1;
 	else if (kernel_formats & (1 << QF_VFSOLD))

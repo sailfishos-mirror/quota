@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaio_v1.c,v 1.13 2002/11/21 18:37:58 jkar8572 Exp $"
+#ident "$Id: quotaio_v1.c,v 1.14 2004/05/24 19:39:15 jkar8572 Exp $"
 
 #include <unistd.h>
 #include <errno.h>
@@ -381,8 +381,11 @@ static int v1_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct d
 			return rd;
 		}
 	}
-	if (!rd)		/* EOF? */
+	if (!rd) {		/* EOF? */
+		free(dquot);
 		return 0;
+	}
 out_err:
+	free(dquot);
 	return -1;		/* Some read errstr... */
 }

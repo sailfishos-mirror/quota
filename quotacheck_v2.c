@@ -198,8 +198,11 @@ static int buffer_entry(dqbuf_t buf, uint blk, int *corrupted, uint * lblk, int 
 		fdq->dqb_bsoftlimit = mdq.dqb_bsoftlimit;
 		fdq->dqb_ihardlimit = mdq.dqb_ihardlimit;
 		fdq->dqb_isoftlimit = mdq.dqb_isoftlimit;
-		fdq->dqb_btime = mdq.dqb_btime;
-		fdq->dqb_itime = mdq.dqb_itime;
+		/* Add grace times only if there are limits... */
+		if (mdq.dqb_bsoftlimit)
+			fdq->dqb_btime = mdq.dqb_btime;
+		if (mdq.dqb_isoftlimit)
+			fdq->dqb_itime = mdq.dqb_itime;
 	}
 	return 0;
 }
