@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaon.c,v 1.4 2001/05/02 09:32:22 jkar8572 Exp $"
+#ident "$Id: quotaon.c,v 1.5 2001/05/15 09:28:49 jkar8572 Exp $"
 
 /*
  * Turn quota on/off for a filesystem.
@@ -56,8 +56,7 @@ char *progname;
 
 static void usage(void)
 {
-	errstr(_("Usage:\n\t%s [-guv] [-x state] -a\n"));
-	errstr(_("\t%s [-guv] [-x state] filesys ...\n"));
+	errstr(_("Usage:\n\t%s [-guv] [-x state] -a\n\t%s [-guv] [-x state] filesys ...\n"), progname, progname);
 	exit(1);
 }
 
