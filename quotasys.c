@@ -59,7 +59,8 @@ static int correct_fstype(char *type)
 		    !strcmp(type, MNTTYPE_UDF) ||
 		    !strcmp(type, MNTTYPE_REISER) ||
 		    !strcmp(type, MNTTYPE_XFS) ||
-		    !strcmp(type, MNTTYPE_NFS)) {
+		    !strcmp(type, MNTTYPE_NFS) ||
+		    !strcmp(type, MNTTYPE_NFS4)) {
 			free(mtype);
 			return 1;
 		}

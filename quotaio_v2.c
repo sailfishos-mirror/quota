@@ -759,6 +759,8 @@ static int report_tree(struct dquot *dquot, uint blk, int depth, char *bitmap,
 	if (depth == V2_DQTREEDEPTH - 1) {
 		for (i = 0; i < V2_DQBLKSIZE >> 2; i++) {
 			blk = __le32_to_cpu(ref[i]);
+			if (blk >= dquot->dq_h->qh_info.u.v2_mdqi.dqi_blocks)
+				die(2, _("Illegal reference in %s quota file on %s. Quota file is probably corrupted.\nPlease run quotacheck(8) and try again.\n"), type2name(dquot->dq_h->qh_type), dquot->dq_h->qh_quotadev);
 			if (blk && !get_bit(bitmap, blk))
 				entries += report_block(dquot, blk, bitmap, process_dquot);
 		}

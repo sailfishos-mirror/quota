@@ -1,4 +1,6 @@
 Changes in quota-tools from 3.12 to 3.13
+* added sanity check to quota reporting (Jan Kara)
+* added NFSv4 to the list of supported fs types (Jan Kara)
 * added printing of directories to quotacheck (Jan Kara, Jan Engelhardt)
 * added dynamic mountpoint array allocation (Jan Kara)
 * made quotacheck(8) more friendly for journaled quota (Jan Kara)
