@@ -88,6 +88,19 @@ struct quota_handle {
 	struct util_dqinfo qh_info;	/* Generic quotafile info */
 };
 
+/* Statistics gathered from kernel */
+struct util_dqstats {
+	u_int32_t lookups;
+	u_int32_t drops;
+	u_int32_t reads;
+	u_int32_t writes;
+	u_int32_t cache_hits;
+	u_int32_t allocated_dquots;
+	u_int32_t free_dquots;
+	u_int32_t syncs;
+	u_int32_t version;
+};
+
 /* Utility quota block */
 struct util_dqblk {
 	qsize_t dqb_ihardlimit;

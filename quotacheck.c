@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.19 2001/09/21 12:45:22 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.20 2001/09/26 12:26:11 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -40,6 +40,10 @@
 #include "bylabel.h"
 #include "quotacheck.h"
 #include "quotaops.h"
+
+#ifndef HAVE_EXT2_INO_T
+typedef ino_t ext2_ino_t;
+#endif
 
 #define LINKSHASHSIZE 16384	/* Size of hashtable for hardlinked inodes */
 #define DQUOTHASHSIZE 32768	/* Size of hashtable for dquots from file */

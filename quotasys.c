@@ -25,6 +25,7 @@
 #include "dqblk_v1.h"
 #include "dqblk_v2.h"
 #include "dqblk_xfs.h"
+#include "quotaio_v2.h"
 
 #define min(x,y) (((x) < (y)) ? (x) : (y))
 #define CORRECT_FSTYPE(type) \
@@ -464,7 +465,8 @@ int devcmp_handles(struct quota_handle *a, struct quota_handle *b)
 
 int kern_quota_format(void)
 {
-	struct dqstats stats;
+	struct util_dqstats stats;
+	struct v2_dqstats v2_stats;
 	FILE *f;
 	int ret = 0;
 	struct stat st;
@@ -478,20 +480,23 @@ int kern_quota_format(void)
 		}
 		fclose(f);
 	}
-	else if (quotactl(QCMD(Q_GETSTATS, 0), NULL, 0, (void *)&stats) < 0) {
+	else if (quotactl(QCMD(Q_V2_GETSTATS, 0), NULL, 0, (void *)&v2_stats) >= 0) {
+		stats.version = v2_stats.version;	/* Copy the version */
+	}
+	else {
 		if (errno == ENOSYS || errno == ENOTSUP)	/* Quota not compiled? */
 			return QF_ERROR;
 		if (errno == EINVAL || errno == EFAULT || errno == EPERM) {	/* Old quota compiled? */
 			/* RedHat 7.1 (2.4.2-2) newquota check 
-			 * Q_GETSTATS in it's old place, Q_GETQUOTA in the new place
+			 * Q_V2_GETSTATS in it's old place, Q_GETQUOTA in the new place
 			 * (they haven't moved Q_GETSTATS to its new value) */
 			int err_stat = 0;
 			int err_quota = 0;
  			char tmp[1024];         /* Just temporary buffer */
 
-			if (quotactl(QCMD(Q_V1_GETSTATS, 0), NULL, 0, (void *)&stats))
+			if (quotactl(QCMD(Q_V1_GETSTATS, 0), NULL, 0, tmp))
 				err_stat = errno;
-			if (quotactl(QCMD(Q_V1_GETQUOTA, 0), "", 0, tmp))
+			if (quotactl(QCMD(Q_V1_GETQUOTA, 0), "/dev/null", 0, tmp))
 				err_quota = errno;
 
 			/* On a RedHat 2.4.2-2 	we expect 0, EINVAL
@@ -610,8 +615,8 @@ static int cache_mnt_table(void)
 	FILE *mntf;
 	struct mntent *mnt;
 	struct stat st;
-	int allocated = 0, i;
-	dev_t dev;
+	int allocated = 0, i = 0;
+	dev_t dev = 0;
 	char mntpointbuf[PATH_MAX];
 
 	if (!(mntf = setmntent(_PATH_MOUNTED, "r"))) {
@@ -652,16 +657,20 @@ static int cache_mnt_table(void)
 			dev = st.st_rdev;
 			for (i = 0; i < mnt_entries_cnt && mnt_entries[i].me_dev != dev; i++);
 		}
-		else {	/* Cope with network filesystems */
-			dev = 0;
-			for (i = 0; i < mnt_entries_cnt && strcmp(mnt_entries[i].me_devname, devname); i++);
-		}
-		if (i == mnt_entries_cnt) {	/* New mounted device? */
+		/* Cope with network filesystems or new mountpoint */
+		if (!strcmp(mnt->mnt_type, MNTTYPE_NFS) || i == mnt_entries_cnt) {
 			if (stat(mnt->mnt_dir, &st) < 0) {	/* Can't stat mountpoint? We have better ignore it... */
 				errstr(_("Can't stat() mountpoint %s: %s\n"), mnt->mnt_dir, strerror(errno));
 				free((char *)devname);
 				continue;
 			}
+			if (!strcmp(mnt->mnt_type, MNTTYPE_NFS)) {
+				/* For network filesystems we must get device from root */
+				dev = st.st_dev;
+				for (i = 0; i < mnt_entries_cnt && mnt_entries[i].me_dev != dev; i++);
+			}
+		}
+		if (i == mnt_entries_cnt) {	/* New mounted device? */
 			if (allocated == mnt_entries_cnt) {
 				allocated += ALLOC_ENTRIES_NUM;
 				mnt_entries = srealloc(mnt_entries, allocated * sizeof(struct mount_entry));

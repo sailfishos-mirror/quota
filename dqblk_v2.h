@@ -13,6 +13,7 @@
 #define Q_V2_SETQUOTA	0x0E00	/* Set limits and usage */
 #define Q_V2_GETINFO	0x0900	/* Get information about quota */
 #define Q_V2_SETINFO	0x0A00	/* Set information about quota */
+#define Q_V2_GETSTATS	0x1100	/* get collected stats (before proc was used) */
 
 /* Structure for format specific information */
 struct v2_mem_dqinfo {

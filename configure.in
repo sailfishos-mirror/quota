@@ -34,6 +34,15 @@ if test "x$with_ext2direct" != "xno"; then
 			EXT2LIBS=""
 		else
 			with_ext2direct="yes"
+			AC_MSG_CHECKING([for ext2_ino_t])
+			have_ext2_ino_t="no"
+			AC_EGREP_HEADER(ext2_ino_t, ext2fs/ext2fs.h, have_ext2_ino_t="yes")
+			if test "x$have_ext2_ino_t" != "xyes"; then
+				AC_MSG_RESULT([not found])
+			else
+				AC_MSG_RESULT([found])
+				CFLAGS="-DHAVE_EXT2_INO_T $CFLAGS"
+			fi
 		fi
 	fi
 	if test "x$with_ext2direct" = "xyes"; then

@@ -49,19 +49,6 @@ typedef u_int64_t qsize_t;	/* Type in which we store size limitations */
 #define Q_QUOTAON  0x0100	/* enable quotas */
 #define Q_QUOTAOFF 0x0200	/* disable quotas */
 #define Q_SYNC     0x0600	/* sync disk copy of a filesystems quotas */
-#define Q_GETSTATS 0x1100	/* get collected stats */
-
-struct dqstats {
-	u_int32_t lookups;
-	u_int32_t drops;
-	u_int32_t reads;
-	u_int32_t writes;
-	u_int32_t cache_hits;
-	u_int32_t allocated_dquots;
-	u_int32_t free_dquots;
-	u_int32_t syncs;
-	u_int32_t version;
-};
 
 /* Ioctl for getting quota size */
 #include <sys/ioctl.h>

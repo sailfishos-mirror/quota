@@ -85,4 +85,17 @@ struct v2_kern_dqinfo {
 	unsigned int dqi_free_entry;
 };
 
+/* Structure with gathered statistics from kernel */
+struct v2_dqstats {
+	u_int32_t lookups;
+	u_int32_t drops;
+	u_int32_t reads;
+	u_int32_t writes;
+	u_int32_t cache_hits;
+	u_int32_t allocated_dquots;
+	u_int32_t free_dquots;
+	u_int32_t syncs;
+	u_int32_t version;
+};
+
 #endif

@@ -12,7 +12,7 @@
  *          changes for new utilities by Jan Kara <jack@suse.cz>
  *          patches by Jani Jaakkola <jjaakkol@cs.helsinki.fi>
  *
- * Version: $Id: rquota_svc.c,v 1.8 2001/09/21 12:45:22 jkar8572 Exp $
+ * Version: $Id: rquota_svc.c,v 1.9 2001/09/26 12:26:11 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -101,7 +101,7 @@ static void parse_options(int argc, char **argv)
  * good_client checks if an quota client should be allowed to
  * execute the requested rpc call.
  */
-int good_client(struct sockaddr_in *addr, rpcproc_t rq_proc)
+int good_client(struct sockaddr_in *addr, ulong rq_proc)
 {
 #ifdef HOSTS_ACCESS
 	struct hostent *h;

@@ -89,10 +89,6 @@ static void parse_options(int argcnt, char **argstr)
 	char *opts = "igp:uVF:ta";
 #endif
 
-#ifdef RPC_SETQUOTA
-	flags |= FL_RPC;
-#endif
-
 	while ((ret = getopt(argcnt, argstr, opts)) != -1) {
 		switch (ret) {
 		  case '?':
@@ -109,7 +105,7 @@ static void parse_options(int argcnt, char **argstr)
 			  protoname = optarg;
 			  break;
 		  case 'r':
-			  flags &= ~FL_RPC;
+			  flags |= FL_RPC;
 			  break;
 		  case 'a':
 			  flags |= FL_ALL;

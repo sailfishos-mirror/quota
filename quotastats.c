@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: quotastats.c,v 1.4 2001/09/10 10:34:16 jkar8572 Exp $
+ * Version: $Id: quotastats.c,v 1.5 2001/09/26 12:26:11 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -28,14 +28,18 @@
 #include "common.h"
 #include "quota.h"
 #include "quotasys.h"
+#include "quotaio.h"
 #include "quotaio_v1.h"
 #include "dqblk_v1.h"
+#include "quotaio_v2.h"
+#include "dqblk_v2.h"
 
 char *progname;
 
-static inline int get_stats(struct dqstats *dqstats)
+static inline int get_stats(struct util_dqstats *dqstats)
 {
 	struct v1_dqstats old_dqstats;
+	struct v2_dqstats v0_dqstats;
 	FILE *f;
 	int ret = -1;
 
@@ -55,7 +59,11 @@ static inline int get_stats(struct dqstats *dqstats)
 			goto out;
 		}
 	}
-	else if (quotactl(QCMD(Q_GETSTATS, 0), NULL, 0, (caddr_t)dqstats) < 0) {
+	else if (quotactl(QCMD(Q_V2_GETSTATS, 0), NULL, 0, (caddr_t)&v0_dqstats) >= 0) {
+		/* Structures are currently the same */
+		memcpy(dqstats, &v0_dqstats, sizeof(v0_dqstats));
+	}
+	else {
 		if (errno != EINVAL) {
 			errstr(_("Error while getting quota statistics from kernel: %s\n"), strerror(errno));
 			goto out;
@@ -74,7 +82,7 @@ out:
 	return ret;
 }
 
-static inline int print_stats(struct dqstats *dqstats)
+static inline int print_stats(struct util_dqstats *dqstats)
 {
 	if (!dqstats->version)
 		printf(_("Kernel quota version: old\n"));
@@ -95,7 +103,7 @@ static inline int print_stats(struct dqstats *dqstats)
 
 int main(int argc, char **argv)
 {
-	struct dqstats dqstats;
+	struct util_dqstats dqstats;
 
 	gettexton();
 	progname = basename(argv[0]);

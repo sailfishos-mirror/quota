@@ -119,7 +119,7 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 				qfname, strerror(errno));
 			goto out_handle;
 		}
-		flock(fd, LOCK_EX);
+		flock(fd, QIO_RO(h) ? LOCK_SH : LOCK_EX);
 		/* Init handle */
 		h->qh_fd = fd;
 
