@@ -12,7 +12,7 @@
  *          changes for new utilities by Jan Kara <jack@suse.cz>
  *          patches by Jani Jaakkola <jjaakkol@cs.helsinki.fi>
  *
- * Version: $Id: rquota_svc.c,v 1.13 2002/11/28 22:02:04 jkar8572 Exp $
+ * Version: $Id: rquota_svc.c,v 1.14 2003/05/21 19:51:10 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -58,6 +58,7 @@ struct authunix_parms *unix_cred;
 
 int disable_setquota=1;            /* Disables setquota rpc */
 int disable_daemon=0;              /* Disable daemon() call */
+int enable_autofs=0;               /* Don't ignore autofs mountpoins */
 
 static struct option options[]= {
 	{ "version", 0, NULL, 'V' },
@@ -67,6 +68,7 @@ static struct option options[]= {
 	{ "no-setquota", 0 , NULL, 's' },
 	{ "setquota", 0, NULL, 'S' },
 #endif
+	{ "autofs", 0, NULL, 'I'},
 	{ NULL, 0, NULL , 0 }
 };
 
@@ -78,12 +80,15 @@ static void show_help(void)
  -V --version      shows version information\n\
  -F --foreground   starts the quota service in foreground\n\
  -s --no-setquota  disables remote calls to setquota (default)\n\
- -S --setquota     enables remote calls to setquota\n"), progname);
+ -S --setquota     enables remote calls to setquota\n\
+ -I --autofs       do not ignore mountpoints mounted by automounter\n"), progname);
+
 #else
 	errstr(_("Usage: %s [options]\nOptions are:\n\
  -h --help         shows this text\n\
  -V --version      shows version information\n\
- -F --foreground   starts the quota service in foreground\n"), progname);
+ -F --foreground   starts the quota service in foreground\n\
+ -I --autofs       do not ignore mountpoints mounted by automounter\n"), progname);
 #endif
 }
 
@@ -106,6 +111,7 @@ static void parse_options(int argc, char **argv)
 			case 's': disable_setquota = 1; break;
 			case 'S': disable_setquota = 0; break;
 #endif
+			case 'I': enable_autofs = 1; break;
 			default:
 				errstr(_("Unknown option '%c'.\n"), opt);
 				show_help();
