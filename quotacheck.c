@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.10 2001/05/14 16:04:12 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.11 2001/05/14 16:20:21 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -832,7 +832,7 @@ static void check_all(void)
 		else
 			mnt_fslabel = devlist[gotmnt - 1];
 		if ((flags & FL_ALL && (!(flags & FL_NOROOT) || strcmp(mnt->mnt_dir, "/"))) ||
-		    (mntpoint && (devcmp(mntpoint, devlist[gotmnt - 1]) || dircmp(mntpoint, mnt->mnt_dir))) {
+		    (mntpoint && (devcmp(mntpoint, devlist[gotmnt - 1]) || dircmp(mntpoint, mnt->mnt_dir)))) {
 			if (!strcmp(mnt->mnt_type, MNTTYPE_XFS)) {
 				debug(FL_DEBUG | FL_VERBOSE, _("Skipping %s [%s]\n"), mnt_fslabel,
 				      mnt->mnt_dir);
