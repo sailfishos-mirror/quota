@@ -411,9 +411,9 @@ int hasquota(struct mntent *mnt, int type)
 	if (!strcmp(mnt->mnt_type, MNTTYPE_NFS))	/* NFS always has quota or better there is no good way how to detect it */
 		return 1;
 
-	if ((type == USRQUOTA) && hasmntopt(mnt, MNTOPT_USRQUOTA))
+	if ((type == USRQUOTA) && (hasmntopt(mnt, MNTOPT_USRQUOTA) || hasmntopt(mnt, MNTOPT_USRJQUOTA)))
 		return 1;
-	if ((type == GRPQUOTA) && hasmntopt(mnt, MNTOPT_GRPQUOTA))
+	if ((type == GRPQUOTA) && (hasmntopt(mnt, MNTOPT_GRPQUOTA) || hasmntopt(mnt, MNTOPT_GRPJQUOTA)))
 		return 1;
 	if ((type == USRQUOTA) && hasmntopt(mnt, MNTOPT_QUOTA))
 		return 1;
@@ -464,9 +464,17 @@ int get_qf_name(struct mntent *mnt, int type, int fmt, int flags, char **filenam
 		if (*(pathname = option + strlen(MNTOPT_USRQUOTA)) == '=')
 			has_quota_file_definition = 1;
 	}
+	else if (type == USRQUOTA && (option = hasmntopt(mnt, MNTOPT_USRJQUOTA))) {
+		pathname = option + strlen(MNTOPT_USRJQUOTA);
+		has_quota_file_definition = 1;
+	}
 	else if (type == GRPQUOTA && (option = hasmntopt(mnt, MNTOPT_GRPQUOTA))) {
 		if (*(pathname = option + strlen(MNTOPT_GRPQUOTA)) == '=')
 			has_quota_file_definition = 1;
+	}
+	else if (type == GRPQUOTA && (option = hasmntopt(mnt, MNTOPT_GRPJQUOTA))) {
+		pathname = option + strlen(MNTOPT_GRPJQUOTA);
+		has_quota_file_definition = 1;
 	}
 	else if (type == USRQUOTA && (option = hasmntopt(mnt, MNTOPT_QUOTA))) {
 		if (*(pathname = option + strlen(MNTOPT_QUOTA)) == '=')
@@ -803,7 +811,7 @@ static int cache_mnt_table(int flags)
 		
 		/* Further we are not interested in mountpoints without quotas and
 		   we don't want to touch them */
-		if (!correct_fstype(mnt->mnt_type) || hasmntopt(mnt, MNTOPT_NOQUOTA) || !(hasmntopt(mnt, MNTOPT_USRQUOTA) || hasmntopt(mnt, MNTOPT_GRPQUOTA) || hasmntopt(mnt, MNTOPT_QUOTA) || !strcmp(mnt->mnt_type, MNTTYPE_NFS))) {
+		if (!hasquota(mnt, USRQUOTA) && !hasquota(mnt, GRPQUOTA)) {
 			free((char *)devname);
 			continue;
 		}

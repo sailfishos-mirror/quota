@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.37 2004/01/06 12:19:31 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.38 2004/02/08 16:34:17 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -198,7 +198,7 @@ static void add_to_quota(int type, ino_t i_num, uid_t i_uid, gid_t i_gid, mode_t
 		if (store_dlinks(type, i_num))	/* Did we already count this inode? */
 			return;
 	lptr->dq_dqb.dqb_curinodes++;
-	lptr->dq_dqb.dqb_curspace += i_space;
+	lptr->dq_dqb.dqb_curspace += i_space;;
 }
 
 /*
@@ -744,18 +744,52 @@ static int dump_to_file(struct mntent *mnt, int type)
 	return 0;
 }
 
+/* Substract space used by old quota file from usage */
+static void sub_quota_file(struct mntent *mnt, int qtype, int ftype)
+{
+	char *filename;
+	struct stat st;
+	loff_t qspace;
+	struct dquot *d;
+	qid_t id;
+
+	debug(FL_DEBUG, _("Substracting space used by old %s quota file.\n"), type2name(ftype));
+	if (get_qf_name(mnt, ftype, 1 << cfmt, 0, &filename) < 0) {
+		debug(FL_VERBOSE, _("Old %s file not found. Usage will not be substracted.\n"), type2name(ftype));
+		return;
+	}
+
+	if (stat(filename, &st) < 0) {
+		debug(FL_VERBOSE, _("Cannot stat old %s quota file: %s\n"), type2name(ftype), strerror(errno));
+		free(filename);
+		return;
+	}
+	qspace = getqsize(filename, &st);
+	free(filename);
+	
+	if (qtype == USRQUOTA)
+		id = st.st_uid;
+	else
+		id = st.st_gid;
+	if ((d = lookup_dquot(id, qtype)) == NODQUOT) {
+		errstr(_("Quota structure for %s owning quota file not present! Something is really wrong...\n"), type2name(qtype));
+		return;
+	}
+	d->dq_dqb.dqb_curinodes--;
+	d->dq_dqb.dqb_curspace -= qspace;
+	debug(FL_DEBUG, _("Substracted %lu bytes.\n"), (unsigned long)qspace);
+}
+
 /* Buffer quotafile, run filesystem scan, dump quotafiles */
 static void check_dir(struct mntent *mnt)
 {
 	struct stat st;
 	int remounted = 0;
-	loff_t qspace;
 
 	if (lstat(mnt->mnt_dir, &st) < 0)
 		die(2, _("Cannot stat mountpoint %s: %s\n"), mnt, strerror(errno));
 	if (!S_ISDIR(st.st_mode))
 		die(2, _("Mountpoint %s isn't directory?!\n"), mnt);
-	qspace = getqsize(mnt->mnt_dir, &st);
 	cur_dev = st.st_dev;
 	files_done = dirs_done = 0;
 	if (ucheck)
@@ -802,6 +836,14 @@ Please stop all programs writing to filesystem or use -m flag to force checking.
 			goto out;
 	}
 	dirs_done++;
+	if (ucheck) {
+		sub_quota_file(mnt, USRQUOTA, USRQUOTA);
+		sub_quota_file(mnt, USRQUOTA, GRPQUOTA);
+	}
+	if (gcheck) {
+		sub_quota_file(mnt, GRPQUOTA, USRQUOTA);
+		sub_quota_file(mnt, GRPQUOTA, GRPQUOTA);
+	}
 	if (flags & FL_VERBOSE)
 		fputs(_("done\n"), stderr);
 	debug(FL_DEBUG | FL_VERBOSE, _("Checked %d directories and %d files\n"), dirs_done,
@@ -829,15 +871,23 @@ static int detect_filename_format(struct mntent *mnt, int type)
 	if (type == USRQUOTA) {
 		if ((option = hasmntopt(mnt, MNTOPT_USRQUOTA)))
 			option += strlen(MNTOPT_USRQUOTA);
+		else if (hasmntopt(mnt, MNTOPT_USRJQUOTA)) {
+			errstr(_("Cannot detect quota format for journalled quota on %s\n"), mnt->mnt_dir);
+			return -1;
+		}
 		else if ((option = hasmntopt(mnt, MNTOPT_QUOTA)))
 			option += strlen(MNTOPT_QUOTA);
 	}
 	else {
 		if ((option = hasmntopt(mnt, MNTOPT_GRPQUOTA)))
 			option += strlen(MNTOPT_GRPQUOTA);
+		else if (hasmntopt(mnt, MNTOPT_GRPJQUOTA)) {
+			errstr(_("Cannot detect quota format for journalled quota on %s\n"), mnt->mnt_dir);
+			return -1;
+		}
 	}
 	if (!option)
-		die(2, _("Can't find quota option on filesystem %s with quotas!\n"), mnt->mnt_dir);
+		die(2, _("Cannot find quota option on filesystem %s with quotas!\n"), mnt->mnt_dir);
 	if (*option == '=')	/* If the file name is specified we can't detect quota format from it... */
 		return -1;
 	snprintf(namebuf, PATH_MAX, "%s/%s.%s", mnt->mnt_dir, basenames[QF_VFSV0], extensions[type]);
