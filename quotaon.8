@@ -5,18 +5,18 @@ quotaon, quotaoff \- turn filesystem quotas on and off
 .SH SYNOPSIS
 .B /usr/sbin/quotaon
 [
-.B \-vugf
+.B \-vugfp
 ]
 .IR filesystem .\|.\|.
 .br
 .B /usr/sbin/quotaon
 [
-.B \-avugf
+.B \-avugfp
 ]
 .LP
 .B /usr/sbin/quotaoff
 [
-.B \-vug
+.B \-vugp
 ]
 [
 .B \-x
@@ -26,7 +26,7 @@ quotaon, quotaoff \- turn filesystem quotas on and off
 .br
 .B /usr/sbin/quotaoff
 [
-.B \-avug
+.B \-avugp
 ]
 .SH DESCRIPTION
 .SS quotaon
@@ -92,6 +92,9 @@ Manipulate user quotas. This is the default.
 .B \-g
 Manipulate group quotas.
 .TP
+.B \-p
+Instead of turning quotas on just print state of quotas (ie. whether. quota is on or off)
+.TP
 .B \-f
 Make
 .B quotaon
@@ -112,6 +115,9 @@ Manipulate user quotas. This is the default.
 .TP
 .B \-g
 Manipulate group quotas.
+.TP
+.B \-p
+Instead of turning quotas off just print state of quotas (ie. whether. quota is on or off)
 .TP
 .B \-x delete
 Free up the space used to hold quota information (maintained

@@ -1,3 +1,7 @@
+Changes in quota-tools from 3.03 to 3.04
+* added -D_FILE_OFFSET_BITS=64 to Makefile - fixes problems with large files with some libcs (Michael Meskes)
+* added -p (print state) to quotaon
+
 Changes in quota-tools from 3.02 to 3.03
 
 * added -f <filesystem> option (perform operation only for given filesystem) for edquota (Jan Kara)

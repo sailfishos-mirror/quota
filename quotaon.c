@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaon.c,v 1.9 2001/11/26 18:18:25 jkar8572 Exp $"
+#ident "$Id: quotaon.c,v 1.10 2002/01/07 22:24:20 jkar8572 Exp $"
 
 /*
  * Turn quota on/off for a filesystem.
@@ -51,12 +51,13 @@ int aflag;			/* all file systems */
 int gflag;			/* operate on group quotas */
 int uflag;			/* operate on user quotas */
 int vflag;			/* verbose */
+int pflag;			/* just print status */
 int kqf;			/* kernel quota format */
 char *progname;
 
 static void usage(void)
 {
-	errstr(_("Usage:\n\t%s [-guv] [-x state] -a\n\t%s [-guv] [-x state] filesys ...\n"), progname, progname);
+	errstr(_("Usage:\n\t%s [-guvp] [-x state] -a\n\t%s [-guvp] [-x state] filesys ...\n"), progname, progname);
 	exit(1);
 }
 
@@ -68,10 +69,7 @@ static int newstate(struct mntent *mnt, int offmode, int type, char *extra)
 {
 	int flags, ret = 0;
 	newstate_t *statefunc;
-	const char *mnt_fsname = get_device_name(mnt->mnt_fsname);
 
-	if (!mnt_fsname)
-		return 1;
 	flags = offmode ? STATEFLAG_OFF : STATEFLAG_ON;
 	if (vflag > 1)
 		flags |= STATEFLAG_VERYVERBOSE;
@@ -86,9 +84,9 @@ static int newstate(struct mntent *mnt, int offmode, int type, char *extra)
 			return 1;
 		}
 		if (kqf & (1 << QF_XFS) &&
-		    ((offmode && (kern_quota_on(mnt_fsname, USRQUOTA, 1 << QF_XFS)
-		    || kern_quota_on(mnt_fsname, GRPQUOTA, 1 << QF_XFS)))
-		    || (!offmode && kern_quota_on(mnt_fsname, type, 1 << QF_XFS))))
+		    ((offmode && (kern_quota_on(mnt->mnt_fsname, USRQUOTA, 1 << QF_XFS)
+		    || kern_quota_on(mnt->mnt_fsname, GRPQUOTA, 1 << QF_XFS)))
+		    || (!offmode && kern_quota_on(mnt->mnt_fsname, type, 1 << QF_XFS))))
 			ret = xfs_newstate(mnt, type, extra, flags);
 	}
 	else {
@@ -98,6 +96,24 @@ static int newstate(struct mntent *mnt, int offmode, int type, char *extra)
 		free(extra);
 	}
 	return ret;
+}
+
+/* Print state of quota (on/off) */
+static void print_state(struct mntent *mnt, int type)
+{
+	int on = 0;
+
+	if (!strcmp(mnt->mnt_type, MNTTYPE_XFS)) {
+		if (kqf & (1 << QF_XFS))
+			on = kern_quota_on(mnt->mnt_fsname, type, 1 << QF_XFS) != -1;
+	}
+	else if (kqf & (1 << QF_VFSV0))
+		on = kern_quota_on(mnt->mnt_fsname, type, 1 << QF_VFSV0) != -1;
+	else if (kqf & (1 << QF_VFSOLD))
+		on = kern_quota_on(mnt->mnt_fsname, type, 1 << QF_VFSOLD) != -1;
+
+	printf("%s quota on %s (%s) is %s\n", type2name(type), mnt->mnt_dir, mnt->mnt_fsname,
+	  on ? "on" : "off");
 }
 
 int main(int argc, char **argv)
@@ -114,7 +130,7 @@ int main(int argc, char **argv)
 	else if (strcmp(progname, "quotaon") != 0)
 		die(1, _("Name must be quotaon or quotaoff not %s\n"), progname);
 
-	while ((c = getopt(argc, argv, "afvugx:V")) != -1) {
+	while ((c = getopt(argc, argv, "afvugpx:V")) != -1) {
 		switch (c) {
 		  case 'a':
 			  aflag++;
@@ -133,6 +149,9 @@ int main(int argc, char **argv)
 			  break;
 		  case 'x':
 			  xarg = optarg;
+			  break;
+		  case 'p':
+			  pflag++;
 			  break;
 		  case 'V':
 			  version();
@@ -162,10 +181,18 @@ int main(int argc, char **argv)
 			continue;
 		}
 
-		if (gflag)
-			errs += newstate(mnt, offmode, GRPQUOTA, xarg);
-		if (uflag)
-			errs += newstate(mnt, offmode, USRQUOTA, xarg);
+		if (!pflag) {
+			if (gflag)
+				errs += newstate(mnt, offmode, GRPQUOTA, xarg);
+			if (uflag)
+				errs += newstate(mnt, offmode, USRQUOTA, xarg);
+		}
+		else {
+			if (gflag)
+				print_state(mnt, GRPQUOTA);
+			if (uflag)
+				print_state(mnt, USRQUOTA);
+		}
 	}
 	end_mounts_scan();
 
