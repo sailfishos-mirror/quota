@@ -133,7 +133,10 @@ static void print(struct dquot *dquot, char *name)
 	sstrncpy(pname, name, sizeof(pname));
 	if (flags & FL_TRUNCNAMES)
 		pname[PRINTNAMELEN] = 0;
-	difftime2str(entry->dqb_btime, time);
+	if (entry->dqb_bsoftlimit && toqb(entry->dqb_curspace) >= entry->dqb_bsoftlimit)
+		difftime2str(entry->dqb_btime, time);
+	else
+		time[0] = 0;
 	space2str(toqb(entry->dqb_curspace), numbuf[0], flags & FL_SHORTNUMS);
 	space2str(entry->dqb_bsoftlimit, numbuf[1], flags & FL_SHORTNUMS);
 	space2str(entry->dqb_bhardlimit, numbuf[2], flags & FL_SHORTNUMS);
@@ -141,7 +144,10 @@ static void print(struct dquot *dquot, char *name)
 	       overlim(qb2kb(toqb(entry->dqb_curspace)), qb2kb(entry->dqb_bsoftlimit), qb2kb(entry->dqb_bhardlimit)),
 	       overlim(entry->dqb_curinodes, entry->dqb_isoftlimit, entry->dqb_ihardlimit),
 	       numbuf[0], numbuf[1], numbuf[2], time);
-	difftime2str(entry->dqb_itime, time);
+	if (entry->dqb_isoftlimit && entry->dqb_curinodes >= entry->dqb_isoftlimit)
+		difftime2str(entry->dqb_itime, time);
+	else
+		time[0] = 0;
 	number2str(entry->dqb_curinodes, numbuf[0], flags & FL_SHORTNUMS);
 	number2str(entry->dqb_isoftlimit, numbuf[1], flags & FL_SHORTNUMS);
 	number2str(entry->dqb_ihardlimit, numbuf[2], flags & FL_SHORTNUMS);
