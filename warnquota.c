@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.6 2001/11/09 08:53:58 jkar8572 Exp $
+ * Version: $Id: warnquota.c,v 1.7 2001/11/09 20:03:35 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -18,13 +18,16 @@
  *          the License, or (at your option) any later version.
  */
 
-#include <sys/types.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <ctype.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include "mntopt.h"
 #include "pot.h"
@@ -51,8 +54,10 @@
                           "For additional assistance, please contact us at %s\nor via " \
                           "phone at %s.\n")
 
+#define SHELL "/bin/sh"
 #define QUOTATAB "/etc/quotatab"
 #define CNF_BUFFER 2048
+#define IOBUF_SIZE 16384		/* Size of buffer for line in config files */
 #define WARNQUOTA_CONF "/etc/warnquota.conf"
 
 struct usage {
@@ -68,6 +73,8 @@ struct configparams {
 	char cc_to[CNF_BUFFER];
 	char support[CNF_BUFFER];
 	char phone[CNF_BUFFER];
+	char *message;
+	char *signature;
 };
 
 struct offenderlist {
@@ -144,116 +151,113 @@ int check_offence(struct dquot *dquot, char *name)
 	return 0;
 }
 
-void mail_user(struct offenderlist *offender, struct configparams *config)
+FILE *run_mailer(char *command)
 {
-	struct usage *lptr;
-	FILE *fp;
-	int cnt;
-	char timebuf[MAXTIMELEN];
-	struct util_dqblk *dqb;
+	int pipefd[2];
+	FILE *f;
 
-	if ((fp = popen(config->mail_cmd, "w")) != (FILE *) 0) {
-		fprintf(fp, "From: %s\n", config->from);
-		fprintf(fp, "Reply-To: %s\n", config->support);
-		fprintf(fp, "Subject: %s\n", config->subject);
-		fprintf(fp, "To: %s\n", offender->offender_name);
-		fprintf(fp, "Cc: %s\n", config->cc_to);
-		fprintf(fp, "\n");
-		fprintf(fp, DEF_MESSAGE);
-		for (lptr = offender->usage; lptr != (struct usage *)0; lptr = lptr->next) {
-			dqb = &lptr->dq_dqb;
-			for (cnt = 0; cnt < qtab_i; cnt++) {
-				if (!strncmp
-				    (quotatable[cnt].devname, lptr->devicename,
-				     strlen(quotatable[cnt].devname)))
-					fprintf(fp, "\n%s\n", quotatable[cnt].devdesc);
-			}
-			fprintf(fp,
-				_
-				("\n                        Block limits               File limits\n"));
-			fprintf(fp,
-				_
-				("Filesystem           used    soft    hard  grace    used  soft  hard  grace\n"));
-			if (strlen(lptr->devicename) > 15)
-				fprintf(fp, "%s\n%15s", lptr->devicename, "");
-			else
-				fprintf(fp, "%-15s", lptr->devicename);
-			if (dqb->dqb_bsoftlimit && dqb->dqb_bsoftlimit <= toqb(dqb->dqb_curspace))
-				difftime2str(dqb->dqb_btime, timebuf);
-			else
-				timebuf[0] = '\0';
-			fprintf(fp, "%c%c%8Lu%8Lu%8Lu%7s",
-				dqb->dqb_bsoftlimit
-				&& toqb(dqb->dqb_curspace) >= dqb->dqb_bsoftlimit ? '+' : '-',
-				dqb->dqb_isoftlimit
-				&& dqb->dqb_curinodes >= dqb->dqb_isoftlimit ? '+' : '-',
-				(long long)toqb(dqb->dqb_curspace), (long long)dqb->dqb_bsoftlimit,
-				(long long)dqb->dqb_bhardlimit, timebuf);
-			if (dqb->dqb_isoftlimit && dqb->dqb_isoftlimit <= dqb->dqb_curinodes)
-				difftime2str(dqb->dqb_itime, timebuf);
-			else
-				timebuf[0] = '\0';
-			fprintf(fp, "  %6Lu%6Lu%6Lu%7s\n\n",
-				(long long)dqb->dqb_curinodes,
-				(long long)dqb->dqb_isoftlimit,
-				(long long)dqb->dqb_ihardlimit, timebuf);
-		}
-		fprintf(fp, DEF_SIGNATURE, config->support, config->phone);
-		fclose(fp);
+	if (pipe(pipefd) < 0) {
+		errstr(_("Can't create pipe: %s\n"), strerror(errno));
+		return NULL;
+	}
+	signal(SIGPIPE, SIG_IGN);
+	switch(fork()) {
+		case -1:
+			errstr(_("Can't fork: %s\n"), strerror(errno));
+			return NULL;
+		case 0:
+			close(pipefd[1]);
+			if (dup2(pipefd[0], 0) < 0) {
+				errstr(_("Can't duplicate descriptor: %s\n"), strerror(errno));
+				exit(1);
+			}			
+			execl(SHELL, SHELL, "-c", command, NULL);
+			errstr(_("Can't execute '%s': %s\n"), command, strerror(errno));
+			exit(1);
+		default:
+			close(pipefd[0]);
+			if (!(f = fdopen(pipefd[1], "w")))
+				errstr(_("Can't open pine: %s\n"), strerror(errno));
+			return f;
 	}
 }
 
-void mail_to_offenders(struct configparams *config)
+int mail_user(struct offenderlist *offender, struct configparams *config)
+{
+	struct usage *lptr;
+	FILE *fp;
+	int cnt, status;
+	char timebuf[MAXTIMELEN];
+	struct util_dqblk *dqb;
+
+	if (!(fp = run_mailer(config->mail_cmd)))
+		return -1;
+	fprintf(fp, "From: %s\n", config->from);
+	fprintf(fp, "Reply-To: %s\n", config->support);
+	fprintf(fp, "Subject: %s\n", config->subject);
+	fprintf(fp, "To: %s\n", offender->offender_name);
+	fprintf(fp, "Cc: %s\n", config->cc_to);
+	fprintf(fp, "\n");
+	if (config->message)
+		fputs(config->message, fp);
+	else
+		fputs(DEF_MESSAGE, fp);
+
+	for (lptr = offender->usage; lptr; lptr = lptr->next) {
+		dqb = &lptr->dq_dqb;
+		for (cnt = 0; cnt < qtab_i; cnt++)
+			if (!strcmp(quotatable[cnt].devname, lptr->devicename)) {
+				fprintf(fp, "\n%s (%s)\n", quotatable[cnt].devdesc, quotatable[cnt].devname);
+				break;
+			}
+		if (cnt == qtab_i)	/* Description not found? */
+			fprintf(fp, "\n%s\n", lptr->devicename);
+		fprintf(fp, _("\n                        Block limits               File limits\n"));
+		fprintf(fp, _("Filesystem           used    soft    hard  grace    used  soft  hard  grace\n"));
+		if (strlen(lptr->devicename) > 15)
+			fprintf(fp, "%s\n%15s", lptr->devicename, "");
+		else
+			fprintf(fp, "%-15s", lptr->devicename);
+		if (dqb->dqb_bsoftlimit && dqb->dqb_bsoftlimit <= toqb(dqb->dqb_curspace))
+			difftime2str(dqb->dqb_btime, timebuf);
+		else
+			timebuf[0] = '\0';
+		fprintf(fp, "%c%c%8Lu%8Lu%8Lu%7s",
+		        dqb->dqb_bsoftlimit && toqb(dqb->dqb_curspace) >= dqb->dqb_bsoftlimit ? '+' : '-',
+			dqb->dqb_isoftlimit && dqb->dqb_curinodes >= dqb->dqb_isoftlimit ? '+' : '-',
+			(long long)toqb(dqb->dqb_curspace), (long long)dqb->dqb_bsoftlimit,
+			(long long)dqb->dqb_bhardlimit, timebuf);
+		if (dqb->dqb_isoftlimit && dqb->dqb_isoftlimit <= dqb->dqb_curinodes)
+			difftime2str(dqb->dqb_itime, timebuf);
+		else
+			timebuf[0] = '\0';
+		fprintf(fp, "  %6Lu%6Lu%6Lu%7s\n\n", (long long)dqb->dqb_curinodes,
+		        (long long)dqb->dqb_isoftlimit, (long long)dqb->dqb_ihardlimit, timebuf);
+	}
+	if (config->signature)
+		fputs(config->signature, fp);
+	else
+		fprintf(fp, DEF_SIGNATURE, config->support, config->phone);
+	fclose(fp);
+	if (wait(&status) < 0)	/* Wait for mailer */
+		errstr(_("Can't wait for mailer: %s\n"), strerror(errno));
+	else if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
+		errstr(_("Warning: Mailer exitted abnormally.\n"));
+
+	return 0;
+}
+
+int mail_to_offenders(struct configparams *config)
 {
 	struct offenderlist *lptr;
+	int ret = 0;
 
 	/*
 	 * Dump offenderlist.
 	 */
-	for (lptr = offenders; lptr != (struct offenderlist *)0; lptr = lptr->next)
-		mail_user(lptr, config);
-}
-
-void get_quotatable(void)
-{
-	FILE *fp;
-	char buffer[2048], *filename, *colpos;
-
-	filename = (char *)smalloc(strlen(QUOTATAB) + 1);
-	sprintf(filename, "%s", QUOTATAB);
-
-	if ((fp = fopen(filename, "r")) == (FILE *) NULL)
-		return;
-
-	for (qtab_i = 0;
-	     quotatable =
-	     (quotatable_t *) realloc(quotatable, sizeof(quotatable_t) * (qtab_i + 1)),
-	     fgets(buffer, sizeof(buffer), fp) != (char *)NULL; qtab_i++) {
-		quotatable[qtab_i].devname = NULL;
-		quotatable[qtab_i].devdesc = NULL;
-		if ((colpos = strchr(buffer, ':'))) {
-			*colpos = 0;
-			quotatable[qtab_i].devname = (char *)smalloc(strlen(buffer) + 1);
-			strcpy(quotatable[qtab_i].devname, buffer);
-			quotatable[qtab_i].devdesc = (char *)smalloc(strlen(++colpos) + 1);
-			strcpy(quotatable[qtab_i].devdesc, colpos);
-			if ((colpos = strchr(quotatable[qtab_i].devdesc, '\n')))
-				*colpos = 0;
-			while ((colpos = strchr(quotatable[qtab_i].devdesc, '|')))
-				*colpos = '\n';
-		}
-
-		if (buffer[0] == '#' ||	/* comment */
-		    !quotatable[qtab_i].devname || !quotatable[qtab_i].devdesc ||
-		    strlen(quotatable[qtab_i].devname) < 2 ||
-		    strlen(quotatable[qtab_i].devdesc) < 2 /* stupid root */ ) {
-			if (buffer[0] != '#' && buffer[0] != '\n')
-				errstr(_("Possible error in quotatab. Ignoring %s\n"), buffer);
-			qtab_i--;
-		}
-	}
-	fclose(fp);
-	free(filename);
+	for (lptr = offenders; lptr; lptr = lptr->next)
+		ret |= mail_user(lptr, config);
+	return ret;
 }
 
 /*
@@ -261,34 +265,94 @@ void get_quotatable(void)
  */
 void stripstring(char **buff)
 {
-	char *p;
+	int i;
 
 	/* first put a \0 at the tight place to end the string */
-	p = *buff + strlen(*buff) - 1;
-	while (*p == ' ' || *p == '\n' || *p == '\t' || *p == '"' || *p == '\'')
-		p--;
-	p[1] = 0;
+	for (i = strlen(*buff) - 1; i >= 0 && (isspace((*buff)[i]) || (*buff)[i] == '"'
+	     || (*buff)[i] == '\''); i--);
+	(*buff)[i+1] = 0;
 
 	/* then determine the position to start */
-	p = *buff;
-	while (*p == ' ' || *p == '\n' || *p == '\t' || *p == '"' || *p == '\'')
-		p++;
+	for (i = 0; (*buff)[i] && (isspace((*buff)[i]) || (*buff)[i] == '"' || (*buff)[i] == '\''); i++);
+	*buff += i;
+}
 
-	*buff = p;
+/*
+ * Substitute '|' with end of lines
+ */
+void create_eoln(char *buf)
+{
+	char *colpos = buf;
+
+	while ((colpos = strchr(colpos, '|')))
+		*colpos = '\n';
+}
+
+/*
+ * Read /etc/quotatab (description of devices for users)
+ */
+int get_quotatable(void)
+{
+	FILE *fp;
+	char buffer[IOBUF_SIZE], *colpos, *devname, *devdesc;
+	int line;
+	struct stat st;
+
+	if (!(fp = fopen(QUOTATAB, "r"))) {
+		errstr(_("Can't open %s: %s\n"), QUOTATAB, strerror(errno));
+		return -1;
+	}
+
+	line = 0;
+	for (qtab_i = 0; quotatable = realloc(quotatable, sizeof(quotatable_t) * (qtab_i + 1)),
+	     fgets(buffer, sizeof(buffer), fp); qtab_i++) {
+		line++;
+		quotatable[qtab_i].devname = NULL;
+		quotatable[qtab_i].devdesc = NULL;
+		if (buffer[0] == '#' || buffer[0] == ';') {	/* Comment? */
+			qtab_i--;
+			continue;
+		}
+		/* Empty line? */
+		for (colpos = buffer; isspace(*colpos); colpos++);
+		if (!*colpos) {
+			qtab_i--;
+			continue;
+		}
+		/* Parse line */
+		if (!(colpos = strchr(buffer, ':'))) {
+			errstr(_("Can't parse line %d in quotatab (missing ':')\n"), line);
+			qtab_i--;
+			continue;
+		}
+		*colpos = 0;
+		devname = buffer;
+		devdesc = colpos+1;
+		stripstring(&devname);
+		stripstring(&devdesc);
+		quotatable[qtab_i].devname = sstrdup(devname);
+		quotatable[qtab_i].devdesc = sstrdup(devdesc);
+		create_eoln(quotatable[qtab_i].devdesc);
+
+		if (stat(quotatable[qtab_i].devname, &st) < 0)
+			errstr(_("Can't stat device %s (maybe typo in quotatab)\n"), quotatable[qtab_i].devname);
+	}
+	fclose(fp);
+	return 0;
 }
 
 /*
  * Reads config parameters from configfile
  * uses default values if errstr occurs
  */
-void readconfigfile(const char *filename, struct configparams *config)
+int readconfigfile(const char *filename, struct configparams *config)
 {
 	FILE *fp;
-	char *buff;
+	char buff[IOBUF_SIZE];
 	char *var;
 	char *value;
 	char *pos;
-	int line;
+	int line, len, bufpos;
 
 	/* set default values */
 	sstrncpy(config->mail_cmd, MAIL_CMD, CNF_BUFFER);
@@ -297,64 +361,81 @@ void readconfigfile(const char *filename, struct configparams *config)
 	sstrncpy(config->cc_to, CC_TO, CNF_BUFFER);
 	sstrncpy(config->support, SUPPORT, CNF_BUFFER);
 	sstrncpy(config->phone, PHONE, CNF_BUFFER);
+	config->signature = config->message = NULL;
 
-	fp = fopen(filename, "r");
-	if (fp == (FILE *) NULL) {	/* if config file doesn't exist or is not readable */
-		return;
+	if (!(fp = fopen(filename, "r"))) {
+		errstr(_("Can't open %s: %s\n"), filename, strerror(errno));
+		return -1;
 	}
 
-	buff = (char *)smalloc(CNF_BUFFER);
 	line = 0;
-	while (fgets(buff, CNF_BUFFER, fp)) {	/* start reading lines */
+	bufpos = 0;
+	while (fgets(buff + bufpos, sizeof(buff) - bufpos, fp)) {	/* start reading lines */
 		line++;
 
-		/* check for comments or empty lines */
-		if (buff[0] == '#' || buff[0] == ';' || buff[0] == '\n')
-			continue;
-
+		if (!bufpos) {
+			/* check for comments or empty lines */
+			if (buff[0] == '#' || buff[0] == ';')
+				continue;
+			/* Is line empty? */
+			for (pos = buff; isspace(*pos); pos++);
+			if (!*pos)			/* Nothing else was on the line */
+				continue;
+		}
+		len = bufpos + strlen(buff+bufpos);
+		if (buff[len-1] != '\n')
+			errstr(_("Line %d too long. Truncating.\n"));
+		else {
+			len--;
+			if (buff[len-1] == '\\') {	/* Should join with next line? */
+				bufpos += len-1;
+				continue;
+			}
+		}
+		buff[len] = 0;
+		bufpos = 0;
+		
 		/* check for a '=' char */
 		if ((pos = strchr(buff, '='))) {
-			pos[0] = '\0';	/* split buff in two parts: var and value */
+			*pos = 0;	/* split buff in two parts: var and value */
 			var = buff;
 			value = pos + 1;
 
-			stripstring(&var);	/* clean up var and value */
+			stripstring(&var);
 			stripstring(&value);
 
 			/* check if var matches anything */
-			if (!strncmp(var, "MAIL_CMD", CNF_BUFFER)) {
-				strncpy(config->mail_cmd, value, CNF_BUFFER);
+			if (!strcmp(var, "MAIL_CMD"))
+				sstrncpy(config->mail_cmd, value, CNF_BUFFER);
+			else if (!strcmp(var, "FROM"))
+				sstrncpy(config->from, value, CNF_BUFFER);
+			else if (!strcmp(var, "SUBJECT"))
+				sstrncpy(config->subject, value, CNF_BUFFER);
+			else if (!strcmp(var, "CC_TO"))
+				sstrncpy(config->cc_to, value, CNF_BUFFER);
+			else if (!strcmp(var, "SUPPORT"))
+				sstrncpy(config->support, value, CNF_BUFFER);
+			else if (!strcmp(var, "PHONE"))
+				sstrncpy(config->phone, value, CNF_BUFFER);
+			else if (!strcmp(var, "MESSAGE")) {
+				config->message = sstrdup(value);
+				create_eoln(config->message);
 			}
-			else if (!strncmp(var, "FROM", CNF_BUFFER)) {
-				strncpy(config->from, value, CNF_BUFFER);
+			else if (!strcmp(var, "SIGNATURE")) {
+				config->signature = sstrdup(value);
+				create_eoln(config->signature);
 			}
-			else if (!strncmp(var, "SUBJECT", CNF_BUFFER)) {
-				strncpy(config->subject, value, CNF_BUFFER);
-			}
-			else if (!strncmp(var, "CC_TO", CNF_BUFFER)) {
-				strncpy(config->cc_to, value, CNF_BUFFER);
-			}
-			else if (!strncmp(var, "SUPPORT", CNF_BUFFER)) {
-				strncpy(config->support, value, CNF_BUFFER);
-			}
-			else if (!strncmp(var, "PHONE", CNF_BUFFER)) {
-				strncpy(config->phone, value, CNF_BUFFER);
-			}
-			else {	/* not matched at all */
-				errstr(_("Error in config file (line %d), ignoring\n"),
-					line);
-			}
+			else	/* not matched at all */
+				errstr(_("Error in config file (line %d), ignoring\n"), line);
 		}
-		else {		/* no '=' char in this line */
-			errstr(_("Possible error in config file (line %d), ignoring\n"),
-				line);
-		}
+		else		/* no '=' char in this line */
+			errstr(_("Possible error in config file (line %d), ignoring\n"), line);
 	}
+	if (bufpos)
+		errstr(_("Unterminated last line, ignoring\n"));
 	fclose(fp);
 
-	free(buff);
-
-	return;
+	return 0;
 }
 
 void warn_quota(void)
@@ -363,13 +444,16 @@ void warn_quota(void)
 	struct configparams config;
 	int i;
 
-	readconfigfile(WARNQUOTA_CONF, &config);
+	if (readconfigfile(WARNQUOTA_CONF, &config) < 0)
+		exit(1);
+	if (get_quotatable() < 0)
+		exit(1);
 
 	handles = create_handle_list(0, NULL, USRQUOTA, -1, IOI_LOCALONLY | IOI_READONLY | IOI_OPENFILE);
 	for (i = 0; handles[i]; i++)
 		handles[i]->qh_ops->scan_dquots(handles[i], check_offence);
-	get_quotatable();
-	mail_to_offenders(&config);
+	if (mail_to_offenders(&config) < 0)
+		exit(1);
 }
 
 int main(int argc, char **argv)

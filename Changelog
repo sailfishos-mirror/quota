@@ -7,7 +7,8 @@ Changes in quota-tools from 3.01 to 3.02
 * another fix to quotastats (Jan Kara)
 * added check to format detection for bad endianity (Jan Kara)
 * implemented conversion of files with bad endianity (Jan Kara)
-* fixes in warnquota (Jan Kara)
+* fixes in warnquota, warnquota now allows line splitting by '\', text of mail
+  can be specified in config file (Jan Kara)
 
 Changes in quota-tools from 3.01-final to 3.01
 
