@@ -1,3 +1,7 @@
+Changes in quota-tools from 3.06 to 3.07
+* rised maximal number of mountpoint to 256 (Jan Kara)
+* small fix in configure (Nathan Scott)
+
 Changes in quota-tools from 3.05 to 3.06
 * fixed caching of libwrap configure result (Jan Kara)
 * fixed copying of quotafile name from mtab (?)

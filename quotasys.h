@@ -14,7 +14,7 @@
 #define MAXNAMELEN 64		/* Maximal length of user/group name */
 #define MAXTIMELEN 40		/* Maximal length of time string */
 #define MAXNUMLEN 32		/* Maximal length of number */
-#define MAXMNTPOINTS 128	/* Maximal number of mountpoints with quota */
+#define MAXMNTPOINTS 256	/* Maximal number of mountpoints with quota */
 
 /* Flags for formatting time */
 #define TF_ROUND 0x1		/* Should be printed time rounded? */
