@@ -3,7 +3,7 @@
 quot \- summarize filesystem ownership
 .SH SYNOPSIS
 .nf
-\f3quot\f1 [ \f3\-acfguv\f1 ] [ filesystem... ]
+\f3quot\f1 [ \f3\-acfguvi\f1 ] [ filesystem... ]
 .fi
 .SH DESCRIPTION
 .IR quot
@@ -36,6 +36,9 @@ Report on users (the default).
 .B \-v
 Display three columns containing the number of kilobytes not accessed in
 the last 30, 60, and 90 days.
+.TP
+.B \-i
+Ignore mountpoints mounted by automounter.
 .SH FILES
 .PD 0
 .TP 20

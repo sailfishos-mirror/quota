@@ -67,6 +67,7 @@ static int fflag;
 static int gflag;
 static int uflag;
 static int vflag;
+static int iflag;
 static time_t now;
 char *progname;
 
@@ -77,7 +78,7 @@ static void creport(const char *, char *);
 
 static void usage(void)
 {
-	errstr(_("Usage: %s [-acfugvV] [filesystem...]\n"), progname);
+	errstr(_("Usage: %s [-acfugvVi] [filesystem...]\n"), progname);
 	exit(1);
 }
 
@@ -108,6 +109,9 @@ int main(int argc, char **argv)
 		  case 'v':
 			  vflag++;
 			  break;
+		  case 'i':
+			  iflag++;
+			  break;
 		  case 'V':
 			  version();
 			  exit(0);
@@ -119,7 +123,7 @@ int main(int argc, char **argv)
 		usage();
 	if (!uflag && !gflag)
 		uflag++;
-	if (init_mounts_scan(aflag ? 0 : argc - optind, argv + optind, 0) < 0)
+	if (init_mounts_scan(aflag ? 0 : argc - optind, argv + optind, (iflag ? MS_NO_AUTOFS : 0)) < 0)
 		return 1;
 	mounttable();
 	end_mounts_scan();

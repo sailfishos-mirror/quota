@@ -32,6 +32,7 @@
 #define FL_SHORTNUMS 32	/* Try to print space in appropriate units */
 #define FL_NONAME 64	/* Don't translate ids to names */
 #define FL_NOCACHE 128	/* Don't cache dquots before resolving */
+#define FL_NOAUTOFS 256	/* Ignore autofs mountpoints */
 
 int flags, fmt = -1;
 char **mnt;
@@ -42,7 +43,7 @@ char *progname;
 
 static void usage(void)
 {
-	errstr(_("Utility for reporting quotas.\nUsage:\n%s [-vugs] [-c|C] [-t|n] [-F quotaformat] (-a | mntpoint)\n"), progname);
+	errstr(_("Utility for reporting quotas.\nUsage:\n%s [-vugsi] [-c|C] [-t|n] [-F quotaformat] (-a | mntpoint)\n"), progname);
 	fprintf(stderr, _("Bugs to %s\n"), MY_EMAIL);
 	exit(1);
 }
@@ -52,7 +53,7 @@ static void parse_options(int argcnt, char **argstr)
 	int ret;
 	int cache_specified = 0;
 
-	while ((ret = getopt(argcnt, argstr, "VavughtsncCF:")) != -1) {
+	while ((ret = getopt(argcnt, argstr, "VavughtsncCiF:")) != -1) {
 		switch (ret) {
 			case '?':
 			case 'h':
@@ -84,6 +85,9 @@ static void parse_options(int argcnt, char **argstr)
 				break;
 			case 'c':
 				cache_specified = 1;
+				break;
+			case 'i':
+				flags |= FL_NOAUTOFS;
 				break;
 			case 'F':
 				if ((fmt = name2fmt(optarg)) == QF_ERROR)
@@ -258,9 +262,9 @@ static void report(int type)
 	int i;
 
 	if (flags & FL_ALL)
-		handles = create_handle_list(0, NULL, type, fmt, IOI_LOCALONLY | IOI_READONLY | IOI_OPENFILE);
+		handles = create_handle_list(0, NULL, type, fmt, IOI_LOCALONLY | IOI_READONLY | IOI_OPENFILE, (flags & FL_NOAUTOFS ? MS_NO_AUTOFS : 0));
 	else
-		handles = create_handle_list(mntcnt, mnt, type, fmt, IOI_LOCALONLY | IOI_READONLY | IOI_OPENFILE);
+		handles = create_handle_list(mntcnt, mnt, type, fmt, IOI_LOCALONLY | IOI_READONLY | IOI_OPENFILE, (flags & FL_NOAUTOFS ? MS_NO_AUTOFS : 0));
 	for (i = 0; handles[i]; i++)
 		report_it(handles[i], type);
 	dispose_handle_list(handles);

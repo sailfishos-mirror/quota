@@ -11,6 +11,7 @@
 #define MNTTYPE_UDF		"udf"	/* OSTA UDF file system */
 #define MNTTYPE_REISER		"reiserfs"	/* Reiser file system */
 #define MNTTYPE_XFS		"xfs"	/* SGI XFS file system */
+#define MNTTYPE_AUTOFS		"autofs"	/* Automount mountpoint */
 
 /* mount options */
 #define MNTOPT_NOQUOTA		"noquota"	/* don't enforce quota */

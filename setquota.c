@@ -262,9 +262,9 @@ int main(int argc, char **argv)
 	init_kernel_interface();
 
 	if (flags & FL_ALL)
-		handles = create_handle_list(0, NULL, flag2type(flags), fmt, (flags & FL_RPC) ? 0 : IOI_LOCALONLY);
+		handles = create_handle_list(0, NULL, flag2type(flags), fmt, (flags & FL_RPC) ? 0 : IOI_LOCALONLY, 0);
 	else
-		handles = create_handle_list(mntcnt, mnt, flag2type(flags), fmt, (flags & FL_RPC) ? 0 : IOI_LOCALONLY);
+		handles = create_handle_list(mntcnt, mnt, flag2type(flags), fmt, (flags & FL_RPC) ? 0 : IOI_LOCALONLY, 0);
 
 	if (flags & FL_GRACE)
 		setgraces(handles);

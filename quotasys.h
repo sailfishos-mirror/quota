@@ -105,7 +105,7 @@ int detect_quota_files(struct mntent *mnt, int type, int fmt);
 
 /* Create NULL-terminated list of handles for quotafiles for given mountpoints */
 struct quota_handle **create_handle_list(int count, char **mntpoints, int type, int fmt,
-					 int flags);
+					 int ioflags, int mntflags);
 /* Dispose given list of handles */
 int dispose_handle_list(struct quota_handle **hlist);
 
@@ -123,6 +123,7 @@ int kern_quota_on(const char *dev, int type, int fmt);
 
 /* Flags for init_mounts_scan() */
 #define MS_NO_MNTPOINT 0x01	/* Specified directory needn't be mountpoint */
+#define MS_NO_AUTOFS 0x02	/* Ignore autofs mountpoints */
 /* Initialize mountpoints scan */
 int init_mounts_scan(int dcnt, char **dirs, int flags);
 

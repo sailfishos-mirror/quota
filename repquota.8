@@ -5,7 +5,7 @@ repquota \- summarize quotas for a filesystem
 .SH SYNOPSIS
 .B /usr/sbin/repquota
 [
-.B \-vsug
+.B \-vsiug
 ] [
 .B \-c
 |
@@ -22,7 +22,7 @@ repquota \- summarize quotas for a filesystem
 .LP
 .B /usr/sbin/repquota
 [
-.B \-avtsug
+.B \-avtsiug
 ] [
 .B \-c
 |
@@ -94,6 +94,9 @@ Don't resolve UIDs/GIDs to names. This can speedup printing a lot.
 .B \-s
 Try to report used space, number of used inodes and limits in more appropriate units
 than default ones.
+.TP
+.B \-i
+Ignore mountpoints mounted by automounter.
 .TP
 .B \-F \f2format-name\f1
 Report quota for specified format (ie. don't perform format autodetection).

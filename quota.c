@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quota.c,v 1.12 2002/07/23 15:59:27 jkar8572 Exp $"
+#ident "$Id: quota.c,v 1.13 2003/02/14 18:50:17 jkar8572 Exp $"
 
 /*
  * Disk quota reporting program.
@@ -67,6 +67,7 @@
 #define FL_SMARTSIZE 16
 #define FL_LOCALONLY 32
 #define FL_QUIETREFUSE 64
+#define FL_NOAUTOFS 128
 
 int flags, fmt = -1;
 char *progname;
@@ -84,7 +85,7 @@ int main(int argc, char **argv)
 	gettexton();
 	progname = basename(argv[0]);
 
-	while ((ret = getopt(argc, argv, "guqvsVlQF:")) != -1) {
+	while ((ret = getopt(argc, argv, "guqvsVliQF:")) != -1) {
 		switch (ret) {
 		  case 'g':
 			  flags |= FL_GROUP;
@@ -110,6 +111,9 @@ int main(int argc, char **argv)
 			  break;
 		  case 'Q':
 			  flags |= FL_QUIETREFUSE;
+			  break;
+		  case 'i':
+			  flags |= FL_NOAUTOFS;
 			  break;
 		  case 'V':
 			  version();
@@ -154,9 +158,9 @@ int main(int argc, char **argv)
 void usage(void)
 {
 	errstr( "%s%s%s",
-		_("Usage: quota [-guqvs] [-l | -Q] [-F quotaformat]\n"),
-		_("\tquota [-qvs] [-l | -Q] [-F quotaformat] -u username ...\n"),
-		_("\tquota [-qvs] [-l | -Q] [-F quotaformat] -g groupname ...\n"));
+		_("Usage: quota [-guqvs] [-l | -Q] [-i] [-F quotaformat]\n"),
+		_("\tquota [-qvs] [-l | -Q] [-i] [-F quotaformat] -u username ...\n"),
+		_("\tquota [-qvs] [-l | -Q] [-i] [-F quotaformat] -g groupname ...\n"));
 	fprintf(stderr, _("Bugs to: %s\n"), MY_EMAIL);
 	exit(1);
 }
@@ -173,7 +177,7 @@ int showquotas(int type, qid_t id)
 
 	time(&now);
 	id2name(id, type, name);
-	handles = create_handle_list(0, NULL, type, fmt, IOI_READONLY | ((flags & FL_LOCALONLY) ? IOI_LOCALONLY : 0));
+	handles = create_handle_list(0, NULL, type, fmt, IOI_READONLY | ((flags & FL_LOCALONLY) ? IOI_LOCALONLY : 0), ((flags & FL_NOAUTOFS) ? MS_NO_AUTOFS : 0));
 	qlist = getprivs(id, handles, !!(flags & FL_QUIETREFUSE));
 	over = 0;
 	for (q = qlist; q; q = q->dq_next) {

@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.11 2002/07/23 15:59:27 jkar8572 Exp $
+ * Version: $Id: warnquota.c,v 1.12 2003/02/14 18:50:17 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -75,6 +75,7 @@
 
 #define FL_USER 1
 #define FL_GROUP 2
+#define FL_NOAUTOFS 4
 
 struct usage {
 	char *devicename;
@@ -578,7 +579,7 @@ void warn_quota(void)
 		exit(1);
 
 	if (flags & FL_USER) {
-		handles = create_handle_list(0, NULL, USRQUOTA, -1, IOI_LOCALONLY | IOI_READONLY | IOI_OPENFILE);
+		handles = create_handle_list(0, NULL, USRQUOTA, -1, IOI_LOCALONLY | IOI_READONLY | IOI_OPENFILE, (flags & FL_NOAUTOFS ? MS_NO_AUTOFS : 0));
 		for (i = 0; handles[i]; i++)
 			handles[i]->qh_ops->scan_dquots(handles[i], check_offence);
 		dispose_handle_list(handles);
@@ -586,7 +587,7 @@ void warn_quota(void)
 	if (flags & FL_GROUP) {
 		if (get_groupadmins() < 0)
 			exit(1);
-		handles = create_handle_list(0, NULL, GRPQUOTA, -1, IOI_LOCALONLY | IOI_READONLY | IOI_OPENFILE);
+		handles = create_handle_list(0, NULL, GRPQUOTA, -1, IOI_LOCALONLY | IOI_READONLY | IOI_OPENFILE, (flags & FL_NOAUTOFS ? MS_NO_AUTOFS : 0));
 		for (i = 0; handles[i]; i++)
 			handles[i]->qh_ops->scan_dquots(handles[i], check_offence);
 		dispose_handle_list(handles);
@@ -598,14 +599,14 @@ void warn_quota(void)
 /* Print usage information */
 static void usage(void)
 {
-	errstr(_("Usage:\n  warnquota [-ug] [-F quotaformat] [-c configfile] [-q quotatabfile]\n"));
+	errstr(_("Usage:\n  warnquota [-ugi] [-F quotaformat] [-c configfile] [-q quotatabfile]\n"));
 }
  
 static void parse_options(int argcnt, char **argstr)
 {
 	int ret;
  
-	while ((ret = getopt(argcnt, argstr, "ugVF:hc:q:a:")) != -1) {
+	while ((ret = getopt(argcnt, argstr, "ugVF:hc:q:a:i")) != -1) {
 		switch (ret) {
 		  case '?':
 		  case 'h':
@@ -631,6 +632,9 @@ static void parse_options(int argcnt, char **argstr)
 			break;
 		  case 'g':
 			flags |= FL_GROUP;
+			break;
+		  case 'i':
+			flags |= FL_NOAUTOFS;
 			break;
 		}
 	}

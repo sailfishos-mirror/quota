@@ -7,7 +7,7 @@ quota \- display disk usage and limits
 .B -F
 .I format-name
 ] [
-.BR -guvsl \ |
+.BR -guvsil \ |
 .B q
 ]
 .br
@@ -16,7 +16,7 @@ quota \- display disk usage and limits
 .B -F
 .I format-name
 ] [
-.BR -uvsl \ |
+.BR -uvsil \ |
 .B q
 ]
 .I user
@@ -26,7 +26,7 @@ quota \- display disk usage and limits
 .B -F
 .I format-name
 ] [
-.BR -gvsl \ |
+.BR -gvsil \ |
 .B q
 ]
 .I group
@@ -70,6 +70,9 @@ where no storage is allocated.
 option will make
 .BR quota (1)
 try to choose units for showing limits, used space and used inodes.
+.TP
+.B \-i
+ignore mountpoints mounted by automounter
 .TP
 .B \-l
 report quotas only on local filesystems (ie. ignore NFS mounted filesystems).

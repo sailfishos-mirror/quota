@@ -483,27 +483,27 @@ int get_qf_name(struct mntent *mnt, int type, int fmt, int flags, char **filenam
  *	List of zero length means scan all entries in /etc/mtab
  */
 struct quota_handle **create_handle_list(int count, char **mntpoints, int type, int fmt,
-					 int flags)
+					 int ioflags, int mntflags)
 {
 	struct mntent *mnt;
 	int gotmnt = 0;
 	static struct quota_handle *hlist[MAXMNTPOINTS];
 
-	if (init_mounts_scan(count, mntpoints, 0) < 0)
+	if (init_mounts_scan(count, mntpoints, mntflags) < 0)
 		die(2, _("Can't initialize mountpoint scan.\n"));
 	while ((mnt = get_next_mount())) {
 		if (strcmp(mnt->mnt_type, MNTTYPE_NFS)) {	/* No NFS? */
 			if (gotmnt+1 == MAXMNTPOINTS)
 				die(2, _("Too many mountpoints with quota. Contact %s\n"), MY_EMAIL);
-			if (!(hlist[gotmnt] = init_io(mnt, type, fmt, flags)))
+			if (!(hlist[gotmnt] = init_io(mnt, type, fmt, ioflags)))
 				continue;
 			gotmnt++;
 		}
-		else if (!(flags & IOI_LOCALONLY) && (fmt == -1 || fmt == QF_RPC)) {	/* Use NFS? */
+		else if (!(ioflags & IOI_LOCALONLY) && (fmt == -1 || fmt == QF_RPC)) {	/* Use NFS? */
 #ifdef RPC
 			if (gotmnt+1 == MAXMNTPOINTS)
 				die(2, _("Too many mountpoints with quota. Contact %s\n"), MY_EMAIL);
-			if (!(hlist[gotmnt] = init_io(mnt, type, fmt, flags)))
+			if (!(hlist[gotmnt] = init_io(mnt, type, fmt, ioflags)))
 				continue;
 			gotmnt++;
 #endif
@@ -705,6 +705,7 @@ struct searched_dir {
 };
 
 #define ALLOC_ENTRIES_NUM 16	/* Allocate entries by this number */
+#define AUTOFS_DIR_MAX 64	/* Maximum number of autofs directories */
 
 static int mnt_entries_cnt;	/* Number of cached mountpoint entries */
 static struct mount_entry *mnt_entries;	/* Cached mounted filesystems */
@@ -712,7 +713,7 @@ static int check_dirs_cnt, act_checked;	/* Number of dirs to check; Actual check
 static struct searched_dir *check_dirs;	/* Directories to check */
 
 /* Cache mtab/fstab */
-static int cache_mnt_table(void)
+static int cache_mnt_table(int flags)
 {
 	FILE *mntf;
 	struct mntent *mnt;
@@ -721,6 +722,8 @@ static int cache_mnt_table(void)
 	int allocated = 0, i = 0;
 	dev_t dev = 0;
 	char mntpointbuf[PATH_MAX];
+	int autofsdircnt = 0;
+	char autofsdir[AUTOFS_DIR_MAX][PATH_MAX];
 
 	if (!(mntf = setmntent(_PATH_MOUNTED, "r"))) {
 		if (errno != ENOENT) {
@@ -745,9 +748,26 @@ static int cache_mnt_table(void)
 			errstr(_("Can't get device name for %s\n"), mnt->mnt_fsname);
 			continue;
 		}
+
+		/* Check for mountpoints under autofs and skip them*/
+		for (i = 0; i < autofsdircnt; i++) {
+			int slen = strlen(autofsdir[i]);
+
+			if (slen <= strlen(mnt->mnt_dir) && !strncmp(autofsdir[i], mnt->mnt_dir, slen))
+				break;
+		}
+		if (i < autofsdircnt)
+			continue;
+				
 		if (!realpath(mnt->mnt_dir, mntpointbuf)) {
 			errstr(_("Can't resolve mountpoint path %s: %s\n"), mnt->mnt_dir, strerror(errno));
 			free((char *)devname);
+			continue;
+		}
+		if (flags & MS_NO_AUTOFS && !strcmp(mnt->mnt_type, MNTTYPE_AUTOFS)) {	/* Autofs dir to remember? */
+			if (autofsdircnt == AUTOFS_DIR_MAX)
+				die(3, "Too many autofs mountpoints. Please contact <jack@suse.cz>\n");
+			sstrncpy(autofsdir[autofsdircnt++], mntpointbuf, PATH_MAX);
 			continue;
 		}
 		if (statfs(mntpointbuf, &fsstat) != 0) {
@@ -922,7 +942,7 @@ static int process_dirs(int dcnt, char **dirs, int flags)
  */ 
 int init_mounts_scan(int dcnt, char **dirs, int flags)
 {
-	if (cache_mnt_table() < 0)
+	if (cache_mnt_table(flags) < 0)
 		return -1;
 	if (process_dirs(dcnt, dirs, flags) < 0) {
 		end_mounts_scan();
