@@ -810,7 +810,12 @@ static int cache_mnt_table(int flags)
 				free((char *)devname);
 				continue;
 			}
-			if (!S_ISBLK(st.st_mode) && !S_ISCHR(st.st_mode)) {	/* Some 'bind' or 'loop' mount? */
+			if (!S_ISBLK(st.st_mode) && !S_ISCHR(st.st_mode) && !S_ISREG(st.st_mode) && !S_ISDIR(st.st_mode)) {
+				unsupporteddev:
+				errstr(_("Device (%s) filesystem is mounted on unsupported device type. Skipping.\n"), devname);
+				free((char *)devname);
+				continue;
+			} else {
 				char *opt;
 				
 				if (hasmntopt(mnt, MNTOPT_BIND)) {
@@ -843,15 +848,12 @@ static int cache_mnt_table(int flags)
 					dev = st.st_rdev;
 					free((char *)devname);
 					devname = sstrdup(loopdev);
-				}
-				else {
-					errstr(_("Device (%s) filesystem is mounted on isn't block or character device nor it's loopback or bind mount. Skipping.\n"), devname);
-					free((char *)devname);
-					continue;
+				} else {
+					if (!S_ISBLK(st.st_mode) && !S_ISCHR(st.st_mode))
+						goto unsupporteddev;
+					dev = st.st_rdev;
 				}
 			}
-			else
-				dev = st.st_rdev;
 			for (i = 0; i < mnt_entries_cnt && mnt_entries[i].me_dev != dev; i++);
 		}
 		/* Cope with network filesystems or new mountpoint */
