@@ -1,3 +1,6 @@
+Changes in quota-tools from 3.12 to 3.13
+* updated Polish translations (Jakub Bogusz)
+
 Changes in quota-tools from 3.11 to 3.12
 * fixed bug in quotaon(8) reporting (Paul Szabo)
 * added manpages for xqmstats & quotastats (Max Vozeler)
