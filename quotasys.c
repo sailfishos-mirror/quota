@@ -567,26 +567,27 @@ int kernel_iface, kernel_formats;	/* Formats supported by kernel */
 void init_kernel_interface(void)
 {
 	struct stat st;
+	struct sigaction sig, oldsig;
 	
+	/* This signal handling is needed because old kernels send us SIGSEGV as they try to resolve the device */
+	sig.sa_handler = SIG_IGN;
+	sig.sa_sigaction = NULL;
+	if (sigemptyset(&sig.sa_mask) < 0)
+		die(2, _("Can't create set for sigaction(): %s\n"), strerror(errno));
+	sig.sa_flags = 0;
+	if (sigaction(SIGSEGV, &sig, &oldsig) < 0)
+		die(2, _("Can't set signal handler: %s\n"), strerror(errno));
+
 	kernel_formats = 0;
-	if (!stat("/proc/fs/xfs/stat", &st))
+	if (!stat("/proc/fs/xfs/stat", &st) || quotactl(QCMD(Q_XGETQSTAT, 0), NULL, 0, NULL) != ENOSYS)
 		kernel_formats |= (1 << QF_XFS);
-	if (!stat("/proc/sys/fs/quota", &st)) {
+	if (!stat("/proc/sys/fs/quota", &st) || quotactl(QCMD(Q_GETQUOTA, USRQUOTA), NULL, 0, NULL) != ENOSYS) {
 		kernel_iface = IFACE_GENERIC;
 		kernel_formats |= (1 << QF_VFSOLD) | (1 << QF_VFSV0);
 	}
 	else {
 		struct v2_dqstats v2_stats;
-		struct sigaction sig, oldsig;
 
-		/* This signal handling is needed because old kernels send us SIGSEGV as they try to resolve the device */
-		sig.sa_handler = SIG_IGN;
-		sig.sa_sigaction = NULL;
-		if (sigemptyset(&sig.sa_mask) < 0)
-			die(2, _("Can't create set for sigaction(): %s\n"), strerror(errno));
-		sig.sa_flags = 0;
-		if (sigaction(SIGSEGV, &sig, &oldsig) < 0)
-			die(2, _("Can't set signal handler: %s\n"), strerror(errno));
 		if (quotactl(QCMD(Q_V2_GETSTATS, 0), NULL, 0, (void *)&v2_stats) >= 0) {
 			kernel_formats |= (1 << QF_VFSV0);
 			kernel_iface = IFACE_VFSV0;
@@ -616,9 +617,9 @@ void init_kernel_interface(void)
 				kernel_iface = IFACE_VFSOLD;
 			}
 		}
-		if (sigaction(SIGSEGV, &oldsig, NULL) < 0)
-			die(2, _("Can't reset signal handler: %s\n"), strerror(errno));
 	}
+	if (sigaction(SIGSEGV, &oldsig, NULL) < 0)
+		die(2, _("Can't reset signal handler: %s\n"), strerror(errno));
 }
 
 /* Check whether old quota is turned on on given device */
