@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.21 2001/09/27 10:38:03 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.22 2001/09/27 21:34:57 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -686,7 +686,7 @@ static int dump_to_file(struct mntent *mnt, int type)
 		for (dquot = dquot_hash[type][i]; dquot; dquot = dquot->dq_next) {
 			dquot->dq_h = h;
 			update_grace_times(dquot);
-			h->qh_ops->commit_dquot(dquot);
+			h->qh_ops->commit_dquot(dquot, COMMIT_ALL);
 		}
 	if (end_io(h) < 0) {
 		errstr(_("Cannot finish IO on new quotafile: %s\n"), strerror(errno));

@@ -14,7 +14,7 @@
 #include "pot.h"
 
 static struct dquot *rpc_read_dquot(struct quota_handle *h, qid_t id);
-static int rpc_commit_dquot(struct dquot *dquot);
+static int rpc_commit_dquot(struct dquot *dquot, int flags);
 
 struct quotafile_ops quotafile_ops_rpc = {
 	NULL,			/* init_io */
@@ -52,7 +52,7 @@ static struct dquot *rpc_read_dquot(struct quota_handle *h, qid_t id)
 /*
  *	Write a dqblk struct to RPC server - just wrapper function.
  */
-static int rpc_commit_dquot(struct dquot *dquot)
+static int rpc_commit_dquot(struct dquot *dquot, int flags)
 {
 #ifdef RPC
 	int ret;

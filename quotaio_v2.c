@@ -25,7 +25,7 @@ static int v2_init_io(struct quota_handle *h);
 static int v2_new_io(struct quota_handle *h);
 static int v2_write_info(struct quota_handle *h);
 static struct dquot *v2_read_dquot(struct quota_handle *h, qid_t id);
-static int v2_commit_dquot(struct dquot *dquot);
+static int v2_commit_dquot(struct dquot *dquot, int flags);
 static int v2_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct dquot *dquot, char *dqname));
 static int v2_report(struct quota_handle *h, int verbose);
 
@@ -624,7 +624,7 @@ static struct dquot *v2_read_dquot(struct quota_handle *h, qid_t id)
  *  Commit changes of dquot to disk - it might also mean deleting it when quota became fake one and user has no blocks...
  *  User can process use 'errno' to detect errstr
  */
-static int v2_commit_dquot(struct dquot *dquot)
+static int v2_commit_dquot(struct dquot *dquot, int flags)
 {
 	struct util_dqblk *b = &dquot->dq_dqb;
 
@@ -635,9 +635,16 @@ static int v2_commit_dquot(struct dquot *dquot)
 	}
 	if (QIO_ENABLED(dquot->dq_h)) {
 		struct v2_kern_dqblk kdqblk;
+		int cmd;
 
+		if (flags == COMMIT_USAGE)
+			cmd = Q_V2_SETUSE;
+		else if (flags == COMMIT_LIMITS)
+			cmd = Q_V2_SETQLIM;
+		else
+			cmd = Q_V2_SETQUOTA;
 		v2_util2kerndqblk(&kdqblk, &dquot->dq_dqb);
-		if (quotactl(QCMD(Q_V2_SETQUOTA, dquot->dq_h->qh_type), dquot->dq_h->qh_quotadev,
+		if (quotactl(QCMD(cmd, dquot->dq_h->qh_type), dquot->dq_h->qh_quotadev,
 		     dquot->dq_id, (void *)&kdqblk) < 0)
 			return -1;
 		return 0;

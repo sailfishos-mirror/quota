@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaio_v1.c,v 1.9 2001/09/25 15:56:59 jkar8572 Exp $"
+#ident "$Id: quotaio_v1.c,v 1.10 2001/09/27 21:34:58 jkar8572 Exp $"
 
 #include <unistd.h>
 #include <errno.h>
@@ -52,7 +52,7 @@ static int v1_init_io(struct quota_handle *h);
 static int v1_new_io(struct quota_handle *h);
 static int v1_write_info(struct quota_handle *h);
 static struct dquot *v1_read_dquot(struct quota_handle *h, qid_t id);
-static int v1_commit_dquot(struct dquot *dquot);
+static int v1_commit_dquot(struct dquot *dquot, int flags);
 static int v1_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct dquot *dquot, char *dqname));
 
 struct quotafile_ops quotafile_ops_1 = {
@@ -251,7 +251,7 @@ static struct dquot *v1_read_dquot(struct quota_handle *h, qid_t id)
  *	Write a dqblk struct to the quotafile.
  *	User can process use 'errno' to detect errstr
  */
-static int v1_commit_dquot(struct dquot *dquot)
+static int v1_commit_dquot(struct dquot *dquot, int flags)
 {
 	struct v1_disk_dqblk ddqblk;
 	struct quota_handle *h = dquot->dq_h;
@@ -263,9 +263,16 @@ static int v1_commit_dquot(struct dquot *dquot)
 	}
 	if (QIO_ENABLED(h)) {	/* Kernel uses same file? */
 		struct v1_kern_dqblk kdqblk;
+		int cmd;
 
+		if (flags == COMMIT_USAGE)
+			cmd = Q_V1_SETUSE;
+		else if (flags == COMMIT_LIMITS)
+			cmd = Q_V1_SETQLIM;
+		else
+			cmd = Q_V1_SETQUOTA;
 		v1_util2kerndqblk(&kdqblk, &dquot->dq_dqb);
-		if (quotactl(QCMD(Q_V1_SETQUOTA, h->qh_type), h->qh_quotadev, dquot->dq_id,
+		if (quotactl(QCMD(cmd, h->qh_type), h->qh_quotadev, dquot->dq_id,
 		     (void *)&kdqblk) < 0)
 			return -1;
 	}

@@ -87,7 +87,7 @@ static int convert_dquot(struct dquot *dquot, char *name)
 	newdquot.dq_dqb.dqb_curspace = dquot->dq_dqb.dqb_curspace;
 	newdquot.dq_dqb.dqb_btime = dquot->dq_dqb.dqb_btime;
 	newdquot.dq_dqb.dqb_itime = dquot->dq_dqb.dqb_itime;
-	if (qn->qh_ops->commit_dquot(&newdquot) < 0) {
+	if (qn->qh_ops->commit_dquot(&newdquot, COMMIT_ALL) < 0) {
 		errstr(_("Can't commit dquot for id %u (%s): %s\n"),
 			(uint)dquot->dq_id, name, strerror(errno));
 		return -1;

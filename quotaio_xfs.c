@@ -27,7 +27,7 @@
 static int xfs_init_io(struct quota_handle *h);
 static int xfs_write_info(struct quota_handle *h);
 static struct dquot *xfs_read_dquot(struct quota_handle *h, qid_t id);
-static int xfs_commit_dquot(struct dquot *dquot);
+static int xfs_commit_dquot(struct dquot *dquot, int flags);
 static int xfs_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct dquot *dquot, char *dqname));
 static int xfs_report(struct quota_handle *h, int verbose);
 
@@ -139,7 +139,7 @@ static struct dquot *xfs_read_dquot(struct quota_handle *h, qid_t id)
 /*
  *	Write a dqblk struct to the XFS quota manager
  */
-static int xfs_commit_dquot(struct dquot *dquot)
+static int xfs_commit_dquot(struct dquot *dquot, int flags)
 {
 	struct quota_handle *h = dquot->dq_h;
 	struct xfs_kern_dqblk xdqblk;

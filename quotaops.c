@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaops.c,v 1.6 2001/08/22 21:17:56 jkar8572 Exp $"
+#ident "$Id: quotaops.c,v 1.7 2001/09/27 21:34:58 jkar8572 Exp $"
 
 #include <rpc/rpc.h>
 #include <sys/types.h>
@@ -176,7 +176,7 @@ int putprivs(struct dquot *qlist)
 	struct dquot *q;
 
 	for (q = qlist; q; q = q->dq_next) {
-		if (q->dq_h->qh_ops->commit_dquot(q) == -1) {
+		if (q->dq_h->qh_ops->commit_dquot(q, COMMIT_LIMITS) == -1) {
 			errstr(_("Can't write quota for %u on %s: %s\n"),
 				q->dq_id, q->dq_h->qh_quotadev, strerror(errno));
 			continue;
