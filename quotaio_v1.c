@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaio_v1.c,v 1.10 2001/09/27 21:34:58 jkar8572 Exp $"
+#ident "$Id: quotaio_v1.c,v 1.11 2001/11/08 23:56:11 jkar8572 Exp $"
 
 #include <unistd.h>
 #include <errno.h>
@@ -149,6 +149,11 @@ static int v1_init_io(struct quota_handle *h)
 		h->qh_info.dqi_bgrace = ddqblk.dqb_btime;
 		h->qh_info.dqi_igrace = ddqblk.dqb_itime;
 	}
+	if (!h->qh_info.dqi_bgrace)
+		h->qh_info.dqi_bgrace = MAX_DQ_TIME;
+	if (!h->qh_info.dqi_igrace)
+		h->qh_info.dqi_igrace = MAX_IQ_TIME;
+
 	return 0;
 }
 

@@ -42,6 +42,12 @@ report:	v2_report
 #define getdqbuf() smalloc(V2_DQBLKSIZE)
 #define freedqbuf(buf) free(buf)
 
+extern inline void mark_quotafile_metainfo_dirty(struct quota_handle *h)
+{
+	h->qh_info.u.v2_mdqi.dqi_flags |= V2_IOFL_METAINFO_DIRTY;
+	mark_quotafile_info_dirty(h);
+}
+
 /*
  *	Copy dquot from disk to memory
  */
@@ -213,8 +219,15 @@ static int v2_write_info(struct quota_handle *h)
 		kdqinfo.dqi_blocks = h->qh_info.u.v2_mdqi.dqi_blocks;
 		kdqinfo.dqi_free_blk = h->qh_info.u.v2_mdqi.dqi_free_blk;
 		kdqinfo.dqi_free_entry = h->qh_info.u.v2_mdqi.dqi_free_entry;
-		if (quotactl(QCMD(Q_V2_SETINFO, h->qh_type), h->qh_quotadev, 0, (void *)&kdqinfo) < 0)
-			return -1;
+		if (h->qh_info.u.v2_mdqi.dqi_flags & V2_IOFL_METAINFO_DIRTY) {
+			if (quotactl(QCMD(Q_V2_SETINFO, h->qh_type), h->qh_quotadev, 0, (void *)&kdqinfo) < 0)
+				return -1;
+		}
+		else {
+			if (quotactl(QCMD(Q_V2_SETGRACE, h->qh_type), h->qh_quotadev, 0, (void *)&kdqinfo) < 0 ||
+			    quotactl(QCMD(Q_V2_SETFLAGS, h->qh_type), h->qh_quotadev, 0, (void *)&kdqinfo) < 0)
+				return -1;
+		}
 	}
 	else {
 		struct v2_disk_dqinfo ddqinfo;
@@ -276,7 +289,7 @@ static int get_free_dqblk(struct quota_handle *h)
 		}
 		blk = info->dqi_blocks++;
 	}
-	mark_quotafile_info_dirty(h);
+	mark_quotafile_metainfo_dirty(h);
 	freedqbuf(buf);
 	return blk;
 }
@@ -291,7 +304,7 @@ static void put_free_dqblk(struct quota_handle *h, dqbuf_t buf, uint blk)
 	dh->dqdh_prev_free = __cpu_to_le32(0);
 	dh->dqdh_entries = __cpu_to_le16(0);
 	info->dqi_free_blk = blk;
-	mark_quotafile_info_dirty(h);
+	mark_quotafile_metainfo_dirty(h);
 	write_blk(h, blk, buf);
 }
 
@@ -316,7 +329,7 @@ static void remove_free_dqentry(struct quota_handle *h, dqbuf_t buf, uint blk)
 	}
 	else {
 		h->qh_info.u.v2_mdqi.dqi_free_entry = nextblk;
-		mark_quotafile_info_dirty(h);
+		mark_quotafile_metainfo_dirty(h);
 	}
 	freedqbuf(tmpbuf);
 	dh->dqdh_next_free = dh->dqdh_prev_free = __cpu_to_le32(0);
@@ -340,7 +353,7 @@ static void insert_free_dqentry(struct quota_handle *h, dqbuf_t buf, uint blk)
 	}
 	freedqbuf(tmpbuf);
 	info->dqi_free_entry = blk;
-	mark_quotafile_info_dirty(h);
+	mark_quotafile_metainfo_dirty(h);
 }
 
 /* Find space for dquot */
@@ -369,7 +382,7 @@ static uint find_free_dqentry(struct quota_handle *h, struct dquot *dquot, int *
 		}
 		memset(buf, 0, V2_DQBLKSIZE);
 		info->dqi_free_entry = blk;
-		mark_quotafile_info_dirty(h);
+		mark_quotafile_metainfo_dirty(h);
 	}
 	if (__le16_to_cpu(dh->dqdh_entries) + 1 >= V2_DQSTRINBLK)	/* Block will be full? */
 		remove_free_dqentry(h, buf, blk);

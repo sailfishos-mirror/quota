@@ -20,6 +20,8 @@
 #define V2_GETENTRIES(buf) ((struct v2_disk_dqblk *)(((char *)(buf)) + sizeof(struct v2_disk_dqdbheader)))
 #define INIT_V2_VERSIONS { 0, 0}
 
+#define V2_IOFL_METAINFO_DIRTY	0x100	/* Is dirty also metadata information in info? */
+
 struct v2_disk_dqheader {
 	u_int32_t dqh_magic;	/* Magic number identifying file */
 	u_int32_t dqh_version;	/* File version */

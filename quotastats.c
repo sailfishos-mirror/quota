@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: quotastats.c,v 1.6 2001/10/12 13:38:56 jkar8572 Exp $
+ * Version: $Id: quotastats.c,v 1.7 2001/11/08 23:56:11 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -59,13 +59,14 @@ static inline int get_stats(struct util_dqstats *dqstats)
 			goto out;
 		}
 	}
-	else if (quotactl(QCMD(Q_V1_GETSTATS, 0), NULL, 0, (caddr_t)&old_dqstats) >= 0) {
+	else if (quotactl(QCMD(Q_V1_GETSTATS, 0), "/dev/null", 0, (caddr_t)&old_dqstats) >= 0) {
 		/* Structures are currently the same */
 		memcpy(dqstats, &old_dqstats, sizeof(old_dqstats));
 		dqstats->version = 0;
 	}
 	else {
-		if (errno != EINVAL) {
+		/* Sadly these all are possible to get from kernel :( */
+		if (errno != EINVAL && errno != ENOTBLK && errno != EPERM) {
 			errstr(_("Error while getting quota statistics from kernel: %s\n"), strerror(errno));
 			goto out;
 		}

@@ -20,15 +20,21 @@
 #include "quotasys.h"
 #include "quota.h"
 #include "bylabel.h"
+#include "quotaio_v2.h"
+#include "dqblk_v2.h"
+
+#define ACT_FORMAT 1		/* Convert format from old to new */
+#define ACT_ENDIAN 2		/* Convert endianity */
 
 char *mntpoint;
 char *progname;
 int ucv, gcv;
 struct quota_handle *qn;	/* Handle of new file */
+int action;			/* Action to be performed */
 
 static void usage(void)
 {
-	errstr(_("Utility for converting quota files.\nUsage:\n\t%s [-u] [-g] mountpoint\n"), progname);
+	errstr(_("Utility for converting quota files.\nUsage:\n\t%s [-u] [-g] [-e|-f] mountpoint\n"), progname);
 	errstr(_("Bugs to %s\n"), MY_EMAIL);
 	exit(1);
 }
@@ -43,8 +49,9 @@ static void parse_options(int argcnt, char **argstr)
 	else
 		slash++;
 
+	action = ACT_FORMAT;
 	sstrncpy(cmdname, slash, sizeof(cmdname));
-	while ((ret = getopt(argcnt, argstr, "Vugh:")) != -1) {
+	while ((ret = getopt(argcnt, argstr, "Vugefh:")) != -1) {
 		switch (ret) {
 			case '?':
 			case 'h':
@@ -57,6 +64,12 @@ static void parse_options(int argcnt, char **argstr)
 				break;
 			case 'g':
 				gcv = 1;
+				break;
+			case 'e':
+				action = ACT_ENDIAN;
+				break;
+			case 'f':
+				action = ACT_FORMAT;
 				break;
 		}
 	}
@@ -71,6 +84,146 @@ static void parse_options(int argcnt, char **argstr)
 
 	mntpoint = argstr[optind];
 }
+
+/*
+ *	Implementation of endian conversion
+ */
+
+typedef char *dqbuf_t;
+
+#define set_bit(bmp, ind) ((bmp)[(ind) >> 3] |= (1 << ((ind) & 7)))
+#define get_bit(bmp, ind) ((bmp)[(ind) >> 3] & (1 << ((ind) & 7)))
+
+#define getdqbuf() smalloc(V2_DQBLKSIZE)
+#define freedqbuf(buf) free(buf)
+
+static inline void endian_disk2memdqblk(struct util_dqblk *m, struct v2_disk_dqblk *d)
+{
+	m->dqb_ihardlimit = __be32_to_cpu(d->dqb_ihardlimit);
+	m->dqb_isoftlimit = __be32_to_cpu(d->dqb_isoftlimit);
+	m->dqb_bhardlimit = __be32_to_cpu(d->dqb_bhardlimit);
+	m->dqb_bsoftlimit = __be32_to_cpu(d->dqb_bsoftlimit);
+	m->dqb_curinodes = __be32_to_cpu(d->dqb_curinodes);
+	m->dqb_curspace = __be64_to_cpu(d->dqb_curspace);
+	m->dqb_itime = __be64_to_cpu(d->dqb_itime);
+	m->dqb_btime = __be64_to_cpu(d->dqb_btime);
+}
+
+/* Is given dquot empty? */
+static int endian_empty_dquot(struct v2_disk_dqblk *d)
+{
+	static struct v2_disk_dqblk fakedquot;
+
+	return !memcmp(d, &fakedquot, sizeof(fakedquot));
+}
+
+/* Read given block */
+static void read_blk(int fd, uint blk, dqbuf_t buf)
+{
+	int err;
+
+	lseek(fd, blk << V2_DQBLKSIZE_BITS, SEEK_SET);
+	err = read(fd, buf, V2_DQBLKSIZE);
+	if (err < 0)
+		die(2, _("Can't read block %u: %s\n"), blk, strerror(errno));
+	else if (err != V2_DQBLKSIZE)
+		memset(buf + err, 0, V2_DQBLKSIZE - err);
+}
+
+static void endian_report_block(int fd, uint blk, char *bitmap)
+{
+	dqbuf_t buf = getdqbuf();
+	struct v2_disk_dqdbheader *dh;
+	struct v2_disk_dqblk *ddata;
+	struct dquot dquot;
+	int i;
+
+	set_bit(bitmap, blk);
+	read_blk(fd, blk, buf);
+	dh = (struct v2_disk_dqdbheader *)buf;
+	ddata = V2_GETENTRIES(buf);
+	for (i = 0; i < V2_DQSTRINBLK; i++)
+		if (!endian_empty_dquot(ddata + i)) {
+			memset(&dquot, 0, sizeof(dquot));
+			dquot.dq_h = qn;
+			endian_disk2memdqblk(&dquot.dq_dqb, ddata + i);
+			dquot.dq_id = __be32_to_cpu(ddata[i].dqb_id);
+			if (qn->qh_ops->commit_dquot(&dquot, COMMIT_ALL) < 0)
+				errstr(_("Can't commit dquot for id %u: %s\n"),
+					(uint)dquot.dq_id, strerror(errno));
+		}
+	freedqbuf(buf);
+}
+
+static void endian_report_tree(int fd, uint blk, int depth, char *bitmap)
+{
+	int i;
+	dqbuf_t buf = getdqbuf();
+	u_int32_t *ref = (u_int32_t *) buf;
+
+	read_blk(fd, blk, buf);
+	if (depth == V2_DQTREEDEPTH - 1) {
+		for (i = 0; i < V2_DQBLKSIZE >> 2; i++) {
+			blk = __be32_to_cpu(ref[i]);
+			if (blk && !get_bit(bitmap, blk))
+				endian_report_block(fd, blk, bitmap);
+		}
+	}
+	else {
+		for (i = 0; i < V2_DQBLKSIZE >> 2; i++)
+			if ((blk = __be32_to_cpu(ref[i])))
+				endian_report_tree(fd, blk, depth + 1, bitmap);
+	}
+	freedqbuf(buf);
+}
+
+static int endian_scan_structures(int fd, int type)
+{
+	char *bitmap;
+	loff_t blocks = (lseek(fd, 0, SEEK_END) + V2_DQBLKSIZE - 1) >> V2_DQBLKSIZE_BITS;
+
+	bitmap = smalloc((blocks + 7) >> 3);
+	memset(bitmap, 0, (blocks + 7) >> 3);
+	endian_report_tree(fd, V2_DQTREEOFF, 0, bitmap);
+	free(bitmap);
+	return 0;
+}
+
+static int endian_check_header(int fd, int type)
+{
+	struct v2_disk_dqheader head;
+	u_int32_t file_magics[] = INITQMAGICS;
+	u_int32_t known_versions[] = INIT_V2_VERSIONS;
+
+	lseek(fd, 0, SEEK_SET);
+	if (read(fd, &head, sizeof(head)) != sizeof(head)) {
+		errstr(_("Can't read header of old quotafile.\n"));
+		return -1;
+	}
+	if (__be32_to_cpu(head.dqh_magic) != file_magics[type] || __be32_to_cpu(head.dqh_version) > known_versions[type]) {
+		errstr(_("Bad file magic or version (probably not quotafile with bad endianity).\n"));
+		return -1;
+	}
+	return 0;
+}
+
+static int endian_load_info(int fd, int type)
+{
+	struct v2_disk_dqinfo dinfo;
+
+	if (read(fd, &dinfo, sizeof(dinfo)) != sizeof(dinfo)) {
+		errstr(_("Can't read information about old quotafile.\n"));
+		return -1;
+	}
+	qn->qh_info.u.v2_mdqi.dqi_flags = __be32_to_cpu(dinfo.dqi_flags);
+	qn->qh_info.dqi_bgrace = __be32_to_cpu(dinfo.dqi_bgrace);
+	qn->qh_info.dqi_igrace = __be32_to_cpu(dinfo.dqi_igrace);
+	return 0;
+}
+
+/*
+ *	End of endian conversion
+ */
 
 static int convert_dquot(struct dquot *dquot, char *name)
 {
@@ -88,17 +241,33 @@ static int convert_dquot(struct dquot *dquot, char *name)
 	newdquot.dq_dqb.dqb_btime = dquot->dq_dqb.dqb_btime;
 	newdquot.dq_dqb.dqb_itime = dquot->dq_dqb.dqb_itime;
 	if (qn->qh_ops->commit_dquot(&newdquot, COMMIT_ALL) < 0) {
-		errstr(_("Can't commit dquot for id %u (%s): %s\n"),
-			(uint)dquot->dq_id, name, strerror(errno));
+		errstr(_("Can't commit dquot for id %u: %s\n"),
+			(uint)dquot->dq_id, strerror(errno));
 		return -1;
 	}
 	return 0;
 }
 
-static int convert_file(int type, struct mntent *mnt)
+static int rename_file(int type, struct mntent *mnt)
+{
+	char *qfname, namebuf[PATH_MAX];
+	int ret = 0;
+
+	qfname = get_qf_name(mnt, type, QF_VFSV0);
+	strcpy(namebuf, qfname);
+	sstrncat(namebuf, ".new", sizeof(namebuf));
+	if (rename(namebuf, qfname) < 0) {
+		errstr(_("Can't rename new quotafile %s to name %s: %s\n"),
+			namebuf, qfname, strerror(errno));
+		ret = -1;
+	}
+	free(qfname);
+	return ret;
+}
+
+static int convert_format(int type, struct mntent *mnt)
 {
 	struct quota_handle *qo;
-	char *qfname, namebuf[PATH_MAX];
 	int ret = 0;
 	
 	if (!(qo = init_io(mnt, type, QF_VFSOLD, 1))) {
@@ -112,19 +281,62 @@ static int convert_file(int type, struct mntent *mnt)
 		end_io(qo);
 		return -1;
 	}
-	if (qo->qh_ops->scan_dquots(qo, convert_dquot) >= 0) {	/* Conversion succeeded? */
-		qfname = get_qf_name(mnt, type, QF_VFSV0);
-		strcpy(namebuf, qfname);
-		sstrncat(namebuf, ".new", sizeof(namebuf));
-		if (rename(namebuf, qfname) < 0)
-			errstr(_("Can't rename new quotafile %s to name %s: %s\n"),
-				namebuf, qfname, strerror(errno));
-		free(qfname);
+	if (qo->qh_ops->scan_dquots(qo, convert_dquot) >= 0)	/* Conversion succeeded? */
+		ret = rename_file(type, mnt);
+	else
 		ret = -1;
-	}
 	end_io(qo);
 	end_io(qn);
 	return ret;
+}
+
+static int convert_endian(int type, struct mntent *mnt)
+{
+	int ret = 0;
+	int ofd;
+	char *qfname;
+
+	if (!(qfname = get_qf_name(mnt, type, QF_VFSV0)))
+		return -1;
+	if ((ofd = open(qfname, O_RDONLY)) < 0) {
+		errstr(_("Can't open old quota file on %s: %s\n"), mnt->mnt_dir, strerror(errno));
+		free(qfname);
+		return -1;
+	}
+	free(qfname);
+	if (endian_check_header(ofd, type) < 0) {
+		close(ofd);
+		return -1;
+	}
+	if (!(qn = new_io(mnt, type, QF_VFSV0))) {
+		errstr(_("Can't create file for %ss for new format on %s: %s\n"),
+			type2name(type), mnt->mnt_dir, strerror(errno));
+		close(ofd);
+		return -1;
+	}
+	if (endian_load_info(ofd, type) < 0) {
+		end_io(qn);
+		close(ofd);
+		return -1;
+	}
+	ret = endian_scan_structures(ofd, type);
+	end_io(qn);
+	if (ret < 0)
+		return ret;
+	
+	return rename_file(type, mnt);
+}
+
+static int convert_file(int type, struct mntent *mnt)
+{
+	switch (action) {
+		case ACT_FORMAT:
+			return convert_format(type, mnt);
+		case ACT_ENDIAN:
+			return convert_endian(type, mnt);
+	}
+	errstr(_("Unknown action should be performed.\n"));
+	return -1;
 }
 
 int main(int argc, char **argv)

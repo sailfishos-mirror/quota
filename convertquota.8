@@ -6,6 +6,10 @@ convertquota \- convert quota from old file format to new one
 .B convertquota
 [
 .B -ug
+] [
+.B -e
+|
+.B -f
 ]
 .I filesystem
 .SH DESCRIPTION
@@ -32,6 +36,12 @@ convert user quota file. This is the default.
 .TP
 .B -g
 convert group quota file.
+.TP
+.B -f
+convert from old file format to new one. This is the default.
+.TP
+.B -e
+convert new file format from big endian to little endian.
 .TP
 .B -V
 print version information.

@@ -13,6 +13,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/file.h>
+#include <asm/byteorder.h>
 
 #include "pot.h"
 #include "bylabel.h"
@@ -44,9 +45,14 @@ int detect_qf_format(int fd, int type)
 
 	if ((ret = read(fd, &head, sizeof(head))) < 0)
 		die(2, _("Error while reading from quotafile: %s\n"), strerror(errno));
-	if (ret != sizeof(head) || head.dqh_magic != file_magics[type])	/* Short file? Probably old format */
+	if (ret != sizeof(head))	/* Short file? Probably old format */
 		return QF_VFSOLD;
-	if (head.dqh_version > known_versions[type])	/* Too new format? */
+	if (__le32_to_cpu(head.dqh_magic) != file_magics[type])
+		if (__be32_to_cpu(head.dqh_magic) == file_magics[type])
+			die(3, _("Your quota file is stored in wrong endianity. Please use convertquota to convert it.\n"));
+		else
+			return QF_VFSOLD;
+	if (__le32_to_cpu(head.dqh_version) > known_versions[type])	/* Too new format? */
 		return QF_TOONEW;
 	return QF_VFSV0;
 }
@@ -227,8 +233,10 @@ int end_io(struct quota_handle *h)
 	}
 	if (h->qh_ops->end_io && h->qh_ops->end_io(h) < 0)
 		return -1;
-	flock(h->qh_fd, LOCK_UN);
-	close(h->qh_fd);
+	if (h->qh_fd != -1) {
+		flock(h->qh_fd, LOCK_UN);
+		close(h->qh_fd);
+	}
 	free(h);
 	return 0;
 }

@@ -292,8 +292,6 @@ static int hasxfsquota(struct mntent *mnt, int type)
  */
 int hasquota(struct mntent *mnt, int type)
 {
-	char *option;
-
 	if (!CORRECT_FSTYPE(mnt->mnt_type))
 		return 0;
 	
@@ -302,11 +300,11 @@ int hasquota(struct mntent *mnt, int type)
 	if (!strcmp(mnt->mnt_type, MNTTYPE_NFS))	/* NFS always has quota or better there is no good way how to detect it */
 		return 1;
 
-	if ((type == USRQUOTA) && (option = hasmntopt(mnt, MNTOPT_USRQUOTA)))
+	if ((type == USRQUOTA) && hasmntopt(mnt, MNTOPT_USRQUOTA))
 		return 1;
-	if ((type == GRPQUOTA) && (option = hasmntopt(mnt, MNTOPT_GRPQUOTA)))
+	if ((type == GRPQUOTA) && hasmntopt(mnt, MNTOPT_GRPQUOTA))
 		return 1;
-	if ((type == USRQUOTA) && (option = hasmntopt(mnt, MNTOPT_QUOTA)))
+	if ((type == USRQUOTA) && hasmntopt(mnt, MNTOPT_QUOTA))
 		return 1;
 	return 0;
 }
@@ -757,15 +755,16 @@ static int find_next_entry_all(int *pos)
 {
 	struct mntent mnt;
 
-restart:
-	if (++act_checked == mnt_entries_cnt)
+	while (++act_checked < mnt_entries_cnt) {
+		mnt.mnt_fsname = (char *)mnt_entries[act_checked].me_devname;
+		mnt.mnt_type = mnt_entries[act_checked].me_type;
+		mnt.mnt_opts = mnt_entries[act_checked].me_opts;
+		mnt.mnt_dir = (char *)mnt_entries[act_checked].me_dir;
+		if (!hasmntopt(&mnt, MNTOPT_NOAUTO))
+			break;
+	}
+	if (act_checked >= mnt_entries_cnt)
 		return 0;
-	mnt.mnt_fsname = (char *)mnt_entries[act_checked].me_devname;
-	mnt.mnt_type = mnt_entries[act_checked].me_type;
-	mnt.mnt_opts = mnt_entries[act_checked].me_opts;
-	mnt.mnt_dir = (char *)mnt_entries[act_checked].me_dir;
-	if (hasmntopt(&mnt, MNTOPT_NOAUTO))
-		goto restart;
 	*pos = act_checked;
 	return 1;
 }
