@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaops.c,v 1.14 2004/05/24 19:39:15 jkar8572 Exp $"
+#ident "$Id: quotaops.c,v 1.15 2004/08/26 15:38:10 jkar8572 Exp $"
 
 #include <rpc/rpc.h>
 #include <sys/types.h>
@@ -72,13 +72,13 @@ void update_grace_times(struct dquot *q)
 	time_t now;
 
 	time(&now);
-	if (q->dq_dqb.dqb_bsoftlimit && toqb(q->dq_dqb.dqb_curspace) >= q->dq_dqb.dqb_bsoftlimit) {
+	if (q->dq_dqb.dqb_bsoftlimit && toqb(q->dq_dqb.dqb_curspace) > q->dq_dqb.dqb_bsoftlimit) {
 		if (!q->dq_dqb.dqb_btime)
 			q->dq_dqb.dqb_btime = now + q->dq_h->qh_info.dqi_bgrace;
 	}
 	else
 		q->dq_dqb.dqb_btime = 0;
-	if (q->dq_dqb.dqb_isoftlimit && q->dq_dqb.dqb_curinodes >= q->dq_dqb.dqb_isoftlimit) {
+	if (q->dq_dqb.dqb_isoftlimit && q->dq_dqb.dqb_curinodes > q->dq_dqb.dqb_isoftlimit) {
 		if (!q->dq_dqb.dqb_itime)
 			q->dq_dqb.dqb_itime = now + q->dq_h->qh_info.dqi_igrace;
 	}
