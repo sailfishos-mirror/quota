@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <getopt.h>
+#include <time.h>
 
 #if defined(RPC)
 #include "rquota.h"
@@ -26,6 +27,7 @@
 #define FL_ALL 8
 #define FL_PROTO 16
 #define FL_GRACE 32
+#define FL_INDIVIDUAL_GRACE 64
 
 int flags, fmt = -1;
 char **mnt;
@@ -42,13 +44,15 @@ static void usage(void)
 			  "  setquota [-u|-g] [-r] [-F quotaformat] <user|group>\n"
 			  "\t<block-softlimit> <block-hardlimit> <inode-softlimit> <inode-hardlimit> -a|<filesystem>...\n"
 			  "  setquota [-u|-g] [-r] [-F quotaformat] <-p protouser|protogroup> <user|group> -a|<filesystem>...\n"
-			  "  setquota [-u|-g] [-F quotaformat] -t <blockgrace> <inodegrace> -a|<filesystem>...\n"));
+			  "  setquota [-u|-g] [-F quotaformat] -t <blockgrace> <inodegrace> -a|<filesystem>...\n"
+			  "  setquota [-u|-g] [-F quotaformat] <user|group> -T <blockgrace> <inodegrace> -a|<filesystem>...\n"));
 #else
 	errstr(_("Usage:\n"
 			  "  setquota [-u|-g] [-F quotaformat] <user|group>\n"
 			  "\t<block-softlimit> <block-hardlimit> <inode-softlimit> <inode-hardlimit> -a|<filesystem>...\n"
 			  "  setquota [-u|-g] [-F quotaformat] <-p protouser|protogroup> <user|group> -a|<filesystem>...\n"
-			  "  setquota [-u|-g] [-F quotaformat] -t <blockgrace> <inodegrace> -a|<filesystem>...\n"));
+			  "  setquota [-u|-g] [-F quotaformat] -t <blockgrace> <inodegrace> -a|<filesystem>...\n"
+			  "  setquota [-u|-g] [-F quotaformat] <user|group> -T <blockgrace> <inodegrace> -a|<filesystem>...\n"));
 #endif
 	fprintf(stderr, _("Bugs to: %s\n"), MY_EMAIL);
 	exit(1);
@@ -84,9 +88,9 @@ static void parse_options(int argcnt, char **argstr)
 	char *protoname = NULL;
 
 #ifdef RPC_SETQUOTA
-	char *opts = "igp:urVF:ta";
+	char *opts = "igp:urVF:taT";
 #else
-	char *opts = "igp:uVF:ta";
+	char *opts = "igp:uVF:taT";
 #endif
 
 	while ((ret = getopt(argcnt, argstr, opts)) != -1) {
@@ -113,6 +117,9 @@ static void parse_options(int argcnt, char **argstr)
 		  case 't':
 			  flags |= FL_GRACE;
 			  break;
+		  case 'T':
+			  flags |= FL_INDIVIDUAL_GRACE;
+			  break;
 		  case 'F':
 			  if ((fmt = name2fmt(optarg)) == QF_ERROR)
 				  exit(1);
@@ -132,6 +139,8 @@ static void parse_options(int argcnt, char **argstr)
 	}
 	if (flags & FL_GRACE)
 		otherargs = 2;
+	else if (flags & FL_INDIVIDUAL_GRACE)
+		otherargs = 3;
 	else {
 		otherargs = 1;
 		if (!(flags & FL_PROTO))
@@ -145,18 +154,35 @@ static void parse_options(int argcnt, char **argstr)
 		flags |= FL_USER;
 	if (!(flags & FL_GRACE)) {
 		id = name2id(argstr[optind++], flag2type(flags));
-		if (!(flags & FL_PROTO)) {
+		if (!(flags & (FL_GRACE | FL_INDIVIDUAL_GRACE | FL_PROTO))) {
 			toset.dqb_bsoftlimit = parse_num(argstr[optind++], _("block softlimit"));
 			toset.dqb_bhardlimit = parse_num(argstr[optind++], _("block hardlimit"));
 			toset.dqb_isoftlimit = parse_num(argstr[optind++], _("inode softlimit"));
 			toset.dqb_ihardlimit = parse_num(argstr[optind++], _("inode hardlimit"));
 		}
-		else
+		else if (flags & FL_PROTO)
 			protoid = name2id(protoname, flag2type(flags));
 	}
-	else {
+	if (flags & FL_GRACE) {
 		toset.dqb_btime = parse_num(argstr[optind++], _("block grace time"));
 		toset.dqb_itime = parse_num(argstr[optind++], _("inode grace time"));
+	}
+	else if (flags & FL_INDIVIDUAL_GRACE) {
+		time_t now;
+
+		time(&now);
+		if (!strcmp(argstr[optind], _("unset"))) {
+			toset.dqb_btime = 0;
+			optind++;
+		}
+		else
+			toset.dqb_btime = now + parse_num(argstr[optind++], _("block grace time"));
+		if (!strcmp(argstr[optind], _("unset"))) {
+			toset.dqb_itime = 0;
+			optind++;
+		}
+		else
+			toset.dqb_itime = now + parse_num(argstr[optind++], _("inode grace time"));
 	}
 	if (!(flags & FL_ALL)) {
 		mntcnt = argcnt - optind;
@@ -194,7 +220,7 @@ static void setlimits(struct quota_handle **handles)
 			update_grace_times(q);
 		}
 	}
-	putprivs(curprivs);
+	putprivs(curprivs, COMMIT_LIMITS);
 	freeprivs(curprivs);
 }
 
@@ -208,6 +234,21 @@ static void setgraces(struct quota_handle **handles)
 		handles[i]->qh_info.dqi_igrace = toset.dqb_itime;
 		mark_quotafile_info_dirty(handles[i]);
 	}
+}
+
+/* Set grace times for individual user */
+static void setindivgraces(struct quota_handle **handles)
+{
+	struct dquot *q, *curprivs;
+
+	curprivs = getprivs(id, handles, 0);
+	for (q = curprivs; q; q = q->dq_next) {
+		q->dq_dqb.dqb_btime = toset.dqb_btime;
+		q->dq_dqb.dqb_itime = toset.dqb_itime;
+	}
+	if (putprivs(curprivs, COMMIT_TIMES) == -1)
+		errstr(_("Can't write times for %s. Maybe kernel doesn't support such operation?\n"), type2name(flags & FL_USER ? USRQUOTA : GRPQUOTA));
+	freeprivs(curprivs);
 }
 
 int main(int argc, char **argv)
@@ -227,6 +268,8 @@ int main(int argc, char **argv)
 
 	if (flags & FL_GRACE)
 		setgraces(handles);
+	else if (flags & FL_INDIVIDUAL_GRACE)
+		setindivgraces(handles);
 	else
 		setlimits(handles);
 

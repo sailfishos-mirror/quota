@@ -285,6 +285,24 @@ void time2str(time_t seconds, char *buf, int flags)
 }
 
 /*
+ * Convert number with unit to time in seconds
+ */
+int str2timeunits(time_t num, char *unit, time_t *res)
+{
+	if (memcmp(unit, "second", 6) == 0)
+		*res = num;
+	else if (memcmp(unit, "minute", 6) == 0)
+		*res = num * 60;
+	else if (memcmp(unit, "hour", 4) == 0)
+		*res = num * 60 * 60;
+	else if (memcmp(unit, "day", 3) == 0)
+		*res = num * 24 * 60 * 60;
+	else
+		return -1;
+	return 0;
+}
+
+/*
  * Convert number in quota blocks to some nice short form for printing
  */
 void space2str(qsize_t space, char *buf, int format)

@@ -32,6 +32,21 @@ edquota \- edit user quotas
 .I filesystem
 ]
 .B \-t
+.LP
+.B edquota
+[
+.BR \-u \ |
+.B \-g
+] [
+.B \-F
+.I format-name
+] [
+.B \-f
+.I filesystem
+]
+.B \-T
+.IR username \ |
+.IR groupname .\|.\|.
 .SH DESCRIPTION
 .IX  "edquota command"  ""  "\fLedquota\fP \(em edit user quotas"
 .IX  edit "user quotas \(em \fLedquota\fP"
@@ -109,9 +124,15 @@ Edit the soft time limits for each filesystem.
 In old quota format if the time limits are zero, the default time limits in
 .B <linux/quota.h>
 are used. In new quota format time limits must be specified (there is no default
-value set in kernel). Time units of seconds, minutes, hours, days, weeks, and months
+value set in kernel). Time units of 'seconds', 'minutes', 'hours', 'days', 'weeks', and 'months'
 are understood. Time limits are printed in the greatest possible time unit such that
 the value is greater than or equal to one.
+.TP
+.B \-T
+Edit time for the user/group when softlimit is enforced. Possible values
+are 'unset' or number and unit. Units are same as used in
+.B \-t
+option.
 .SH FILES
 .PD 0
 .TP 20

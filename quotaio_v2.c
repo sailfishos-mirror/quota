@@ -692,6 +692,10 @@ static int v2_commit_dquot(struct dquot *dquot, int flags)
 				cmd = Q_V2_SETUSE;
 			else if (flags == COMMIT_LIMITS)
 				cmd = Q_V2_SETQLIM;
+			else if (flags & COMMIT_TIMES) {
+				errno = EINVAL;
+				return -1;
+			}
 			else
 				cmd = Q_V2_SETQUOTA;
 			v2_util2kerndqblk(&kdqblk, &dquot->dq_dqb);

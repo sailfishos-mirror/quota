@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaio_v1.c,v 1.12 2002/03/27 16:21:26 jkar8572 Exp $"
+#ident "$Id: quotaio_v1.c,v 1.13 2002/11/21 18:37:58 jkar8572 Exp $"
 
 #include <unistd.h>
 #include <errno.h>
@@ -316,6 +316,10 @@ static int v1_commit_dquot(struct dquot *dquot, int flags)
 				cmd = Q_V1_SETUSE;
 			else if (flags == COMMIT_LIMITS)
 				cmd = Q_V1_SETQLIM;
+			else if (flags & COMMIT_TIMES) {
+				errno = EINVAL;
+				return -1;
+			}
 			else
 				cmd = Q_V1_SETQUOTA;
 			v1_util2kerndqblk(&kdqblk, &dquot->dq_dqb);

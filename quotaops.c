@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaops.c,v 1.8 2002/07/23 15:59:27 jkar8572 Exp $"
+#ident "$Id: quotaops.c,v 1.9 2002/11/21 18:37:58 jkar8572 Exp $"
 
 #include <rpc/rpc.h>
 #include <sys/types.h>
@@ -50,6 +50,7 @@
 #include <paths.h>
 #include <unistd.h>
 #include <time.h>
+#include <ctype.h>
 
 #if defined(RPC)
 #include "rquota.h"
@@ -62,27 +63,6 @@
 #include "common.h"
 #include "quotasys.h"
 #include "quotaio.h"
-
-/*
- * Convert ASCII input times to seconds.
- */
-static int cvtatos(time_t time, char *units, time_t * seconds)
-{
-	if (memcmp(units, "second", 6) == 0)
-		*seconds = time;
-	else if (memcmp(units, "minute", 6) == 0)
-		*seconds = time * 60;
-	else if (memcmp(units, "hour", 4) == 0)
-		*seconds = time * 60 * 60;
-	else if (memcmp(units, "day", 3) == 0)
-		*seconds = time * 24 * 60 * 60;
-	else {
-		errstr(_("bad units, specify:\n %s, %s, %s, or %s"), units,
-			"days", "hours", "minutes", "seconds");
-		return -1;
-	}
-	return 0;
-}
 
 /*
  * Set grace time if needed
@@ -173,18 +153,20 @@ struct dquot *getprivs(qid_t id, struct quota_handle **handles, int quiet)
 /*
  * Store the requested quota information.
  */
-int putprivs(struct dquot *qlist)
+int putprivs(struct dquot *qlist, int flags)
 {
 	struct dquot *q;
+	int ret = 0;
 
 	for (q = qlist; q; q = q->dq_next) {
-		if (q->dq_h->qh_ops->commit_dquot(q, COMMIT_LIMITS) == -1) {
+		if (q->dq_h->qh_ops->commit_dquot(q, flags) == -1) {
 			errstr(_("Can't write quota for %u on %s: %s\n"),
 				q->dq_id, q->dq_h->qh_quotadev, strerror(errno));
+			ret = -1;
 			continue;
 		}
 	}
-	return 0;
+	return ret;
 }
 
 /*
@@ -241,8 +223,7 @@ int writeprivs(struct dquot *qlist, int outfd, char *name, int quotatype)
 		type2name(quotatype), name, *type2name(quotatype), name2id(name, quotatype));
 
 	fprintf(fd,
-		_
-		("  Filesystem                   blocks       soft       hard     inodes     soft     hard\n"));
+		_("  Filesystem                   blocks       soft       hard     inodes     soft     hard\n"));
 
 	for (q = qlist; q; q = q->dq_next) {
 		fprintf(fd, "  %-24s %10Lu %10Lu %10Lu %10Lu %8Lu %8Lu\n",
@@ -270,7 +251,7 @@ int writeprivs(struct dquot *qlist, int outfd, char *name, int quotatype)
 }
 
 /* Merge changes on one dev to proper structure in the list */
-static void merge_to_list(struct dquot *qlist, char *dev, u_int64_t blocks, u_int64_t bsoft,
+static void merge_limits_to_list(struct dquot *qlist, char *dev, u_int64_t blocks, u_int64_t bsoft,
 			  u_int64_t bhard, u_int64_t inodes, u_int64_t isoft, u_int64_t ihard)
 {
 	struct dquot *q;
@@ -331,7 +312,7 @@ int readprivs(struct dquot *qlist, int infd)
 			return -1;
 		}
 
-		merge_to_list(qlist, fsp, blocks, bsoft, bhard, inodes, isoft, ihard);
+		merge_limits_to_list(qlist, fsp, blocks, bsoft, bhard, inodes, isoft, ihard);
 	}
 #else
 	/*
@@ -371,7 +352,7 @@ int readprivs(struct dquot *qlist, int infd)
 			return -1;
 		}
 
-		merge_to_list(qlist, fsp, blocks, bsoft, bhard, inodes, isoft, ihard);
+		merge_limits_to_list(qlist, fsp, blocks, bsoft, bhard, inodes, isoft, ihard);
 	}
 #endif
 	fclose(fd);
@@ -389,6 +370,121 @@ int readprivs(struct dquot *qlist, int infd)
 		q->dq_dqb.dqb_isoftlimit = 0;
 		q->dq_dqb.dqb_ihardlimit = 0;
 	}
+	return 0;
+}
+
+/* Merge changes on one dev to proper structure in the list */
+static void merge_times_to_list(struct dquot *qlist, char *dev, time_t btime, time_t itime)
+{
+	struct dquot *q;
+
+	for (q = qlist; q; q = q->dq_next) {
+		if (!devcmp_handle(dev, q->dq_h))
+			continue;
+
+		q->dq_dqb.dqb_btime = btime;
+		q->dq_dqb.dqb_itime = itime;
+		q->dq_flags |= DQ_FOUND;
+	}
+}
+
+/*
+ * Write grace times of user to file
+ */
+int writeindividualtimes(struct dquot *qlist, int outfd, char *name, int quotatype)
+{
+	struct dquot *q;
+	FILE *fd;
+	time_t now;
+	char btimestr[MAXTIMELEN], itimestr[MAXTIMELEN];
+
+	ftruncate(outfd, 0);
+	lseek(outfd, 0, SEEK_SET);
+	if (!(fd = fdopen(dup(outfd), "w")))
+		die(1, _("Can't duplicate descriptor of file to write to: %s\n"), strerror(errno));
+
+	fprintf(fd, _("Times to enforce softlimit for %s %s (%cid %d):\n"),
+		type2name(quotatype), name, *type2name(quotatype), name2id(name, quotatype));
+	fprintf(fd, _("Time units may be: days, hours, minutes, or seconds\n"));
+	fprintf(fd,
+		_("  Filesystem                         block grace               inode grace\n"));
+
+	time(&now);
+	for (q = qlist; q; q = q->dq_next) {
+		if (!q->dq_dqb.dqb_btime)
+			strcpy(btimestr, _("unset"));
+		else if (q->dq_dqb.dqb_btime <= now)
+			strcpy(btimestr, _("0seconds"));
+		else
+			sprintf(btimestr, "%useconds", (unsigned)(q->dq_dqb.dqb_btime - now));
+		if (!q->dq_dqb.dqb_itime)
+			strcpy(itimestr, _("unset"));
+		else if (q->dq_dqb.dqb_itime <= now)
+			strcpy(itimestr, _("0seconds"));
+		else
+			sprintf(itimestr, _("%useconds"), (unsigned)(q->dq_dqb.dqb_itime - now));
+
+		fprintf(fd, "  %-24s %22s %22s\n", q->dq_h->qh_quotadev, btimestr, itimestr);
+	}
+	fclose(fd);
+	return 0;
+}
+
+/*
+ *  Read list of grace times for a user and convert it
+ */
+int readindividualtimes(struct dquot *qlist, int infd)
+{
+	FILE *fd;
+	int cnt, btime, itime;
+	char line[BUFSIZ], fsp[BUFSIZ], btimestr[BUFSIZ], itimestr[BUFSIZ];
+	char iunits[BUFSIZ], bunits[BUFSIZ];
+	time_t now, bseconds, iseconds;
+
+	lseek(infd, 0, SEEK_SET);
+	if (!(fd = fdopen(dup(infd), "r")))
+		die(1, _("Can't duplicate descriptor of temp file: %s\n"), strerror(errno));
+
+	/*
+	 * Discard title lines, then read lines to process.
+	 */
+	fgets(line, sizeof(line), fd);
+	fgets(line, sizeof(line), fd);
+	fgets(line, sizeof(line), fd);
+
+	time(&now);
+	while (fgets(line, sizeof(line), fd)) {
+		cnt = sscanf(line, "%s %s %s", fsp, btimestr, itimestr);
+		if (cnt != 3) {
+format_err:
+			errstr(_("bad format:\n%s\n"), line);
+			return -1;
+		}
+		if (!strcmp(btimestr, _("unset")))
+			bseconds = 0;
+		else {
+			if (sscanf(btimestr, "%d%s", &btime, bunits) != 2)
+				goto format_err;
+			if (str2timeunits(btime, bunits, &bseconds) < 0) {
+units_err:
+				errstr(_("Bad time units. Units are 'second', 'minute', 'hour' and 'day'.\n"));
+				return -1;
+			}
+			bseconds += now;
+		}
+		if (!strcmp(itimestr, _("unset")))
+			iseconds = 0;
+		else {
+			if (sscanf(itimestr, "%d%s", &itime, iunits) != 2)
+				goto format_err;
+			if (str2timeunits(itime, iunits, &iseconds) < 0)
+				goto units_err;
+			iseconds += now;
+		}
+		merge_times_to_list(qlist, fsp, bseconds, iseconds);
+	}
+	fclose(fd);
+
 	return 0;
 }
 
@@ -505,10 +601,11 @@ int readtimes(struct quota_handle **handles, int infd)
 			return -1;
 		}
 #endif
-		if (cvtatos(btime, bunits, &bseconds) < 0)
+		if (str2timeunits(btime, bunits, &bseconds) < 0 ||
+		    str2timeunits(itime, iunits, &iseconds) < 0) {
+			errstr(_("Bad time units. Units are 'second', 'minute', 'hour' and 'day'.\n"));
 			return -1;
-		if (cvtatos(itime, iunits, &iseconds) < 0)
-			return -1;
+		}
 		for (i = 0; handles[i]; i++) {
 			if (!devcmp_handle(fsp, handles[i]))
 				continue;

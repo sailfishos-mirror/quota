@@ -132,7 +132,8 @@ struct dquot {
 /* Flags for commit function (have effect only when quota in kernel is turned on) */
 #define COMMIT_USAGE QIF_USAGE
 #define COMMIT_LIMITS QIF_LIMITS
-#define COMMIT_ALL (COMMIT_USAGE | COMMIT_LIMITS)
+#define COMMIT_TIMES QIF_TIMES
+#define COMMIT_ALL (COMMIT_USAGE | COMMIT_LIMITS | COMMIT_TIMES)
 
 /* Structure of quotafile operations */
 struct quotafile_ops {

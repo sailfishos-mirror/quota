@@ -82,6 +82,9 @@ void difftime2str(time_t, char *);
 /* Convert time to printable form */
 void time2str(time_t, char *, int);
 
+/* Convert number and units to time in seconds */
+int str2timeunits(time_t, char *, time_t *);
+
 /* Convert number in quota blocks to short printable form */
 void space2str(qsize_t, char *, int);
 

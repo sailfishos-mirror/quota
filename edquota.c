@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: edquota.c,v 1.9 2002/07/23 15:59:27 jkar8572 Exp $"
+#ident "$Id: edquota.c,v 1.10 2002/11/21 18:37:58 jkar8572 Exp $"
 
 /*
  * Disk quota editor.
@@ -67,12 +67,14 @@ void usage(void)
 	errstr("%s%s%s",
 		_("Usage:\tedquota [-r] [-u] [-F formatname] [-p username] [-f filesystem] username ...\n"),
 		_("\tedquota [-r] -g [-F formatname] [-p groupname] [-f filesystem] groupname ...\n"),
-		_("\tedquota [-r] [-u|g] [-F formatname] [-f filesystem] -t\n"));
+		_("\tedquota [-r] [-u|g] [-F formatname] [-f filesystem] -t\n"),
+		_("\tedquota [-r] [-u|g] [-F formatname] [-f filesystem] -T username|groupname ...\n"));
 #else
 	errstr("%s%s%s",
 		_("Usage:\tedquota [-u] [-F formatname] [-p username] [-f filesystem] username ...\n"),
 		_("\tedquota -g [-F formatname] [-p groupname] [-f filesystem] groupname ...\n"),
-		_("\tedquota [-u|g] [-F formatname] [-f filesystem] -t\n"));
+		_("\tedquota [-u|g] [-F formatname] [-f filesystem] -t\n"),
+		_("\tedquota [-u|g] [-F formatname] [-f filesystem] -T username|groupname ...\n"));
 #endif
 	fprintf(stderr, _("Bugs to: %s\n"), MY_EMAIL);
 	exit(1);
@@ -84,7 +86,7 @@ int main(int argc, char **argv)
 	long id, protoid;
 	int quotatype, tmpfd, ret;
 	char *protoname = NULL;
-	int tflag = 0, pflag = 0, rflag = 0, fmt = -1;
+	int tflag = 0, Tflag = 0, pflag = 0, rflag = 0, fmt = -1;
 	struct quota_handle **handles;
 	char *tmpfil, *tmpdir = NULL;
 
@@ -97,9 +99,9 @@ int main(int argc, char **argv)
 	dirname = NULL;
 	quotatype = USRQUOTA;
 #if defined(RPC_SETQUOTA)
-	while ((ret = getopt(argc, argv, "ugrntVp:F:f:")) != -1) {
+	while ((ret = getopt(argc, argv, "ugrntTVp:F:f:")) != -1) {
 #else
-	while ((ret = getopt(argc, argv, "ugtVp:F:f:")) != -1) {
+	while ((ret = getopt(argc, argv, "ugtTVp:F:f:")) != -1) {
 #endif
 		switch (ret) {
 		  case 'p':
@@ -121,6 +123,9 @@ int main(int argc, char **argv)
 		  case 't':
 			  tflag++;
 			  break;
+		  case 'T':
+			  Tflag++;
+			  break;
 		  case 'F':
 			  if ((fmt = name2fmt(optarg)) == QF_ERROR)	/* Error? */
 				  exit(1);
@@ -138,7 +143,7 @@ int main(int argc, char **argv)
 	argc -= optind;
 	argv += optind;
 
-	if (tflag && argc != 0)
+	if ((tflag && argc != 0) || (Tflag && argc < 1))
 		usage();
 
 	init_kernel_interface();
@@ -201,6 +206,26 @@ int main(int argc, char **argv)
 		if (readtimes(handles, tmpfd) < 0) {
 			unlink(tmpfil);
 			die(1, _("Failed to parse grace times file.\n"));
+		}
+	}
+	else if (Tflag) {
+		for (; argc > 0; argc--, argv++) {
+			id = name2id(*argv, quotatype);
+			curprivs = getprivs(id, handles, 0);
+			if (writeindividualtimes(curprivs, tmpfd, *argv, quotatype) < 0) {
+				errstr(_("Can't write individual grace times to file.\n"));
+				continue;
+			}
+			if (editprivs(tmpfil) < 0) {
+				errstr(_("Error while editting individual grace times.\n"));
+				continue;
+			}
+			if (readindividualtimes(curprivs, tmpfd) < 0) {
+				errstr(_("Can't read individual grace times from file.\n"));
+				continue;
+			}
+			putprivs(curprivs, COMMIT_TIMES);
+			freeprivs(curprivs);
 		}
 	}
 	else {
