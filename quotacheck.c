@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.20 2001/09/26 12:26:11 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.21 2001/09/27 10:38:03 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -345,7 +345,7 @@ static void parse_options(int argcnt, char **argstr)
 	}
 	if (!(uwant | gwant))
 		uwant = 1;
-	if (argcnt == optind && !(flags & FL_ALL)) {
+	if ((argcnt == optind && !(flags & FL_ALL)) || (argcnt > optind && flags & FL_ALL)) {
 		fputs(_("Bad number of arguments.\n"), stderr);
 		usage();
 	}
