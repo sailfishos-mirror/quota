@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.39 2004/03/02 17:19:43 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.40 2004/03/15 14:30:25 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -27,7 +27,7 @@
 #include <sys/ioctl.h>
 #include <sys/mount.h>
 
-#if defined(EXT2_DIRECT)
+#if defined(HAVE_EXT2_INCLUDE)
 #include <linux/types.h>
 #include <ext2fs/ext2fs.h>
 #endif
@@ -632,6 +632,10 @@ static int rename_files(struct mntent *mnt, int type)
 	char *filename, newfilename[PATH_MAX];
 	struct stat st;
 	mode_t mode = S_IRUSR | S_IWUSR;
+#ifdef HAVE_EXT2_INCLUDE
+	long ext2_flags = -1;
+	int fd;
+#endif
 
 	debug(FL_DEBUG, _("Data dumped.\n"));
 	if (get_qf_name(mnt, type, (1 << cfmt), 0, &filename) < 0)
@@ -647,6 +651,21 @@ static int rename_files(struct mntent *mnt, int type)
 		return -1;
 	}
 	mode = st.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO);
+#ifdef HAVE_EXT2_INCLUDE
+	if ((fd = open(filename, O_RDONLY)) < 0) {
+		if (errno == ENOENT) {
+			debug(FL_DEBUG | FL_VERBOSE, _("Old file found removed during check!\n"));
+			goto rename_new;
+		}
+		errstr(_("Error while opening old quota file %s: %s\n"),
+			filename, strerror(errno));
+		free(filename);
+		return -1;
+	}
+	if (ioctl(fd, EXT2_IOC_GETFLAGS, &ext2_flags) < 0)
+		debug(FL_DEBUG, _("EXT2_IOC_GETFLAGS failed: %s\n"), strerror(errno));
+	close(fd);
+#endif
 	if (flags & FL_BACKUPS) {
 		debug(FL_DEBUG, _("Renaming old quotafile to %s~\n"), filename);
 		/* Backup old file */
@@ -678,6 +697,18 @@ rename_new:
 		free(filename);
 		return -1;
 	}
+#ifdef HAVE_EXT2_INCLUDE
+	if (ext2_flags != -1) {
+		if ((fd = open(filename, O_RDONLY)) < 0) {
+			errstr(_("Cannot open new quota file %s: %s\n"), filename, strerror(errno));
+			free(filename);
+			return -1;
+		}
+		if (ioctl(fd, EXT2_IOC_SETFLAGS, &ext2_flags) < 0)
+			errstr(_("Warning: Cannot set EXT2 flags on %s: %s\n"), filename, strerror(errno));
+		close(fd);
+	}
+#endif
 	free(filename);
 	return 0;
 }

@@ -7,55 +7,59 @@ AC_HEADER_STDC
 AC_PROG_INSTALL
 
 dnl Checks for libraries.
-AC_ARG_WITH(ldapmail, [  --with-ldapmail=[yes/no/try]       Enable ldap mail address lookups [default=no].],
+AC_ARG_ENABLE(ldapmail, [  --enable-ldapmail=[yes/no/try]       Enable ldap mail address lookups [default=no].],
 	,
-	with_ldapmail="no")
-if test "x$with_ldapmail" != "xno"; then
+	enable_ldapmail="no")
+if test "x$enable_ldapmail" != "xno"; then
 	LDAPLIBS="-L/usr/lib -lldap -llber -lssl -lresolv"
 	CFLAGS="$CFLAGS -DUSE_LDAP_MAIL_LOOKUP"
 fi
 AC_SUBST(LDAPLIBS)
 
 	
-AC_ARG_WITH(ext2direct,
-	[  --with-ext2direct=[yes/no/try]     Enable alternative format used by edquota [default=try].],
+AC_CHECK_HEADER(ext2fs/ext2fs.h,ext2fshead="yes")
+if test "x$ext2fshead" = "xyes"; then
+	CFLAGS="-DHAVE_EXT2_INCLUDE $CFLAGS"
+	AC_MSG_CHECKING([for ext2_ino_t])
+	have_ext2_ino_t="no"
+	AC_EGREP_HEADER(ext2_ino_t, ext2fs/ext2fs.h, have_ext2_ino_t="yes")
+	if test "x$have_ext2_ino_t" != "xyes"; then
+		AC_MSG_RESULT([not found])
+	else
+		AC_MSG_RESULT([found])
+		CFLAGS="-DHAVE_EXT2_INO_T $CFLAGS"
+	fi
+fi
+
+AC_ARG_ENABLE(ext2direct,
+	[  --enable-ext2direct=[yes/no/try]     Enable scanning of EXT2/EXT3 filesystem using e2fslib [default=try].],
 	,
-	with_ext2direct="try")
-if test "x$with_ext2direct" != "xno"; then
+	enable_ext2direct="try")
+if test "x$enable_ext2direct" != "xno"; then
 	AC_CHECK_LIB(com_err, com_err, EXT2LIBS="-lcom_err $EXT2LIBS")
 	AC_CHECK_LIB(ext2fs, ext2fs_initialize, EXT2LIBS="-lext2fs $EXT2LIBS",, "-lcom_err")
 	if test "${ac_cv_lib_com_err_com_err}" != "yes" -o "${ac_cv_lib_ext2fs_ext2fs_initialize}" != "yes"; then
-		if test "x$with_ext2direct" = "xyes"; then
+		if test "x$enable_ext2direct" = "xyes"; then
 			AC_MSG_ERROR([Ext2 direct support required but libraries not found.])
 		else
 			AC_MSG_WARN([Ext2 direct support won't be compiled. Libraries not found.])
 		fi
-		with_ext2direct="no"
+		enable_ext2direct="no"
 		EXT2LIBS=""
 	else
-		AC_CHECK_HEADER(ext2fs/ext2fs.h,ext2fshead="yes")
 		if test "x$ext2fshead" != "xyes"; then
-			if test "x$with_ext2direct" = "xyes"; then
+			if test "x$enable_ext2direct" = "xyes"; then
 				AC_MSG_ERROR([Ext2 direct support required but header files not found.])
 			else
 				AC_MSG_WARN([Ext2 direct support won't be compiled. Header files not found.])
 			fi
-			with_ext2direct="no"
+			enable_ext2direct="no"
 			EXT2LIBS=""
 		else
-			with_ext2direct="yes"
-			AC_MSG_CHECKING([for ext2_ino_t])
-			have_ext2_ino_t="no"
-			AC_EGREP_HEADER(ext2_ino_t, ext2fs/ext2fs.h, have_ext2_ino_t="yes")
-			if test "x$have_ext2_ino_t" != "xyes"; then
-				AC_MSG_RESULT([not found])
-			else
-				AC_MSG_RESULT([found])
-				CFLAGS="-DHAVE_EXT2_INO_T $CFLAGS"
-			fi
+			enable_ext2direct="yes"
 		fi
 	fi
-	if test "x$with_ext2direct" = "xyes"; then
+	if test "x$enable_ext2direct" = "xyes"; then
 		EXT2_DIRECT="-DEXT2_DIRECT"
 		AC_SUBST(EXT2_DIRECT)
 	fi
