@@ -13,6 +13,8 @@
 #include <string.h>
 #include <time.h>
 #include <errno.h>
+#include <pwd.h>
+#include <grp.h>
 
 #include "pot.h"
 #include "common.h"
@@ -20,6 +22,7 @@
 #include "quotaio.h"
 
 #define PRINTNAMELEN 9	/* Number of characters to be reserved for name on screen */
+#define MAX_CACHE_DQUOTS 1024	/* Number of dquots in cache */
 
 #define FL_USER 1
 #define FL_GROUP 2
@@ -31,6 +34,8 @@
 int flags, fmt = -1;
 char **mnt;
 int mntcnt;
+int cached_dquots;
+struct dquot dquot_cache[MAX_CACHE_DQUOTS];
 char *progname;
 
 static void usage(void)
@@ -107,7 +112,7 @@ static char overlim(uint usage, uint softlim, uint hardlim)
 	return '-';
 }
 
-static int print(struct dquot *dquot, char *name)
+static void print(struct dquot *dquot, char *name)
 {
 	char pname[MAXNAMELEN];
 	char time[MAXTIMELEN];
@@ -116,7 +121,7 @@ static int print(struct dquot *dquot, char *name)
 	struct util_dqblk *entry = &dquot->dq_dqb;
 
 	if (!entry->dqb_curspace && !entry->dqb_curinodes && !(flags & FL_VERBOSE))
-		return 0;
+		return;
 	sstrncpy(pname, name, sizeof(pname));
 	if (flags & FL_TRUNCNAMES)
 		pname[PRINTNAMELEN] = 0;
@@ -133,6 +138,60 @@ static int print(struct dquot *dquot, char *name)
 	number2str(entry->dqb_isoftlimit, numbuf[1], flags & FL_SHORTNUMS);
 	number2str(entry->dqb_ihardlimit, numbuf[2], flags & FL_SHORTNUMS);
 	printf(" %7s %5s %5s %6s\n", numbuf[0], numbuf[1], numbuf[2], time);
+}
+
+/* Print all dquots in the cache */
+static void dump_cached_dquots(int type)
+{
+	int i;
+	char namebuf[MAXNAMELEN];
+
+	if (!cached_dquots)
+		return;
+	if (type == USRQUOTA) {
+		struct passwd *pwent;
+
+		setpwent();
+		while ((pwent = getpwent())) {
+			for (i = 0; i < cached_dquots && pwent->pw_uid != dquot_cache[i].dq_id; i++);
+			if (i < cached_dquots) {
+				print(dquot_cache+i, pwent->pw_name);
+				dquot_cache[i].dq_flags |= DQ_PRINTED;
+			}
+		}
+		endpwent();
+	}
+	else {
+		struct group *grent;
+
+		setgrent();
+		while ((grent = getgrent())) {
+			for (i = 0; i < cached_dquots && grent->gr_gid != dquot_cache[i].dq_id; i++);
+			if (i < cached_dquots) {
+				print(dquot_cache+i, grent->gr_name);
+				dquot_cache[i].dq_flags |= DQ_PRINTED;
+			}
+		}
+		endgrent();
+	}
+	for (i = 0; i < cached_dquots; i++)
+		if (!(dquot_cache[i].dq_flags & DQ_PRINTED)) {
+			sprintf(namebuf, "#%u", dquot_cache[i].dq_id);
+			print(dquot_cache+i, namebuf);
+		}
+	cached_dquots = 0;
+}
+
+static int output(struct dquot *dquot, char *name)
+{
+
+	if (name)
+		print(dquot, name);
+	else {
+		memcpy(dquot_cache+cached_dquots++, dquot, sizeof(struct dquot));
+		if (cached_dquots >= MAX_CACHE_DQUOTS)
+			dump_cached_dquots(dquot->dq_h->qh_type);
+	}
 	return 0;
 }
 
@@ -148,8 +207,9 @@ static void report_it(struct quota_handle *h, int type)
 	printf(_("%-9s       used    soft    hard  grace    used  soft  hard  grace\n"), (type == USRQUOTA)?_("User"):_("Group"));
 	printf("----------------------------------------------------------------------\n");
 
-	if (h->qh_ops->scan_dquots(h, print) < 0)
+	if (h->qh_ops->scan_dquots(h, output) < 0)
 		return;
+	dump_cached_dquots(type);
 	if (h->qh_ops->report) {
 		putchar('\n');
 		h->qh_ops->report(h, flags & FL_VERBOSE);

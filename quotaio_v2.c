@@ -662,7 +662,6 @@ static int report_block(struct dquot *dquot, uint blk, char *bitmap,
 	dqbuf_t buf = getdqbuf();
 	struct v2_disk_dqdbheader *dh;
 	struct v2_disk_dqblk *ddata;
-	char name[MAXNAMELEN];
 	int entries, i;
 
 	set_bit(bitmap, blk);
@@ -674,8 +673,7 @@ static int report_block(struct dquot *dquot, uint blk, char *bitmap,
 		if (!empty_dquot(ddata + i)) {
 			v2_disk2memdqblk(&dquot->dq_dqb, ddata + i);
 			dquot->dq_id = __le32_to_cpu(ddata[i].dqb_id);
-			id2name(dquot->dq_id, dquot->dq_h->qh_type, name);
-			if (process_dquot(dquot, name) < 0)
+			if (process_dquot(dquot, NULL) < 0)
 				break;
 		}
 	freedqbuf(buf);

@@ -104,6 +104,7 @@ struct util_dqblk {
 };
 
 #define DQ_FOUND 0x01		/* Dquot was found in the edquotas file */
+#define DQ_PRINTED 0x02		/* Dquota has been already printed by repquota */
 
 /* Structure for one loaded quota */
 struct dquot {

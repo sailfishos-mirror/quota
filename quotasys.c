@@ -481,8 +481,27 @@ int kern_quota_format(void)
 	else if (quotactl(QCMD(Q_GETSTATS, 0), NULL, 0, (void *)&stats) < 0) {
 		if (errno == ENOSYS || errno == ENOTSUP)	/* Quota not compiled? */
 			return QF_ERROR;
-		if (errno == EINVAL || errno == EFAULT || errno == EPERM)	/* Old quota compiled? */
-			return ret | (1 << QF_VFSOLD);
+		if (errno == EINVAL || errno == EFAULT || errno == EPERM) {	/* Old quota compiled? */
+			/* RedHat 7.1 (2.4.2-2) newquota check 
+			 * Q_GETSTATS in it's old place, Q_GETQUOTA in the new place
+			 * (they haven't moved Q_GETSTATS to its new value) */
+			int err_stat = 0;
+			int err_quota = 0;
+ 			char tmp[1024];         /* Just temporary buffer */
+
+			if (quotactl(QCMD(Q_V1_GETSTATS, 0), NULL, 0, (void *)&stats))
+				err_stat = errno;
+			if (quotactl(QCMD(Q_V1_GETQUOTA, 0), "", 0, tmp))
+				err_quota = errno;
+
+			/* On a RedHat 2.4.2-2 	we expect 0, EINVAL
+			 * On a 2.4.x 		we expect 0, ENOENT
+			 * On a 2.4.x-ac	we wont get here */
+			if (err_stat == 0 && err_quota == EINVAL)
+				return ret | (1 << QF_VFSV0);	/* New format supported */
+			else
+				return ret | (1 << QF_VFSOLD);
+		}
 		die(4, _("Error while detecting kernel quota version: %s\n"), strerror(errno));
 	}
 	/* We might do some more generic checks in future but this should be enough for now */

@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaio_v1.c,v 1.8 2001/08/22 21:17:56 jkar8572 Exp $"
+#ident "$Id: quotaio_v1.c,v 1.9 2001/09/25 15:56:59 jkar8572 Exp $"
 
 #include <unistd.h>
 #include <errno.h>
@@ -286,7 +286,7 @@ static int v1_commit_dquot(struct dquot *dquot)
 static int v1_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct dquot *, char *))
 {
 	int rd, scanbufpos = 0, scanbufsize = 0;
-	char name[MAXNAMELEN], scanbuf[sizeof(struct v1_disk_dqblk)*SCANBUFSIZE];
+	char scanbuf[sizeof(struct v1_disk_dqblk)*SCANBUFSIZE];
 	struct v1_disk_dqblk *ddqblk;
 	struct dquot *dquot = get_empty_dquot();
 	qid_t id = 0;
@@ -316,8 +316,7 @@ static int v1_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct d
 			continue;
 		v1_disk2memdqblk(&dquot->dq_dqb, ddqblk);
 		dquot->dq_id = id;
-		id2name(dquot->dq_id, h->qh_type, name);
-		if ((rd = process_dquot(dquot, name)) < 0) {
+		if ((rd = process_dquot(dquot, NULL)) < 0) {
 			free(dquot);
 			return rd;
 		}
