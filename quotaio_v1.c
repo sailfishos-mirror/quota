@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaio_v1.c,v 1.2 2001/03/26 15:47:32 jkar8572 Exp $"
+#ident "$Id: quotaio_v1.c,v 1.3 2001/04/04 17:47:50 jkar8572 Exp $"
 
 #include <unistd.h>
 #include <errno.h>
@@ -281,14 +281,14 @@ static int v1_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct d
 	memset(dquot, 0, sizeof(*dquot));
 	dquot->dq_h = h;
 	lseek(h->qh_fd, 0, SEEK_SET);
-	while ((rd = read(h->qh_fd, &ddqblk, sizeof(ddqblk))) == sizeof(ddqblk)) {
-		if (
-		    (ddqblk.dqb_ihardlimit | ddqblk.dqb_isoftlimit | ddqblk.dqb_bhardlimit | ddqblk.
-		     dqb_bsoftlimit | ddqblk.dqb_curblocks | ddqblk.dqb_curinodes | ddqblk.
-		     dqb_itime | ddqblk.dqb_btime) == 0)
+	for(id = 0; (rd = read(h->qh_fd, &ddqblk, sizeof(ddqblk))) == sizeof(ddqblk); id++) {
+		if ((ddqblk.dqb_ihardlimit | ddqblk.dqb_isoftlimit |
+		     ddqblk.dqb_bhardlimit | ddqblk.dqb_bsoftlimit |
+		     ddqblk.dqb_curblocks | ddqblk.dqb_curinodes |
+		     ddqblk.dqb_itime | ddqblk.dqb_btime) == 0)
 			continue;
 		v1_disk2memdqblk(&dquot->dq_dqb, &ddqblk);
-		dquot->dq_id = id++;
+		dquot->dq_id = id;
 		if ((rd = process_dquot(dquot)) < 0) {
 			free(dquot);
 			return rd;
