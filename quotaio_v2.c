@@ -139,8 +139,12 @@ static int v2_init_io(struct quota_handle *h)
 	if (QIO_ENABLED(h)) {
 		struct v2_kern_dqinfo kdqinfo;
 
-		if (quotactl(QCMD(Q_V2_GETINFO, h->qh_type), h->qh_quotadev, 0, (void *)&kdqinfo) < 0)
+		if (quotactl(QCMD(Q_V2_GETINFO, h->qh_type), h->qh_quotadev, 0, (void *)&kdqinfo) < 0) {
+			/* Temporary check just before fix gets to kernel */
+			if (errno == EPERM)	/* Don't have permission to get information? */
+				return 0;
 			return -1;
+		}
 		h->qh_info.dqi_bgrace = kdqinfo.dqi_bgrace;
 		h->qh_info.dqi_igrace = kdqinfo.dqi_igrace;
 		h->qh_info.u.v2_mdqi.dqi_flags = kdqinfo.dqi_flags;
