@@ -1,4 +1,4 @@
-LDAP support by James Bourne <jbourne@hardrock.org>
+LDAP support for warnquota by James Bourne <jbourne@hardrock.org>
 
 The LDAP support added to warnquota allows you to retreive mail routing
 information from an LDAP server so that you can send mail to the correct
