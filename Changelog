@@ -4,7 +4,7 @@ Changes in quota-tools from 3.03 to 3.04
 * made quotaon(8) write better error messages (Jan Kara)
 * make install now creates man directories (Jan Kara)
 * added -q <quotatab> and -c <configfile> options to warnquota(8) (Jan Kara)
-* added some notes about quotatab to warnquota manpage (Jan Kara)
+* added some notes about quotatab to warnquota(8) manpage (Jan Kara)
 
 Changes in quota-tools from 3.02 to 3.03
 
