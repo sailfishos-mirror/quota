@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quota.c,v 1.7 2001/08/15 20:13:42 jkar8572 Exp $"
+#ident "$Id: quota.c,v 1.8 2002/03/05 16:01:24 jkar8572 Exp $"
 
 /*
  * Disk quota reporting program.
@@ -169,7 +169,7 @@ int showquotas(int type, qid_t id)
 		if (q->dq_dqb.dqb_ihardlimit && q->dq_dqb.dqb_curinodes >= q->dq_dqb.dqb_ihardlimit)
 			msgi = _("File limit reached on");
 		else if (q->dq_dqb.dqb_isoftlimit
-			 && q->dq_dqb.dqb_curinodes >= q->dq_dqb.dqb_isoftlimit) {
+			 && q->dq_dqb.dqb_curinodes > q->dq_dqb.dqb_isoftlimit) {
 			if (q->dq_dqb.dqb_itime > now)
 				msgi = _("In file grace period on");
 			else {
@@ -182,7 +182,7 @@ int showquotas(int type, qid_t id)
 		    && toqb(q->dq_dqb.dqb_curspace) >= q->dq_dqb.dqb_bhardlimit)
 				msgb = _("Block limit reached on");
 		else if (q->dq_dqb.dqb_bsoftlimit
-			 && toqb(q->dq_dqb.dqb_curspace) >= q->dq_dqb.dqb_bsoftlimit) {
+			 && toqb(q->dq_dqb.dqb_curspace) > q->dq_dqb.dqb_bsoftlimit) {
 			if (q->dq_dqb.dqb_btime > now)
 				msgb = _("In block grace period on");
 			else {
