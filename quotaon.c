@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaon.c,v 1.7 2001/08/30 10:11:24 jkar8572 Exp $"
+#ident "$Id: quotaon.c,v 1.8 2001/09/04 16:21:58 jkar8572 Exp $"
 
 /*
  * Turn quota on/off for a filesystem.
@@ -175,27 +175,27 @@ int main(int argc, char **argv)
 /*
  *	Enable/disable VFS quota on given filesystem
  */
-static int quotaonoff(char *quotadev, char *quotafile, int type, int flags)
+static int quotaonoff(char *quotadev, char *quotadir, char *quotafile, int type, int flags)
 {
 	int qcmd;
 
 	if (flags & STATEFLAG_OFF) {
 		qcmd = QCMD(Q_QUOTAOFF, type);
 		if (quotactl(qcmd, quotadev, 0, NULL) < 0) {
-			errstr(_("quotactl on %s: %s\n"), quotadev, strerror(errno));
+			errstr(_("quotactl on %s [%s]: %s\n"), quotadev, quotadir, strerror(errno));
 			return 1;
 		}
 		if (flags & STATEFLAG_VERBOSE)
-			printf(_("%s: %s quotas turned off\n"), quotadev, type2name(type));
+			printf(_("%s [%s]: %s quotas turned off\n"), quotadev, quotadir, type2name(type));
 		return 0;
 	}
 	qcmd = QCMD(Q_QUOTAON, type);
 	if (quotactl(qcmd, quotadev, 0, (void *)quotafile) < 0) {
-		errstr(_("using %s on %s: %s\n"), quotafile, quotadev, strerror(errno));
+		errstr(_("using %s on %s [%s]: %s\n"), quotafile, quotadev, quotadir, strerror(errno));
 		return 1;
 	}
 	if (flags & STATEFLAG_VERBOSE)
-		printf(_("%s: %s quotas turned on\n"), quotadev, type2name(type));
+		printf(_("%s [%s]: %s quotas turned on\n"), quotadev, quotadir, type2name(type));
 	return 0;
 }
 
@@ -233,7 +233,7 @@ int v1_newstate(struct mntent *mnt, int type, char *file, int flags)
 	if ((flags & STATEFLAG_OFF) && hasmntopt(mnt, MNTOPT_RSQUASH))
 		errs += quotarsquashonoff(dev, type, flags);
 	if (hasquota(mnt, type))
-		errs += quotaonoff((char *)dev, file, type, flags);
+		errs += quotaonoff((char *)dev, mnt->mnt_dir, file, type, flags);
 	if ((flags & STATEFLAG_ON) && hasmntopt(mnt, MNTOPT_RSQUASH))
 		errs += quotarsquashonoff(dev, type, flags);
 	free((char *)dev);
@@ -251,7 +251,7 @@ int v2_newstate(struct mntent *mnt, int type, char *file, int flags)
 	if (!dev)
 		return 1;
 	if (hasquota(mnt, type))
-		errs = quotaonoff((char *)dev, file, type, flags);
+		errs = quotaonoff((char *)dev, mnt->mnt_dir, file, type, flags);
 	free((char *)dev);
 	return errs;
 }

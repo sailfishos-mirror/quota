@@ -24,6 +24,7 @@
 #define FL_NOREMOUNT 128	/* Don't try to remount filesystem RO */
 #define FL_ALL 256		/* Scan all mountpoints with quota? */
 #define FL_NOROOT 512		/* Scan all mountpoints except root */
+#define FL_BACKUPS 1024		/* Create backup of old quota file? */
 
 extern int flags;		/* Options from command line */
 extern struct util_dqinfo old_info[MAXQUOTAS];	/* Loaded info from file */

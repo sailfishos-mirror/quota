@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.17 2001/08/30 10:11:24 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.18 2001/09/04 16:21:58 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -286,8 +286,11 @@ static void parse_options(int argcnt, char **argstr)
 {
 	int ret;
 
-	while ((ret = getopt(argcnt, argstr, "VhcvugidnfF:mMRa")) != -1) {
-		switch (ret) {
+	while ((ret = getopt(argcnt, argstr, "VhbcvugidnfF:mMRa")) != -1) {
+  	        switch (ret) {
+		  case 'b':
+  		          flags |= FL_BACKUPS;
+			  break;
 		  case 'g':
 			  gwant = 1;
 			  break;
@@ -539,7 +542,7 @@ static int process_file(struct mntent *mnt, int type)
 	char *qfname = NULL;
 	int fd = -1, ret;
 
-	debug(FL_DEBUG | FL_VERBOSE, _("Going to check %s quota file of %s\n"), type2name(type),
+	debug(FL_DEBUG, _("Going to check %s quota file of %s\n"), type2name(type),
 	      mnt->mnt_dir);
 
 	if (kern_quota_on(mnt->mnt_fsname, type, (1 << cfmt)) > 0) {	/* Is quota enabled? */
@@ -605,32 +608,34 @@ static int rename_files(struct mntent *mnt, int type)
 
 	if (!(filename = get_qf_name(mnt, type, cfmt)))
 		die(2, _("Cannot get name of old quotafile on %s.\n"), mnt->mnt_dir);
-	debug(FL_DEBUG | FL_VERBOSE, _("Data dumped.\nRenaming old quotafile to %s~\n"), filename);
-	if (stat(filename, &st) < 0) {	/* File doesn't exist? */
-		if (errno == ENOENT) {
-			debug(FL_DEBUG | FL_VERBOSE, _("Old file not found.\n"));
-			goto rename_new;
+	if (flags & FL_BACKUPS) {
+		debug(FL_DEBUG, _("Data dumped.\nRenaming old quotafile to %s~\n"), filename);
+		if (stat(filename, &st) < 0) {	/* File doesn't exist? */
+			if (errno == ENOENT) {
+				debug(FL_DEBUG | FL_VERBOSE, _("Old file not found.\n"));
+				goto rename_new;
+			}
+			errstr(_("Error while searching for old quota file %s: %s\n"),
+				filename, strerror(errno));
+			free(filename);
+			return -1;
 		}
-		errstr(_("Error while searching for old quota file %s: %s\n"),
-			filename, strerror(errno));
-		free(filename);
-		return -1;
+		mode = st.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO);
+		/* Backup old file */
+		strcpy(newfilename, filename);
+		/* Make backingup safe */
+		sstrncat(newfilename, "~", PATH_MAX);
+		if (newfilename[strlen(newfilename) - 1] != '~')
+			die(8, _("Name of quota file too long. Contact %s.\n"), MY_EMAIL);
+		if (rename(filename, newfilename) < 0) {
+			errstr(_("Cannot rename old quotafile %s to %s: %s\n"),
+				filename, newfilename, strerror(errno));
+			free(filename);
+			return -1;
+		}
 	}
-	mode = st.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO);
-	/* Backup old file */
-	strcpy(newfilename, filename);
-	/* Make backingup safe */
-	sstrncat(newfilename, "~", PATH_MAX);
-	if (newfilename[strlen(newfilename) - 1] != '~')
-		die(8, _("Name of quota file too long. Contact %s.\n"), MY_EMAIL);
-	if (rename(filename, newfilename) < 0) {
-		errstr(_("Cannot rename old quotafile %s to %s: %s\n"),
-			filename, newfilename, strerror(errno));
-		free(filename);
-		return -1;
-	}
-	debug(FL_DEBUG | FL_VERBOSE, _("Renaming new quotafile\n"));
-      rename_new:
+	debug(FL_DEBUG, _("Renaming new quotafile\n"));
+rename_new:
 	/* Rename new file to right name */
 	strcpy(newfilename, filename);
 	sstrncat(newfilename, ".new", PATH_MAX);
@@ -660,7 +665,7 @@ static int dump_to_file(struct mntent *mnt, int type)
 	uint i;
 	struct quota_handle *h;
 
-	debug(FL_DEBUG | FL_VERBOSE, _("Dumping gathered data for %ss.\n"), type2name(type));
+	debug(FL_DEBUG, _("Dumping gathered data for %ss.\n"), type2name(type));
 	if (!(h = new_io(mnt, type, cfmt))) {
 		errstr(_("Cannot initialize IO on new quotafile: %s\n"),
 			strerror(errno));
@@ -684,7 +689,7 @@ static int dump_to_file(struct mntent *mnt, int type)
 		return -1;
 	}
 	if (rename_files(mnt, type) < 0)
-		return -1;
+	        return -1;
 	if (cfmt == kern_quota_on(mnt->mnt_fsname, type, 1 << cfmt)) {	/* Quota turned on? */
 		char *filename;
 
@@ -734,25 +739,21 @@ static void check_dir(struct mntent *mnt)
 		    (NULL, mnt->mnt_dir, mnt->mnt_type, MS_MGC_VAL | MS_REMOUNT | MS_RDONLY,
 		     NULL) < 0 && !(flags & FL_FORCEREMOUNT)) {
 			if (flags & FL_INTERACTIVE) {
-				printf(_
-				       ("Cannot remount filesystem mounted on %s read-only. Counted values might not be right.\n"),
-mnt->mnt_dir);
+				printf(_("Cannot remount filesystem mounted on %s read-only. Counted values might not be right.\n"), mnt->mnt_dir);
 				if (!ask_yn(_("Should I continue"), 0)) {
 					printf(_("As you wish... Canceling check of this file.\n"));
 					goto out;
 				}
 			}
 			else {
-				errstr(
-					_("Cannot remount filesystem mounted on %s read-only so counted values might not be right.\n\
-Please stop all programs writing to filesystem or use -m flag to force checking.\n"),
-					mnt->mnt_dir);
+				errstr(_("Cannot remount filesystem mounted on %s read-only so counted values might not be right.\n\
+Please stop all programs writing to filesystem or use -m flag to force checking.\n"), mnt->mnt_dir);
 				goto out;
 			}
 		}
 		else
 			remounted = 1;
-		debug(FL_DEBUG | FL_VERBOSE, _("Filesystem remounted read-only\n"));
+		debug(FL_DEBUG, _("Filesystem remounted read-only\n"));
 	}
 	debug(FL_VERBOSE, _("Scanning %s [%s] "), mnt->mnt_fsname, mnt->mnt_dir);
 #if defined(EXT2_DIRECT)
@@ -775,7 +776,7 @@ Please stop all programs writing to filesystem or use -m flag to force checking.
 	if (remounted) {
 		if (mount(NULL, mnt->mnt_dir, mnt->mnt_type, MS_MGC_VAL | MS_REMOUNT, NULL) < 0)
 			die(4, _("Cannot remount filesystem %s read-write. cannot write new quota files.\n"), mnt->mnt_dir);
-		debug(FL_DEBUG | FL_VERBOSE, _("Filesystem remounted RW.\n"));
+		debug(FL_DEBUG, _("Filesystem remounted RW.\n"));
 	}
 	if (ucheck)
 		dump_to_file(mnt, USRQUOTA);
@@ -814,7 +815,8 @@ static int detect_filename_format(struct mntent *mnt, int type)
 	snprintf(namebuf, PATH_MAX, "%s/%s.%s", mnt->mnt_dir, basenames[QF_VFSOLD], extensions[type]);
 	if (!stat(namebuf, &statbuf))
 		return QF_VFSOLD;
-	/* Old quota files don't exist, just return newest format... */
+	/* Old quota files don't exist, just create newest quotafile available */
+	flags |= FL_NEWFILE;
 	return QF_VFSV0;
 }
 
@@ -849,7 +851,7 @@ static void check_all(void)
 					mnt->mnt_fsname);
 				continue;
 			}
-			debug(FL_DEBUG | FL_VERBOSE, _("Detected quota format %s\n"), fmt2name(cfmt));
+			debug(FL_DEBUG, _("Detected quota format %s\n"), fmt2name(cfmt));
 		}
 		checked++;
 		check_dir(mnt);

@@ -657,26 +657,39 @@ static int process_dirs(int dcnt, char **dirs)
 		check_dirs = smalloc(sizeof(struct searched_dir) * dcnt);
 		for (i = 0; i < dcnt; i++) {
 			if (stat(dirs[i], &st) < 0) {
-				errstr(_("Can't stat() given mountpoint %s: %s\n"), dirs[i], strerror(errno));
+				errstr(_("Can't stat() given mountpoint %s: %s\nSkipping...\n"), dirs[i], strerror(errno));
 				continue;
 			}
 			check_dirs[check_dirs_cnt].sd_dir = S_ISDIR(st.st_mode);
 			if (S_ISDIR(st.st_mode)) {
 				check_dirs[check_dirs_cnt].sd_dev = st.st_dev;
 				check_dirs[check_dirs_cnt].sd_ino = st.st_ino;
+				if (!realpath(dirs[i], mntpointbuf)) {
+					errstr(_("Can't resolve path %s: %s\n"), dirs[i], strerror(errno));
+					continue;
+				}
 			}
-			else if (S_ISBLK(st.st_mode) || S_ISCHR(st.st_mode))
+			else if (S_ISBLK(st.st_mode) || S_ISCHR(st.st_mode)) {
+				int mentry;
+
 				check_dirs[check_dirs_cnt].sd_dev = st.st_rdev;
+				for (mentry = 0; mentry < mnt_entries_cnt && mnt_entries[mentry].me_dev != st.st_rdev; mentry++);
+				if (mentry == mnt_entries_cnt) {
+					errstr(_("Can't find mountpoint for device %s\n"), dirs[i]);
+					continue;
+				}
+				strcpy(mntpointbuf, mnt_entries[mentry].me_dir);
+			}
 			else {
 				errstr(_("Specified path %s is not directory nor device.\n"), dirs[i]);
 				continue;
 			}
-			if (!realpath(dirs[i], mntpointbuf)) {
-				errstr(_("Can't resolve path %s: %s\n"), dirs[i], strerror(errno));
-				continue;
-			}
 			check_dirs[check_dirs_cnt].sd_name = sstrdup(mntpointbuf);
 			check_dirs_cnt++;
+		}
+		if (!check_dirs_cnt) {
+			errstr(_("No correct mountpoint specified.\n"));
+			return -1;
 		}
 	}
 	return 0;

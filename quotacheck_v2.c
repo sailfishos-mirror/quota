@@ -48,7 +48,7 @@ static int check_info(char *filename, int fd, int type)
 	off_t filesize;
 	int err;
 
-	debug(FL_VERBOSE, _("Checking quotafile info...\n"));
+	debug(FL_DEBUG, _("Checking quotafile info...\n"));
 	lseek(fd, V2_DQINFOOFF, SEEK_SET);
 	err = read(fd, &dinfo, sizeof(struct v2_disk_dqinfo));
 
@@ -322,7 +322,7 @@ int v2_buffer_file(char *filename, int fd, int type)
 		return 0;
 	if (check_info(filename, fd, type) < 0)
 		return 0;
-	debug(FL_DEBUG | FL_VERBOSE, _("Headers of file %s checked. Going to load data...\n"),
+	debug(FL_DEBUG, _("Headers of file %s checked. Going to load data...\n"),
 	      filename);
 	blocks = old_info[type].u.v2_mdqi.dqi_blocks;
 	blkbmp = xmalloc((blocks + 7) >> 3);
@@ -341,7 +341,7 @@ int v2_buffer_file(char *filename, int fd, int type)
 		errstr(_("WARNING - Some data might be changed due to corruption.\n"));
 	}
 	else
-		debug(FL_DEBUG | FL_VERBOSE, _("Not found any corrupted blocks. Congratulations.\n"));
+		debug(FL_DEBUG, _("Not found any corrupted blocks. Congratulations.\n"));
 	return ret;
 }
 

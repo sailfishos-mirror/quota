@@ -4,7 +4,7 @@ quotacheck \- scan a filesystem for disk usage, create, check and repair quota f
 .SH SYNOPSIS
 .B quotacheck
 [
-.B \-gucfinvdMmR
+.B \-gubcfinvdMmR
 ] [
 .B \-F
 .I quota-format
@@ -19,10 +19,10 @@ examines each filesystem, builds a table of current disk usage, and
 compares this table against that recorded in the disk quota file for the
 filesystem (this step is ommitted if option
 .B -c
-is specified).  If any inconsistencies are detected, both the quota file
+is specified). If any inconsistencies are detected, both the quota file
 and the current system copy of the incorrect quotas are updated (the
-latter only occurs if an active filesystem is checked).  By default,
-only user quotas are checked.
+latter only occurs if an active filesystem is checked which is not advised).
+By default, only user quotas are checked.
 .B quotacheck
 expects each filesystem to be checked to have quota files named
 .I [a]quota.user
@@ -70,6 +70,11 @@ ignore the failure to remount the filesystem read-only with option
 .BR \-M .
 .SH OPTIONS
 .TP
+.B \-b
+Forces
+.B quotacheck
+to make backups of the quota file before writing the new data.
+.TP
 .B \-v
 .B quotacheck
 reports its operation as it progresses.  Normally it operates silently.
@@ -91,6 +96,8 @@ or on the filesystems specified are to be checked.
 .TP
 .B \-c
 Don't read existing quota files. Just perform a new scan and save it to disk.
+.B quotacheck
+also skips scanning of old quota files when they are not found.
 .TP
 .B \-f
 Forces checking of filesystems with quotas enabled. This is not
@@ -120,7 +127,7 @@ exits or asks user for input. When this option is set, the first entry found
 is always used (this option works in interactive mode too).
 .TP
 .B \-F \f2format-name\f1
-Check quota quota for specified format (ie. don't perform format
+Check quota for specified format (ie. don't perform format
 auto-detection). This is recommended as detection might not work well on
 corrupted quota files.  Possible format names are:
 .B vfsold
