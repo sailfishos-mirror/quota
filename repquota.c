@@ -105,13 +105,15 @@ static char overlim(uint usage, uint softlim, uint hardlim)
 
 static int print(struct dquot *dquot, char *name)
 {
-	char pname[PRINTNAMELEN+1];
+	char pname[MAXNAMELEN];
 	char time[MAXTIMELEN];
 	struct util_dqblk *entry = &dquot->dq_dqb;
 
 	if (!entry->dqb_curspace && !entry->dqb_curinodes && !(flags & FL_VERBOSE))
 		return 0;
 	sstrncpy(pname, name, sizeof(pname));
+	if (flags & FL_TRUNCNAMES)
+		pname[PRINTNAMELEN] = 0;
 	difftime2str(entry->dqb_btime, time);
 	printf("%-*s %c%c%8Lu%8Lu%8Lu%7s", PRINTNAMELEN, pname,
 	       overlim(qb2kb(toqb(entry->dqb_curspace)), qb2kb(entry->dqb_bsoftlimit),
