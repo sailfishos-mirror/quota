@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.24 2001/11/26 18:18:25 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.25 2001/12/05 14:14:46 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -862,7 +862,7 @@ static void check_all(void)
 		check_dir(mnt);
 	}
 	end_mounts_scan();
-	if (!checked)
+	if (!checked && (!(flags & FL_ALL) || flags & (FL_VERBOSE | FL_DEBUG)))
 		errstr(_("Can't find filesystem to check or filesystem not mounted with quota option.\n"));
 }
 

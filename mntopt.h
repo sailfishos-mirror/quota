@@ -18,5 +18,7 @@
 #define MNTOPT_USRQUOTA		"usrquota"	/* enforce user quota */
 #define MNTOPT_GRPQUOTA		"grpquota"	/* enforce group quota */
 #define MNTOPT_RSQUASH		"rsquash"	/* root as ordinary user */
+#define MNTOPT_BIND		"bind"		/* binded mount */
+#define MNTOPT_LOOP		"loop"		/* loopback mount */
 
 #endif

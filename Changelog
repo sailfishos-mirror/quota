@@ -1,5 +1,7 @@
 Changes in quota-tools from 3.02 to 3.03
 
+*
+* removed bogus error message in mountpoint scanning (Jan Kara)
 * fixed mountpoint scanning initialization (solved rpc.rquotad SEGFAULT) (Jan Kara)
 * rpc.rquotad now doesn't need mountpoint for quota operations (Jan Kara)
 * fixed compilation on sparc (Michael Meskes, Jan Kara)

@@ -657,9 +657,38 @@ static int cache_mnt_table(void)
 				free((char *)devname);
 				continue;
 			}
-			if (!S_ISBLK(st.st_mode) && !S_ISCHR(st.st_mode))
-				errstr(_("Warning: Device %s is not block nor character device.\n"), devname);
-			dev = st.st_rdev;
+			if (!S_ISBLK(st.st_mode) && !S_ISCHR(st.st_mode)) {	/* Some 'bind' or 'loop' mount? */
+				char *opt;
+				
+				if (hasmntopt(mnt, MNTOPT_BIND))
+					dev = st.st_dev;
+				else if ((opt = hasmntopt(mnt, MNTOPT_LOOP))) {
+					if (!(opt = strchr(opt, '='))) {
+						errstr(_("Can't find device of loopback mount in options for %s. Skipping.\n"), devname);
+						free((char *)devname);
+						continue;
+					}
+					opt++;
+					if (stat(opt, &st) < 0) {	/* Can't stat loopback device? */
+						errstr(_("Can't stat() loopback device %s: %s\n"), opt, strerror(errno));
+						free((char *)devname);
+						continue;
+					}
+					if (!S_ISBLK(st.st_mode)) {
+						errstr(_("Loopback device %s isn't block device!\n"), opt);
+						free((char *)devname);
+						continue;
+					}
+					dev = st.st_rdev;
+				}
+				else {
+					errstr(_("Device (%s) filesystem is mounted on isn't block or character device nor it's loopback or bind mount. Skipping.\n"), devname);
+					free((char *)devname);
+					continue;
+				}
+			}
+			else
+				dev = st.st_rdev;
 			for (i = 0; i < mnt_entries_cnt && mnt_entries[i].me_dev != dev; i++);
 		}
 		/* Cope with network filesystems or new mountpoint */
