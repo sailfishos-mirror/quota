@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.5 2001/04/12 05:56:53 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.6 2001/04/25 14:16:44 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -744,7 +744,7 @@ mnt->mnt_dir);
 				fprintf(stderr,
 					_
 					("Cannot remount filesystem mounted on %s read-only so counted values might not be right.\n\
-Please stop all programs writing to filesystem or use -F flag to force checking.\n"),
+Please stop all programs writing to filesystem or use -m flag to force checking.\n"),
 					mnt->mnt_dir);
 				goto out;
 			}
@@ -756,7 +756,7 @@ Please stop all programs writing to filesystem or use -F flag to force checking.
 	debug(FL_VERBOSE, _("Scanning %s [%s] "), mnt_fsname, mnt->mnt_dir);
 #if defined(EXT2_DIRECT)
 	if (!strcmp(mnt->mnt_type, MNTTYPE_EXT2) || !strcmp(mnt->mnt_type, MNTTYPE_EXT3)) {
-		if (ext2_direct_scan(mnt->mnt_dir) < 0)
+		if (ext2_direct_scan(mnt_fsname) < 0)
 			goto out;
 	}
 	else if (mnt_fsname) {
