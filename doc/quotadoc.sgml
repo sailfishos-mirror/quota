@@ -43,9 +43,8 @@ are supporting quota: Ext2, Ext3, ReiserFS, XFS.
 In order for quota subsystem to work you have to have quota compiled in kernel and
 configured appropriately. That means that filesystem on which you want to use quotas
 must be mounted with option <tt/usrquota/ (if you want to use limits for users),
-<tt/grpquota/ (if you want to use limits for groups) or <tt/quota/ (if you want
-to use limits for both users and groups) -- this is equivalent to specifying
-both <tt/usrquota/ and <tt/grpquota/. These mount options are used by quota utils
+<tt/grpquota/ (if you want to use limits for groups) or <tt/quota/ (this is
+equivalent to <tt/usrquota/ option). These mount options are used by quota utils
 to recognize filesystems they should work with. For XFS you have to specify
 additional mount options ??which??. On each such filesystem you have to have
 files with quota data. The name of these quota files depends on <ref id="quota_formats"

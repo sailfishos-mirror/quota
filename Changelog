@@ -1,4 +1,5 @@
 Changes in quota-tools from 3.08 to 3.09
+* fixed minor bug in documentation (Jan Kara, Lucas Brasilino)
 * repquota(8) handles multiple entries in /etc/passwd better (Jan Kara)
 * made tools not to touch mountpoints mounted without quota options (Jan Kara, Paul Szabo)
 
