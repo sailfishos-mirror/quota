@@ -21,7 +21,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/vfs.h>
-#include <sys/sysctl.h>
 
 #include "pot.h"
 #include "bylabel.h"
@@ -598,7 +597,6 @@ void init_kernel_interface(void)
 {
 	struct stat st;
 	struct sigaction sig, oldsig;
-	int ctlname[] = {CTL_FS, FS_DQSTATS, FS_DQ_SYNCS};
 	
 	/* This signal handling is needed because old kernels send us SIGSEGV as they try to resolve the device */
 	sig.sa_handler = SIG_IGN;
@@ -615,7 +613,8 @@ void init_kernel_interface(void)
 	else
 		if (!quotactl(QCMD(Q_XGETQSTAT, 0), NULL, 0, NULL) || (errno != EINVAL && errno != ENOSYS))
 			kernel_formats |= (1 << QF_XFS);
-	if (!sysctl(ctlname, sizeof(ctlname)/sizeof(int), NULL, NULL, NULL, 0)) {
+	/* Detect new kernel interface; Assume generic interface unless we can prove there is not one... */
+	if (!stat("/proc/sys/fs/quota", &st) || errno != ENOENT) {
 		kernel_iface = IFACE_GENERIC;
 		kernel_formats |= (1 << QF_VFSOLD) | (1 << QF_VFSV0);
 	}

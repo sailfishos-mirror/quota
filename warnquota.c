@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.18 2004/01/07 12:37:48 jkar8572 Exp $
+ * Version: $Id: warnquota.c,v 1.19 2004/01/09 11:27:45 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -244,12 +244,17 @@ int deliverable(struct dquot *dquot)
 	   || ((dquot->dq_dqb.dqb_bsoftlimit && toqb(dquot->dq_dqb.dqb_curspace) >= dquot->dq_dqb.dqb_bsoftlimit)
 	   && (dquot->dq_dqb.dqb_btime && dquot->dq_dqb.dqb_btime <= now))))
 		return 0;
+	if (!maildev_handle)
+		return 1;
 	mdquot = maildev_handle->qh_ops->read_dquot(maildev_handle, dquot->dq_id);
 	if (mdquot &&
 	   ((mdquot->dq_dqb.dqb_bhardlimit && toqb(mdquot->dq_dqb.dqb_curspace) >= mdquot->dq_dqb.dqb_bhardlimit)
 	   || ((mdquot->dq_dqb.dqb_bsoftlimit && toqb(mdquot->dq_dqb.dqb_curspace) >= mdquot->dq_dqb.dqb_bsoftlimit)
-	   && (mdquot->dq_dqb.dqb_btime && mdquot->dq_dqb.dqb_btime <= now))))
+	   && (mdquot->dq_dqb.dqb_btime && mdquot->dq_dqb.dqb_btime <= now)))) {
+		free(mdquot);
 		return 0;
+	}
+	free(mdquot);
 	return 1;
 }
 
@@ -659,7 +664,7 @@ int readconfigfile(const char *filename, struct configparams *config)
 				sstrncpy(config->support, value, CNF_BUFFER);
 			else if (!strcmp(var, "PHONE"))
 				sstrncpy(config->phone, value, CNF_BUFFER);
-			else if (!strcmp(var, "MAILSERV")) {
+			else if (!strcmp(var, "MAILDEV")) {
 				/* set the global */
 				sstrncpy(maildev, value, CNF_BUFFER);
 			} else if (!strcmp(var, "MESSAGE")) {
