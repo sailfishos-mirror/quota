@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quota.c,v 1.5 2001/05/02 09:32:22 jkar8572 Exp $"
+#ident "$Id: quota.c,v 1.6 2001/07/17 21:10:57 jkar8572 Exp $"
 
 /*
  * Disk quota reporting program.
@@ -205,12 +205,12 @@ int showquotas(int type, qid_t id)
 				printf("%15s", q->dq_h->qh_quotadev);
 			if (msgb)
 				difftime2str(q->dq_dqb.dqb_btime, timebuf);
-			printf("%8Lu%c%7Lu%8Lu%8s", (long long)toqb(q->dq_dqb.dqb_curspace),
+			printf(" %7Lu%c %6Lu %7Lu %7s", (long long)toqb(q->dq_dqb.dqb_curspace),
 			       msgb ? '*' : ' ', (long long)q->dq_dqb.dqb_bsoftlimit,
 			       (long long)q->dq_dqb.dqb_bhardlimit, msgb ? timebuf : "");
 			if (msgi)
 				difftime2str(q->dq_dqb.dqb_itime, timebuf);
-			printf("%8Lu%c%7Lu%8Lu%8s\n", (long long)q->dq_dqb.dqb_curinodes,
+			printf(" %7Lu%c %6Lu %7Lu %7s\n", (long long)q->dq_dqb.dqb_curinodes,
 			       msgi ? '*' : ' ', (long long)q->dq_dqb.dqb_isoftlimit,
 			       (long long)q->dq_dqb.dqb_ihardlimit, msgi ? timebuf : "");
 			continue;
