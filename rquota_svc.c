@@ -10,7 +10,7 @@
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: rquota_svc.c,v 1.6 2001/09/17 11:48:40 jkar8572 Exp $
+ * Version: $Id: rquota_svc.c,v 1.7 2001/09/17 15:02:51 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -27,6 +27,7 @@
 #include <string.h>		/* strcmp */
 #include <memory.h>
 #include <unistd.h>
+#include <getopt.h>
 #ifdef HOSTS_ACCESS
 #include <tcpd.h>
 #include <netdb.h>
@@ -49,12 +50,76 @@ char *progname;
  */
 struct authunix_parms *unix_cred;
 
-#ifdef HOSTS_ACCESS
-int good_client(struct sockaddr_in *addr)
+int disable_setquota=0;            /* Disables setquota rpc */
+int disable_daemon=0;              /* Disable daemon() call */
+
+static struct option options[]= {
+	{ "version", 0, NULL, 'V' },
+	{ "help", 0, NULL, 'h' },
+	{ "foreground", 0 , NULL, 'F' },
+	{ "no-setquota", 0 , NULL, 's' },
+	{ NULL, 0, NULL , 0 }
+};
+
+static void show_help() {
+	printf("Usage: %s [options]\n",progname);
+	printf("Options are:\n");
+	printf(" -h --help         shows this text\n");
+	printf(" -V --version      show version information\n");
+	printf(" -F --foreground   starts the quota service in foreground\n");
+	printf(" -s --no-setquota  disables remote calls to setquota\n");
+}
+
+static void parse_options(int argc, char **argv)
 {
+	char ostr[128]="";
+	int i,opt;
+	int j=0;
+	for(i=0;options[i].name;i++) {
+		ostr[j++]=options[i].val;
+		if (options[i].has_arg) ostr[j++]=':';
+	}
+	while( (opt=getopt_long(argc, argv, ostr, options, NULL))>=0 ) {
+		switch(opt) {
+		case 'V': version(); exit(0);
+		case 'h': show_help(); exit(0);
+		case 'F': disable_daemon=1; break;
+		case 's': disable_setquota=1; break;
+		default:
+			fprintf(stderr,"Unknown option '%c'.\n",opt);
+			show_help();
+			exit(1);
+		}
+	}
+}
+
+
+/*
+ * good_client checks if an quota client should be allowed to
+ * execute the requested rpc call.
+ */
+int good_client(struct sockaddr_in *addr, rpcproc_t rq_proc)
+{
+#ifdef HOSTS_ACCESS
 	struct hostent *h;
 	char *name, **ad;
-	
+#endif
+
+	if ( rq_proc==RQUOTAPROC_SETQUOTA ||
+	     rq_proc==RQUOTAPROC_SETACTIVEQUOTA) {
+		/* If setquota is disabled, fail always */
+		if (disable_setquota) return 0;
+		/* Require that SETQUOTA calls originate from port < 1024 */
+		if (ntohs(addr->sin_port)>=1024) {
+			return 0;
+		}
+		/* Setquota OK */
+	}
+
+#ifdef HOSTS_ACCESS
+	/* NOTE: we could use different servicename for setquota calls to
+	 * allow only some hosts to call setquota. */
+
 	/* Check IP address */
 	if (hosts_ctl("rquotad", "", inet_ntoa(addr->sin_addr), ""))
 		return 1;
@@ -80,8 +145,11 @@ int good_client(struct sockaddr_in *addr)
 		if (hosts_ctl("rquotad", "", *ad, ""))
 			return 1;
 	return 0;
-}
+#else
+	/* If no access checking is available, OK always */
+	return 1;
 #endif
+}
 
 static void rquotaprog_1(struct svc_req *rqstp, register SVCXPRT * transp)
 {
@@ -95,15 +163,14 @@ static void rquotaprog_1(struct svc_req *rqstp, register SVCXPRT * transp)
 	xdrproc_t xdr_argument, xdr_result;
 	char *(*local) (char *, struct svc_req *);
 
-#ifdef HOSTS_ACCESS
 	/*
 	 *  Authenticate host
 	 */
-	if (!good_client(svc_getcaller(rqstp->rq_xprt))) {
+	if (!good_client(svc_getcaller(rqstp->rq_xprt),rqstp->rq_proc)) {
 		svcerr_auth (transp, AUTH_FAILED);
 		return;
 	}
-#endif
+
 	/*
 	 * Don't bother authentication for NULLPROC.
 	 */
@@ -113,7 +180,7 @@ static void rquotaprog_1(struct svc_req *rqstp, register SVCXPRT * transp)
 	}
 
 	/*
-	 * First get authentication.
+	 * Get authentication.
 	 */
 	switch (rqstp->rq_cred.oa_flavor) {
 	  case AUTH_UNIX:
@@ -154,7 +221,7 @@ static void rquotaprog_1(struct svc_req *rqstp, register SVCXPRT * transp)
 		  svcerr_noproc(transp);
 		  return;
 	}
-	(void)memset((char *)&argument, 0, sizeof(argument));
+	memset(&argument, 0, sizeof(argument));
 	if (!svc_getargs(transp, xdr_argument, (caddr_t) & argument)) {
 		svcerr_decode(transp);
 		return;
@@ -182,15 +249,14 @@ static void rquotaprog_2(struct svc_req *rqstp, register SVCXPRT * transp)
 	xdrproc_t xdr_argument, xdr_result;
 	char *(*local) (char *, struct svc_req *);
 
-#ifdef HOSTS_ACCESS
 	/*
 	 *  Authenticate host
 	 */
-	if (!good_client(svc_getcaller(rqstp->rq_xprt))) {
+	if (!good_client(svc_getcaller(rqstp->rq_xprt),rqstp->rq_proc)) {
 		svcerr_auth (transp, AUTH_FAILED);
 		return;
 	}
-#endif
+
 	/*
 	 * Don't bother authentication for NULLPROC.
 	 */
@@ -200,7 +266,7 @@ static void rquotaprog_2(struct svc_req *rqstp, register SVCXPRT * transp)
 	}
 
 	/*
-	 * First get authentication.
+	 * Get authentication.
 	 */
 	switch (rqstp->rq_cred.oa_flavor) {
 	  case AUTH_UNIX:
@@ -241,7 +307,7 @@ static void rquotaprog_2(struct svc_req *rqstp, register SVCXPRT * transp)
 		  svcerr_noproc(transp);
 		  return;
 	}
-	(void)memset((char *)&argument, 0, sizeof(argument));
+	memset(&argument, 0, sizeof(argument));
 	if (!svc_getargs(transp, xdr_argument, (caddr_t) & argument)) {
 		svcerr_decode(transp);
 		return;
@@ -260,12 +326,10 @@ static void rquotaprog_2(struct svc_req *rqstp, register SVCXPRT * transp)
 int main(int argc, char **argv)
 {
 	register SVCXPRT *transp;
-	int background = 1;
 
 	gettexton();
 	progname = basename(argv[0]);
-	if (argc == 2 && (!strcmp(argv[1], "--foreground") || !strcmp(argv[1], "-f")))
-		background = 0;
+	parse_options(argc, argv);
 
 	warn_new_kernel(-1);
 
@@ -300,7 +364,7 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	if (background)
+	if (!disable_daemon)
 		daemon(0, 0);
 	svc_run();
 	errstr(_("svc_run returned\n"));
