@@ -1,3 +1,7 @@
+Changes in quota-tools from 3.01 to ????
+
+* added -n option (don't resolve names) to repquota (Jan Kara)
+
 Changes in quota-tools from 3.01-final to 3.01
 
 * quotastats should now work better on old kernels (Jan Kara)

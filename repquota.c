@@ -30,6 +30,7 @@
 #define FL_ALL 8
 #define FL_TRUNCNAMES 16
 #define FL_SHORTNUMS 32
+#define FL_NONAME 64
 
 int flags, fmt = -1;
 char **mnt;
@@ -40,7 +41,7 @@ char *progname;
 
 static void usage(void)
 {
-	errstr(_("Utility for reporting quotas.\nUsage:\n%s [-vugts] [-F quotaformat] (-a | mntpoint)\n"), progname);
+	errstr(_("Utility for reporting quotas.\nUsage:\n%s [-vugs] [-t|n] [-F quotaformat] (-a | mntpoint)\n"), progname);
 	fprintf(stderr, _("Bugs to %s\n"), MY_EMAIL);
 	exit(1);
 }
@@ -55,7 +56,7 @@ static void parse_options(int argcnt, char **argstr)
 	else
 		slash++;
 
-	while ((ret = getopt(argcnt, argstr, "VavughtsF:")) != -1) {
+	while ((ret = getopt(argcnt, argstr, "VavughtsnF:")) != -1) {
 		switch (ret) {
 			case '?':
 			case 'h':
@@ -85,6 +86,9 @@ static void parse_options(int argcnt, char **argstr)
 				if ((fmt = name2fmt(optarg)) == QF_ERROR)
 					exit(1);
 				break;
+			case 'n':
+				flags |= FL_NONAME;
+				break;
 
 		}
 	}
@@ -95,6 +99,10 @@ static void parse_options(int argcnt, char **argstr)
 	}
 	if (fmt == QF_RPC) {
 		fputs(_("Repquota can't report through RPC calls.\n"), stderr);
+		exit(1);
+	}
+	if (flags & FL_NONAME && flags & FL_TRUNCNAMES) {
+		fputs(_("Specified both -n and -t but only one of them can be used.\n"), stderr);
 		exit(1);
 	}
 	if (!(flags & (FL_USER | FL_GROUP)))
@@ -184,8 +192,13 @@ static void dump_cached_dquots(int type)
 
 static int output(struct dquot *dquot, char *name)
 {
+	if (flags & FL_NONAME) {
+		char namebuf[MAXNAMELEN];
 
-	if (name)
+		sprintf(namebuf, "#%u", dquot->dq_id);
+		print(dquot, namebuf);
+	}
+	else if (name)
 		print(dquot, name);
 	else {
 		memcpy(dquot_cache+cached_dquots++, dquot, sizeof(struct dquot));

@@ -5,7 +5,11 @@ repquota \- summarize quotas for a filesystem
 .SH SYNOPSIS
 .B /usr/sbin/repquota
 [
-.B \-vtsug
+.B \-vsug
+] [
+.B \-t
+|
+.B \-n
 ] [
 .B \-F
 .I format-name
@@ -15,6 +19,10 @@ repquota \- summarize quotas for a filesystem
 .B /usr/sbin/repquota
 [
 .B \-avtsug
+] [
+.B \-t
+|
+.B \-n
 ] [
 .B \-F
 .I format-name
@@ -48,6 +56,9 @@ information.
 .B \-t
 Truncate user/group names longer than 9 characters. This results in nicer output when
 there are such names.
+.TP
+.B \-n
+Don't resolve UIDs/GIDs to names. This can speedup printing a lot.
 .TP
 .B \-s
 Try to report used space, number of used inodes and limits in more appropriate units
