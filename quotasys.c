@@ -762,7 +762,7 @@ static int cache_mnt_table(int flags)
 		if (flags & MS_NO_AUTOFS && !strcmp(mnt->mnt_type, MNTTYPE_AUTOFS)) {	/* Autofs dir to remember? */
 			if (autofsdircnt == AUTOFS_DIR_MAX)
 				die(3, "Too many autofs mountpoints. Please contact <jack@suse.cz>\n");
-			sstrncpy(autofsdir[autofsdircnt++], mnt->mnt_dir, PATH_MAX);
+			snprintf(autofsdir[autofsdircnt++], PATH_MAX, "%s/", mnt->mnt_dir);
 			free((char *)devname);
 			continue;
 		}
