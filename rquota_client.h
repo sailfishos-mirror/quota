@@ -10,9 +10,9 @@
 #include "quotaio.h"
 
 /* Collect the requested quota information from a remote host. */
-void rpc_rquota_get(struct dquot *dquot);
+int rpc_rquota_get(struct dquot *dquot);
 
 /* Set the requested quota information on a remote host. */
-void rpc_rquota_set(int qcmd, struct dquot *dquot);
+int rpc_rquota_set(int qcmd, struct dquot *dquot);
 
 #endif

@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaio_v1.c,v 1.7 2001/08/15 20:13:42 jkar8572 Exp $"
+#ident "$Id: quotaio_v1.c,v 1.8 2001/08/22 21:17:56 jkar8572 Exp $"
 
 #include <unistd.h>
 #include <errno.h>
@@ -220,8 +220,7 @@ static struct dquot *v1_read_dquot(struct quota_handle *h, qid_t id)
 	if (QIO_ENABLED(h)) {	/* Does kernel use the file? */
 		struct v1_kern_dqblk kdqblk;
 
-		if (quotactl(QCMD(Q_V1_GETQUOTA, h->qh_type), h->qh_quotadev, id, (void *)&kdqblk) <
-		    0) {
+		if (quotactl(QCMD(Q_V1_GETQUOTA, h->qh_type), h->qh_quotadev, id, (void *)&kdqblk) < 0) {
 			free(dquot);
 			return NULL;
 		}

@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaops.c,v 1.5 2001/07/16 03:24:49 jkar8572 Exp $"
+#ident "$Id: quotaops.c,v 1.6 2001/08/22 21:17:56 jkar8572 Exp $"
 
 #include <rpc/rpc.h>
 #include <sys/types.h>
@@ -127,7 +127,7 @@ struct dquot *getprivs(qid_t id, struct quota_handle **handles)
 				euid = geteuid();
 				if (euid != id && euid != 0) {
 					uid2user(id, name);
-					die(1, _("%s (uid %d): permission denied\n"),  name, id);
+					die(1, _("%s (uid %d): Permission denied\n"),  name, id);
 				}
 				break;
 			case GRPQUOTA:
@@ -143,7 +143,7 @@ struct dquot *getprivs(qid_t id, struct quota_handle **handles)
 
 				if (j >= ngroups && geteuid() != 0) {
 					gid2group(id, name);
-					errstr(_("%s (gid %d): permission denied\n"),
+					errstr(_("%s (gid %d): Permission denied\n"),
 						name, id);
 					return (struct dquot *)NULL;
 				}

@@ -9,7 +9,7 @@
  *
  *          This part does the rpc-communication with the rquotad.
  *
- * Version: $Id: rquota_client.c,v 1.4 2001/08/15 20:13:42 jkar8572 Exp $
+ * Version: $Id: rquota_client.c,v 1.5 2001/08/22 21:17:56 jkar8572 Exp $
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
@@ -100,10 +100,28 @@ static inline void cliutil2netdqblk(struct sq_dqblk *n, struct util_dqblk *u)
 		n->rq_ftimeleft = 0;
 }
 
+/* Write appropriate error message */
+int rquota_err(int stat)
+{
+	switch (stat) {
+		case -1:
+			return -ECONNREFUSED;
+		case 0:
+			return -ENOSYS;
+		case Q_NOQUOTA:
+		case Q_OK:
+			return 0;
+		case Q_EPERM:
+			return -EPERM;
+		default:
+			return -EINVAL;
+	}
+}
+
 /*
  * Collect the requested quota information from a remote host.
  */
-void rpc_rquota_get(struct dquot *dquot)
+int rpc_rquota_get(struct dquot *dquot)
 {
 	CLIENT *clnt;
 	getquota_rslt *result;
@@ -131,7 +149,7 @@ void rpc_rquota_get(struct dquot *dquot)
 	 * automounter.
 	 */
 	if ((pathname = strchr(fsname_tmp, ':')) == (char *)0 || *(pathname + 1) == '(')
-		return;
+		return -ENOENT;
 
 	*pathname++ = '\0';
 
@@ -168,12 +186,10 @@ void rpc_rquota_get(struct dquot *dquot)
 		 */
 		auth_destroy(clnt->cl_auth);
 		clnt_destroy(clnt);
-		puts("get2");
 	}
-	else {
+	else
 		result = NULL;
-	}
-	printf("result: %p, status: %d\n", result, result?result->status:0);
+
 	if (result == NULL || !result->status) {
 		if (dquot->dq_h->qh_type == USRQUOTA) {
 			/*
@@ -212,14 +228,14 @@ void rpc_rquota_get(struct dquot *dquot)
 			}
 		}
 	}
-
 	free(fsname_tmp);
+	return rquota_err(result?result->status:-1);
 }
 
 /*
  * Set the requested quota information on a remote host.
  */
-void rpc_rquota_set(int qcmd, struct dquot *dquot)
+int rpc_rquota_set(int qcmd, struct dquot *dquot)
 {
 #if defined(RPC_SETQUOTA)
 	CLIENT *clnt;
@@ -243,7 +259,7 @@ void rpc_rquota_set(int qcmd, struct dquot *dquot)
 	 * automounter.
 	 */
 	if ((pathname = strchr(fsname_tmp, ':')) == (char *)0 || *(pathname + 1) == '(')
-		return;
+		return -ENOENT;
 
 	*pathname++ = '\0';
 
@@ -324,6 +340,7 @@ void rpc_rquota_set(int qcmd, struct dquot *dquot)
 		}
 	}
 	free(fsname_tmp);
+	return rquota_err(result?result->status:-1);
 #endif
 }
 #endif

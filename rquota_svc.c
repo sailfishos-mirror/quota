@@ -10,7 +10,7 @@
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: rquota_svc.c,v 1.4 2001/08/21 15:34:32 jkar8572 Exp $
+ * Version: $Id: rquota_svc.c,v 1.5 2001/08/22 21:17:56 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -30,6 +30,7 @@
 #ifdef HOSTS_ACCESS
 #include <tcpd.h>
 #include <netdb.h>
+#include <arpa/inet.h>
 #endif
 
 #ifdef __STDC__
@@ -61,7 +62,7 @@ int good_client(struct sockaddr_in *addr)
 	if (hosts_ctl("rquotad", "", inet_ntoa(addr->sin_addr), ""))
 		return 1;
 	/* Get address */
-	if (!(h = gethostbyaddr(&(addr->sin_addr), sizeof(addr->sin_addr), AF_INET)))
+	if (!(h = gethostbyaddr((const char *)&(addr->sin_addr), sizeof(addr->sin_addr), AF_INET)))
 		return 0;
 	if (!(name = alloca(strlen(h->h_name)+1)))
 		return 0;

@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <errno.h>
+#include <stdlib.h>
 #include <sys/types.h>
 
 #include "common.h"
@@ -32,10 +33,15 @@ static struct dquot *rpc_read_dquot(struct quota_handle *h, qid_t id)
 {
 #ifdef RPC
 	struct dquot *dquot = get_empty_dquot();
+	int ret;
 
 	dquot->dq_id = id;
 	dquot->dq_h = h;
-	rpc_rquota_get(dquot);
+	if ((ret = rpc_rquota_get(dquot)) < 0) {
+		errno = -ret;
+		free(dquot);
+		return NULL;
+	}
 	return dquot;
 #else
 	errno = ENOTSUP;
@@ -49,12 +55,17 @@ static struct dquot *rpc_read_dquot(struct quota_handle *h, qid_t id)
 static int rpc_commit_dquot(struct dquot *dquot)
 {
 #ifdef RPC
+	int ret;
+
 	if (QIO_RO(dquot->dq_h)) {
 		errstr(_("Trying to write quota to readonly quotafile on %s\n"), dquot->dq_h->qh_quotadev);
 		errno = EPERM;
 		return -1;
 	}
-	rpc_rquota_set(QCMD(Q_RPC_SETQUOTA, dquot->dq_h->qh_type), dquot);
+	if ((ret = rpc_rquota_set(QCMD(Q_RPC_SETQUOTA, dquot->dq_h->qh_type), dquot)) < 0) {
+		errno = -ret;
+		return -1;
+	}
 	return 0;
 #else
 	errno = ENOTSUP;

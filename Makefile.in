@@ -7,13 +7,9 @@ RPCSRC        = rquota.h rquota_xdr.c rquota_clnt.c
 LIBS          = @LIBS@
 LDFLAGS       = @LDFLAGS@
 
-# Uncomment the two lines below to add tcp_wrapper support for rpc.rquotad
-# Then add lines to /etc/hosts.allow and /etc/hosts.deny
+# Add lines to /etc/hosts.allow and /etc/hosts.deny
 # like: "rquotad: ALL@ALL except my.host.i.want.com" in hosts.deny means
 #        only the host designated can get info from rquotad
-# NOTE: I used gethostbyaddr(), so you may need FQDN or merely host name
-# depending on how your resolver returns first. IP Addresses will work as well.
-#
 CFLAGS       += @HOSTS_ACCESS@
 
 INSTALL       = @INSTALL@

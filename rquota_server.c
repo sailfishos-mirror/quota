@@ -9,7 +9,7 @@
  *
  *          This part does the lookup of the info.
  *
- * Version: $Id: rquota_server.c,v 1.7 2001/08/21 15:34:31 jkar8572 Exp $
+ * Version: $Id: rquota_server.c,v 1.8 2001/08/22 21:17:56 jkar8572 Exp $
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
@@ -248,12 +248,10 @@ getquota_rslt *getquotainfo(int flags, caddr_t * argp, struct svc_req * rqstp)
 		end_mounts_scan();
 		goto out;
 	}
-	printf("dev: %s dir: %s\n", mnt->mnt_fsname, mnt->mnt_dir);
 	if (!(handles[0] = init_io(mnt, type, -1, IOI_READONLY))) {
 		end_mounts_scan();
 		goto out;
 	}
-	printf("Returned: %p\n", handles[0]);
 	end_mounts_scan();
 	if (!(flags & ACTIVE) || QIO_ENABLED(handles[0]))
 		dquot = handles[0]->qh_ops->read_dquot(handles[0], id);
@@ -265,7 +263,6 @@ getquota_rslt *getquotainfo(int flags, caddr_t * argp, struct svc_req * rqstp)
 	}
 out:
 	dispose_handle_list(handles);
-	printf("state: %d\n", result.status);
 	return (&result);
 }
 
