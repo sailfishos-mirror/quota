@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaio_v1.c,v 1.1 2001/03/23 12:03:28 jkar8572 Exp $"
+#ident "$Id: quotaio_v1.c,v 1.2 2001/03/26 15:47:32 jkar8572 Exp $"
 
 #include <unistd.h>
 #include <errno.h>
@@ -55,14 +55,12 @@ static int v1_commit_dquot(struct dquot *dquot);
 static int v1_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct dquot * dquot));
 
 struct quotafile_ops quotafile_ops_1 = {
-	v1_init_io,
-	v1_new_io,
-	NULL,			/* end_io */
-	v1_write_info,
-	v1_read_dquot,
-	v1_commit_dquot,
-	v1_scan_dquots,
-	NULL			/* report */
+init_io:	v1_init_io,
+new_io:		v1_new_io,
+write_info:	v1_write_info,
+read_dquot:	v1_read_dquot,
+commit_dquot:	v1_commit_dquot,
+scan_dquots:	v1_scan_dquots,
 };
 
 /*

@@ -32,14 +32,12 @@ static int xfs_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct 
 static int xfs_report(struct quota_handle *h, int verbose);
 
 struct quotafile_ops quotafile_ops_xfs = {
-	xfs_init_io,
-	NULL,			/* new_io */
-	NULL,			/* end_io */
-	xfs_write_info,
-	xfs_read_dquot,
-	xfs_commit_dquot,
-	xfs_scan_dquots,
-	xfs_report
+init_io:	xfs_init_io,
+write_info:	xfs_write_info,
+read_dquot:	xfs_read_dquot,
+commit_dquot:	xfs_commit_dquot,
+scan_dquots:	xfs_scan_dquots,
+report:		xfs_report
 };
 
 /*
