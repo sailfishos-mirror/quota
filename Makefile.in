@@ -29,6 +29,7 @@ RPCGEN        = rpcgen
 prefix        = @prefix@
 bindir        = $(prefix)/bin
 sbindir       = $(prefix)/sbin
+root_sbindir  = @ROOTSBIN@
 mandir        = @mandir@
 includedir    = $(prefix)/include
 locale_dir    = $(prefix)/share/locale
@@ -75,15 +76,16 @@ inst_mo: mo
 	$(INSTALL) -m 644 $$n $(ROOTDIR)$(locale_dir)/$$l/LC_MESSAGES/quota.mo; \
 	done
 
-install: all inst_mo
+install: all @INSTMO@
 	-mkdir -p $(ROOTDIR)$(sbindir)
 	-mkdir -p $(ROOTDIR)$(bindir)
+	-mkdir -p $(ROOTDIR)$(root_sbindir)
 	-$(INSTALL) -m $(DEF_SBIN_MODE) \
-	quotacheck quotaon convertquota $(ROOTDIR)$(sbindir)
-	$(LN) quotaon $(ROOTDIR)$(sbindir)/quotaoff
+	quotacheck quotaon $(ROOTDIR)$(root_sbindir)
+	-$(LN) quotaon $(ROOTDIR)$(root_sbindir)/quotaoff
 	-$(INSTALL) -m $(DEF_SBIN_MODE) \
 	edquota repquota warnquota quotastats setquota quot xqmstats \
-	$(ROOTDIR)$(sbindir)
+	convertquota $(ROOTDIR)$(sbindir)
 	-mkdir -p $(ROOTDIR)$(sysconfdir)
 	-$(INSTALL) -m $(DEF_CONF_MODE) warnquota.conf $(ROOTDIR)$(sysconfdir)
 	-$(INSTALL) -m $(DEF_CONF_MODE) quotatab $(ROOTDIR)$(sysconfdir)

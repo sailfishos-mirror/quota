@@ -1,4 +1,12 @@
-Changes in quota-tools form 3.10 to 3.11
+Changes in quota-tools from 3.11 to 3.12
+* disabling nls via configure (Jan Kara)
+* fixed warning when gettext not used (Peter Breitenlohner)
+* fixed typo in rquotad.8 (Peter Breitenlohner)
+* fixed compiler warning in quotacheck.c (Peter Breitenlohner)
+* added config option for putting some important binaries to /sbin regardless
+  $(prefix) (Jan Kara)
+
+Changes in quota-tools from 3.10 to 3.11
 * quota-tools should again use old RPC protocol when needed (Jan Kara)
 * add FIOQSIZE for x84_64 architecture (Jan Kara)
 * quotacheck(8) does not count quota files to usage (Jan Kara)

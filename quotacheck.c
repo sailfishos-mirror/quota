@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.38 2004/02/08 16:34:17 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.39 2004/03/02 17:19:43 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -28,6 +28,7 @@
 #include <sys/mount.h>
 
 #if defined(EXT2_DIRECT)
+#include <linux/types.h>
 #include <ext2fs/ext2fs.h>
 #endif
 
