@@ -191,9 +191,13 @@ static void creport(const char *file, char *fsdir)
 	for (i = 0; i < TSIZE - 1; i++)
 		if (sizes[i] > 0) {
 			t += sizes[i] * i;
-			printf(_("%d\t%llu\t%llu\n"), i, sizes[i], t);
+			printf(_("%d\t%llu\t%llu\n"), i,
+			       (unsigned long long) sizes[i],
+			       (unsigned long long) t);
 		}
-	printf(_("%d\t%llu\t%llu\n"), TSIZE - 1, sizes[TSIZE - 1], overflow + t);
+	printf(_("%d\t%llu\t%llu\n"), TSIZE - 1,
+	       (unsigned long long) sizes[TSIZE - 1],
+               (unsigned long long) (overflow + t));
 }
 
 static void report(const char *file, char *fsdir, int type)
@@ -207,16 +211,18 @@ static void report(const char *file, char *fsdir, int type)
 
 		if (dp->blocks == 0)
 			return;
-		printf(_("%8llu    "), dp->blocks);
+		printf(_("%8llu    "), (unsigned long long) dp->blocks);
 		if (fflag)
-			printf(_("%8llu    "), dp->nfiles);
+			printf(_("%8llu    "), (unsigned long long) dp->nfiles);
 		if ((cp = idname(dp->id, type)) != NULL)
 			printf(_("%-8.8s"), cp);
 		else
 			printf(_("#%-7d"), dp->id);
 		if (vflag)
 			printf(_("    %8llu    %8llu    %8llu"),
-			       dp->blocks30, dp->blocks60, dp->blocks90);
+			       (unsigned long long) dp->blocks30,
+			       (unsigned long long) dp->blocks60,
+			       (unsigned long long) dp->blocks90);
 		putchar('\n');
 	}
 }
