@@ -398,6 +398,19 @@ static int hasxfsquota(struct mntent *mnt, int type)
 	return ret;
 }
 
+/* Return if given option has nonempty argument */
+char *hasmntoptarg(struct mntent *mnt, char *opt)
+{
+	char *p = hasmntopt(mnt, opt);
+
+	if (!p)
+		return NULL;
+	p += strlen(opt);
+	if (*p == '=' && p[1] != ',')
+		return p+1;
+	return NULL;
+}
+
 /*
  *	Check to see if a particular quota is to be enabled (filesystem mounted with proper option)
  */
@@ -411,9 +424,9 @@ int hasquota(struct mntent *mnt, int type)
 	if (!strcmp(mnt->mnt_type, MNTTYPE_NFS))	/* NFS always has quota or better there is no good way how to detect it */
 		return 1;
 
-	if ((type == USRQUOTA) && (hasmntopt(mnt, MNTOPT_USRQUOTA) || hasmntopt(mnt, MNTOPT_USRJQUOTA)))
+	if ((type == USRQUOTA) && (hasmntopt(mnt, MNTOPT_USRQUOTA) || hasmntoptarg(mnt, MNTOPT_USRJQUOTA)))
 		return 1;
-	if ((type == GRPQUOTA) && (hasmntopt(mnt, MNTOPT_GRPQUOTA) || hasmntopt(mnt, MNTOPT_GRPJQUOTA)))
+	if ((type == GRPQUOTA) && (hasmntopt(mnt, MNTOPT_GRPQUOTA) || hasmntoptarg(mnt, MNTOPT_GRPJQUOTA)))
 		return 1;
 	if ((type == USRQUOTA) && hasmntopt(mnt, MNTOPT_QUOTA))
 		return 1;
@@ -464,17 +477,21 @@ int get_qf_name(struct mntent *mnt, int type, int fmt, int flags, char **filenam
 		if (*(pathname = option + strlen(MNTOPT_USRQUOTA)) == '=')
 			has_quota_file_definition = 1;
 	}
-	else if (type == USRQUOTA && (option = hasmntopt(mnt, MNTOPT_USRJQUOTA))) {
-		pathname = option + strlen(MNTOPT_USRJQUOTA);
+	else if (type == USRQUOTA && (option = hasmntoptarg(mnt, MNTOPT_USRJQUOTA))) {
+		pathname = option-1;
 		has_quota_file_definition = 1;
+		sstrncpy(qfullname, mnt->mnt_dir, sizeof(qfullname));
+		sstrncat(qfullname, "/", sizeof(qfullname));
 	}
 	else if (type == GRPQUOTA && (option = hasmntopt(mnt, MNTOPT_GRPQUOTA))) {
 		if (*(pathname = option + strlen(MNTOPT_GRPQUOTA)) == '=')
 			has_quota_file_definition = 1;
 	}
-	else if (type == GRPQUOTA && (option = hasmntopt(mnt, MNTOPT_GRPJQUOTA))) {
-		pathname = option + strlen(MNTOPT_GRPJQUOTA);
+	else if (type == GRPQUOTA && (option = hasmntoptarg(mnt, MNTOPT_GRPJQUOTA))) {
+		pathname = option-1;
 		has_quota_file_definition = 1;
+		sstrncpy(qfullname, mnt->mnt_dir, sizeof(qfullname));
+		sstrncat(qfullname, "/", sizeof(qfullname));
 	}
 	else if (type == USRQUOTA && (option = hasmntopt(mnt, MNTOPT_QUOTA))) {
 		if (*(pathname = option + strlen(MNTOPT_QUOTA)) == '=')
@@ -485,9 +502,9 @@ int get_qf_name(struct mntent *mnt, int type, int fmt, int flags, char **filenam
 
 	if (has_quota_file_definition) {
 		if ((option = strchr(++pathname, ',')))
-			sstrncpy(qfullname, pathname, min((option - pathname + 1), sizeof(qfullname)));
+			sstrncpy(qfullname+strlen(qfullname), pathname, min((option - pathname + 1), sizeof(qfullname)-strlen(qfullname)));
 		else
-			sstrncpy(qfullname, pathname, sizeof(qfullname));
+			sstrncat(qfullname, pathname, sizeof(qfullname));
 	}
 	if (fmt & (1 << QF_VFSV0)) {
 		if (!has_quota_file_definition)
