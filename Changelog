@@ -1,4 +1,4 @@
-Changes in quota-tools from 3.01 to ????
+Changes in quota-tools from 3.01 to 3.02
 
 * added -n option (don't resolve names) to repquota (Jan Kara)
 * quota tools now correctly handle zero grace times in old format (Jan Kara)
@@ -7,6 +7,7 @@ Changes in quota-tools from 3.01 to ????
 * another fix to quotastats (Jan Kara)
 * added check to format detection for bad endianity (Jan Kara)
 * implemented conversion of files with bad endianity (Jan Kara)
+* fixes in warnquota (Jan Kara)
 
 Changes in quota-tools from 3.01-final to 3.01
 

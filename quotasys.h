@@ -43,13 +43,13 @@ gid_t group2gid(char *);
 int name2id(char *name, int qtype);
 
 /* Convert uid to username */
-void uid2user(uid_t, char *);
+int uid2user(uid_t, char *);
 
 /* Convert gid to groupname */
-void gid2group(gid_t, char *);
+int gid2group(gid_t, char *);
 
 /* Convert id to user/group name */
-void id2name(int id, int qtype, char *buf);
+int id2name(int id, int qtype, char *buf);
 
 /* Convert quota format name to number */
 int name2fmt(char *str);

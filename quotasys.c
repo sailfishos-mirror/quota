@@ -102,38 +102,44 @@ int name2id(char *name, int qtype)
 /*
  *	Convert uid to name
  */
-void uid2user(uid_t id, char *buf)
+int uid2user(uid_t id, char *buf)
 {
 	struct passwd *entry;
 
-	if (!(entry = getpwuid(id)))
+	if (!(entry = getpwuid(id))) {
 		snprintf(buf, MAXNAMELEN, "#%u", (uint) id);
+		return 1;
+	}
 	else
 		sstrncpy(buf, entry->pw_name, MAXNAMELEN);
+	return 0;
 }
 
 /*
  *	Convert gid to name
  */
-void gid2group(gid_t id, char *buf)
+int gid2group(gid_t id, char *buf)
 {
 	struct group *entry;
 
-	if (!(entry = getgrgid(id)))
+	if (!(entry = getgrgid(id))) {
 		snprintf(buf, MAXNAMELEN, "#%u", (uint) id);
+		return 1;
+	}
 	else
 		sstrncpy(buf, entry->gr_name, MAXNAMELEN);
+	return 0;
 }
 
 /*
  *	Convert id to user/groupname
  */
-void id2name(int id, int qtype, char *buf)
+int id2name(int id, int qtype, char *buf)
 {
 	if (qtype == USRQUOTA)
-		uid2user(id, buf);
+		return uid2user(id, buf);
 	else
-		gid2group(id, buf);
+		return gid2group(id, buf);
 }
 
 /*

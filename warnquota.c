@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.5 2001/11/09 08:17:35 jkar8572 Exp $
+ * Version: $Id: warnquota.c,v 1.6 2001/11/09 08:53:58 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -94,13 +94,19 @@ static struct offenderlist *offenders = (struct offenderlist *)0;
 struct offenderlist *add_offender(int id, char *name)
 {
 	struct offenderlist *offender;
-
+	char namebuf[MAXNAMELEN];
+	
+	if (!name) {
+		if (id2name(id, USRQUOTA, namebuf)) {
+			errstr(_("Can't get name for uid %u.\n"), id);
+			return NULL;
+		}
+		name = namebuf;
+	}
 	offender = (struct offenderlist *)smalloc(sizeof(struct offenderlist));
-
 	offender->offender_id = id;
-	offender->offender_name = (char *)smalloc(strlen(name) + 1);
+	offender->offender_name = sstrdup(name);
 	offender->usage = (struct usage *)NULL;
-	strcpy(offender->offender_name, name);
 	offender->next = offenders;
 	offenders = offender;
 	return offender;
@@ -132,11 +138,9 @@ void add_offence(struct dquot *dquot, char *name)
 
 int check_offence(struct dquot *dquot, char *name)
 {
-	if (
-	    (dquot->dq_dqb.dqb_bsoftlimit
-	     && toqb(dquot->dq_dqb.dqb_curspace) >= dquot->dq_dqb.dqb_bsoftlimit)
-	    || (dquot->dq_dqb.dqb_isoftlimit
-		&& dquot->dq_dqb.dqb_curinodes >= dquot->dq_dqb.dqb_isoftlimit)) add_offence(dquot, name);
+	if ((dquot->dq_dqb.dqb_bsoftlimit && toqb(dquot->dq_dqb.dqb_curspace) >= dquot->dq_dqb.dqb_bsoftlimit)
+	    || (dquot->dq_dqb.dqb_isoftlimit && dquot->dq_dqb.dqb_curinodes >= dquot->dq_dqb.dqb_isoftlimit))
+		add_offence(dquot, name);
 	return 0;
 }
 
@@ -287,12 +291,12 @@ void readconfigfile(const char *filename, struct configparams *config)
 	int line;
 
 	/* set default values */
-	strncpy(config->mail_cmd, MAIL_CMD, CNF_BUFFER);
-	strncpy(config->from, FROM, CNF_BUFFER);
-	strncpy(config->subject, SUBJECT, CNF_BUFFER);
-	strncpy(config->cc_to, CC_TO, CNF_BUFFER);
-	strncpy(config->support, SUPPORT, CNF_BUFFER);
-	strncpy(config->phone, PHONE, CNF_BUFFER);
+	sstrncpy(config->mail_cmd, MAIL_CMD, CNF_BUFFER);
+	sstrncpy(config->from, FROM, CNF_BUFFER);
+	sstrncpy(config->subject, SUBJECT, CNF_BUFFER);
+	sstrncpy(config->cc_to, CC_TO, CNF_BUFFER);
+	sstrncpy(config->support, SUPPORT, CNF_BUFFER);
+	sstrncpy(config->phone, PHONE, CNF_BUFFER);
 
 	fp = fopen(filename, "r");
 	if (fp == (FILE *) NULL) {	/* if config file doesn't exist or is not readable */
