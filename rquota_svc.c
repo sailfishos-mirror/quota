@@ -12,7 +12,7 @@
  *          changes for new utilities by Jan Kara <jack@suse.cz>
  *          patches by Jani Jaakkola <jjaakkol@cs.helsinki.fi>
  *
- * Version: $Id: rquota_svc.c,v 1.14 2003/05/21 19:51:10 jkar8572 Exp $
+ * Version: $Id: rquota_svc.c,v 1.15 2003/09/25 14:51:59 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -363,8 +363,9 @@ static void rquotaprog_2(struct svc_req *rqstp, register SVCXPRT * transp)
 static void
 unregister (int sig)
 {
-	(void)pmap_unset(RQUOTAPROG, RQUOTAVERS);
-	(void)pmap_unset(RQUOTAPROG, EXT_RQUOTAVERS);
+	pmap_unset(RQUOTAPROG, RQUOTAVERS);
+	pmap_unset(RQUOTAPROG, EXT_RQUOTAVERS);
+	exit(0);
 }
 
 int main(int argc, char **argv)
