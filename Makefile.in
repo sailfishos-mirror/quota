@@ -95,7 +95,7 @@ install: all inst_mo
 quotaon: quotaon.o quotaon_xfs.o $(LIBOBJS)
 
 quotacheck: quotacheck.o quotacheck_v1.o quotacheck_v2.o quotaops.o $(LIBOBJS)
-	$(CC) $(LDFLAGS) -o $@ $(EXT2LIBS) $^
+	$(CC) $(LDFLAGS) -o $@ $^ $(EXT2LIBS)
 
 quota: quota.o quotaops.o $(LIBOBJS)
 
@@ -116,7 +116,7 @@ setquota: setquota.o quotaops.o $(LIBOBJS)
 convertquota: convertquota.o $(LIBOBJS)
 
 rpc.rquotad: rquota_server.o rquota_svc.o $(LIBOBJS)
-	$(CC) $(LDFLAGS) -o $@ $(LIBS) $^
+	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 pot.o: pot.c pot.h
 	$(CC) $(CFLAGS) -c $<
