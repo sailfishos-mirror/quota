@@ -81,6 +81,10 @@ report quotas only on local filesystems (ie. ignore NFS mounted filesystems).
 Print a more terse message,
 containing only information
 on filesystems where usage is over quota.
+.TP
+.B \-Q
+Do not print error message if connection to rpc.rquotad is refused (usually this happens
+when rpc.rquotad is not running on the server).
 .LP
 Specifying both
 .B \-g

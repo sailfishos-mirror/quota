@@ -1,11 +1,12 @@
 Changes in quota-tools from 3.08 to 3.09
+* minor update of quota(1) manpage (Jan Kara)
 * quotacheck(8) now remembers only hardlinked files and not all inodes with
   n_link > 1 (Jan Kara, Jan Kasprzak)
 * quotacheck(8) doesn't store structures for all users in old quota format  (Jan Kasprzak)
 * fixed minor bug in documentation (Jan Kara, Lucas Brasilino)
 * repquota(8) handles multiple entries in /etc/passwd better (Jan Kara)
 * made tools not to touch mountpoints mounted without quota options (Jan Kara)
-* added option for ignoring autofs mountpoints to quota(1), quot(8) and repquota(8) (Jan Kara, Paul Szabo)
+* added option for ignoring autofs mountpoints to quota(1), quot(8), repquota(8) and rpc.rquotad(8) (Jan Kara, Paul Szabo)
 * updated xqmstats (Nathan Scott)
 
 Changes in quota-tools from 3.07 to 3.08

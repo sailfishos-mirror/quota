@@ -742,8 +742,6 @@ static int cache_mnt_table(int flags)
 	while ((mnt = getmntent(mntf))) {
 		const char *devname;
 
-		if (!hasquota(mnt, USRQUOTA) && !hasquota(mnt, GRPQUOTA))	/* Check FS type and mount options */
-			continue;
 		if (!(devname = get_device_name(mnt->mnt_fsname))) {
 			errstr(_("Can't get device name for %s\n"), mnt->mnt_fsname);
 			continue;
@@ -756,20 +754,32 @@ static int cache_mnt_table(int flags)
 			if (slen <= strlen(mnt->mnt_dir) && !strncmp(autofsdir[i], mnt->mnt_dir, slen))
 				break;
 		}
-		if (i < autofsdircnt)
+		if (i < autofsdircnt) {
+			free((char *)devname);
 			continue;
+		}
 				
+		if (flags & MS_NO_AUTOFS && !strcmp(mnt->mnt_type, MNTTYPE_AUTOFS)) {	/* Autofs dir to remember? */
+			if (autofsdircnt == AUTOFS_DIR_MAX)
+				die(3, "Too many autofs mountpoints. Please contact <jack@suse.cz>\n");
+			sstrncpy(autofsdir[autofsdircnt++], mnt->mnt_dir, PATH_MAX);
+			free((char *)devname);
+			continue;
+		}
+		
+		/* Further we are not interested in mountpoints without quotas and
+		   we don't want to touch them */
+		if (!CORRECT_FSTYPE(mnt->mnt_type) || hasmntopt(mnt, MNTOPT_NOQUOTA) || !(hasmntopt(mnt, MNTOPT_USRQUOTA) || hasmntopt(mnt, MNTOPT_GRPQUOTA) || hasmntopt(mnt, MNTOPT_QUOTA) || !strcmp(mnt->mnt_type, MNTTYPE_NFS))) {
+			free((char *)devname);
+			continue;
+		}
+			
 		if (!realpath(mnt->mnt_dir, mntpointbuf)) {
 			errstr(_("Can't resolve mountpoint path %s: %s\n"), mnt->mnt_dir, strerror(errno));
 			free((char *)devname);
 			continue;
 		}
-		if (flags & MS_NO_AUTOFS && !strcmp(mnt->mnt_type, MNTTYPE_AUTOFS)) {	/* Autofs dir to remember? */
-			if (autofsdircnt == AUTOFS_DIR_MAX)
-				die(3, "Too many autofs mountpoints. Please contact <jack@suse.cz>\n");
-			sstrncpy(autofsdir[autofsdircnt++], mntpointbuf, PATH_MAX);
-			continue;
-		}
+		
 		if (statfs(mntpointbuf, &fsstat) != 0) {
 			errstr(_("Can't statfs() %s: %s\n"), mntpointbuf, strerror(errno));
 			free((char *)devname);
