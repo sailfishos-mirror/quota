@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.13 2003/07/29 20:11:36 jkar8572 Exp $
+ * Version: $Id: warnquota.c,v 1.14 2003/10/12 08:09:18 marcovw Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -77,6 +77,7 @@
 #define FL_GROUP 2
 #define FL_NOAUTOFS 4
 #define FL_SHORTNUMS 8
+#define FL_NODETAILS 16
 
 struct usage {
 	char *devicename;
@@ -257,41 +258,45 @@ int mail_user(struct offenderlist *offender, struct configparams *config)
 		else
 			fprintf(fp, DEF_GROUP_MESSAGE, offender->offender_name);
 
-	for (lptr = offender->usage; lptr; lptr = lptr->next) {
-		dqb = &lptr->dq_dqb;
-		for (cnt = 0; cnt < qtab_i; cnt++)
-			if (!strcmp(quotatable[cnt].devname, lptr->devicename)) {
-				fprintf(fp, "\n%s (%s)\n", quotatable[cnt].devdesc, quotatable[cnt].devname);
-				break;
-			}
-		if (cnt == qtab_i)	/* Description not found? */
-			fprintf(fp, "\n%s\n", lptr->devicename);
-		fprintf(fp, _("\n                        Block limits               File limits\n"));
-		fprintf(fp, _("Filesystem           used    soft    hard  grace    used  soft  hard  grace\n"));
-		if (strlen(lptr->devicename) > 15)
-			fprintf(fp, "%s\n%15s", lptr->devicename, "");
-		else
-			fprintf(fp, "%-15s", lptr->devicename);
-		if (dqb->dqb_bsoftlimit && dqb->dqb_bsoftlimit <= toqb(dqb->dqb_curspace))
-			difftime2str(dqb->dqb_btime, timebuf);
-		else
-			timebuf[0] = '\0';
-		space2str(toqb(dqb->dqb_curspace), numbuf[0], flags & FL_SHORTNUMS);
-		space2str(dqb->dqb_bsoftlimit, numbuf[1], flags & FL_SHORTNUMS);
-		space2str(dqb->dqb_bhardlimit, numbuf[2], flags & FL_SHORTNUMS);
-		fprintf(fp, "%c%c %7s %7s %7s %6s",
-		        dqb->dqb_bsoftlimit && toqb(dqb->dqb_curspace) >= dqb->dqb_bsoftlimit ? '+' : '-',
-			dqb->dqb_isoftlimit && dqb->dqb_curinodes >= dqb->dqb_isoftlimit ? '+' : '-',
-			numbuf[0], numbuf[1], numbuf[2], timebuf);
-		if (dqb->dqb_isoftlimit && dqb->dqb_isoftlimit <= dqb->dqb_curinodes)
-			difftime2str(dqb->dqb_itime, timebuf);
-		else
-			timebuf[0] = '\0';
-		number2str(dqb->dqb_curinodes, numbuf[0], flags & FL_SHORTNUMS);
-		number2str(dqb->dqb_isoftlimit, numbuf[1], flags & FL_SHORTNUMS);
-		number2str(dqb->dqb_ihardlimit, numbuf[2], flags & FL_SHORTNUMS);
-		fprintf(fp, " %7s %5s %5s %6s\n\n", numbuf[0], numbuf[1], numbuf[2], timebuf);
+	if (!(flags & FL_NODETAILS)) {
+		for (lptr = offender->usage; lptr; lptr = lptr->next) {
+			dqb = &lptr->dq_dqb;
+			for (cnt = 0; cnt < qtab_i; cnt++)
+				if (!strcmp(quotatable[cnt].devname, lptr->devicename)) {
+					fprintf(fp, "\n%s (%s)\n", quotatable[cnt].devdesc, quotatable[cnt].devname);
+					break;
+				}
+			if (cnt == qtab_i)	/* Description not found? */
+				fprintf(fp, "\n%s\n", lptr->devicename);
+			fprintf(fp, _("\n                        Block limits               File limits\n"));
+			fprintf(fp, _("Filesystem           used    soft    hard  grace    used  soft  hard  grace\n"));
+			if (strlen(lptr->devicename) > 15)
+				fprintf(fp, "%s\n%15s", lptr->devicename, "");
+			else
+				fprintf(fp, "%-15s", lptr->devicename);
+			if (dqb->dqb_bsoftlimit && dqb->dqb_bsoftlimit <= toqb(dqb->dqb_curspace))
+				difftime2str(dqb->dqb_btime, timebuf);
+			else
+				timebuf[0] = '\0';
+			space2str(toqb(dqb->dqb_curspace), numbuf[0], flags & FL_SHORTNUMS);
+			space2str(dqb->dqb_bsoftlimit, numbuf[1], flags & FL_SHORTNUMS);
+			space2str(dqb->dqb_bhardlimit, numbuf[2], flags & FL_SHORTNUMS);
+			fprintf(fp, "%c%c %7s %7s %7s %6s",
+			        dqb->dqb_bsoftlimit && toqb(dqb->dqb_curspace) >= dqb->dqb_bsoftlimit ? '+' : '-',
+				dqb->dqb_isoftlimit && dqb->dqb_curinodes >= dqb->dqb_isoftlimit ? '+' : '-',
+				numbuf[0], numbuf[1], numbuf[2], timebuf);
+			if (dqb->dqb_isoftlimit && dqb->dqb_isoftlimit <= dqb->dqb_curinodes)
+				difftime2str(dqb->dqb_itime, timebuf);
+			else
+				timebuf[0] = '\0';
+			number2str(dqb->dqb_curinodes, numbuf[0], flags & FL_SHORTNUMS);
+			number2str(dqb->dqb_isoftlimit, numbuf[1], flags & FL_SHORTNUMS);
+			number2str(dqb->dqb_ihardlimit, numbuf[2], flags & FL_SHORTNUMS);
+			fprintf(fp, " %7s %5s %5s %6s\n\n", numbuf[0], numbuf[1], numbuf[2], timebuf);
+		}
 	}
+
+
 	if (offender->offender_type == USRQUOTA)
 		if (config->user_signature)
 			fputs(config->user_signature, fp);
@@ -605,7 +610,7 @@ void warn_quota(void)
 /* Print usage information */
 static void usage(void)
 {
-	errstr(_("Usage:\n  warnquota [-ugsi] [-F quotaformat] [-c configfile] [-q quotatabfile]\n"));
+	errstr(_("Usage:\n  warnquota [-ugsid] [-F quotaformat] [-c configfile] [-q quotatabfile]\n"));
 	fprintf(stderr, _("Bugs to %s\n"), MY_EMAIL);
 	exit(1);
 }
@@ -614,7 +619,7 @@ static void parse_options(int argcnt, char **argstr)
 {
 	int ret;
  
-	while ((ret = getopt(argcnt, argstr, "ugVF:hc:q:a:is")) != -1) {
+	while ((ret = getopt(argcnt, argstr, "ugVF:hc:q:a:isd")) != -1) {
 		switch (ret) {
 		  case '?':
 		  case 'h':
@@ -646,6 +651,9 @@ static void parse_options(int argcnt, char **argstr)
 			break;
 		  case 's':
 			flags |= FL_SHORTNUMS;
+			break;
+		  case 'd':
+			flags |= FL_NODETAILS;
 			break;
 		}
 	}

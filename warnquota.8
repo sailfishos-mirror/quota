@@ -4,7 +4,7 @@ warnquota \- send mail to users over quota
 .SH SYNOPSIS
 .B warnquota
 [
-.B \-ugsi
+.B \-ugsid
 ] [
 .B \-F
 .I quotaformat
@@ -71,6 +71,9 @@ than the default ones.
 .TP
 .B \-i
 ignore mountpoints mounted by automounter.
+.TP
+.B -d
+don't attach quota report in email.
 .SH FILES
 .PD 0
 .TP 20
