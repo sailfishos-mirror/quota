@@ -329,7 +329,7 @@ static int hasxfsquota(struct mntent *mnt, int type)
  */
 int hasquota(struct mntent *mnt, int type)
 {
-	if (!CORRECT_FSTYPE(mnt->mnt_type))
+	if (!CORRECT_FSTYPE(mnt->mnt_type) || hasmntopt(mnt, MNTOPT_NOQUOTA))
 		return 0;
 	
 	if (!strcmp(mnt->mnt_type, MNTTYPE_XFS))
