@@ -520,6 +520,8 @@ void init_kernel_interface(void)
 	struct stat st;
 
 	kernel_formats = 0;
+	if (!stat("/proc/fs/xfs/stat", &st))
+		kernel_formats |= (1 << QF_XFS);
 	if ((f = fopen(QSTAT_FILE, "r"))) {
 		/* Parse statistics file */
 		fgets(buf, sizeof(buf), f);
@@ -545,8 +547,6 @@ void init_kernel_interface(void)
 		struct v2_dqstats v2_stats;
 		struct sigaction sig, oldsig;
 
-		if (!stat("/proc/fs/xfs/stat", &st))
-			kernel_formats |= (1 << QF_XFS);
 		/* This signal handling is needed because old kernels send us SIGSEGV as they try to resolve the device */
 		sig.sa_handler = SIG_IGN;
 		sig.sa_sigaction = NULL;
@@ -821,7 +821,7 @@ static int cache_mnt_table(void)
 }
 
 /* Find mountpoint of filesystem hosting dir in 'st'; Store it in 'st' */
-static char *find_dir_mntpoint(struct stat *st)
+static const char *find_dir_mntpoint(struct stat *st)
 {
 	int i;
 
@@ -851,7 +851,7 @@ static int process_dirs(int dcnt, char **dirs, int flags)
 			}
 			check_dirs[check_dirs_cnt].sd_dir = S_ISDIR(st.st_mode);
 			if (S_ISDIR(st.st_mode)) {
-				char *realmnt = dirs[i];
+				const char *realmnt = dirs[i];
 
 				/* Return st of mountpoint of dir in st.. */
 				if (flags & MS_NO_MNTPOINT && !(realmnt = find_dir_mntpoint(&st))) {

@@ -1,3 +1,8 @@
+Changes in quota-tools from 3.05 to 3.06
+* fixed scanning of non-mountpoint directories (Jan Kara)
+* fixed detection of XFS format (Jan Kara)
+* fixed printing of 'over softlimit sign' in quota(1) (Jan Kara)
+
 Changes in quota-tools from 3.04 to 3.05
 * quota tools should honour 'noquota' mount option (Jan Kara)
 * fixes in manpages (Arkadiusz Miskiewicz)

@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quota.c,v 1.10 2002/04/08 12:06:44 jkar8572 Exp $"
+#ident "$Id: quota.c,v 1.11 2002/05/20 12:16:31 jkar8572 Exp $"
 
 /*
  * Disk quota reporting program.
@@ -173,7 +173,7 @@ int showquotas(int type, qid_t id)
 			iover = 1;
 		}
 		else if (q->dq_dqb.dqb_isoftlimit
-			 && q->dq_dqb.dqb_curinodes >= q->dq_dqb.dqb_isoftlimit) {
+			 && q->dq_dqb.dqb_curinodes > q->dq_dqb.dqb_isoftlimit) {
 			if (q->dq_dqb.dqb_itime > now) {
 				msgi = _("In file grace period on");
 				iover = 2;
@@ -189,7 +189,7 @@ int showquotas(int type, qid_t id)
 				bover = 1;
 		}
 		else if (q->dq_dqb.dqb_bsoftlimit
-			 && toqb(q->dq_dqb.dqb_curspace) >= q->dq_dqb.dqb_bsoftlimit) {
+			 && toqb(q->dq_dqb.dqb_curspace) > q->dq_dqb.dqb_bsoftlimit) {
 			if (q->dq_dqb.dqb_btime > now) {
 				msgb = _("In block grace period on");
 				bover = 2;
