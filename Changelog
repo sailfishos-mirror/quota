@@ -1,4 +1,5 @@
 Changes in quota-tools form 3.10 to 3.11
+* manpage of repquota(8) stated falsely that repquota works over RPC (Jan Kara)
 * added -T flag to quot(8) to avoid truncation of names (Andre Nathan)
 * added -q flag to quot(8) to avoid sorting of names (Andre Nathan)
 * added #include <paths.h> in quotasys.c to avoid compile problems on some systems (Jan Kara)
