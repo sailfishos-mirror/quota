@@ -542,6 +542,8 @@ int get_qf_name(struct mntent *mnt, int type, int fmt, int flags, char **filenam
 	return -1;
 }
 
+#define START_MNT_POINTS 256	/* The number of mount points we start with... */
+
 /*
  *	Create NULL terminated list of quotafile handles from given list of mountpoints
  *	List of zero length means scan all entries in /etc/mtab
@@ -551,25 +553,30 @@ struct quota_handle **create_handle_list(int count, char **mntpoints, int type, 
 {
 	struct mntent *mnt;
 	int gotmnt = 0;
-	static struct quota_handle *hlist[MAXMNTPOINTS];
+	static int hlist_allocated = 0;
+	static struct quota_handle **hlist = NULL;
+
+	if (!hlist_allocated) {
+		hlist = smalloc(START_MNT_POINTS * sizeof(struct quota_handle *));
+		hlist_allocated = START_MNT_POINTS;
+	}
 
 	if (init_mounts_scan(count, mntpoints, mntflags) < 0)
 		die(2, _("Can't initialize mountpoint scan.\n"));
 	while ((mnt = get_next_mount())) {
 		if (strcmp(mnt->mnt_type, MNTTYPE_NFS)) {	/* No NFS? */
-			if (gotmnt+1 == MAXMNTPOINTS)
-				die(2, _("Too many mountpoints with quota. Contact %s\n"), MY_EMAIL);
+add_entry:
+			if (gotmnt+1 >= hlist_allocated) {
+				hlist_allocated += START_MNT_POINTS;
+				hlist = srealloc(hlist, hlist_allocated * sizeof(struct quota_handle *));
+			}
 			if (!(hlist[gotmnt] = init_io(mnt, type, fmt, ioflags)))
 				continue;
 			gotmnt++;
 		}
 		else if (!(ioflags & IOI_LOCALONLY) && (fmt == -1 || fmt == QF_RPC)) {	/* Use NFS? */
 #ifdef RPC
-			if (gotmnt+1 == MAXMNTPOINTS)
-				die(2, _("Too many mountpoints with quota. Contact %s\n"), MY_EMAIL);
-			if (!(hlist[gotmnt] = init_io(mnt, type, fmt, ioflags)))
-				continue;
-			gotmnt++;
+			goto add_entry;
 #endif
 		}
 	}

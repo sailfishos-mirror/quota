@@ -1,4 +1,5 @@
 Changes in quota-tools from 3.12 to 3.13
+* added dynamic mountpoint array allocation (Jan Kara)
 * made quotacheck(8) more friendly for journaled quota (Jan Kara)
 * changed configure to detect whether nls is needed (Tomasz Kloczko, Jan Kara)
 * added JFS into a set of supported filesystems (David Kleikamp)
