@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaops.c,v 1.10 2003/10/18 17:32:49 jkar8572 Exp $"
+#ident "$Id: quotaops.c,v 1.11 2004/01/07 15:15:31 jkar8572 Exp $"
 
 #include <rpc/rpc.h>
 #include <sys/types.h>
@@ -172,6 +172,7 @@ int putprivs(struct dquot *qlist, int flags)
 /*
  * Take a list of priviledges and get it edited.
  */
+#define MAX_ED_PARS 128
 int editprivs(char *tmpfile)
 {
 	sigset_t omask, nmask;
@@ -188,15 +189,34 @@ int editprivs(char *tmpfile)
 		return -1;
 	}
 	if (pid == 0) {
-		char *ed;
+		char *ed, *actp, *nextp;
+		char *edpars[MAX_ED_PARS];
+		int i;
 
 		sigprocmask(SIG_SETMASK, &omask, NULL);
 		setgid(getgid());
 		setuid(getuid());
-		if ((ed = getenv("VISUAL")) == (char *)0)
-			if ((ed = getenv("EDITOR")) == (char *)0)
+		if (!(ed = getenv("VISUAL")))
+			if (!(ed = getenv("EDITOR")))
 				ed = _PATH_VI;
-		execlp(ed, ed, tmpfile, 0);
+		i = 0;
+		ed = actp = sstrdup(ed);
+		while (actp) {
+			nextp = strchr(actp, ' ');
+			if (nextp) {
+				*nextp = 0;
+				nextp++;
+			}
+			edpars[i++] = actp;
+			if (i == MAX_ED_PARS-2) {
+				errstr(_("Too many parameters to editor.\n"));
+				break;
+			}
+			actp = nextp;
+		}
+		edpars[i++] = tmpfile;
+		edpars[i] = NULL;
+		execvp(edpars[0], edpars);
 		die(1, _("Can't exec %s\n"), ed);
 	}
 	waitpid(pid, &stat, 0);

@@ -9,6 +9,7 @@ Changes in quota-tools form 3.10 to 3.11
 * warnquota(8) can get mail addresses via LDAP (James Bourne)
 * warnquota(8) can avoid sending e-mail when user is over quota on mail partition (James Bourne)
 * fixed bug in quotacheck(8) which counted directories twice sometimes (Jan Kara)
+* edquota(8) now allows parameters in VISUAL/EDITOR env. params (Jan Kara)
 
 Changes in quota-tools from 3.09 to 3.10
 * alternative port can be specified to rpc.rquotad by -p option (Jan Kara)
