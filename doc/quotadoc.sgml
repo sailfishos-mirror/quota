@@ -9,10 +9,10 @@
 <title>Disk quota system for Linux
 <author>Jan Kara <tt/jack@suse.cz/
 
-<date>2000, 2001
+<date>2000-2004
 <abstract>
 This document contains documentation of Linux quota disk formats and appropriate quota utilities
-(currenly in version 3.01).
+(currently in version 3.12).
 </abstract>
 
 <!-- Table of contents -->
@@ -22,36 +22,62 @@ This document contains documentation of Linux quota disk formats and appropriate
 <sect>Introduction
 <label id="intro">
 <p>
-Quota subsystem allows system administrator to set limits on used space and number of
-used inodes (<it/inode/ is a filesystem structure which is associated which each file or
-directory) for users and/or groups. For both used space and number of used inodes there are actually
-two limits. The first one is called <it/softlimit/ and the second one <it/hardlimit/.
-User can never exceed hardlimit for any resource. When user exceeds softlimit (s)he's warned
-that (s)he uses more space than (s)he should but space/inode is allocated (of course only
-if user also doesn't exceed hardlimit). If a user is exceeding softlimit for specified period
-of time (this period is called <it/grace time/) (s)he's not allowed to allocate more
-resources (so he must free some space/inodes to get under softlimit).
+Quota subsystem allows system administrator to set limits on used space and
+number of used inodes (<it/inode/ is a filesystem structure which is associated
+which each file or directory) for users and/or groups. For both used space and
+number of used inodes there are actually two limits. The first one is called
+<it/softlimit/ and the second one <it/hardlimit/.  An user can never exceed a
+hardlimit for any resource. When an user exceeds a softlimit (s)he is warned
+that (s)he uses more space than (s)he should but space/inode is allocated (of
+course only if an user also does not exceed the hardlimit). If an user is
+exceeding softlimit for specified period of time (this period is called
+<it/grace time/) (s)he is not allowed to allocate more resources (so (s)he must
+free some space/inodes to get under softlimit).
 <p>
-Quota limits are set independently for each filesystem. Currently following filesystems
-are supporting quota: Ext2, Ext3, ReiserFS, XFS.
+Quota limits are set independently for each filesystem. Currently following
+filesystems are supporting quota: Ext2, Ext3, ReiserFS, XFS.
 
 <label id="config">
 <sect>Configuration
 <label id="new_quota">
 <sect1>Setting up new quota
 <p>
-In order for quota subsystem to work you have to have quota compiled in kernel and
-configured appropriately. That means that filesystem on which you want to use quotas
-must be mounted with option <tt/usrquota/ (if you want to use limits for users),
-<tt/grpquota/ (if you want to use limits for groups) or <tt/quota/ (this is
-equivalent to <tt/usrquota/ option). These mount options are used by quota utils
-to recognize filesystems they should work with. For XFS you have to specify
-additional mount options ??which??. On each such filesystem you have to have
-files with quota data. The name of these quota files depends on <ref id="quota_formats"
-name="quota format"> (and you can even specify the filenames by yourself by
-adding <tt/=filename/ to <tt/usrquota/ or <tt/grpquota/ options -- eg.
+In order for quota subsystem to work you have to have quota compiled in a
+kernel and configured appropriately. That means that the filesystem on which
+you want to use quotas must be mounted with quota options so that quota tools
+recognize the filesystems to work with (and also a filesystem itself might use
+the information).  Currently there are following quota options (note that XFS
+uses completely different quota system and these information does not apply to
+it):
+<itemize>
+<item><tt/usrquota/ or <tt/quota/ or <tt/usrjquota=filename/ if you want to use
+limits for users
+<item><tt/grpquota/ or <tt/grpjquota=filename/ if you want to use limits for
+groups
+</itemize>
+The <tt/usrquota/ and <tt/grpquota/ options have also alternative with
+<tt/=filename/ appended. <tt/filename/ is then used as a name (together with
+path) of quota file to use. But note that by this you prevent quota utilities
+to do some useful autodetection. <tt/jquota/ mount options tell the tools and
+also the filesystem that it should journal the quota. That basically means that
+quota on disk is updated together with filesystem's metadata and hence you do
+not need to run <tt/quotacheck(8)/ after an unclean shutdown. For these options
+specifying of filename is mandatory (because filesystem also needs to know the
+file with quota information) and <tt/filename/ must specify a file in the root
+directory of a filesystem. When any of <tt/jquota/ options is specified
+additional option <tt/jqfmt=format/ must be also specified where <tt/format/ is
+a format of quota files. As journalled quota is currently supported only for
+<tt/vfsv0/ format the value of format must be <tt/vfsv0/. Note also that
+journalled quota is currently (as of March 2004) supported only for Ext3
+filesystem and you need to have a kernel patched with a special patch
+(contained for example in -mm series of a kernel).
+<p>
+For each filesystem with quotas you have to have files with quota data. The
+name of these quota files depends on <ref id="quota_formats" name="quota
+format"> and you can even specify the filenames by yourself by adding
+<tt/=filename/ to <tt/usrquota/ or <tt/grpquota/ options -- e.g.
 <tt/usrquota=file.quota/. But note that by this you prevent quota utilities to
-do some useful autodetection). The quotafiles can be created by
+do some useful autodetection. The quota files can be created by
 <tt/quotacheck(8)/ utility. When you have successfully created quota files you
 can turn quotas on (ie. system will start tracking how much each user uses and
 will check set limits). This is done by <tt/quotaon(8)/ program.
@@ -71,13 +97,14 @@ By these programs you can also set grace times.
 <label id="quota_format_old">
 <sect1>Original quota format
 <p>
-Original quota format is used by kernels up to 2.4 Linux kernels (including). Note
-that vendors such as <it/RedHat/ or <it/SuSE/ have already included quota format patches into
-their kernels and so they use <ref id="quota_format_v0" name="newer quota format">.
-This quota format is in manpages and quota utils called <tt/vfsold/.
+Original quota format was the only one available in kernels up to 2.4.21 Linux
+kernels (note that vendors such as <it/RedHat/ or <it/SuSE/ have included quota
+format patches into their kernels earlier and use <ref id="quota_format_v0"
+name="newer quota format">).  This quota format is in manpages and quota utils
+called <tt/vfsold/.
 <p>
 Data for this format are usually stored in files <tt/quota.user/ (for user quotas) and
-<tt/quota.group/ (for group quotas). Both files have same structure. They are just
+<tt/quota.group/ (for group quotas). Both files have the same structure. They are just
 the arrays of following structures:
 <code>
 struct v1_disk_dqblk {
@@ -97,11 +124,10 @@ grace times for this filesystem.
 <label id="quota_format_v0">
 <sect1>V0 quota format
 <p>
-This quota format is currently used in -ac series of kernels and also in new kernels distributed
-by RedHat (>= 7.1) and SuSE (>= 7.2). There are also patches for standard 2.4 kernels
-which implement this format. You can download them at <tt>ftp://atrey.karlin.mff.cuni.cz/pub/local/jack/quota/v2.4/</tt>.
-This format is called <tt/vfsv0/ in manpages and utilities and quotafiles are usually
-called <tt/aquota.user/ and <tt/aquota.group/.
+This quota format is currently available in 2.4.22 and newer kernels. Also
+kernels distributed by RedHat (>= 7.1) and SuSE (>= 7.2) contain support for
+this quota format.  This format is called <tt/vfsv0/ in manpages and utilities
+and quota files are usually called <tt/aquota.user/ and <tt/aquota.group/.
 <p>
 This quota format has following advantages against old quota format:
 <itemize>
@@ -111,46 +137,48 @@ This quota format has following advantages against old quota format:
 <item>Header which allows quota format and version detection was added.
 </itemize>
 <p>
-Format of quotafile is following:
+Format of quota file is the following:
 In the beginning of quota file there is a generic header which is intended to be present
-in every quota file in future. A header has following structure:
+in every quota file in future. The header has the following structure:
 <code>
 struct disk_dqheader {
   __u32 dqh_magic;        /* Magic number identifying file */
   __u32 dqh_version;      /* File version */
 };
 </code>
-From this header any utility or kernel code should be able to recognize whether they
+From this header any utility or a kernel code should be able to recognize whether they
 understand a format of file and eventually refuse to continue.
 <p>
-Following header might be specific for quotatype and version (currently this header is same
-for user and group quota and there is only one version of quotafile format).
+Following header might be specific for quota type and version (currently this
+header is the same for user and group quota and there is only one version of
+quota file format).
 <code>
 struct disk_dqinfo {
   __u32 dqi_bgrace;     /* Time before block soft limit becomes hard limit - in seconds */
   __u32 dqi_igrace;     /* Time before inode soft limit becomes hard limit - in seconds */
-  __u32 dqi_flags;      /* Flags for quotafile (DQF_*) (currently there are no ondisk flags) */
+  __u32 dqi_flags;      /* Flags for quota file (DQF_*) (currently there are no ondisk flags) */
   __u32 dqi_blocks;     /* Number of blocks in file */
   __u32 dqi_free_blk;   /* Number of first free block in the list */
   __u32 dqi_free_entry; /* Number of block with at least one free entry */
 };
 </code>
-There are two link lists of blocks in quotafile. First one direction link list is used
-to link all blocks that are completely unused (<tt/dqi_free_blk/ points to the first
-element of this list). Second double direction link list is used to link all <it/data
-blocks/ which have at least one entry free and which also have at least one used entry.
-The beginning of the list is pointed by <tt/dqi_free_entry/.
+There are two linked lists of blocks in a quota file. The first linked list is
+used to link all blocks that are completely unused (<tt/dqi_free_blk/ points to
+the first element of this list). The second linked list is used to link all
+<it/data blocks/ which have at least one entry free and which also have at
+least one used entry.  The beginning of the list is pointed by
+<tt/dqi_free_entry/.
 <p>
-The rest of file (starting at 1KB) is divided into 1KB blocks. In these blocks is stored
-a radix tree with quotas. The key for the radix tree is UID or GID (I'll use just ID)
-depending on quota file type.  One node of the tree is 1KB block so there are upto
-256 references to the sons. At each level we choose reference corresponding to one
-byte of ID so having four-level radix tree we can support 32-bit IDs.
-Reference from last level points to <it/data block/ which contains quota structure for
-proper ID.
+The rest of a file (starting at 1KB) is divided into 1KB blocks. In these
+blocks is stored a radix tree with quotas. The key for the radix tree is UID or
+GID (I will use just ID in the following text) depending on a quota file type.
+One node of the tree is 1KB block so there are up to 256 references to the sons.
+At each level we choose reference corresponding to one byte of ID so having
+four-level radix tree we can support 32-bit IDs.  Reference from the last level
+points to <it/data block/ which contains quota structure for proper ID.
 <p>
-<it/Data block/ has following structure: In the beginning there is header with following
-structure:
+<it/Data block/ has following structure: In the beginning there is a header
+with the following structure:
 <code>
 struct disk_dqdbheader {
   __u32 dqdh_next_free;   /* Number of next block with free entry */
@@ -160,13 +188,14 @@ struct disk_dqdbheader {
   __u32 dqdh_pad2;
 };
 </code>
-Entries <tt/dqdh_next_free/ and <tt/dqdh_prev_free/ are used only if block has at least one
-free and one used entry. If it has no free entry these references are set to 0. When block
-is completely free only <tt/dqdh_next_free/ is used for link list of free blocks.
+Entries <tt/dqdh_next_free/ and <tt/dqdh_prev_free/ are used only if the block
+has at least one free and one used entry. If it has no free entry these
+references are set to 0. When block is completely free only <tt/dqdh_next_free/
+is used for linked list of free blocks.
 <p>
-The rest of block is divided into 21 quota entries. Unused entry is entry that contains
-only zeros. Note that used entries might be freely scattered in the block. Quota entry
-has following structure:
+The rest of the block is divided into 21 quota entries. Unused entry is entry
+that contains only zeros. Note that used entries might be freely scattered in
+the block. Quota entry has the following structure:
 <code>
 struct disk_dqblk {
         __u32 dqb_id;           /* id this quota applies to */
@@ -186,7 +215,7 @@ struct disk_dqblk {
 As of version 3.01 quota utilities support original, vfsv0 and xfs quota format.
 You can download latest version of utils from <tt>http://www.sf.net/projects/linuxquota/</tt>.
 <p>
-Utils try to do autodetection of currently used quota format (ie. they detect which
+Utils try to do autodetection of currently used quota format (i.e. they detect which
 format is compiled into kernel and they try to use this one). Anytime you can
 force utils to use different format by specifying <tt>-F &lt;format&gt;</tt>. More information
 about quota utils can be found in appropriate manpages.
