@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.31 2002/08/26 14:34:43 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.32 2002/08/27 18:13:41 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -406,7 +406,7 @@ static int ext2_direct_scan(char *device)
 			if (flags & FL_VERBOSE)
 				blit();
 			uid = inode.i_uid | (inode.i_uid_high << 16);
-			gid = inode.i_gid | (inode.i_hid_high << 16);
+			gid = inode.i_gid | (inode.i_gid_high << 16);
 			if (ucheck)
 				add_to_quota(USRQUOTA, i_num, uid, gid,
 					     inode.i_mode, inode.i_links_count,
