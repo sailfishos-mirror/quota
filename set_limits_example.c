@@ -14,15 +14,14 @@ int copy_user_quota_limits(const char *block_device, uid_t from, uid_t to)
 			return (0);
 		}
 		else {
-			fprintf(stderr,
-				_
-				("copy_user_quota_limits: Failed to set userquota for uid %ld : %s\n"),
+			errstr(
+				_("copy_user_quota_limits: Failed to set userquota for uid %ld : %s\n"),
 				to, strerror(errno));
 			return (1);
 		}
 	}
 	else {
-		fprintf(stderr,
+		errstr(
 			_("copy_user_quota_limits: Failed to get userquota for uid %ld : %s\n"),
 			from, strerror(errno));
 		return (1);
@@ -38,15 +37,14 @@ int copy_group_quota_limits(const char *block_device, gid_t from, gid_t to)
 			return (0);
 		}
 		else {
-			fprintf(stderr,
-				_
-				("copy_group_quota_limits: Failed to set groupquota for uid %ld : %s\n"),
+			errstr(
+				_("copy_group_quota_limits: Failed to set groupquota for uid %ld : %s\n"),
 				to, strerror(errno));
 			return (1);
 		}
 	}
 	else {
-		fprintf(stderr,
+		errstr(
 			_("copy_group_quota_limits: Failed to get groupquota for uid %ld : %s\n"),
 			from, strerror(errno));
 		return (1);

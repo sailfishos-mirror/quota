@@ -20,10 +20,21 @@ void die(int ret, char *fmtstr, ...)
 {
 	va_list args;
 
+	fprintf(stderr, "%s: ", progname);
 	va_start(args, fmtstr);
 	vfprintf(stderr, fmtstr, args);
 	va_end(args);
 	exit(ret);
+}
+
+void errstr(char *fmtstr, ...)
+{
+	va_list args;
+
+	fprintf(stderr, "%s: ", progname);
+	va_start(args, fmtstr);
+	vfprintf(stderr, fmtstr, args);
+	va_end(args);
 }
 
 void *smalloc(size_t size)

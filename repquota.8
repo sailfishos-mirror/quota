@@ -6,12 +6,18 @@ repquota \- summarize quotas for a filesystem
 .B /usr/etc/repquota
 [
 .B \-vug
+] [
+.B \-F
+.I format-name
 ]
 .IR filesystem .\|.\|.
 .LP
 .B /usr/etc/repquota
 [
 .B \-avug
+] [
+.B \-F
+.I format-name
 ]
 .SH DESCRIPTION
 .IX  "repquota command"  ""  "\fLrepquota\fP \(em summarize quotas"
@@ -36,7 +42,20 @@ Report on all filesystems indicated in
 to be read-write with quotas.
 .TP
 .B \-v
-Report all quotas, even if there is no usage.
+Report all quotas, even if there is no usage. Be also more verbose about quotafile
+information.
+.TP
+.B \-F \f2format-name\f1
+Report quota for specified format (ie. don't perform format autodetection).
+Possible format names are:
+.B vfsold
+(version 1 quota),
+.B vfsv0
+(version 2 quota),
+.B rpc
+(quota over NFS),
+.B xfs
+(quota on XFS filesystem)
 .TP
 .B \-g
 Report quotas for groups.

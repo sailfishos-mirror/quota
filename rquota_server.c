@@ -9,7 +9,7 @@
  *
  *          This part does the lookup of the info.
  *
- * Version: $Id: rquota_server.c,v 1.1 2001/03/23 12:03:27 jkar8572 Exp $
+ * Version: $Id: rquota_server.c,v 1.2 2001/05/02 09:32:22 jkar8572 Exp $
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
@@ -177,7 +177,7 @@ setquota_rslt *setquotainfo(int flags, caddr_t * argp, struct svc_req *rqstp)
 			continue;
 		if (st.st_dev != device)
 			continue;
-		if (!(handles[0] = init_io(mnt, type, -1)))
+		if (!(handles[0] = init_io(mnt, type, -1, 0)))
 			continue;
 		break;
 	}
@@ -281,7 +281,7 @@ getquota_rslt *getquotainfo(int flags, caddr_t * argp, struct svc_req * rqstp)
 			continue;
 		if (st.st_dev != device)
 			continue;
-		if (!(handles[0] = init_io(mnt, type, -1)))
+		if (!(handles[0] = init_io(mnt, type, -1, IOI_READONLY)))
 			continue;
 		break;
 	}

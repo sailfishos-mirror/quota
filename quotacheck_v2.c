@@ -53,11 +53,12 @@ static int check_info(char *filename, int fd, int type)
 	err = read(fd, &dinfo, sizeof(struct v2_disk_dqinfo));
 
 	if (err < 0) {
-		fprintf(stderr, _("Can't read info from quota file %s: %s\n"), filename, strerror(errno));
+		errstr(_("Can't read info from quota file %s: %s\n"),
+			filename, strerror(errno));
 		return -1;
 	}
 	if (err != sizeof(struct v2_disk_dqinfo)) {
-		fprintf(stderr, _("WARNING: Quota file %s was probably truncated. Can't save quota settings...\n"),
+		errstr(_("WARNING - Quota file %s was probably truncated. Can't save quota settings...\n"),
 			filename);
 		return -1;
 	}
@@ -69,7 +70,7 @@ static int check_info(char *filename, int fd, int type)
 	filesize = lseek(fd, 0, SEEK_END);
 	if (check_blkref(freeblk, blocks) < 0 || dflags & ~V2_DQF_MASK ||
 	    check_blkref(freeent, blocks) < 0 || (filesize + V2_DQBLKSIZE - 1) >> V2_DQBLKSIZE_BITS != blocks) {
-		fprintf(stderr, _("WARNING: Quota file info was corrupted.\n"));
+		errstr(_("WARNING - Quota file info was corrupted.\n"));
 		debug(FL_DEBUG, _("Size of file: %lu\nBlocks: %u Free block: %u Block with free entry: %u Flags: %x\n"),
 		      (unsigned long)filesize, blocks, freeblk, freeent, dflags);
 		old_info[type].dqi_bgrace = MAX_DQ_TIME;
@@ -91,27 +92,27 @@ static int check_info(char *filename, int fd, int type)
 	return 0;
 }
 
-/* Print error message */
+/* Print errstr message */
 static void blk_corrupted(int *corrupted, uint * lblk, uint blk, char *fmtstr, ...)
 {
 	va_list args;
 
 	if (!*corrupted) {
 		if (!(flags & (FL_VERBOSE | FL_DEBUG)))
-			fprintf(stderr, _("Corrupted blocks: "));
+			errstr(_("Corrupted blocks: "));
 	}
 	if (flags & (FL_VERBOSE | FL_DEBUG)) {
 		va_start(args, fmtstr);
-		fprintf(stderr, _("Block %u: "), blk);
+		errstr(_("Block %u: "), blk);
 		vfprintf(stderr, fmtstr, args);
 		fputc('\n', stderr);
 		va_end(args);
 	}
 	else if (*lblk != blk) {
 		if (!*corrupted)
-			fprintf(stderr, "%u", blk);
+			errstr( "%u", blk);
 		else
-			fprintf(stderr, ", %u", blk);
+			errstr( ", %u", blk);
 	}
 	*corrupted = 1;
 	*lblk = blk;
@@ -157,13 +158,13 @@ static int buffer_entry(dqbuf_t buf, uint blk, int *corrupted, uint * lblk, int 
 			if (flags & FL_GUESSDQ) {
 				if (!(flags & (FL_DEBUG | FL_VERBOSE)))
 					fputc('\n', stderr);
-				fprintf(stderr, _("Found more structures for ID %u. Using values: BHARD: %Ld BSOFT: %Ld IHARD: %Ld ISOFT: %Ld\n"),
+				errstr(_("Found more structures for ID %u. Using values: BHARD: %Ld BSOFT: %Ld IHARD: %Ld ISOFT: %Ld\n"),
 					(uint) id, (long long)fdq->dqb_bhardlimit, (long long)fdq->dqb_bsoftlimit,
 					(long long)fdq->dqb_ihardlimit, (long long)fdq->dqb_isoftlimit);
 				return 0;
 			}
 			else if (flags & FL_INTERACTIVE) {
-				fprintf(stderr, _("\nFound more structures for ID %u. Values: BHARD: %Ld/%Ld BSOFT: %Ld/%Ld IHARD: %Ld/%Ld ISOFT: %Ld/%Ld\n"),
+				errstr(_("\nFound more structures for ID %u. Values: BHARD: %Ld/%Ld BSOFT: %Ld/%Ld IHARD: %Ld/%Ld ISOFT: %Ld/%Ld\n"),
 					(uint) id, (long long)fdq->dqb_bhardlimit, (long long)mdq.dqb_bhardlimit,
 					(long long)fdq->dqb_bsoftlimit, (long long)mdq.dqb_bsoftlimit,
 					(long long)fdq->dqb_ihardlimit, (long long)mdq.dqb_ihardlimit,
@@ -178,7 +179,7 @@ static int buffer_entry(dqbuf_t buf, uint blk, int *corrupted, uint * lblk, int 
 				}
 			}
 			else {
-				fprintf(stderr, _("ID %u has more structures. User intervention needed (use -i for interactive mode or -n for automatic answer).\n"),
+				errstr(_("ID %u has more structures. User intervention needed (use -i for interactive mode or -n for automatic answer).\n"),
 					(uint) id);
 				return -1;
 			}
@@ -296,12 +297,13 @@ static int check_header(char *filename, int fd, int type)
 	if (err < 0)
 		die(1, _("Can't read header from quotafile %s: %s\n"), filename, strerror(errno));
 	if (err != sizeof(head)) {
-		fprintf(stderr, _("WARNING: Quotafile %s was probably truncated. Can't save quota settings...\n"),
+		errstr(_("WARNING -  Quotafile %s was probably truncated. Can't save quota settings...\n"),
 			filename);
 		return -1;
 	}
 	if (__le32_to_cpu(head.dqh_magic) != magics[type] || __le32_to_cpu(head.dqh_version) > known_versions[type])
-		fprintf(stderr, _("WARNING: Quota file %s has corrupted headers\n"), filename);
+		errstr(_("WARNING - Quota file %s has corrupted headers\n"),
+			filename);
 	debug(FL_DEBUG, _("Headers checked.\n"));
 	return 0;
 }
@@ -328,7 +330,7 @@ int v2_buffer_file(char *filename, int fd, int type)
 	if (check_tree_ref(0, V2_DQTREEOFF, blocks, 1, &corrupted, &lastblk) >= 0)
 		ret = check_tree_blk(fd, V2_DQTREEOFF, 0, type, blocks, &corrupted, &lastblk);
 	else
-		fprintf(stderr, _("Can't gather quota data. Tree root node corrupted.\n"));
+		errstr(_("Can't gather quota data. Tree root node corrupted.\n"));
 #ifdef DEBUG_MALLOC
 	free_mem += (blocks + 7) >> 3;
 #endif
@@ -336,7 +338,7 @@ int v2_buffer_file(char *filename, int fd, int type)
 	if (corrupted) {
 		if (!(flags & (FL_VERBOSE | FL_DEBUG)))
 			fputc('\n', stderr);
-		fprintf(stderr, _("WARNING: Some data might be changed due to corruption.\n"));
+		errstr(_("WARNING - Some data might be changed due to corruption.\n"));
 	}
 	else
 		debug(FL_DEBUG | FL_VERBOSE, _("Not found any corrupted blocks. Congratulations.\n"));

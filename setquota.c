@@ -29,6 +29,7 @@
 
 int flags, fmt = -1;
 char **mnt;
+char *progname;
 int mntcnt;
 qid_t protoid, id;
 struct util_dqblk toset;
@@ -37,30 +38,30 @@ struct util_dqblk toset;
 static void usage(void)
 {
 #if defined(RPC_SETQUOTA)
-	fprintf(stderr, _("Usage:\n"
+	errstr(_("Usage:\n"
 			  "  setquota [-u|-g] [-r] [-F quotaformat] <user|group>\n"
 			  "\t<block-softlimit> <block-hardlimit> <inode-softlimit> <inode-hardlimit> -a|<filesystem>...\n"
 			  "  setquota [-u|-g] [-r] [-F quotaformat] <-p protouser|protogroup> <user|group> -a|<filesystem>...\n"
 			  "  setquota [-u|-g] [-F quotaformat] -t <blockgrace> <inodegrace> -a|<filesystem>...\n"));
 #else
-	fprintf(stderr, _("Usage:\n"
+	errstr(_("Usage:\n"
 			  "  setquota [-u|-g] [-F quotaformat] <user|group>\n"
 			  "\t<block-softlimit> <block-hardlimit> <inode-softlimit> <inode-hardlimit> -a|<filesystem>...\n"
 			  "  setquota [-u|-g] [-F quotaformat] <-p protouser|protogroup> <user|group> -a|<filesystem>...\n"
 			  "  setquota [-u|-g] [-F quotaformat] -t <blockgrace> <inodegrace> -a|<filesystem>...\n"));
 #endif
-	fprintf(stderr, _("Bugs to: %s\n"), MY_EMAIL);
+	errstr(_("Bugs to: %s\n"), MY_EMAIL);
 	exit(1);
 }
 
-/* Convert string to number - print error message in case of failure */
+/* Convert string to number - print errstr message in case of failure */
 static long parse_num(char *str, char *msg)
 {
 	char *errch;
 	long ret = strtol(str, &errch, 0);
 
 	if (*errch) {
-		fprintf(stderr, _("Bad %s: %s\n"), msg, str);
+		errstr(_("Bad %s: %s\n"), msg, str);
 		usage();
 	}
 	return ret;
@@ -216,18 +217,22 @@ int main(int argc, char **argv)
 	struct quota_handle **handles;
 
 	gettexton();
+	progname = basename(argv[0]);
+
 	parse_options(argc, argv);
 	warn_new_kernel(fmt);
 
 	if (flags & FL_ALL)
-		handles = create_handle_list(0, NULL, flag2type(flags), fmt, !(flags & FL_RPC));
+		handles = create_handle_list(0, NULL, flag2type(flags), fmt, (flags & FL_RPC) ? 0 : IOI_LOCALONLY);
 	else
-		handles = create_handle_list(mntcnt, mnt, flag2type(flags), fmt, !(flags & FL_RPC));
+		handles = create_handle_list(mntcnt, mnt, flag2type(flags), fmt, (flags & FL_RPC) ? 0 : IOI_LOCALONLY);
 
 	if (flags & FL_GRACE)
 		setgraces(handles);
 	else
 		setlimits(handles);
+
 	dispose_handle_list(handles);
+
 	return 0;
 }

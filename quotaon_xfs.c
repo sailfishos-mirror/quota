@@ -31,8 +31,7 @@ static int xfs_state_check(int qcmd, int type, int flags, char *dev, int root, i
 		return 0;	/* noop */
 
 	if (quotactl(QCMD(Q_XFS_GETQSTAT, 0), dev, 0, (void *)&info) < 0) {
-		fprintf(stderr, flags & STATEFLAG_ON ? "quotaon: " : "quotaoff: ");
-		perror(dev);
+		errstr(_("quotactl() on %s: %s\n"), dev, strerror(errno));
 		return -1;
 	}
 
@@ -64,7 +63,7 @@ static int xfs_state_check(int qcmd, int type, int flags, char *dev, int root, i
 					     " (reboot to take effect)\n"), type2name(type));
 				    return 1;
 			    }
-			    fprintf(stderr, _("Enable XFS %s quota during mount\n"),
+			    errstr(_("Enable XFS %s quota during mount\n"),
 				    type2name(type));
 			    return -1;
 		    case Q_XFS_QUOTAOFF:
@@ -74,7 +73,7 @@ static int xfs_state_check(int qcmd, int type, int flags, char *dev, int root, i
 	  case ACCT:
 		  switch (qcmd) {
 		    case Q_XFS_QUOTARM:
-			    fprintf(stderr, _("Cannot delete %s quota on %s - "
+			    errstr(_("Cannot delete %s quota on %s - "
 					      "switch quota accounting off first\n"),
 				    type2name(type), dev);
 			    return -1;
@@ -100,12 +99,12 @@ static int xfs_state_check(int qcmd, int type, int flags, char *dev, int root, i
 	  case ENFD:
 		  switch (qcmd) {
 		    case Q_XFS_QUOTARM:
-			    fprintf(stderr, _("Cannot delete %s quota on %s - "
+			    errstr(_("Cannot delete %s quota on %s - "
 					      "switch quota enforcement off first\n"),
 				    type2name(type), dev);
 			    return -1;
 		    case Q_XFS_QUOTAON:
-			    fprintf(stderr, _("Enforcing %s quota already on %s\n"),
+			    errstr(_("Enforcing %s quota already on %s\n"),
 				    type2name(type), dev);
 			    return -1;
 		    case Q_XFS_QUOTAOFF:
@@ -116,7 +115,7 @@ static int xfs_state_check(int qcmd, int type, int flags, char *dev, int root, i
 		  }
 		  break;
 	}
-	fprintf(stderr, _("Unexpected XFS quota state sought on %s\n"), dev);
+	errstr(_("Unexpected XFS quota state sought on %s\n"), dev);
 	return -1;
 }
 
@@ -131,8 +130,7 @@ static int xfs_onoff(char *dev, int type, int flags, int rootfs, int *xopts)
 		return (check < 0);
 
 	if (quotactl(QCMD(qcmd, type), dev, 0, (void *)xopts) < 0) {
-		fprintf(stderr, qoff ? "quotaoff: " : "quotaon: ");
-		perror(dev);
+		errstr(_("quotactl on %s: %s\n"), dev, strerror(errno));
 		return 1;
 	}
 	if ((flags & STATEFLAG_VERBOSE) && qoff)
@@ -152,8 +150,8 @@ static int xfs_delete(char *dev, int type, int flags, int rootfs, int *xopts)
 		return (check < 0);
 
 	if (quotactl(QCMD(qcmd, type), dev, 0, (void *)xopts) < 0) {
-		fprintf(stderr, _("Failed to delete quota: "));
-		perror(dev);
+		errstr(_("Failed to delete quota: %s"),
+			strerror(errno));
 		return 1;
 	}
 

@@ -62,6 +62,7 @@
 
 #define IOFL_QUOTAON	0x01	/* Is quota enabled in kernel? */
 #define IOFL_INFODIRTY	0x02	/* Did info change? */
+#define IOFL_RO		0x04	/* Just RO access? */
 
 struct quotafile_ops;
 
@@ -131,12 +132,13 @@ static inline void mark_quotafile_info_dirty(struct quota_handle *h)
 }
 
 #define QIO_ENABLED(h)	((h)->qh_io_flags & IOFL_QUOTAON)
+#define QIO_RO(h)	((h)->qh_io_flags & IOFL_RO)
 
 /* Detect format of given quotafile */
 int detect_qf_format(int fd, int type);
 
 /* Check quota format used on specified medium and initialize it */
-struct quota_handle *init_io(struct mntent *mnt, int type, int fmt);
+struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags);
 
 /* Create new quotafile of specified format on given filesystem */
 struct quota_handle *new_io(struct mntent *mnt, int type, int fmt);

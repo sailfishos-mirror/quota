@@ -1,51 +1,90 @@
-.TH QUOTACHECK 8
+.TH quotacheck 8 "Mon Jul 17 2000"
 .SH NAME
-quotacheck \- scan a filesystem for disk usages
+quotacheck \- scan a file system for disk usages, create, check and repair quota files
 .SH SYNOPSIS
 .B quotacheck
-[-g] [-u] [-v] -a
+[
+.B \-gucfinvdMmR
+] [
+.B \-F
+.I quota-format
+]
+.B \-a
+|
+.I filesystem
 .br
-.B quotacheck
-[-g] [-u] [-v] filesys ...
 .SH DESCRIPTION
-.I Quotacheck
-performs a filesystems scan for usage of files and directories, used
-by either user or group.
-XFS filesystems are ignored by
-.IR quotacheck ,
-since the XFS quota system is journaled and therefore inherently consistent.
-.PP
-The output is the quota file for the corresponding filesystem.
-By default the names for these files are:
+.B Quotacheck
+first checks old quota files for given filesystem and reads user / group limits
+from them (if it is creating new files -- see option
+.B -c
+-- this step is ommited, of course). Then performs a filesystem scan for usage
+of files and directories, used by either user or group. The output are new quota
+files for the corresponding filesystem. The names of these files are:
 .br
 \-  A user scan: 
-.I quota.user 
+.B aquota.user
+or
+.B quota.user
+(depending on quota format)
 .br
 \-  A group scan:
-.I quota.group 
+.B aquota.group
+or
+.B quota.group
 .PP
-The resulting file consists of a
-.I struct dqblk
-for each possible id up to the highest existing uid or gid and contains the
-values for the disk file and block usage and possibly excess time for these
-values. ( for definitions of
-.I struct dqblk
-see
-.I \<linux/quota.h\>
-)
+Old files are stored as
+.B aquota.user~
+/
+.B quota.user~
+and
+.B aquota.group~
+/
+.BR quota.group~ .
 .PP
-.I Quotacheck
-should be run each time the system boots and mounts non-valid filesystems.
+Old quota format (version 1) has no way of detecting quotafile corruption and so
+following text is meaningful only for version 2 quota format. When quota file is corrupted,
+.B quotacheck
+tries to save as many data as possible (which can sometimes result in bogus entries
+being created). Rescuing data might need user intervention. With no special options
+.B quotacheck
+will simply exit in that situation. When in interactive mode (option
+.BR -i )
+user is asked for an advice. Advices can be also provided from command line (see option
+.BR -n )
+which is handful when
+.B quotacheck
+is run automatically (ie. from script) and you can't
+afford
+.B quotacheck
+to fail.
+.PP
+.B Quotacheck
+should be run each time the system boots and mounts non-valid file systems.
 This is most likely to happen after a system crash.
 .PP
-The speed of the scan decreases with the number of directories increasing.
-The time needed doubles when disk usage is doubled as well. A 100 MB partition
-used for 94% is scanned in 1 minute, the same partition used for 50% is
-done in 25 seconds.
+It is strongly recommended to run
+.B quotacheck
+with quotas turned off on concerned file system. Otherwise you can loose or damage some
+data in quota files. Also it is wise not to run
+.B quotacheck
+on live filesystem as directory scan might count bogus usage in that case. To prevent this
+.B quotacheck
+tries to remount filesystem read-only before starting the scan of filesystem and after
+the scan is done it remounts filesystem read-write. You can turn off this feature by
+option
+.BR \-m .
+You can also make
+.B quotacheck
+ignore that it didn't succeed when remounting filesystem read-only by option
+.BR \-M .
+.PP
+The speed of the scan decrease with the amount of directories increasing.
+The time needed doubles when disk usage is doubled as well.
 .SH OPTIONS
 .TP
 .B \-v
-This way the program will give some useful information about what it is
+This way the program will give some usefull information about what it is
 doing, plus some fancy stuff.
 .TP
 .B \-d
@@ -58,37 +97,93 @@ This flag tells the program to scan the disk and to count the files and
 directories used by a certain uid. This is the default action.
 .TP
 .B \-g
-This flag forces the program to count the files and directories
+This flag forces the program to count the the files and directories
 used by a certain gid.
 .TP
+.B \-c
+Don't read old quota files. Just perform directory scan and dump usage.
+.TP
+.B \-f
+This flags forces checking of filesystem with quotas enabled. Note that doing
+this is not recomended as created quota files might be damaged or out of date.
+.TP
+.B \-M
+This flag forces checking of filesystem in read-write mode if remount fails. Do this only when
+you are sure no process will write to a filesystem while scanning.
+.TP
+.B \-m
+Don't try to remount filesystem read-only. See comment at option
+.BR \-M .
+.TP
+.B \-i
+Interactive mode. By default
+.B quotacheck
+exits when it finds some error. In interactive mode user is asked for an advice instead.
+See also option
+.BR \-n .
+.TP
+.B \-n
+Sometimes it may happen that more entries for the same id are found. Normally
+.B quotacheck
+exits or asks user. When this option is set first entry found is always used (this option
+works in interactive mode too).
+.TP
+.B \-F \f2format-name\f1
+Check quota quota for specified format (ie. don't perform format autodetection). This is
+recommended as detection might not work well on corrupted quotafiles.
+Possible format names are:
+.B vfsold
+(version 1 quota),
+.B vfsv0
+(version 2 quota),
+.B rpc
+(quota over NFS),
+.B xfs
+(quota on XFS filesystem)
+.TP
 .B \-a
-Check all of the quotas for the filesystems mentioned in /etc/mtab. Both
-user and group quotas are checked as indicated by the /etc/mtab options.
+Check all filesystems in
+.B /etc/mtab
 .TP
 .B \-R
-When used in conjunction with \fP\-a\fR, all filesystems except the root 
-filesystem are checked for quotas.
+When used together with
+.B \-a
+option, all filesystems except root filesystem are checked for quotas.
 .SH NOTE
-.I Quotacheck
-should only be run as Super User. Non-privilidged users are presumably not allowed
+.B Quotacheck
+should only be run by super-user. Non-priviledged users are presumably not allowed
 to read all the directories on the given filesystem.
 .SH "SEE ALSO"
-quota(1), quotactl(2), fstab(5), quotaon(8), quotaoff(8), edquota(8), 
-repquota(8), fsck(8)
+.BR quota (1),
+.BR quotactl (2),
+.BR fstab (5),
+.BR quotaon (8),
+.BR repquota (8),
+.BR convertquota (8),
+.BR setquota (8),
+.BR edquota (8),
+.BR fsck (8),
+.BR efsck (8),
+.BR e2fsck (8),
+.BR xfsck (8)
 .SH FILES
 .PD 0
-.TP 20
+.TP 15
 .B aquota.user or aquota.group
-quota file at the filesystem root (version 2 quota, non-XFS filesystems)
-.TP 20
+located at filesystem root with user quotas (version 2 quota, non-XFS filesystems)
+.TP 15
 .B quota.user or quota.group
-quota file at the filesystem root (version 1 quota, non-XFS filesystems)
+located at filesystem root with user quotas (version 1 quota, non-XFS filesystems)
 .TP
 .B /etc/mtab
-default filesystems
-.PD
-.SH "AUTHOR"
+names and locations of mounted filesystems
+.SH AUTHOR
+Jan Kara \<jack@suse.cz\>
+.br
+Based on old
+.B quotacheck
+by:
+.br
 Edvard Tuinder \<ed@elm.net\>
 .br
 Marco van Wieringen \<mvw@planets.elm.net\>
-

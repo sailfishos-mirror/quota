@@ -6,9 +6,11 @@
 #include <errno.h>
 #include <sys/types.h>
 
+#include "common.h"
 #include "quotaio.h"
 #include "dqblk_rpc.h"
 #include "rquota_client.h"
+#include "pot.h"
 
 static struct dquot *rpc_read_dquot(struct quota_handle *h, qid_t id);
 static int rpc_commit_dquot(struct dquot *dquot);
@@ -47,6 +49,11 @@ static struct dquot *rpc_read_dquot(struct quota_handle *h, qid_t id)
 static int rpc_commit_dquot(struct dquot *dquot)
 {
 #ifdef RPC
+	if (QIO_RO(dquot->dq_h)) {
+		errstr(_("Trying to write quota to readonly quotafile on %s\n"), dquot->dq_h->qh_quotadev);
+		errno = EPERM;
+		return -1;
+	}
 	rpc_rquota_set(QCMD(Q_RPC_SETQUOTA, dquot->dq_h->qh_type), dquot);
 	return 0;
 #else

@@ -22,7 +22,7 @@ setquota \- set disk quotas
 .I inode-hardlimit
 .B \-a
 |
-.I filesystem
+.I filesystem...
 .LP
 .B /usr/sbin/setquota
 [
@@ -44,7 +44,7 @@ setquota \- set disk quotas
 .I name
 .B \-a
 |
-.I filesystem
+.I filesystem...
 .LP
 .B /usr/sbin/setquota
 .B \-t
@@ -61,7 +61,7 @@ setquota \- set disk quotas
 .I inode-grace
 .B \-a
 |
-.I filesystem
+.I filesystem...
 .SH DESCRIPTION
 .IX  "setquota command"  ""  "\fLsetquota\fP \(em set disk quotas"
 .IX  set "disk quotas \(em \fLsetquota\fP"
@@ -78,8 +78,16 @@ filesystem can be specified on the command line.
 Edit also remote quota use rpc.rquotad on remote server to set quota.
 .TP
 .B -F \f2quotaformat\f1
-Perform setting for specified quota format. If this option isn't specified
-newest option found is used.
+Perform setting for specified format (ie. don't perform format autodetection).
+Possible format names are:
+.B vfsold
+(version 1 quota),
+.B vfsv0
+(version 2 quota),
+.B rpc
+(quota over NFS),
+.B xfs
+(quota on XFS filesystem)
 .TP
 .B -u
 Set user quotas for named user. This is the default.

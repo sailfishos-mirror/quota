@@ -54,7 +54,7 @@ int detect_qf_format(int fd, int type)
 /*
  *	Detect quota format and initialize quota IO
  */
-struct quota_handle *init_io(struct mntent *mnt, int type, int fmt)
+struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 {
 	char *qfname = NULL;
 	int fd = -1, kernfmt;
@@ -68,12 +68,14 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt)
 	if (stat(mnt_fsname, &h->qh_stat) < 0)
 		memset(&h->qh_stat, 0, sizeof(struct stat));
 	h->qh_io_flags = 0;
+	if (flags & IOI_READONLY)
+		h->qh_io_flags |= IOFL_RO;
 	h->qh_type = type;
 	sstrncpy(h->qh_quotadev, mnt_fsname, sizeof(h->qh_quotadev));
 	free((char *)mnt_fsname);
 	if (!strcmp(mnt->mnt_type, MNTTYPE_NFS)) {	/* NFS filesystem? */
 		if (fmt != -1 && fmt != QF_RPC) {	/* User wanted some other format? */
-			fprintf(stderr, _("Only RPC quota format is allowed on NFS filesystem.\n"));
+			errstr(_("Only RPC quota format is allowed on NFS filesystem.\n"));
 			goto out_handle;
 		}
 #ifdef RPC
@@ -82,14 +84,14 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt)
 		h->qh_ops = &quotafile_ops_rpc;
 		return h;
 #else
-		fprintf(stderr, _("RPC quota format not compiled.\n"));
+		errstr(_("RPC quota format not compiled.\n"));
 		goto out_handle;
 #endif
 	}
 
 	if (!strcmp(mnt->mnt_type, MNTTYPE_XFS)) {	/* XFS filesystem? */
 		if (fmt != -1 && fmt != QF_XFS) {	/* User wanted some other format? */
-			fprintf(stderr, _("Only XFS quota format is allowed on XFS filesystem.\n"));
+			errstr(_("Only XFS quota format is allowed on XFS filesystem.\n"));
 			goto out_handle;
 		}
 		h->qh_fd = -1;
@@ -107,14 +109,14 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt)
 		fmt = kernfmt;	/* Default is kernel used format */
 	}
 	if (!(qfname = get_qf_name(mnt, type, fmt))) {
-		fprintf(stderr, _("Can't get quotafile name.\n"));
+		errstr(_("Can't get quotafile name.\n"));
 		goto out_handle;
 	}
-	if (qfname[0]) {	/* Has format any quotafile to open? */
+	if (qfname[0] && (!QIO_ENABLED(h) || flags & IOI_OPENFILE)) {	/* Need to open file? */
 		/* We still need to open file for operations like 'repquota' */
-		if ((fd = open(qfname, O_RDWR)) < 0) {
-			fprintf(stderr, _("Can't open quotafile %s: %s\n"), qfname,
-				strerror(errno));
+		if ((fd = open(qfname, QIO_RO(h) ? O_RDONLY : O_RDWR)) < 0) {
+			errstr(_("Can't open quotafile %s: %s\n"),
+				qfname, strerror(errno));
 			goto out_handle;
 		}
 		flock(fd, LOCK_EX);
@@ -124,11 +126,12 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt)
 		/* Check file format */
 		h->qh_fmt = detect_qf_format(fd, type);
 		if (h->qh_fmt == -2) {
-			fprintf(stderr, _("Quotafile format too new in %s\n"), qfname);
+			errstr(_("Quotafile format too new in %s\n"),
+				qfname);
 			goto out_lock;
 		}
 		if (fmt != -1 && h->qh_fmt != fmt) {
-			fprintf(stderr, _("Quotafile format detected differs from the specified one (or the one kernel uses on the file).\n"));
+			errstr(_("Quotafile format detected differs from the specified one (or the one kernel uses on the file).\n"));
 			goto out_handle;
 		}
 	}
@@ -143,8 +146,10 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt)
 		h->qh_ops = &quotafile_ops_2;
 	memset(&h->qh_info, 0, sizeof(h->qh_info));
 
-	if (h->qh_ops->init_io && h->qh_ops->init_io(h) < 0)
+	if (h->qh_ops->init_io && h->qh_ops->init_io(h) < 0) {
+		errstr(_("Can't initialize quota on %s: %s\n"), h->qh_quotadev, strerror(errno));
 		goto out_lock;
+	}
 	return h;
       out_lock:
 	if (fd != -1)
@@ -170,7 +175,7 @@ struct quota_handle *new_io(struct mntent *mnt, int type, int fmt)
 	if (fmt == -1)
 		fmt = QF_VFSV0;	/* Use the newest format */
 	else if (fmt == QF_RPC || fmt == QF_XFS) {
-		fprintf(stderr, _("Creation of %s quota format is not supported.\n"),
+		errstr(_("Creation of %s quota format is not supported.\n"),
 			fmt == QF_RPC ? "RPC" : "XFS");
 		return NULL;
 	}
@@ -180,7 +185,8 @@ struct quota_handle *new_io(struct mntent *mnt, int type, int fmt)
 	sstrncat(namebuf, ".new", PATH_MAX);
 	free(qfname);
 	if ((fd = open(namebuf, O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR)) < 0) {
-		fprintf(stderr, _("Can't create new quotafile %s: %s\n"), namebuf, strerror(errno));
+		errstr(_("Can't create new quotafile %s: %s\n"),
+			namebuf, strerror(errno));
 		return NULL;
 	}
 	if (!(mnt_fsname = get_device_name(mnt->mnt_fsname)))
@@ -215,15 +221,13 @@ struct quota_handle *new_io(struct mntent *mnt, int type, int fmt)
  */
 int end_io(struct quota_handle *h)
 {
-	int ret;
-
 	if (h->qh_io_flags & IOFL_INFODIRTY) {
-		if (h->qh_ops->write_info && (ret = h->qh_ops->write_info(h)) >= 0)
-			return ret;
+		if (h->qh_ops->write_info && h->qh_ops->write_info(h) < 0)
+			return -1;
 		h->qh_io_flags &= ~IOFL_INFODIRTY;
 	}
-	if (h->qh_ops->end_io && (ret = h->qh_ops->end_io(h)) >= 0)
-		return ret;
+	if (h->qh_ops->end_io && h->qh_ops->end_io(h) < 0)
+		return -1;
 	flock(h->qh_fd, LOCK_UN);
 	close(h->qh_fd);
 	free(h);

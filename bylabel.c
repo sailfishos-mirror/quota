@@ -167,7 +167,7 @@ static void uuidcache_init(void)
 				 * (This is useful, if the cdrom on /dev/hdc must not
 				 * be accessed.)
 				 */
-				sprintf(device, "%s/%s", DEVLABELDIR, ptname);
+				snprintf(device, sizeof(device), "%s/%s", DEVLABELDIR, ptname);
 				if (!get_label_uuid(device, &label, uuid))
 					uuidcache_addentry(sstrdup(device), label, uuid);
 			}
@@ -231,7 +231,7 @@ static char *get_spec_by_uuid(const char *s)
 	return get_spec_by_x(UUID, uuid);
 
       bad_uuid:
-	fprintf(stderr, _("Found an invalid UUID: %s\n"), s);
+	errstr(_("Found an invalid UUID: %s\n"), s);
 	return NULL;
 }
 
@@ -251,6 +251,6 @@ const char *get_device_name(const char *item)
 	else
 		rc = sstrdup(item);
 	if (!rc)
-		fprintf(stderr, _("Error checking device name: %s\n"), item);
+		errstr(_("Error checking device name: %s\n"), item);
 	return rc;
 }

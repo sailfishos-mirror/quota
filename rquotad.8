@@ -18,9 +18,13 @@ is an
 server which returns quotas for a user of a local filesystem
 which is mounted by a remote machine over the
 .SM NFS\s0.
-The results are used by
+It also allows setting of quotas on
+.SM NFS
+mounted filesystem. The results are used by
 .BR quota (1)
-to display user quotas for remote filesystems.
+to display user quotas for remote filesystems and by
+.BR edquota (8)
+to set quotas on remote filesystems.
 The
 .B rquotad
 daemon is normally started at boot time from the

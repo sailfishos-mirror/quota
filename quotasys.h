@@ -17,6 +17,11 @@
 /* Flags for formatting time */
 #define TF_ROUND 0x1		/* Should be printed time rounded? */
 
+/* Flags for IO initialization */
+#define IOI_LOCALONLY	0x1	/* Operate only on local quota */
+#define IOI_READONLY	0x2	/* Only readonly access */
+#define IOI_OPENFILE	0x4	/* Open file even if kernel has quotas turned on */
+
 /*
  *	Exported functions
  */
@@ -61,8 +66,7 @@ char *get_qf_name(struct mntent *mnt, int type, int fmt);
 
 /* Create NULL-terminated list of handles for quotafiles for given mountpoints */
 struct quota_handle **create_handle_list(int count, char **mntpoints, int type, int fmt,
-
-					 char local_only);
+					 int flags);
 /* Dispose given list of handles */
 int dispose_handle_list(struct quota_handle **hlist);
 

@@ -7,10 +7,13 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include "common.h"
 #include "pot.h"
 
 #define XQMFILE		"/proc/fs/xfs/xqm"
 #define STATFILE	"/proc/fs/xfs/stat"
+
+char *progname;
 
 int main(int argc, char **argv)
 {
@@ -19,11 +22,12 @@ int main(int argc, char **argv)
 	unsigned values[8];
 
 	gettexton();
+	progname = basename(argv[0]);
 
 	memset(values, 0, sizeof(unsigned) * 8);
 
 	if ((stats = fopen(STATFILE, "r")) == NULL || (xqm = fopen(XQMFILE, "r")) == NULL) {
-		fprintf(stderr, _("The running kernel does not support XFS\n"));
+		errstr(_("The running kernel does not support XFS\n"));
 		return 1;
 	}
 	while (!feof(stats)) {

@@ -3,19 +3,22 @@
 quota \- display disk usage and limits
 .SH SYNOPSIS
 quota [
-.B -n
+.B -F
+.I format-name
 ] [
 .B -guv | q
 ]
 .br
 quota [
-.B -n
+.B -F
+.I format-name
 ] [
 .B -uv | q
 ] user
 .br
 quota [
-.B -n
+.B -F
+.I format-name
 ] [
 .B -gv | q
 ] group
@@ -31,8 +34,17 @@ For filesystems that are NFS-mounted a call to the rpc.rquotad on
 the server machine is performed to get the information.
 .SH OPTIONS
 .TP
-.B \-n
-Print info on numeric arguments e.g. uids and gids instead of users and groups
+.B \-F \f2format-name\f1
+Show quota for specified format (ie. don't perform format autodetection).
+Possible format names are:
+.B vfsold
+(version 1 quota),
+.B vfsv0
+(version 2 quota),
+.B rpc
+(quota over NFS),
+.B xfs
+(quota on XFS filesystem)
 .TP
 .B \-g
 Print group quotas for the group 

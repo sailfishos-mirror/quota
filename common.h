@@ -9,8 +9,14 @@
 
 #define MY_EMAIL "mvw@planets.elm.net, jack@suse.cz"
 
+/* Name of current program for error reporting */
+extern char *progname;
+
 /* Finish programs being */
 void die(int, char *, ...);
+
+/* Print an error */
+void errstr(char *, ...);
 
 /* malloc() with error check */
 void *smalloc(size_t);

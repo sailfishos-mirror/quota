@@ -139,8 +139,8 @@ static int v2_init_io(struct quota_handle *h)
 	if (QIO_ENABLED(h)) {
 		struct v2_kern_dqinfo kdqinfo;
 
-		if (quotactl(QCMD(Q_V2_GETINFO, h->qh_type), h->qh_quotadev, 0, (void *)&kdqinfo) <
-		    0) return -1;
+		if (quotactl(QCMD(Q_V2_GETINFO, h->qh_type), h->qh_quotadev, 0, (void *)&kdqinfo) < 0)
+			return -1;
 		h->qh_info.dqi_bgrace = kdqinfo.dqi_bgrace;
 		h->qh_info.dqi_igrace = kdqinfo.dqi_igrace;
 		h->qh_info.u.v2_mdqi.dqi_flags = kdqinfo.dqi_flags;
@@ -194,6 +194,11 @@ static int v2_new_io(struct quota_handle *h)
  */
 static int v2_write_info(struct quota_handle *h)
 {
+	if (QIO_RO(h)) {
+		errstr(_("Trying to write info to readonly quotafile on %s\n"), h->qh_quotadev);
+		errno = EPERM;
+		return -1;
+	}
 	if (QIO_ENABLED(h)) {
 		struct v2_kern_dqinfo kdqinfo;
 
@@ -203,8 +208,8 @@ static int v2_write_info(struct quota_handle *h)
 		kdqinfo.dqi_blocks = h->qh_info.u.v2_mdqi.dqi_blocks;
 		kdqinfo.dqi_free_blk = h->qh_info.u.v2_mdqi.dqi_free_blk;
 		kdqinfo.dqi_free_entry = h->qh_info.u.v2_mdqi.dqi_free_entry;
-		if (quotactl(QCMD(Q_V2_SETINFO, h->qh_type), h->qh_quotadev, 0, (void *)&kdqinfo) <
-		    0) return -1;
+		if (quotactl(QCMD(Q_V2_SETINFO, h->qh_type), h->qh_quotadev, 0, (void *)&kdqinfo) < 0)
+			return -1;
 	}
 	else {
 		struct v2_disk_dqinfo ddqinfo;
@@ -261,7 +266,7 @@ static int get_free_dqblk(struct quota_handle *h)
 		memset(buf, 0, V2_DQBLKSIZE);
 		if (write_blk(h, info->dqi_blocks, buf) < 0) {	/* Assure block allocation... */
 			freedqbuf(buf);
-			fprintf(stderr, "Can't allocate new quota block (out of disk space).\n");
+			errstr(_("Can't allocate new quota block (out of disk space).\n"));
 			return -ENOSPC;
 		}
 		blk = info->dqi_blocks++;
@@ -570,7 +575,7 @@ static inline loff_t find_dqentry(struct quota_handle *h, struct dquot *dquot)
 
 /*
  *  Read dquot (either from disk or from kernel)
- *  User can use errno to detect error when NULL is returned
+ *  User can use errno to detect errstr when NULL is returned
  */
 static struct dquot *v2_read_dquot(struct quota_handle *h, qid_t id)
 {
@@ -587,8 +592,7 @@ static struct dquot *v2_read_dquot(struct quota_handle *h, qid_t id)
 	if (QIO_ENABLED(h)) {
 		struct v2_kern_dqblk kdqblk;
 
-		if (quotactl(QCMD(Q_V2_GETQUOTA, h->qh_type), h->qh_quotadev, id, (void *)&kdqblk) <
-		    0) {
+		if (quotactl(QCMD(Q_V2_GETQUOTA, h->qh_type), h->qh_quotadev, id, (void *)&kdqblk) < 0) {
 			free(dquot);
 			return NULL;
 		}
@@ -613,20 +617,25 @@ static struct dquot *v2_read_dquot(struct quota_handle *h, qid_t id)
 
 /* 
  *  Commit changes of dquot to disk - it might also mean deleting it when quota became fake one and user has no blocks...
- *  User can process use 'errno' to detect error
+ *  User can process use 'errno' to detect errstr
  */
 static int v2_commit_dquot(struct dquot *dquot)
 {
 	struct util_dqblk *b = &dquot->dq_dqb;
 
+	if (QIO_RO(dquot->dq_h)) {
+		errstr(_("Trying to write quota to readonly quotafile on %s\n"), dquot->dq_h->qh_quotadev);
+		errno = EPERM;
+		return -1;
+	}
 	if (QIO_ENABLED(dquot->dq_h)) {
 		struct v2_kern_dqblk kdqblk;
 
 		v2_util2kerndqblk(&kdqblk, &dquot->dq_dqb);
-		if (quotactl
-		    (QCMD(Q_V2_SETQUOTA, dquot->dq_h->qh_type), dquot->dq_h->qh_quotadev,
+		if (quotactl(QCMD(Q_V2_SETQUOTA, dquot->dq_h->qh_type), dquot->dq_h->qh_quotadev,
 		     dquot->dq_id, (void *)&kdqblk) < 0)
 			return -1;
+		return 0;
 	}
 	if (!b->dqb_curspace && !b->dqb_curinodes && !b->dqb_bsoftlimit && !b->dqb_isoftlimit
 	    && !b->dqb_bhardlimit && !b->dqb_ihardlimit)

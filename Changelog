@@ -39,6 +39,26 @@ Changes in quota-package from 2.00 to 3.01
 * Fix up numerous compiler warnings and all the minor problems that revealed -
   package now compiled with -Wall by default.  (Jan Kara, Nathan Scott)
 
+* Rewrote the error output handler (now uses errstr function) which also
+  displays the correct programname of the program issueing the error.
+
+* Additional configure option BSD_BEHAVIOUR for more the old BSD behaviour
+  as wanted by some people.
+
+* EOF -> -1, sprintf -> snprintf fixes
+
+* Don't turn quotas on on NFS
+
+* Fixed quota format detection, related bugs in quotaon
+
+* IO code now allows readonly access, doesn't open quotafile when not needed
+
+* Fixed bug in old quotaformat initialization
+
+* quota(1) now exits with nonzero exitcode when over quota
+
+* Manpage cleanup
+
 Changes in quota-package from 1.70 to 2.00
 
 * Added patches from Steven Walker <smw8923@cmsu2.cmsu.edu> for supporting

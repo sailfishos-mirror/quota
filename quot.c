@@ -66,8 +66,8 @@ static int fflag;
 static int gflag;
 static int uflag;
 static int vflag;
-static char *progname;
 static time_t now;
+char *progname;
 
 static void mounttable(char *);
 static char *idname(__uint32_t, int);
@@ -76,7 +76,7 @@ static void creport(const char *, char *);
 
 static void usage(void)
 {
-	fprintf(stderr, _("Usage: %s [-acfugvV] [filesystem...]\n"), progname);
+	errstr(_("Usage: %s [-acfugvV] [filesystem...]\n"));
 	exit(1);
 }
 
@@ -135,7 +135,7 @@ static void mounttable(char *entry)
 	int doit;
 
 	if ((mtab = setmntent(MOUNTED, "r")) == NULL) {
-		fprintf(stderr, _("%s: no " MOUNTED " file\n"), progname);
+		errstr(_("no " MOUNTED " file\n"));
 		exit(1);
 	}
 	while ((mntp = getmntent(mtab)) != NULL) {
@@ -165,7 +165,7 @@ static void mounttable(char *entry)
 		}
 	}
 	if (entry != NULL)
-		fprintf(stderr, _("%s: cannot locate block device for %s\n"), progname, entry);
+		errstr(_("cannot locate block device for %s\n"), entry);
 	endmntent(mtab);
 }
 
@@ -361,7 +361,7 @@ static void checkXFS(const char *file, char *fsdir)
 
 	fsfd = open(fsdir, O_RDONLY);
 	if (fsfd < 0) {
-		fprintf(stderr, _("%s: cannot open %s: %s\n"), progname, fsdir, strerror(errno));
+		errstr(_("cannot open %s: %s\n"), fsdir, strerror(errno));
 		exit(1);
 	}
 	sync();
@@ -381,8 +381,8 @@ static void checkXFS(const char *file, char *fsdir)
 			acctXFS(&buf[i]);
 	}
 	if (sts < 0) {
-		fprintf(stderr, _("%s: XFS_IOC_FSBULKSTAT ioctl failed: %s\n"),
-			progname, strerror(errno));
+		errstr(_("XFS_IOC_FSBULKSTAT ioctl failed: %s\n"),
+			strerror(errno));
 		exit(1);
 	}
 	free(buf);

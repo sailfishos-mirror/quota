@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaio_v1.c,v 1.3 2001/04/04 17:47:50 jkar8572 Exp $"
+#ident "$Id: quotaio_v1.c,v 1.4 2001/05/02 09:32:22 jkar8572 Exp $"
 
 #include <unistd.h>
 #include <errno.h>
@@ -127,10 +127,17 @@ static int v1_init_io(struct quota_handle *h)
 	if (QIO_ENABLED(h)) {
 		struct v1_kern_dqblk kdqblk;
 
-		if (quotactl(QCMD(Q_V1_GETQUOTA, h->qh_type), h->qh_quotadev, 0, (void *)&kdqblk) <
-		    0) return -1;
-		h->qh_info.dqi_bgrace = kdqblk.dqb_btime;
-		h->qh_info.dqi_igrace = kdqblk.dqb_itime;
+		if (quotactl(QCMD(Q_V1_GETQUOTA, h->qh_type), h->qh_quotadev, 0, (void *)&kdqblk) < 0) {
+			if (errno == EPERM) {	/* We have no permission to get this information? */
+				h->qh_info.dqi_bgrace = h->qh_info.dqi_igrace = 0;	/* It hopefully won't be needed */
+			}
+			else
+				return -1;
+		}
+		else {
+			h->qh_info.dqi_bgrace = kdqblk.dqb_btime;
+			h->qh_info.dqi_igrace = kdqblk.dqb_itime;
+		}
 	}
 	else {
 		struct v1_disk_dqblk ddqblk;
@@ -168,15 +175,20 @@ static int v1_new_io(struct quota_handle *h)
  */
 static int v1_write_info(struct quota_handle *h)
 {
+	if (QIO_RO(h)) {
+		errstr(_("Trying to write info to readonly quotafile on %s.\n"), h->qh_quotadev);
+		errno = EPERM;
+		return -1;
+	}
 	if (QIO_ENABLED(h)) {
 		struct v1_kern_dqblk kdqblk;
 
-		if (quotactl(QCMD(Q_V1_GETQUOTA, h->qh_type), h->qh_quotadev, 0, (void *)&kdqblk) <
-		    0) return -1;
+		if (quotactl(QCMD(Q_V1_GETQUOTA, h->qh_type), h->qh_quotadev, 0, (void *)&kdqblk) < 0)
+			return -1;
 		kdqblk.dqb_btime = h->qh_info.dqi_bgrace;
 		kdqblk.dqb_itime = h->qh_info.dqi_igrace;
-		if (quotactl(QCMD(Q_V1_SETQUOTA, h->qh_type), h->qh_quotadev, 0, (void *)&kdqblk) <
-		    0) return -1;
+		if (quotactl(QCMD(Q_V1_SETQUOTA, h->qh_type), h->qh_quotadev, 0, (void *)&kdqblk) < 0)
+			return -1;
 	}
 	else {
 		struct v1_disk_dqblk ddqblk;
@@ -195,7 +207,7 @@ static int v1_write_info(struct quota_handle *h)
 
 /*
  *	Read a dqblk struct from the quotafile.
- *	User can use 'errno' to detect error.
+ *	User can use 'errno' to detect errstr.
  */
 static struct dquot *v1_read_dquot(struct quota_handle *h, qid_t id)
 {
@@ -217,21 +229,19 @@ static struct dquot *v1_read_dquot(struct quota_handle *h, qid_t id)
 	else {
 		lseek(h->qh_fd, (long)V1_DQOFF(id), SEEK_SET);
 		switch (read(h->qh_fd, &ddqblk, sizeof(ddqblk))) {
-		  case 0:	/* EOF */
-			  /*
-			   * Convert implicit 0 quota (EOF) into an
-			   * explicit one (zero'ed dqblk)
-			   */
-			  memset(&dquot->dq_dqb, 0, sizeof(struct util_dqblk));
-
-			  break;
-		  case sizeof(struct v1_disk_dqblk):	/* OK */
-			  v1_disk2memdqblk(&dquot->dq_dqb, &ddqblk);
-
-			  break;
-		  default:	/* ERROR */
-			  free(dquot);
-			  return NULL;
+			case 0:	/* EOF */
+				/*
+				 * Convert implicit 0 quota (EOF) into an
+				 * explicit one (zero'ed dqblk)
+				 */
+				memset(&dquot->dq_dqb, 0, sizeof(struct util_dqblk));
+				break;
+			case sizeof(struct v1_disk_dqblk):	/* OK */
+				v1_disk2memdqblk(&dquot->dq_dqb, &ddqblk);
+				break;
+			default:	/* ERROR */
+				free(dquot);
+				return NULL;
 		}
 	}
 	return dquot;
@@ -239,19 +249,23 @@ static struct dquot *v1_read_dquot(struct quota_handle *h, qid_t id)
 
 /*
  *	Write a dqblk struct to the quotafile.
- *	User can process use 'errno' to detect error
+ *	User can process use 'errno' to detect errstr
  */
 static int v1_commit_dquot(struct dquot *dquot)
 {
 	struct v1_disk_dqblk ddqblk;
 	struct quota_handle *h = dquot->dq_h;
 
+	if (QIO_RO(h)) {
+		errstr(_("Trying to write quota to readonly quotafile on %s\n"), h->qh_quotadev);
+		errno = EPERM;
+		return -1;
+	}
 	if (QIO_ENABLED(h)) {	/* Kernel uses same file? */
 		struct v1_kern_dqblk kdqblk;
 
 		v1_util2kerndqblk(&kdqblk, &dquot->dq_dqb);
-		if (quotactl
-		    (QCMD(Q_V1_SETQUOTA, h->qh_type), h->qh_quotadev, dquot->dq_id,
+		if (quotactl(QCMD(Q_V1_SETQUOTA, h->qh_type), h->qh_quotadev, dquot->dq_id,
 		     (void *)&kdqblk) < 0)
 			return -1;
 	}
@@ -296,5 +310,5 @@ static int v1_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct d
 	}
 	if (!rd)		/* EOF? */
 		return 0;
-	return -1;		/* Some read error... */
+	return -1;		/* Some read errstr... */
 }

@@ -5,18 +5,18 @@ quotaon, quotaoff \- turn filesystem quotas on and off
 .SH SYNOPSIS
 .B /usr/sbin/quotaon
 [
-.B \-vug
+.B \-vugf
 ]
 .IR filesystem .\|.\|.
 .br
 .B /usr/sbin/quotaon
 [
-.B \-avug
+.B \-avugf
 ]
 .LP
 .B /usr/sbin/quotaoff
 [
-.B \-vugdo
+.B \-vug
 ]
 [
 .B \-x
@@ -26,7 +26,7 @@ quotaon, quotaoff \- turn filesystem quotas on and off
 .br
 .B /usr/sbin/quotaoff
 [
-.B \-avugdo
+.B \-avug
 ]
 .SH DESCRIPTION
 .SS quotaon
@@ -76,9 +76,11 @@ have any disk quotas turned off.
 .SS quotaon
 .TP
 .B \-a
-All filesystems in
+All automatically mounted (no
+.B noauto
+option) non-NFS filesystems in
 .B /etc/fstab
-marked read-write with quotas will have their quotas turned on.
+with quotas will have their quotas turned on.
 This is normally used at boot time to enable quotas.
 .TP
 .B \-v
@@ -89,6 +91,12 @@ Manipulate user quotas. This is the default.
 .TP
 .B \-g
 Manipulate group quotas.
+.TP
+.B \-f
+Make
+.B quotaon
+behave like being called as
+.BR quotaoff .
 .SS quotaoff
 .TP
 .B \-a

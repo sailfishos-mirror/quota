@@ -34,12 +34,13 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaon.c,v 1.3 2001/04/26 09:36:08 jkar8572 Exp $"
+#ident "$Id: quotaon.c,v 1.4 2001/05/02 09:32:22 jkar8572 Exp $"
 
 /*
  * Turn quota on/off for a filesystem.
  */
 #include <stdio.h>
+#include <errno.h>
 #include <getopt.h>
 #include <string.h>
 #include <stdlib.h>
@@ -51,11 +52,12 @@ int gflag;			/* operate on group quotas */
 int uflag;			/* operate on user quotas */
 int vflag;			/* verbose */
 int kqf;			/* kernel quota format */
+char *progname;
 
-static void usage(char *whoami)
+static void usage(void)
 {
-	fprintf(stderr, _("Usage:\n\t%s [-guv] [-x state] -a\n"), whoami);
-	fprintf(stderr, _("\t%s [-guv] [-x state] filesys ...\n"), whoami);
+	errstr(_("Usage:\n\t%s [-guv] [-x state] -a\n"));
+	errstr(_("\t%s [-guv] [-x state] filesys ...\n"));
 	exit(1);
 }
 
@@ -99,8 +101,8 @@ static int newstate(struct mntent *mnt, int offmode, int type, char *extra)
 	     || (!offmode && kern_quota_on(mnt_fsname, type, 1 << QF_XFS))))
 		ret = xfs_newstate(mnt, type, extra, flags);
 	else {
-		extra = get_qf_name(mnt, type, kqf);
-		statefunc = (kqf & (1 << QF_VFSV0)) ? v1_newstate : v2_newstate;
+		extra = get_qf_name(mnt, type, (kqf & (1 << QF_VFSV0)) ? QF_VFSV0 : QF_VFSOLD);
+		statefunc = (kqf & (1 << QF_VFSV0)) ? v2_newstate : v1_newstate;
 		ret = statefunc(mnt, type, extra, flags);
 		free(extra);
 	}
@@ -112,16 +114,16 @@ int main(int argc, char **argv)
 	FILE *fp;
 	struct mntent *mnt;
 	long argnum, done = 0;
-	char *whoami, *xarg = NULL;
+	char *xarg = NULL;
 	int c, offmode = 0, errs = 0;
 
 	gettexton();
 
-	whoami = basename(argv[0]);
-	if (strcmp(whoami, "quotaoff") == 0)
+	progname = basename(argv[0]);
+	if (strcmp(progname, "quotaoff") == 0)
 		offmode++;
-	else if (strcmp(whoami, "quotaon") != 0)
-		die(1, _("Name must be quotaon or quotaoff not %s\n"), whoami);
+	else if (strcmp(progname, "quotaon") != 0)
+		die(1, _("Name must be quotaon or quotaoff not %s\n"), progname);
 
 	while ((c = getopt(argc, argv, "afvugx:V")) != -1) {
 		switch (c) {
@@ -147,14 +149,14 @@ int main(int argc, char **argv)
 			  version();
 			  exit(0);
 		  default:
-			  usage(whoami);
+			  usage();
 		}
 	}
 	argc -= optind;
 	argv += optind;
 
 	if (argc <= 0 && !aflag)
-		usage(whoami);
+		usage();
 	if (!gflag && !uflag) {
 		gflag++;
 		uflag++;
@@ -165,7 +167,7 @@ int main(int argc, char **argv)
 	fp = setmntent(MNTTAB, "r");
 	while ((mnt = getmntent(fp))) {
 		if (aflag) {
-			if (hasmntopt(mnt, MNTOPT_NOAUTO))
+			if (hasmntopt(mnt, MNTOPT_NOAUTO) || !strcmp(mnt->mnt_type, MNTTYPE_NFS))
 				continue;
 		}
 		else {
@@ -173,6 +175,10 @@ int main(int argc, char **argv)
 				done |= 1 << argnum;
 			else
 				continue;
+		}
+		if (!strcmp(mnt->mnt_type, MNTTYPE_NFS)) {
+			fprintf(stderr, "%s: Quota can't be turned on on NFS filesystem\n", mnt->mnt_fsname);
+			continue;
 		}
 
 		if (gflag)
@@ -184,7 +190,7 @@ int main(int argc, char **argv)
 
 	for (c = 0; c < argc; c++)
 		if ((done & (1 << c)) == 0)
-			fprintf(stderr, _("%s not found in fstab\n"), argv[c]);
+			errstr(_("%s not found in fstab\n"), argv[c]);
 	return errs;
 }
 
@@ -197,9 +203,8 @@ static int quotaonoff(char *quotadev, char *quotafile, int type, int flags)
 
 	if (flags & STATEFLAG_OFF) {
 		qcmd = QCMD(Q_QUOTAOFF, type);
-		if (quotactl(qcmd, quotadev, 0, (void *)0) < 0) {
-			fprintf(stderr, "quotaoff: ");
-			perror(quotadev);
+		if (quotactl(qcmd, quotadev, 0, NULL) < 0) {
+			errstr(_("quotactl on %s: %s\n"), quotadev, strerror(errno));
 			return 1;
 		}
 		if (flags & STATEFLAG_VERBOSE)
@@ -208,8 +213,7 @@ static int quotaonoff(char *quotadev, char *quotafile, int type, int flags)
 	}
 	qcmd = QCMD(Q_QUOTAON, type);
 	if (quotactl(qcmd, quotadev, 0, (void *)quotafile) < 0) {
-		fprintf(stderr, _("quotaon: using %s on "), quotafile);
-		perror(quotadev);
+		errstr(_("using %s on %s: %s\n"), quotafile, quotadev, strerror(errno));
 		return 1;
 	}
 	if (flags & STATEFLAG_VERBOSE)
@@ -227,8 +231,7 @@ static int quotarsquashonoff(const char *quotadev, int type, int flags)
 	int qcmd = QCMD(Q_V1_RSQUASH, type);
 
 	if (quotactl(qcmd, quotadev, 0, (void *)&mode) < 0) {
-		fprintf(stderr, _("quotaon: set root_squash on"));
-		perror(quotadev);
+		errstr(_("set root_squash on %s: %s\n"), quotadev, strerror(errno));
 		return 1;
 	}
 	if ((flags & STATEFLAG_VERBOSE) && (flags & STATEFLAG_OFF))
@@ -265,12 +268,12 @@ int v1_newstate(struct mntent *mnt, int type, char *file, int flags)
 int v2_newstate(struct mntent *mnt, int type, char *file, int flags)
 {
 	const char *dev = get_device_name(mnt->mnt_fsname);
-	int err = 1;
+	int errs = 0;
 
 	if (!dev)
-		return err;
+		return 1;
 	if (hasquota(mnt, type))
-		err = quotaonoff((char *)dev, file, type, flags);
+		errs = quotaonoff((char *)dev, file, type, flags);
 	free((char *)dev);
-	return err;
+	return errs;
 }

@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.7 2001/04/26 09:36:08 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.8 2001/05/02 09:32:22 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -60,6 +60,7 @@ int files_done, dirs_done;
 int flags, fmt = -1, cfmt;	/* Options from command line; Quota format to use spec. by user; Actual format to check */
 int uwant, gwant, ucheck, gcheck;	/* Does user want to check user/group quota; Do we check user/group quota? */
 char *mntpoint;			/* Mountpoint to check */
+char *progname;
 struct util_dqinfo old_info[MAXQUOTAS];	/* Loaded infos */
 
 char extensions[MAXQUOTAS + 2][20] = INITQFNAMES;	/* Extensions depending on quota type */
@@ -96,6 +97,8 @@ void debug(int df, char *fmtstr, ...)
 
 	if (!(flags & df))
 		return;
+
+	fprintf(stderr, "%s: ", progname);
 	va_start(args, fmtstr);
 	vfprintf(stderr, fmtstr, args);
 	va_end(args);
@@ -271,15 +274,16 @@ static inline void blit(void)
 	bitc %= BITS_SIZE;
 }
 
+static void usage(void)
+{
+	printf(_("Utility for checking and repairing quota files.\n%s [-gucfinvdmMR] [-F <quota-format>] filesystem|-a\n"), progname);
+	printf(_("Bugs to %s\n"), MY_EMAIL);
+	exit(1);
+}
+
 static void parse_options(int argcnt, char **argstr)
 {
 	int ret;
-	char *slash = strrchr(argstr[0], '/');
-
-	if (slash)
-		slash++;
-	else
-		slash = argstr[0];
 
 	while ((ret = getopt(argcnt, argstr, "VhcvugidnfF:mMRa")) != -1) {
 		switch (ret) {
@@ -328,17 +332,14 @@ static void parse_options(int argcnt, char **argstr)
 				  exit(1);
 			  break;
 		  default:
-			usage:
-			  printf(_("Utility for checking and repairing quota files.\n%s [-gucfinvdmMR] [-F <quota-format>] filesystem|-a\n"), slash);
-			  printf(_("Bugs to %s\n"), MY_EMAIL);
-			  exit(1);
+			usage();
 		}
 	}
 	if (!(uwant | gwant))
 		uwant = 1;
 	if (argcnt == optind && !(flags & FL_ALL)) {
 		fputs(_("Bad number of arguments.\n"), stderr);
-		goto usage;
+		usage();
 	}
 	if (fmt == QF_XFS) {
 		fputs(_("XFS quota format needs no checking.\n"), stderr);
@@ -365,30 +366,27 @@ static int ext2_direct_scan(char *device)
 	ext2fs_inode_bitmap inode_dir_map;
 
 	if ((error = ext2fs_open(device, 0, 0, 0, unix_io_manager, &fs))) {
-		fprintf(stderr, _("quotacheck: error (%d) while opening %s\n"), (int)error, device);
+		errstr(_("error (%d) while opening %s\n"), (int)error, device);
 		return -1;
 	}
 
 	if ((error = ext2fs_allocate_inode_bitmap(fs, "in-use inode map", &inode_used_map))) {
-		fprintf(stderr, _("quotacheck: error (%d) while allocating inode file bitmap\n"),
-			(int)error);
+		errstr(_("error (%d) while allocating inode file bitmap\n"), (int)error);
 		return -1;
 	}
 
 	if ((error = ext2fs_allocate_inode_bitmap(fs, "directory inode map", &inode_dir_map))) {
-		fprintf(stderr,
-			_("quotacheck: error (%d) while allocating inode directory bitmap\n"),
-			(int)error);
+		errstr(_("errstr (%d) while allocating inode directory bitmap\n"), (int)error);
 		return -1;
 	}
 
 	if ((error = ext2fs_open_inode_scan(fs, inode_buffer_blocks, &scan))) {
-		fprintf(stderr, _("quotacheck: error (%d) while opening inode scan\n"), (int)error);
+		errstr(_("error (%d) while opening inode scan\n"), (int)error);
 		return -1;
 	}
 
 	if ((error = ext2fs_get_next_inode(scan, &i_num, &inode))) {
-		fprintf(stderr, _("quotacheck: error (%d) while starting inode scan\n"), (int)error);
+		errstr(_("error (%d) while starting inode scan\n"), (int)error);
 		return -1;
 	}
 
@@ -412,8 +410,7 @@ static int ext2_direct_scan(char *device)
 		}
 
 		if ((error = ext2fs_get_next_inode(scan, &i_num, &inode))) {
-			fprintf(stderr, _("Something weird happened while scanning. Error %d\n"),
-				(int)error);
+			errstr(_("Something weird happened while scanning. Error %d\n"), (int)error);
 			return -1;
 		}
 	}
@@ -447,9 +444,7 @@ static int scan_dir(char *pathname)
 			blit();
 
 		if ((lstat(de->d_name, &st)) == -1) {
-			fprintf(stderr,
-				_
-				("lstat Cannot stat `%s/%s': %s\nGuess you'd better run fsck first !\nexiting...\n"),
+			errstr(_("lstat Cannot stat `%s/%s': %s\nGuess you'd better run fsck first !\nexiting...\n"),
 				pathname, de->d_name, strerror(errno));
 			goto out;
 		}
@@ -556,25 +551,25 @@ static int process_file(char *mnt_fsname, struct mntent *mnt, int type)
 				}
 			}
 			else
-				die(6,
-				    _
-				    ("Quota for %ss is enabled on mountpoint %s so quotacheck might damage the file.\n\
+				die(6, _("Quota for %ss is enabled on mountpoint %s so quotacheck might damage the file.\n\
 Please turn quotas off or use -f to force checking.\n"),
 				    type2name(type), mnt->mnt_dir);
 		}
 		/* At least sync quotas so damage will be smaller */
 		if (quotactl(QCMD(Q_SYNC, type), mnt_fsname, 0, NULL) < 0)
-			die(4, _("Error while syncing quotas: %s\n"), strerror(errno));
+			die(4, _("Error while syncing quotas on %s: %s\n"), mnt_fsname, strerror(errno));
 	}
 
 	if (!(flags & FL_NEWFILE)) {	/* Need to really buffer file? */
 		qfname = get_qf_name(mnt, type, cfmt);
 		if (!qfname) {
-			fprintf(stderr, _("Cannot get quotafile name for %s\n"), mnt_fsname);
+			errstr(_("Cannot get quotafile name for %s\n"),
+				mnt_fsname);
 			return -1;
 		}
 		if ((fd = open(qfname, O_RDONLY)) < 0) {
-			fprintf(stderr, _("Cannot open quotafile %s: %s\n"), qfname, strerror(errno));
+			errstr(_("Cannot open quotafile %s: %s\n"),
+				qfname, strerror(errno));
 			free(qfname);
 			return -1;
 		}
@@ -584,7 +579,8 @@ Please turn quotas off or use -f to force checking.\n"),
 	memset(old_info + type, 0, sizeof(old_info[type]));
 	switch (cfmt) {
 		case QF_TOONEW:
-			fprintf(stderr, _("Too new quotafile format on %s\n"), mnt_fsname);
+			errstr(_("Too new quotafile format on %s\n"),
+				mnt_fsname);
 			ret = -1;
 			break;
 		case QF_VFSOLD:
@@ -606,6 +602,7 @@ static int rename_files(struct mntent *mnt, int type)
 {
 	char *filename, newfilename[PATH_MAX];
 	struct stat st;
+	mode_t mode = S_IRUSR | S_IWUSR;
 
 	if (!(filename = get_qf_name(mnt, type, cfmt)))
 		die(2, _("Cannot get name of old quotafile on %s.\n"), mnt->mnt_dir);
@@ -615,11 +612,12 @@ static int rename_files(struct mntent *mnt, int type)
 			debug(FL_DEBUG | FL_VERBOSE, _("Old file not found.\n"));
 			goto rename_new;
 		}
-		fprintf(stderr, _("Error while searching for old quota file %s: %s\n"), filename,
-			strerror(errno));
+		errstr(_("Error while searching for old quota file %s: %s\n"),
+			filename, strerror(errno));
 		free(filename);
 		return -1;
 	}
+	mode = st.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO);
 	/* Backup old file */
 	strcpy(newfilename, filename);
 	/* Make backingup safe */
@@ -627,8 +625,8 @@ static int rename_files(struct mntent *mnt, int type)
 	if (newfilename[strlen(newfilename) - 1] != '~')
 		die(8, _("Name of quota file too long. Contact %s.\n"), MY_EMAIL);
 	if (rename(filename, newfilename) < 0) {
-		fprintf(stderr, _("Cannot rename old quotafile %s to %s: %s\n"), filename,
-			newfilename, strerror(errno));
+		errstr(_("Cannot rename old quotafile %s to %s: %s\n"),
+			filename, newfilename, strerror(errno));
 		free(filename);
 		return -1;
 	}
@@ -638,8 +636,13 @@ static int rename_files(struct mntent *mnt, int type)
 	strcpy(newfilename, filename);
 	sstrncat(newfilename, ".new", PATH_MAX);
 	if (rename(newfilename, filename) < 0) {
-		fprintf(stderr, _("Cannot rename new quotafile %s to name %s: %s\n"), newfilename,
-			filename, strerror(errno));
+		errstr(_("Cannot rename new quotafile %s to name %s: %s\n"),
+			newfilename, filename, strerror(errno));
+		free(filename);
+		return -1;
+	}
+	if (chmod(filename, mode) < 0) {
+		errstr(_("Cannot change permission of %s: %s\n"), filename, strerror(errno));
 		free(filename);
 		return -1;
 	}
@@ -660,7 +663,8 @@ static int dump_to_file(char *mnt_fsname, struct mntent *mnt, int type)
 
 	debug(FL_DEBUG | FL_VERBOSE, _("Dumping gathered data for %ss.\n"), type2name(type));
 	if (!(h = new_io(mnt, type, cfmt))) {
-		fprintf(stderr, _("Cannot initialize IO on new quotafile: %s\n"), strerror(errno));
+		errstr(_("Cannot initialize IO on new quotafile: %s\n"),
+			strerror(errno));
 		return -1;
 	}
 	memcpy(&h->qh_info, old_info + type, sizeof(h->qh_info));
@@ -676,7 +680,8 @@ static int dump_to_file(char *mnt_fsname, struct mntent *mnt, int type)
 			h->qh_ops->commit_dquot(dquot);
 		}
 	if (end_io(h) < 0) {
-		fprintf(stderr, _("Cannot finish IO on new quotafile: %s\n"), strerror(errno));
+		errstr(_("Cannot finish IO on new quotafile: %s\n"),
+			strerror(errno));
 		return -1;
 	}
 	if (rename_files(mnt, type) < 0)
@@ -687,9 +692,8 @@ static int dump_to_file(char *mnt_fsname, struct mntent *mnt, int type)
 		filename = get_qf_name(mnt, type, cfmt);
 		if (quotactl(QCMD(Q_QUOTAOFF, type), mnt_fsname, 0, NULL)
 		    || quotactl(QCMD(Q_QUOTAON, type), mnt_fsname, 0, filename))
-			fprintf(stderr,
-				_
-				("Cannot turn %s quotas on %s off and on: %s\nKernel won't know about changes quotacheck did.\n"),
+			errstr(
+				_("Cannot turn %s quotas on %s off and on: %s\nKernel won't know about changes quotacheck did.\n"),
 				type2name(type), mnt_fsname, strerror(errno));
 		free(filename);
 	}
@@ -741,9 +745,8 @@ mnt->mnt_dir);
 				}
 			}
 			else {
-				fprintf(stderr,
-					_
-					("Cannot remount filesystem mounted on %s read-only so counted values might not be right.\n\
+				errstr(
+					_("Cannot remount filesystem mounted on %s read-only so counted values might not be right.\n\
 Please stop all programs writing to filesystem or use -m flag to force checking.\n"),
 					mnt->mnt_dir);
 				goto out;
@@ -790,12 +793,12 @@ static int detect_filename_format(struct mntent *mnt, int type)
 	struct stat statbuf;
 	char namebuf[PATH_MAX];
 
-	sprintf(namebuf, "%s/%s.%s", mnt->mnt_dir, basenames[QF_VFSV0], extensions[type]);
+	snprintf(namebuf, PATH_MAX, "%s/%s.%s", mnt->mnt_dir, basenames[QF_VFSV0], extensions[type]);
 	if (!stat(namebuf, &statbuf))
 		return QF_VFSV0;
 	if (errno != ENOENT)
 		return -1;
-	sprintf(namebuf, "%s/%s.%s", mnt->mnt_dir, basenames[QF_VFSOLD], extensions[type]);
+	snprintf(namebuf, PATH_MAX, "%s/%s.%s", mnt->mnt_dir, basenames[QF_VFSOLD], extensions[type]);
 	if (!stat(namebuf, &statbuf))
 		return QF_VFSOLD;
 	return -1;
@@ -845,7 +848,8 @@ static void check_all(void)
 				continue;
 			if (cfmt == -1) {
 				if ((cfmt = detect_filename_format(mnt, ucheck ? USRQUOTA : GRPQUOTA)) == -1) {
-					fprintf(stderr, _("Cannot guess format from filename on %s. Please specify format on commandline.\n"), mnt_fslabel);
+					errstr(_("Cannot guess format from filename on %s. Please specify format on commandline.\n"),
+						mnt_fslabel);
 					continue;
 				}
 				debug(FL_DEBUG | FL_VERBOSE, _("Detected quota format %s\n"), fmt2name(cfmt));
@@ -860,15 +864,17 @@ static void check_all(void)
 		free(devlist[i]);
 }
 
-int main(int argcnt, char **argstr)
+int main(int argc, char **argv)
 {
 	gettexton();
-	parse_options(argcnt, argstr);
+	progname = basename(argv[0]);
+
+	parse_options(argc, argv);
 	warn_new_kernel(fmt);
 
 	check_all();
 #ifdef DEBUG_MALLOC
-	fprintf(stderr, _("Allocated %d bytes memory\nFree'd %d bytes\nLost %d bytes\n"),
+	errstr(_("Allocated %d bytes memory\nFree'd %d bytes\nLost %d bytes\n"),
 		malloc_mem, free_mem, malloc_mem - free_mem);
 #endif
 	return 0;

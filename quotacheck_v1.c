@@ -30,7 +30,8 @@ static void load_dquots(char *filename, int fd, int type)
 			die(1, _("Can't read entry for id %u from quotafile %s: %s\n"), (uint) id,
 			    filename, strerror(errno));
 		if (err != sizeof(ddqblk)) {
-			fprintf(stderr, _("Entry for id %u is truncated.\n"), (uint) id);
+			errstr(_("Entry for id %u is truncated.\n"),
+				(uint) id);
 			break;
 		}
 		dquot = add_dquot(id, type);
@@ -58,9 +59,8 @@ static int check_info(char *filename, int fd, int type)
 		die(1, _("Can't read first entry from quotafile %s: %s\n"), filename,
 		    strerror(errno));
 	if (err != sizeof(ddqblk)) {
-		fprintf(stderr,
-			_
-			("WARNING: Quotafile %s was probably truncated. Can't save quota settings...\n"),
+		errstr(
+			_("WARNING - Quotafile %s was probably truncated. Can't save quota settings...\n"),
 			filename);
 		return -1;
 	}

@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaops.c,v 1.3 2001/04/12 05:56:53 jkar8572 Exp $"
+#ident "$Id: quotaops.c,v 1.4 2001/05/02 09:32:22 jkar8572 Exp $"
 
 #include <rpc/rpc.h>
 #include <sys/types.h>
@@ -76,7 +76,7 @@ static int cvtatos(time_t time, char *units, time_t * seconds)
 	else if (memcmp(units, "day", 3) == 0)
 		*seconds = time * 24 * 60 * 60;
 	else {
-		fprintf(stderr, _("%s: bad units, specify:\n %s, %s, %s, or %s"), units,
+		errstr(_("bad units, specify:\n %s, %s, %s, or %s"), units,
 			"days", "hours", "minutes", "seconds");
 		return -1;
 	}
@@ -90,10 +90,48 @@ struct dquot *getprivs(qid_t id, struct quota_handle **handles)
 {
 	struct dquot *q, *qtail = NULL, *qhead = NULL;
 	int i;
+#if defined(BSD_BEHAVIOUR)
+	int j, ngroups;
+	uid_t euid;
+	gid_t gidset[NGROUPS];
+	char name[MAXNAMELEN];
+#endif
 
 	for (i = 0; handles[i]; i++) {
+#if defined(BSD_BEHAVIOUR)
+		switch (handles[i]->qh_type) {
+			case USRQUOTA:
+				euid = geteuid();
+				if (euid != id && euid != 0) {
+					uid2user(id, name);
+					die(1, _("%s (uid %d): permission denied\n"),  name, id);
+				}
+				break;
+			case GRPQUOTA:
+				ngroups = getgroups(NGROUPS, gidset);
+				if (ngroups < 0) {
+					die(1, _("Error while trying getgroups(): %s\n"), strerror(errno));
+					continue;
+				}
+
+				for (j = 0; j < ngroups; j++)
+					if (id == gidset[j])
+						break;
+
+				if (j >= ngroups && geteuid() != 0) {
+					gid2group(id, name);
+					errstr(_("%s (gid %d): permission denied\n"),
+						name, id);
+					return (struct dquot *)NULL;
+				}
+				break;
+			default:
+				break;
+		}
+#endif
+
 		if (!(q = handles[i]->qh_ops->read_dquot(handles[i], id))) {
-			fprintf(stderr, _("Error while getting quota from %s for %u: %s\n"),
+			errstr(_("Error while getting quota from %s for %u: %s\n"),
 				handles[i]->qh_quotadev, id, strerror(errno));
 			continue;
 		}
@@ -116,8 +154,8 @@ int putprivs(struct dquot *qlist)
 
 	for (q = qlist; q; q = q->dq_next) {
 		if (q->dq_h->qh_ops->commit_dquot(q) == -1) {
-			fprintf(stderr, _("Can't write quota for %u on %s: %s\n"), q->dq_id,
-				q->dq_h->qh_quotadev, strerror(errno));
+			errstr(_("Can't write quota for %u on %s: %s\n"),
+				q->dq_id, q->dq_h->qh_quotadev, strerror(errno));
 			continue;
 		}
 	}
@@ -129,10 +167,15 @@ int putprivs(struct dquot *qlist)
  */
 int editprivs(char *tmpfile)
 {
-	long omask;
-	int pid, stat;
+	sigset_t omask, nmask;
+	pid_t pid;
+	int stat;
 
-	omask = sigblock(sigmask(SIGINT) | sigmask(SIGQUIT) | sigmask(SIGHUP));
+	sigemptyset(&nmask);
+	sigaddset(&nmask, SIGINT);
+	sigaddset(&nmask, SIGQUIT);
+	sigaddset(&nmask, SIGHUP);
+	sigprocmask(SIG_SETMASK, &nmask, &omask);
 	if ((pid = fork()) < 0) {
 		perror("fork");
 		return -1;
@@ -140,7 +183,7 @@ int editprivs(char *tmpfile)
 	if (pid == 0) {
 		char *ed;
 
-		sigsetmask(omask);
+		sigprocmask(SIG_SETMASK, &omask, NULL);
 		setgid(getgid());
 		setuid(getuid());
 		if ((ed = getenv("VISUAL")) == (char *)0)
@@ -150,7 +193,7 @@ int editprivs(char *tmpfile)
 		die(1, _("Can't exec %s\n"), ed);
 	}
 	waitpid(pid, &stat, 0);
-	sigsetmask(omask);
+	sigprocmask(SIG_SETMASK, &omask, NULL);
 
 	return 0;
 }
@@ -188,7 +231,7 @@ int writeprivs(struct dquot *qlist, int outfd, char *name, int quotatype)
 #else
 	fprintf(fd, _("Quotas for %s %s:\n"), type2name(quotatype), name);
 	for (q = qlist; q; q = q->dq_next) {
-		fprintf(fd, _("%s: %s %d, limits (soft = %d, hard = %d)\n"),
+		fprintf(fd, _("%s %d, limits (soft = %d, hard = %d)\n"),
 			q->dq_h->qh_quotadev, _("blocks in use:"),
 			(int)toqb(q->dq_dqb.dqb_curspace),
 			q->dq_dqb.dqb_bsoftlimit, q->dq_dqb.dqb_bhardlimit);
@@ -233,10 +276,10 @@ static void merge_to_list(struct dquot *qlist, char *dev, u_int64_t blocks, u_in
 		q->dq_flags |= DQ_FOUND;
 
 		if (blocks != toqb(q->dq_dqb.dqb_curspace))
-			fprintf(stderr, _("WARNING: %s: cannot change current block allocation\n"),
+			errstr(_("WARNING - %s: cannot change current block allocation\n"),
 				q->dq_h->qh_quotadev);
 		if (inodes != q->dq_dqb.dqb_curinodes)
-			fprintf(stderr, _("WARNING: %s: cannot change current inode allocation\n"),
+			errstr(_("WARNING - %s: cannot change current inode allocation\n"),
 				q->dq_h->qh_quotadev);
 	}
 }
@@ -273,7 +316,7 @@ int readprivs(struct dquot *qlist, int infd)
 			     fsp, &blocks, &bsoft, &bhard, &inodes, &isoft, &ihard);
 
 		if (cnt != 7) {
-			fprintf(stderr, _("Bad format:\n%s\n"), line);
+			errstr(_("Bad format:\n%s\n"), line);
 			return -1;
 		}
 
@@ -286,30 +329,34 @@ int readprivs(struct dquot *qlist, int infd)
 	fgets(line1, sizeof(line1), fd);
 	while (fgets(line1, sizeof(line1), fd) && fgets(line2, sizeof(line2), fd)) {
 		if (!(fsp = strtok(line1, " \t:"))) {
-			fprintf(stderr, _("%s: bad format\n"), line1);
+			errstr(_("%s - bad format\n"), line1);
 			return -1;
 		}
 		if (!(cp = strtok(NULL, "\n"))) {
-			fprintf(stderr, _("%s: %s: bad format\n"), fsp, &fsp[strlen(fsp) + 1]);
+			errstr(_("%s -  %s -- bad format\n"),
+				fsp, &fsp[strlen(fsp) + 1]);
 			return -1;
 		}
 
 		cnt = sscanf(cp, _(" blocks in use: %Lu, limits (soft = %Lu, hard = %Lu)"),
 			     &blocks, &bsoft, &bhard);
 		if (cnt != 3) {
-			fprintf(stderr, _("%s:%s: bad format\n"), fsp, cp);
+			errstr(_("%s - %s -- bad format\n"),
+				fsp, cp);
 			return -1;
 		}
 
 		if (!(cp = strtok(line2, "\n"))) {
-			fprintf(stderr, _("%s: %s: bad format\n"), fsp, line2);
+			errstr(_("%s - %s -- bad format\n"),
+				fsp, line2);
 			return -1;
 		}
 
 		cnt = sscanf(cp, _("\tinodes in use: %Lu, limits (soft = %Lu, hard = %Lu)"),
 			     &inodes, &isoft, &ihard);
 		if (cnt != 3) {
-			fprintf(stderr, _("%s: %s: bad format\n"), fsp, line2);
+			errstr(_("%s - %s -- bad format\n"),
+				fsp, line2);
 			return -1;
 		}
 
@@ -369,7 +416,7 @@ int writetimes(struct quota_handle **handles, int outfd)
 	for (i = 0; handles[i]; i++) {
 		time2str(handles[i]->qh_info.dqi_bgrace, btimebuf, 0);
 		time2str(handles[i]->qh_info.dqi_igrace, itimebuf, 0);
-		fprintf(fd, _("%s: block grace period: %s, file grace period: %s\n"),
+		fprintf(fd, _("block grace period: %s, file grace period: %s\n"),
 			handles[i]->qh_quotadev, btimebuf, itimebuf);
 	}
 #endif
@@ -397,7 +444,8 @@ int readtimes(struct quota_handle **handles, int infd)
 		return 0;
 	lseek(infd, 0, SEEK_SET);
 	if (!(fd = fdopen(dup(infd), "r"))) {
-		fprintf(stderr, _("Can't reopen temp file: %s\n"), strerror(errno));
+		errstr(_("Can't reopen temp file: %s\n"),
+			strerror(errno));
 		return -1;
 	}
 
@@ -418,7 +466,7 @@ int readtimes(struct quota_handle **handles, int infd)
 	while (fgets(line, sizeof(line), fd)) {
 		cnt = sscanf(line, "%s %d %s %d %s", fsp, &btime, bunits, &itime, iunits);
 		if (cnt != 5) {
-			fprintf(stderr, _("bad format:\n%s\n"), line);
+			errstr(_("bad format:\n%s\n"), line);
 			return -1;
 		}
 #else
@@ -430,17 +478,19 @@ int readtimes(struct quota_handle **handles, int infd)
 
 	while (fgets(line1, sizeof(line1), fd)) {
 		if (!(fsp = strtok(line1, " \t:"))) {
-			fprintf(stderr, _("%s: bad format\n"), line1);
+			errstr(_("%s - bad format\n"), line1);
 			return -1;
 		}
 		if (!(cp = strtok(NULL, "\n"))) {
-			fprintf(stderr, _("%s: %s: bad format\n"), fsp, &fsp[strlen(fsp) + 1]);
+			errstr(_("%s - %s -- bad format\n"),
+				fsp, &fsp[strlen(fsp) + 1]);
 			return -1;
 		}
 		cnt = sscanf(cp, _(" block grace period: %d %s file grace period: %d %s"),
 			     &btime, bunits, &itime, iunits);
 		if (cnt != 4) {
-			fprintf(stderr, _("%s:%s: bad format\n"), fsp, cp);
+			errstr(_("%s - %s -- bad format\n"),
+				fsp, cp);
 			return -1;
 		}
 #endif

@@ -62,7 +62,7 @@ uid_t user2uid(char *name)
 	if (!*errch)		/* Is name number - we got directly uid? */
 		return ret;
 	if (!(entry = getpwnam(name))) {
-		fprintf(stderr, _("User %s doesn't exist.\n"), name);
+		errstr(_("User %s doesn't exist.\n"), name);
 		exit(1);
 	}
 	return entry->pw_uid;
@@ -81,7 +81,7 @@ gid_t group2gid(char *name)
 	if (!*errch)		/* Is name number - we got directly gid? */
 		return ret;
 	if (!(entry = getgrnam(name))) {
-		fprintf(stderr, _("Group %s doesn't exist.\n"), name);
+		errstr(_("Group %s doesn't exist.\n"), name);
 		exit(1);
 	}
 	return entry->gr_gid;
@@ -106,7 +106,7 @@ void uid2user(uid_t id, char *buf)
 	struct passwd *entry;
 
 	if (!(entry = getpwuid(id)))
-		sprintf(buf, "#%u", (uint) id);
+		snprintf(buf, MAXNAMELEN, "#%u", (uint) id);
 	else
 		sstrncpy(buf, entry->pw_name, MAXNAMELEN);
 }
@@ -119,7 +119,7 @@ void gid2group(gid_t id, char *buf)
 	struct group *entry;
 
 	if (!(entry = getgrgid(id)))
-		sprintf(buf, "#%u", (uint) id);
+		snprintf(buf, MAXNAMELEN, "#%u", (uint) id);
 	else
 		sstrncpy(buf, entry->gr_name, MAXNAMELEN);
 }
@@ -145,7 +145,7 @@ int name2fmt(char *str)
 	for (fmt = 0; fmt < QUOTAFORMATS; fmt++)
 		if (!strcmp(str, fmtnames[fmt]))
 			return fmt;
-	fprintf(stderr, _("Unknown quota format: %s\nSupported formats are:\n\
+	errstr(_("Unknown quota format: %s\nSupported formats are:\n\
   vfsold - original quota format\n\
   vfsv0 - new quota format\n\
   rpc - use RPC calls\n\
@@ -196,17 +196,17 @@ void time2str(time_t seconds, char *buf, int flags)
 	hours %= 24;
 	if (flags & TF_ROUND) {
 		if (days >= 2)
-			sprintf(buf, _("%ddays"), days);
+			snprintf(buf, MAXTIMELEN, _("%ddays"), days);
 		else
-			sprintf(buf, _("%02d:%02d"), hours + days * 24, minutes);
+			snprintf(buf, MAXTIMELEN, _("%02d:%02d"), hours + days * 24, minutes);
 	}
 	else {
 		if (minutes || (!minutes && !hours && !days))
-			sprintf(buf, _("%uminutes"), (uint) (seconds + 30) / 60);
+			snprintf(buf, MAXTIMELEN, _("%uminutes"), (uint) (seconds + 30) / 60);
 		else if (hours)
-			sprintf(buf, _("%uhours"), hours + days * 24);
+			snprintf(buf, MAXTIMELEN, _("%uhours"), hours + days * 24);
 		else
-			sprintf(buf, _("%udays"), days);
+			snprintf(buf, MAXTIMELEN, _("%udays"), days);
 	}
 }
 
@@ -271,11 +271,12 @@ static int check_fmtfile_exists(struct mntent *mnt, int type, int fmt, char *nam
 {
 	struct stat buf;
 
-	sprintf(namebuf, "%s/%s.%s", mnt->mnt_dir, basenames[fmt], extensions[type]);
+	snprintf(namebuf, PATH_MAX, "%s/%s.%s", mnt->mnt_dir, basenames[fmt], extensions[type]);
 	if (!stat(namebuf, &buf))
 		return 1;
 	if (errno != ENOENT) {
-		fprintf(stderr, _("Can't stat quotafile %s: %s\n"), namebuf, strerror(errno));
+		errstr(_("Can't stat quotafile %s: %s\n"),
+			namebuf, strerror(errno));
 		return -1;
 	}
 	return 0;
@@ -328,7 +329,7 @@ char *get_qf_name(struct mntent *mnt, int type, int fmt)
 			return NULL;
 	}
 	else if (basenames[fmt][0])	/* Any name specified? */
-		sprintf(qfullname, "%s/%s.%s", mnt->mnt_dir, basenames[fmt], extensions[type]);
+		snprintf(qfullname, PATH_MAX, "%s/%s.%s", mnt->mnt_dir, basenames[fmt], extensions[type]);
 
 	return sstrdup(qfullname);
 }
@@ -338,7 +339,7 @@ char *get_qf_name(struct mntent *mnt, int type, int fmt)
  *	List of zero length means scan all entries in /etc/mtab
  */
 struct quota_handle **create_handle_list(int count, char **mntpoints, int type, int fmt,
-					 char local_only)
+					 int flags)
 {
 	FILE *mntf;
 	struct mntent *mnt;
@@ -365,16 +366,16 @@ struct quota_handle **create_handle_list(int count, char **mntpoints, int type, 
 				if (gotmnt == MAXMNTPOINTS)
 					die(3, _("Too many mountpoints. Please report to: %s\n"),
 					    MY_EMAIL);
-				if (!(hlist[gotmnt] = init_io(mnt, type, fmt)))
+				if (!(hlist[gotmnt] = init_io(mnt, type, fmt, flags)))
 					continue;
 				gotmnt++;
 			}
-			else if (!local_only && (fmt == -1 || fmt == QF_RPC)) {	/* Use NFS? */
+			else if (!(flags & IOI_LOCALONLY) && (fmt == -1 || fmt == QF_RPC)) {	/* Use NFS? */
 #ifdef RPC
 				if (gotmnt == MAXMNTPOINTS)
 					die(3, _("Too many mountpoints. Please report to: %s\n"),
 					    MY_EMAIL);
-				if (!(hlist[gotmnt] = init_io(mnt, type, fmt)))
+				if (!(hlist[gotmnt] = init_io(mnt, type, fmt, flags)))
 					continue;
 				gotmnt++;
 #endif
@@ -393,11 +394,11 @@ struct quota_handle **create_handle_list(int count, char **mntpoints, int type, 
  */
 int dispose_handle_list(struct quota_handle **hlist)
 {
-	int i, ret;
+	int i;
 
 	for (i = 0; hlist[i]; i++)
-		if ((ret = end_io(hlist[i])))
-			fprintf(stderr, _("Error while releasing file on %s\n"),
+		if (end_io(hlist[i]) < 0)
+			errstr(_("Error while releasing file on %s\n"),
 				hlist[i]->qh_quotadev);
 	return 0;
 }
@@ -463,17 +464,17 @@ int kern_quota_format(void)
 void warn_new_kernel(int fmt)
 {
 	if (fmt == -1 && kern_quota_format() == QF_TOONEW)
-		fprintf(stderr,
-			_
-			("Warning: Kernel quota is newer than supported. Quotafile used by utils need not be the one used by kernel.\n"));
+		errstr(
+			_("WARNING - Kernel quota is newer than supported. Quotafile used by utils need not be the one used by kernel.\n"));
 }
 
 /* Check whether old quota is turned on on given device */
 static int v1_kern_quota_on(const char *dev, int type)
 {
 	char tmp[1024];		/* Just temporary buffer */
+	qid_t id = (type == USRQUOTA) ? getuid() : getgid();
 
-	if (!quotactl(QCMD(Q_V1_GETQUOTA, type), dev, 0, tmp))	/* OK? */
+	if (!quotactl(QCMD(Q_V1_GETQUOTA, type), dev, id, tmp))	/* OK? */
 		return 1;
 	return 0;
 }
@@ -482,8 +483,9 @@ static int v1_kern_quota_on(const char *dev, int type)
 static int v2_kern_quota_on(const char *dev, int type)
 {
 	char tmp[1024];		/* Just temporary buffer */
+	qid_t id = (type == USRQUOTA) ? getuid() : getgid();
 
-	if (!quotactl(QCMD(Q_V2_GETINFO, type), dev, 0, tmp))	/* OK? */
+	if (!quotactl(QCMD(Q_V2_GETQUOTA, type), dev, id, tmp))	/* OK? */
 		return 1;
 	return 0;
 }

@@ -42,7 +42,7 @@ IOOBJS = quotaio.o quotaio_v1.o quotaio_v2.o quotaio_rpc.o quotaio_xfs.o
 IOOBJS += $(RPCCLNTOBJS)
 LIBOBJS = bylabel.o common.o quotasys.o pot.o $(IOOBJS)
 LIBOBJS += @LIBMALLOC@
-INCLUDE = common.h quotasys.h bylabel.h
+INCLUDE = common.h quotasys.h bylabel.h mntopt.h
 
 all: $(PROGS)
 
@@ -110,8 +110,8 @@ warnquota: $(INCLUDE) common.h warnquota.o $(LIBOBJS)
 quotastats: quotastats.o pot.o
 	$(CC) $(LDFLAGS) -o $@ quotastats.o pot.o
 
-xqmstats: xqmstats.o pot.o
-	$(CC) $(LDFLAGS) -o $@ xqmstats.o pot.o
+xqmstats: xqmstats.o common.o pot.o
+	$(CC) $(LDFLAGS) -o $@ xqmstats.o common.o pot.o
 
 edquota: $(INCLUDE) quotaops.h quotaio.h edquota.o quotaops.o $(LIBOBJS)
 	$(CC) $(LDFLAGS) -o $@ edquota.o quotaops.o $(LIBOBJS)

@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.1 2001/03/23 12:03:27 jkar8572 Exp $
+ * Version: $Id: warnquota.c,v 1.2 2001/05/02 09:32:22 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -84,6 +84,7 @@ typedef struct quotatable {
 } quotatable_t;
 
 int qtab_i = 0;
+char *progname;
 quotatable_t *quotatable = (quotatable_t *) NULL;
 
 /*
@@ -273,7 +274,7 @@ void stripstring(char **buff)
 
 /*
  * Reads config parameters from configfile
- * uses default values if error occurs
+ * uses default values if errstr occurs
  */
 void readconfigfile(const char *filename, struct configparams *config)
 {
@@ -335,11 +336,12 @@ void readconfigfile(const char *filename, struct configparams *config)
 				strncpy(config->phone, value, CNF_BUFFER);
 			}
 			else {	/* not matched at all */
-				fprintf(stderr, "Error in config file (line %d), ignoring\n", line);
+				errstr( "Error in config file (line %d), ignoring\n",
+					line);
 			}
 		}
 		else {		/* no '=' char in this line */
-			fprintf(stderr, "Possible error in config file (line %d), ignoring\n",
+			errstr( "Possible error in config file (line %d), ignoring\n",
 				line);
 		}
 	}
@@ -358,7 +360,7 @@ void warn_quota(void)
 
 	readconfigfile(WARNQUOTA_CONF, &config);
 
-	handles = create_handle_list(0, NULL, USRQUOTA, -1, 1);
+	handles = create_handle_list(0, NULL, USRQUOTA, -1, IOI_LOCALONLY | IOI_READONLY | IOI_OPENFILE);
 	for (i = 0; handles[i]; i++)
 		handles[i]->qh_ops->scan_dquots(handles[i], check_offence);
 	get_quotatable();
@@ -368,7 +370,10 @@ void warn_quota(void)
 int main(int argc, char **argv)
 {
 	gettexton();
+	progname = basename(argv[0]);
+
 	warn_new_kernel(-1);
 	warn_quota();
+
 	return 0;
 }

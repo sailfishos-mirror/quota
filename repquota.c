@@ -27,6 +27,14 @@
 int flags, fmt = -1;
 char **mnt;
 int mntcnt;
+char *progname;
+
+static void usage()
+{
+	errstr(_("Utility for reporting quotas.\nUsage:\n%s [-vug] [-F quotaformat] (-a | mntpoint)\n"), progname);
+	errstr(_("Bugs to %s\n"), MY_EMAIL);
+	exit(1);
+}
 
 static void parse_options(int argcnt, char **argstr)
 {
@@ -42,10 +50,7 @@ static void parse_options(int argcnt, char **argstr)
 		switch (ret) {
 		  case '?':
 		  case 'h':
-			usage:
-			  fprintf(stderr, _("Utility for reporting quotas.\nUsage:\n%s [-vug] [-F quotaformat] (-a | mntpoint)\n"), slash);
-			  fprintf(stderr, _("Bugs to %s\n"), MY_EMAIL);
-			  exit(1);
+			  usage();
 		  case 'V':
 			  version();
 			  exit(0);
@@ -71,7 +76,7 @@ static void parse_options(int argcnt, char **argstr)
 
 	if ((flags & FL_ALL && optind != argcnt) || (!(flags & FL_ALL) && optind == argcnt)) {
 		fputs(_("Bad number of arguments.\n"), stderr);
-		goto usage;
+		usage();
 	}
 	if (fmt == QF_RPC) {
 		fputs(_("Repquota can't report through RPC calls.\n"), stderr);
@@ -142,22 +147,27 @@ static void report(int type)
 	int i;
 
 	if (flags & FL_ALL)
-		handles = create_handle_list(0, NULL, type, fmt, 1);
+		handles = create_handle_list(0, NULL, type, fmt, IOI_LOCALONLY | IOI_READONLY | IOI_OPENFILE);
 	else
-		handles = create_handle_list(mntcnt, mnt, type, fmt, 1);
+		handles = create_handle_list(mntcnt, mnt, type, fmt, IOI_LOCALONLY | IOI_READONLY | IOI_OPENFILE);
 	for (i = 0; handles[i]; i++)
 		report_it(handles[i], type);
 	dispose_handle_list(handles);
 }
 
-int main(int argcnt, char **argstr)
+int main(int argc, char **argv)
 {
 	gettexton();
-	parse_options(argcnt, argstr);
+	progname = basename(argv[0]);
+
+	parse_options(argc, argv);
 	warn_new_kernel(fmt);
+
 	if (flags & FL_USER)
 		report(USRQUOTA);
+
 	if (flags & FL_GROUP)
 		report(GRPQUOTA);
+
 	return 0;
 }

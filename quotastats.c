@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: quotastats.c,v 1.1 2001/03/23 12:03:27 jkar8572 Exp $
+ * Version: $Id: quotastats.c,v 1.2 2001/05/02 09:32:22 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -27,7 +27,7 @@
 
 static inline int get_stats(struct dqstats *dqstats)
 {
-	return quotactl(QCMD(Q_GETSTATS, 0), (char *)NULL, 0, (caddr_t) dqstats);
+	return quotactl(QCMD(Q_GETSTATS, 0), (char *)NULL, 0, (caddr_t)dqstats);
 }
 
 static inline int print_stats(struct dqstats *dqstats)

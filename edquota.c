@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: edquota.c,v 1.3 2001/04/26 09:36:08 jkar8572 Exp $"
+#ident "$Id: edquota.c,v 1.4 2001/05/02 09:32:22 jkar8572 Exp $"
 
 /*
  * Disk quota editor.
@@ -58,22 +58,22 @@
 #include "quotaio.h"
 #include "common.h"
 
-static char tmpfil[] = _PATH_TMP "EdP.aXXXXXX";
+char *progname;
 
 void usage(void)
 {
 #if defined(RPC_SETQUOTA)
-	fprintf(stderr, "%s%s%s%s",
+	errstr("%s%s%s%s",
 		_("Usage:\tedquota [-r] [-u] [-F formatname] [-p username] username ...\n"),
-		_("\tedquota [-r] -g [-p groupname] groupname ...\n"),
-		_("\tedquota [-r] [-u] -t\n"), _("\tedquota [-r] -g -t\n"));
+		_("\tedquota [-r] -g [-F formatname] [-p groupname] groupname ...\n"),
+		_("\tedquota [-r] [-u] [-F formatname] -t\n"), _("\tedquota [-r] -g [-F formatname] -t\n"));
 #else
-	fprintf(stderr, "%s%s%s%s",
+	errstr("%s%s%s%s",
 		_("Usage:\tedquota [-u] [-F formatname] [-p username] username ...\n"),
-		_("\tedquota -g [-p groupname] groupname ...\n"),
-		_("\tedquota [-u] -t\n"), _("\tedquota -g -t\n"));
+		_("\tedquota -g [-F formatname] [-p groupname] groupname ...\n"),
+		_("\tedquota [-u] [-F formatname] -t\n"), _("\tedquota -g [-F formatname] -t\n"));
 #endif
-	fprintf(stderr, _("Bugs to: %s\n"), MY_EMAIL);
+	errstr(_("Bugs to: %s\n"), MY_EMAIL);
 	exit(1);
 }
 
@@ -85,8 +85,10 @@ int main(int argc, char **argv)
 	char *protoname = NULL;
 	int tflag = 0, pflag = 0, rflag = 0, fmt = -1;
 	struct quota_handle **handles;
+	char *tmpfil, *tmpdir = NULL;
 
 	gettexton();
+	progname = basename(argv[0]);
 
 	if (argc < 2)
 		usage();
@@ -134,7 +136,7 @@ int main(int argc, char **argv)
 	if (tflag && argc != 0)
 		usage();
 
-	handles = create_handle_list(0, NULL, quotatype, fmt, (rflag == 0));
+	handles = create_handle_list(0, NULL, quotatype, fmt, rflag ? 0 : IOI_LOCALONLY);
 	if (!handles[0]) {
 		dispose_handle_list(handles);
 		fputs(_("No filesystems with quota detected.\n"), stderr);
@@ -154,7 +156,7 @@ int main(int argc, char **argv)
 			for (pprivs = protoprivs, cprivs = curprivs; pprivs && cprivs;
 			     pprivs = pprivs->dq_next, cprivs = cprivs->dq_next) {
 				if (!devcmp_handles(pprivs->dq_h, cprivs->dq_h))
-					fprintf(stderr, _("fsname mismatch\n"));
+					errstr(_("fsname mismatch\n"));
 				else {
 					cprivs->dq_dqb.dqb_bsoftlimit =
 						pprivs->dq_dqb.dqb_bsoftlimit;
@@ -174,6 +176,13 @@ int main(int argc, char **argv)
 	}
 
 	umask(077);
+	if (getuid() == geteuid() && getgid() == getegid())
+		tmpdir = getenv("TMPDIR");
+	if (!tmpdir)
+		tmpdir = _PATH_TMP;
+	tmpfil = smalloc(strlen(tmpdir) + strlen("/EdP.aXXXXXX") + 1);
+	strcpy(tmpfil, tmpdir);
+	strcat(tmpfil, "/EdP.aXXXXXX");
 	tmpfd = mkstemp(tmpfil);
 	fchown(tmpfd, getuid(), getgid());
 	if (tflag) {
@@ -196,5 +205,6 @@ int main(int argc, char **argv)
 
 	close(tmpfd);
 	unlink(tmpfil);
+	free(tmpfil);
 	return 0;
 }

@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quota.c,v 1.4 2001/04/26 09:36:08 jkar8572 Exp $"
+#ident "$Id: quota.c,v 1.5 2001/05/02 09:32:22 jkar8572 Exp $"
 
 /*
  * Disk quota reporting program.
@@ -61,9 +61,10 @@
 #include "common.h"
 
 int qflag, vflag, fmt = -1;
+char *progname;
 
 void usage(void);
-void showquotas(int type, qid_t id);
+int showquotas(int type, qid_t id);
 void heading(int type, qid_t id, char *name, char *tag);
 
 int main(int argc, char **argv)
@@ -73,6 +74,7 @@ int main(int argc, char **argv)
 	int i, ret, gflag = 0, uflag = 0;
 
 	gettexton();
+	progname = basename(argv[0]);
 
 	while ((ret = getopt(argc, argv, "guqvVF:")) != -1) {
 		switch (ret) {
@@ -122,38 +124,39 @@ int main(int argc, char **argv)
 	if (uflag && gflag)
 		usage();
 
+	ret = 0;
 	if (uflag)
 		for (; argc > 0; argc--, argv++)
-			showquotas(USRQUOTA, user2uid(*argv));
+			ret |= showquotas(USRQUOTA, user2uid(*argv));
 	else if (gflag)
 		for (; argc > 0; argc--, argv++)
-			showquotas(GRPQUOTA, group2gid(*argv));
-	return 0;
+			ret |= showquotas(GRPQUOTA, group2gid(*argv));
+	return ret;
 }
 
 void usage(void)
 {
-	fprintf(stderr, "%s\n%s\n%s\n",
-		_("Usage: quota [-guqvV] [-F quotaformat]"),
-		_("\tquota [-qv] [-F quotaformat] -u username ..."),
-		_("\tquota [-qv] [-F quotaformat] -g groupname ..."));
-	fprintf(stderr, _("Bugs to: %s\n"), MY_EMAIL);
+	errstr( "%s%s%s",
+		_("Usage: quota [-guqv] [-F quotaformat]\n"),
+		_("\tquota [-qv] [-F quotaformat] -u username ...\n"),
+		_("\tquota [-qv] [-F quotaformat] -g groupname ...\n"));
+	errstr(_("Bugs to: %s\n"), MY_EMAIL);
 	exit(1);
 }
 
-void showquotas(int type, qid_t id)
+int showquotas(int type, qid_t id)
 {
 	struct dquot *qlist, *q;
 	char *msgi, *msgb;
 	char timebuf[MAXTIMELEN];
 	char name[MAXNAMELEN];
 	struct quota_handle **handles;
-	int lines = 0;
+	int lines = 0, over = 0;
 	time_t now;
 
 	time(&now);
 	id2name(id, type, name);
-	handles = create_handle_list(0, NULL, type, fmt, 0);
+	handles = create_handle_list(0, NULL, type, fmt, IOI_READONLY);
 	qlist = getprivs(id, handles);
 	for (q = qlist; q; q = q->dq_next) {
 		if (!vflag && !q->dq_dqb.dqb_isoftlimit && !q->dq_dqb.dqb_ihardlimit
@@ -166,8 +169,10 @@ void showquotas(int type, qid_t id)
 			 && q->dq_dqb.dqb_curinodes >= q->dq_dqb.dqb_isoftlimit) {
 			if (q->dq_dqb.dqb_itime > now)
 				msgi = _("In file grace period on");
-			else
+			else {
 				msgi = _("Over file quota on");
+				over = 1;
+			}
 		}
 		msgb = NULL;
 		if (q->dq_dqb.dqb_bhardlimit
@@ -177,8 +182,10 @@ void showquotas(int type, qid_t id)
 			 && toqb(q->dq_dqb.dqb_curspace) >= q->dq_dqb.dqb_bsoftlimit) {
 			if (q->dq_dqb.dqb_btime > now)
 				msgb = _("In block grace period on");
-			else
+			else {
 				msgb = _("Over block quota on");
+				over = 1;
+			}
 		}
 		if (qflag) {
 			if ((msgi || msgb) && !lines++)
@@ -213,6 +220,7 @@ void showquotas(int type, qid_t id)
 		heading(type, id, name, _("none"));
 	freeprivs(qlist);
 	dispose_handle_list(handles);
+	return over;
 }
 
 void heading(int type, qid_t id, char *name, char *tag)

@@ -5,18 +5,23 @@ edquota \- edit user quotas
 .B edquota
 [
 .B \-p
-.I proto-username
+.I protoname
 ] [
 .B \-ug
+] [
+.B \-r
+] [
+.B \-F
+.I format-name
 ]
 .IR username .\|.\|.
 .LP
 .B edquota
 [
-.B \-r
-]
-[
 .B \-ug
+] [
+.B \-F
+.I format-name
 ]
 .B \-t
 .SH DESCRIPTION
@@ -70,19 +75,30 @@ Edit the user quota. This is the default.
 .B \-g
 Edit the group quota.
 .TP
-.B \-p
+.B \-p \f2protoname\f1
 Duplicate the quotas of the prototypical user
 specified for each user specified.  This is the normal
 mechanism used to initialize quotas for groups of users.
 .TP
+.B \-F \f2format-name\f1
+Edit quota for specified format (ie. don't perform format autodetection).
+Possible format names are:
+.B vfsold
+(version 1 quota),
+.B vfsv0
+(version 2 quota),
+.B rpc
+(quota over NFS),
+.B xfs
+(quota on XFS filesystem)
+.TP
 .B \-t
 Edit the soft time limits for each filesystem.
-If the time limits are zero, the default time limits in
+In old quota format if the time limits are zero, the default time limits in
 .B <linux/quota.h>
-are used.
-Time units of seconds, minutes, hours, days, weeks, and months
-are understood.
-Time limits are printed in the greatest possible time unit such that
+are used. In new quota format time limits must be specified (there is no default
+value set in kernel). Time units of seconds, minutes, hours, days, weeks, and months
+are understood. Time limits are printed in the greatest possible time unit such that
 the value is greater than or equal to one.
 .SH FILES
 .PD 0
