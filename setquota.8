@@ -111,7 +111,9 @@ The filesystem, user/group name and new quotas for this
 filesystem can be specified on the command line.
 .TP
 .B -r
-Edit also remote quota use rpc.rquotad on remote server to set quota.
+Edit also remote quota use rpc.rquotad on remote server to set quota. This
+option is available only if quota tools were compiled with enabled support
+for setting quotas over RPC.
 .TP
 .B -F \f2quotaformat\f1
 Perform setting for specified format (ie. don't perform format autodetection).
