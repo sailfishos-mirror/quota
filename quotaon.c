@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaon.c,v 1.6 2001/08/15 20:13:42 jkar8572 Exp $"
+#ident "$Id: quotaon.c,v 1.7 2001/08/30 10:11:24 jkar8572 Exp $"
 
 /*
  * Turn quota on/off for a filesystem.
@@ -66,12 +66,12 @@ static void usage(void)
  */
 static int newstate(struct mntent *mnt, int offmode, int type, char *extra)
 {
-	int flags, ret;
+	int flags, ret = 0;
 	newstate_t *statefunc;
 	const char *mnt_fsname = get_device_name(mnt->mnt_fsname);
 
 	if (!mnt_fsname)
-		return -1;
+		return 1;
 	flags = offmode ? STATEFLAG_OFF : STATEFLAG_ON;
 	if (vflag > 1)
 		flags |= STATEFLAG_VERYVERBOSE;
@@ -80,12 +80,17 @@ static int newstate(struct mntent *mnt, int offmode, int type, char *extra)
 	if (aflag)
 		flags |= STATEFLAG_ALL;
 
-	if (kqf & (1 << QF_XFS) &&
-	    ((offmode
-	      && (kern_quota_on(mnt_fsname, USRQUOTA, 1 << QF_XFS)
-		  || kern_quota_on(mnt_fsname, GRPQUOTA, 1 << QF_XFS)))
-	     || (!offmode && kern_quota_on(mnt_fsname, type, 1 << QF_XFS))))
-		ret = xfs_newstate(mnt, type, extra, flags);
+	if (!strcmp(mnt->mnt_type, MNTTYPE_XFS)) {	/* XFS filesystem has special handling... */
+		if (!(kqf & (1 << QF_XFS))) {
+			errstr("Can't change state of XFS quota. It's not compiled in kernel.\n");
+			return 1;
+		}
+		if (kqf & (1 << QF_XFS) &&
+		    ((offmode && (kern_quota_on(mnt_fsname, USRQUOTA, 1 << QF_XFS)
+		    || kern_quota_on(mnt_fsname, GRPQUOTA, 1 << QF_XFS)))
+		    || (!offmode && kern_quota_on(mnt_fsname, type, 1 << QF_XFS))))
+			ret = xfs_newstate(mnt, type, extra, flags);
+	}
 	else {
 		extra = get_qf_name(mnt, type, (kqf & (1 << QF_VFSV0)) ? QF_VFSV0 : QF_VFSOLD);
 		statefunc = (kqf & (1 << QF_VFSV0)) ? v2_newstate : v1_newstate;

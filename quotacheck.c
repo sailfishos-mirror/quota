@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.16 2001/08/15 20:13:42 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.17 2001/08/30 10:11:24 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -788,9 +788,24 @@ out:
 /* Detect quota format from filename of present files */
 static int detect_filename_format(struct mntent *mnt, int type)
 {
+	char *option;
 	struct stat statbuf;
 	char namebuf[PATH_MAX];
 
+	if (type == USRQUOTA) {
+		if ((option = hasmntopt(mnt, MNTOPT_USRQUOTA)))
+			option += strlen(MNTOPT_USRQUOTA);
+		else if ((option = hasmntopt(mnt, MNTOPT_QUOTA)))
+			option += strlen(MNTOPT_QUOTA);
+	}
+	else {
+		if ((option = hasmntopt(mnt, MNTOPT_GRPQUOTA)))
+			option += strlen(MNTOPT_GRPQUOTA);
+	}
+	if (!option)
+		die(2, _("Can't find quota option on filesystem %s with quotas!\n"), mnt->mnt_dir);
+	if (*option == '=')	/* If the file name is specified we can't detect quota format from it... */
+		return -1;
 	snprintf(namebuf, PATH_MAX, "%s/%s.%s", mnt->mnt_dir, basenames[QF_VFSV0], extensions[type]);
 	if (!stat(namebuf, &statbuf))
 		return QF_VFSV0;
@@ -799,7 +814,8 @@ static int detect_filename_format(struct mntent *mnt, int type)
 	snprintf(namebuf, PATH_MAX, "%s/%s.%s", mnt->mnt_dir, basenames[QF_VFSOLD], extensions[type]);
 	if (!stat(namebuf, &statbuf))
 		return QF_VFSOLD;
-	return -1;
+	/* Old quota files don't exist, just return newest format... */
+	return QF_VFSV0;
 }
 
 static void check_all(void)
@@ -812,7 +828,7 @@ static void check_all(void)
 	while ((mnt = get_next_mount())) {
 		if (flags & FL_ALL && flags & FL_NOROOT && !strcmp(mnt->mnt_dir, "/"))
 			continue;
-		if (!strcmp(mnt->mnt_type, MNTTYPE_XFS)) {
+		if (!strcmp(mnt->mnt_type, MNTTYPE_XFS) || !strcmp(mnt->mnt_type, MNTTYPE_NFS)) {
 			debug(FL_DEBUG | FL_VERBOSE, _("Skipping %s [%s]\n"), mnt->mnt_fsname, mnt->mnt_dir);
 			continue;
 		}

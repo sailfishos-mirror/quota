@@ -33,7 +33,7 @@ static void usage(void)
 	exit(1);
 }
 
-void parse_options(int argcnt, char **argstr)
+static void parse_options(int argcnt, char **argstr)
 {
 	int ret;
 	char *slash = strrchr(argstr[0], '/'), cmdname[PATH_MAX];
@@ -72,7 +72,7 @@ void parse_options(int argcnt, char **argstr)
 	mntpoint = argstr[optind];
 }
 
-int convert_dquot(struct dquot *dquot, char *name)
+static int convert_dquot(struct dquot *dquot, char *name)
 {
 	struct dquot newdquot;
 
@@ -95,21 +95,22 @@ int convert_dquot(struct dquot *dquot, char *name)
 	return 0;
 }
 
-void convert_file(int type, struct mntent *mnt)
+static int convert_file(int type, struct mntent *mnt)
 {
 	struct quota_handle *qo;
 	char *qfname, namebuf[PATH_MAX];
-
+	int ret = 0;
+	
 	if (!(qo = init_io(mnt, type, QF_VFSOLD, 1))) {
 		errstr(_("Can't open old format file for %ss on %s\n"),
 			type2name(type), mnt->mnt_dir);
-		return;
+		return -1;
 	}
 	if (!(qn = new_io(mnt, type, QF_VFSV0))) {
 		errstr(_("Can't create file for %ss for new format on %s: %s\n"),
 			type2name(type), mnt->mnt_dir, strerror(errno));
 		end_io(qo);
-		return;
+		return -1;
 	}
 	if (qo->qh_ops->scan_dquots(qo, convert_dquot) >= 0) {	/* Conversion succeeded? */
 		qfname = get_qf_name(mnt, type, QF_VFSV0);
@@ -119,15 +120,18 @@ void convert_file(int type, struct mntent *mnt)
 			errstr(_("Can't rename new quotafile %s to name %s: %s\n"),
 				namebuf, qfname, strerror(errno));
 		free(qfname);
+		ret = -1;
 	}
 	end_io(qo);
 	end_io(qn);
+	return ret;
 }
 
 int main(int argc, char **argv)
 {
 	struct mntent *mnt;
-
+	int ret = 0;
+	
 	gettexton();
 	progname = basename(argv[0]);
 
@@ -139,11 +143,12 @@ int main(int argc, char **argv)
 		return 1;
 	}
 	if (ucv)
-		convert_file(USRQUOTA, mnt);
+		ret |= convert_file(USRQUOTA, mnt);
 	if (gcv)
-		convert_file(GRPQUOTA, mnt);
+		ret |= convert_file(GRPQUOTA, mnt);
 	end_mounts_scan();
 
+	if (ret)
+		return 1;
 	return 0;
 }
-
