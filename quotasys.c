@@ -189,22 +189,30 @@ void time2str(time_t seconds, char *buf, int flags)
 {
 	uint minutes, hours, days;
 
-	minutes = (seconds + 30) / 60;	/* Rounding */
-	hours = minutes / 60;
-	minutes %= 60;
-	days = hours / 24;
-	hours %= 24;
 	if (flags & TF_ROUND) {
+		minutes = (seconds + 30) / 60;	/* Rounding */
+		hours = minutes / 60;
+		minutes %= 60;
+		days = hours / 24;
+		hours %= 24;
 		if (days >= 2)
 			snprintf(buf, MAXTIMELEN, _("%ddays"), days);
 		else
 			snprintf(buf, MAXTIMELEN, _("%02d:%02d"), hours + days * 24, minutes);
 	}
 	else {
-		if (minutes || (!minutes && !hours && !days))
-			snprintf(buf, MAXTIMELEN, _("%uminutes"), (uint) (seconds + 30) / 60);
+		minutes = seconds / 60;
+		seconds %= 60;
+		hours = minutes / 60;
+		minutes %= 60;
+		days = hours / 24;
+		hours %= 24;
+		if (seconds || (!minutes && !hours && !days))
+			snprintf(buf, MAXTIMELEN, _("%useconds"), (uint)(seconds+minutes*60+hours*3600+days*3600*24));
+		else if (minutes)
+			snprintf(buf, MAXTIMELEN, _("%uminutes"), (uint)(minutes+hours*60+days*60*24));
 		else if (hours)
-			snprintf(buf, MAXTIMELEN, _("%uhours"), hours + days * 24);
+			snprintf(buf, MAXTIMELEN, _("%uhours"), (uint)(hours+days*24));
 		else
 			snprintf(buf, MAXTIMELEN, _("%udays"), days);
 	}
