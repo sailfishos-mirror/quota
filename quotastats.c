@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: quotastats.c,v 1.5 2001/09/26 12:26:11 jkar8572 Exp $
+ * Version: $Id: quotastats.c,v 1.6 2001/10/12 13:38:56 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -59,21 +59,21 @@ static inline int get_stats(struct util_dqstats *dqstats)
 			goto out;
 		}
 	}
-	else if (quotactl(QCMD(Q_V2_GETSTATS, 0), NULL, 0, (caddr_t)&v0_dqstats) >= 0) {
+	else if (quotactl(QCMD(Q_V1_GETSTATS, 0), NULL, 0, (caddr_t)&old_dqstats) >= 0) {
 		/* Structures are currently the same */
-		memcpy(dqstats, &v0_dqstats, sizeof(v0_dqstats));
+		memcpy(dqstats, &old_dqstats, sizeof(old_dqstats));
+		dqstats->version = 0;
 	}
 	else {
 		if (errno != EINVAL) {
 			errstr(_("Error while getting quota statistics from kernel: %s\n"), strerror(errno));
 			goto out;
 		}
-		if (quotactl(QCMD(Q_V1_GETSTATS, 0), NULL, 0, (caddr_t)&old_dqstats) < 0) {
+		if (quotactl(QCMD(Q_V2_GETSTATS, 0), NULL, 0, (caddr_t)&v0_dqstats) < 0) {
 			errstr(_("Error while getting old quota statistics from kernel: %s\n"), strerror(errno));
 			goto out;
 		}
-		memcpy(dqstats, &old_dqstats, sizeof(old_dqstats));
-		dqstats->version = 0;
+		memcpy(dqstats, &v0_dqstats, sizeof(v0_dqstats));
 	}
 	ret = 0;
 out:
