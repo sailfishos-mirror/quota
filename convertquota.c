@@ -151,7 +151,7 @@ int main(int argc, char **argv)
 	if (ucv)
 		convert_file(USRQUOTA);
 
-	if (ucv)
+	if (gcv)
 		convert_file(GRPQUOTA);
 
 	return 0;

@@ -9,7 +9,7 @@
  *
  *          This part does the lookup of the info.
  *
- * Version: $Id: rquota_server.c,v 1.3 2001/06/07 17:51:43 jkar8572 Exp $
+ * Version: $Id: rquota_server.c,v 1.4 2001/06/18 03:15:44 jkar8572 Exp $
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
@@ -28,7 +28,7 @@
 #include <syslog.h>
 #include <time.h>
 #include <netdb.h>
-#ifdef HOST_ACCESS
+#ifdef HOSTS_ACCESS
 #include <tcpd.h>
 #endif
 
@@ -201,6 +201,8 @@ setquota_rslt *setquotainfo(int flags, caddr_t * argp, struct svc_req *rqstp)
 		break;
 	}
 	endmntent(mntf);
+	if (!handles[0])
+		goto out;
 	if (!(dquot = handles[0]->qh_ops->read_dquot(handles[0], id)))
 		goto out;
 	if (qcmd == QCMD(Q_RPC_SETQLIM, type) || qcmd == QCMD(Q_RPC_SETQUOTA, type)) {
@@ -305,6 +307,8 @@ getquota_rslt *getquotainfo(int flags, caddr_t * argp, struct svc_req * rqstp)
 		break;
 	}
 	endmntent(mntf);
+	if (!handles[0])
+		goto out;
 	if (!(flags & ACTIVE) || QIO_ENABLED(handles[0]))
 		dquot = handles[0]->qh_ops->read_dquot(handles[0], id);
 	if (dquot) {
@@ -313,6 +317,7 @@ getquota_rslt *getquotainfo(int flags, caddr_t * argp, struct svc_req * rqstp)
 			QIO_ENABLED(handles[0]) ? TRUE : FALSE;
 		servutil2netdqblk(&result.getquota_rslt_u.gqr_rquota, &dquot->dq_dqb);
 	}
+out:
 	dispose_handle_list(handles);
 	return (&result);
 }
