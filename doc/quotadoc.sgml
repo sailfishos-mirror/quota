@@ -66,9 +66,9 @@ specifying of filename is mandatory (because filesystem also needs to know the
 file with quota information) and <tt/filename/ must specify a file in the root
 directory of a filesystem. When any of <tt/jquota/ options is specified
 additional option <tt/jqfmt=format/ must be also specified where <tt/format/ is
-a format of quota files. As journalled quota is currently supported only for
+a format of quota files. As journaled quota is currently supported only for
 <tt/vfsv0/ format the value of format must be <tt/vfsv0/. Note also that
-journalled quota is currently (as of March 2004) supported only for Ext3
+journaled quota is currently (as of March 2004) supported only for Ext3
 filesystem and you need to have a kernel patched with a special patch
 (contained for example in -mm series of a kernel).
 <p>
