@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.25 2001/12/05 14:14:46 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.26 2001/12/14 07:50:48 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -575,10 +575,16 @@ Please turn quotas off or use -f to force checking.\n"),
 			return -1;
 		}
 		if ((fd = open(qfname, O_RDONLY)) < 0) {
-			errstr(_("Cannot open quotafile %s: %s\n"),
-				qfname, strerror(errno));
+			if (errno != ENOENT) {
+				errstr(_("Cannot open quotafile %s: %s\n"),
+					qfname, strerror(errno));
+				free(qfname);
+				return -1;
+			}
+			/* When file was not found, just skip it */
+			flags |= FL_NEWFILE;
 			free(qfname);
-			return -1;
+			qfname = NULL;
 		}
 	}
 
@@ -821,7 +827,6 @@ static int detect_filename_format(struct mntent *mnt, int type)
 	if (!stat(namebuf, &statbuf))
 		return QF_VFSOLD;
 	/* Old quota files don't exist, just create newest quotafile available */
-	flags |= FL_NEWFILE;
 	return QF_VFSV0;
 }
 
