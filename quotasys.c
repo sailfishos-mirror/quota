@@ -34,19 +34,40 @@
 #include "quotaio_v2.h"
 
 #define min(x,y) (((x) < (y)) ? (x) : (y))
-#define CORRECT_FSTYPE(type) \
-((!strcmp(type, MNTTYPE_EXT2)) || \
-(!strcmp(type, MNTTYPE_EXT3)) || \
-(!strcmp(type, MNTTYPE_MINIX)) || \
-(!strcmp(type, MNTTYPE_UFS)) || \
-(!strcmp(type, MNTTYPE_UDF)) || \
-(!strcmp(type, MNTTYPE_REISER)) || \
-(!strcmp(type, MNTTYPE_XFS)) || \
-(!strcmp(type, MNTTYPE_NFS)))
 
 static char extensions[MAXQUOTAS + 2][20] = INITQFNAMES;
 static char *basenames[] = INITQFBASENAMES;
 static char *fmtnames[] = INITQFMTNAMES;
+
+/*
+ *	Check whether give filesystem type is supported
+ */
+
+static int correct_fstype(char *type)
+{
+	char *mtype = sstrdup(type), *next;
+
+	type = mtype;
+	do {
+		next = strchr(type, ',');
+		if (next)
+			*next = 0;
+		if (!strcmp(type, MNTTYPE_EXT2) ||
+		    !strcmp(type, MNTTYPE_EXT3) ||
+		    !strcmp(type, MNTTYPE_MINIX) ||
+		    !strcmp(type, MNTTYPE_UFS) ||
+		    !strcmp(type, MNTTYPE_UDF) ||
+		    !strcmp(type, MNTTYPE_REISER) ||
+		    !strcmp(type, MNTTYPE_XFS) ||
+		    !strcmp(type, MNTTYPE_NFS)) {
+			free(mtype);
+			return 1;
+		}
+		type = next+1;	
+	} while (next);
+	free(mtype);
+	return 0;
+}
 
 /*
  *	Convert type of quota to written representation
@@ -383,7 +404,7 @@ static int hasxfsquota(struct mntent *mnt, int type)
  */
 int hasquota(struct mntent *mnt, int type)
 {
-	if (!CORRECT_FSTYPE(mnt->mnt_type) || hasmntopt(mnt, MNTOPT_NOQUOTA))
+	if (!correct_fstype(mnt->mnt_type) || hasmntopt(mnt, MNTOPT_NOQUOTA))
 		return 0;
 	
 	if (!strcmp(mnt->mnt_type, MNTTYPE_XFS))
@@ -783,7 +804,7 @@ static int cache_mnt_table(int flags)
 		
 		/* Further we are not interested in mountpoints without quotas and
 		   we don't want to touch them */
-		if (!CORRECT_FSTYPE(mnt->mnt_type) || hasmntopt(mnt, MNTOPT_NOQUOTA) || !(hasmntopt(mnt, MNTOPT_USRQUOTA) || hasmntopt(mnt, MNTOPT_GRPQUOTA) || hasmntopt(mnt, MNTOPT_QUOTA) || !strcmp(mnt->mnt_type, MNTTYPE_NFS))) {
+		if (!correct_fstype(mnt->mnt_type) || hasmntopt(mnt, MNTOPT_NOQUOTA) || !(hasmntopt(mnt, MNTOPT_USRQUOTA) || hasmntopt(mnt, MNTOPT_GRPQUOTA) || hasmntopt(mnt, MNTOPT_QUOTA) || !strcmp(mnt->mnt_type, MNTTYPE_NFS))) {
 			free((char *)devname);
 			continue;
 		}
