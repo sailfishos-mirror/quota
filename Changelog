@@ -1,7 +1,7 @@
 Changes in quota-tools from 3.09 to 3.10
 * added option to warnquota(8) to surpress details of report (Marco van Wieringen)
 * fixed problems with multiple lines values in warnquota(8) (F. Depke)
-* changed detection of kernel interface so that it works even without /proc (Jan Kara)
+* changed detection of kernel interface so that it works even without /proc (Jan Kara, Johan Ekenberg)
 * updated Polish messages (Jakub Bogusz)
 * updated quotactl(2) manpage (Jan Kara)
 * fixed bug in -f option of edquota(8) (Jan Kara)
