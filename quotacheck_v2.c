@@ -344,3 +344,9 @@ int v2_buffer_file(char *filename, int fd, int type)
 		debug(FL_DEBUG | FL_VERBOSE, _("Not found any corrupted blocks. Congratulations.\n"));
 	return ret;
 }
+
+/* Merge quotafile info from old and new file */
+void v2_merge_info(struct util_dqinfo *new, struct util_dqinfo *old)
+{
+	new->u.v2_mdqi.dqi_flags = old->u.v2_mdqi.dqi_flags;
+}

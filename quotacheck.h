@@ -40,5 +40,5 @@ struct dquot *lookup_dquot(qid_t id, int type);
 struct dquot *add_dquot(qid_t id, int type);
 int v2_buffer_file(char *filename, int fd, int type);
 int v1_buffer_file(char *filename, int fd, int type);
-
+void v2_merge_info(struct util_dqinfo *new, struct util_dqinfo *old);
 #endif

@@ -76,7 +76,7 @@ static void creport(const char *, char *);
 
 static void usage(void)
 {
-	errstr(_("Usage: %s [-acfugvV] [filesystem...]\n"));
+	errstr(_("Usage: %s [-acfugvV] [filesystem...]\n"), progname);
 	exit(1);
 }
 

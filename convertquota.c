@@ -108,8 +108,11 @@ void convert_file(int type)
 	while ((mnt = getmntent(mntf))) {
 		if (!(dev = get_device_name(mnt->mnt_fsname)))
 			continue;
-		if (devcmp(dev, mntpoint) || dircmp(mnt->mnt_dir, mntpoint))
+		if (devcmp(dev, mntpoint) || dircmp(mnt->mnt_dir, mntpoint)) {
+			free((void *)dev);
 			break;
+		}
+		free((void *)dev);
 	}
 	if (!mnt)
 		die(1, _("Can't find given mountpoint %s\n"), mntpoint);

@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.8 2001/05/02 09:32:22 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.9 2001/05/11 11:00:40 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -667,8 +667,13 @@ static int dump_to_file(char *mnt_fsname, struct mntent *mnt, int type)
 			strerror(errno));
 		return -1;
 	}
-	memcpy(&h->qh_info, old_info + type, sizeof(h->qh_info));
-	mark_quotafile_info_dirty(h);
+	if (!(flags & FL_NEWFILE)) {
+		h->qh_info.dqi_bgrace = old_info[type].dqi_bgrace;
+		h->qh_info.dqi_igrace = old_info[type].dqi_igrace;
+		if (cfmt == QF_VFSV0)
+			v2_merge_info(&h->qh_info, old_info + type);
+		mark_quotafile_info_dirty(h);
+	}
 	for (i = 0; i < DQUOTHASHSIZE; i++)
 		for (dquot = dquot_hash[type][i]; dquot; dquot = dquot->dq_next) {
 			dquot->dq_h = h;
@@ -680,8 +685,7 @@ static int dump_to_file(char *mnt_fsname, struct mntent *mnt, int type)
 			h->qh_ops->commit_dquot(dquot);
 		}
 	if (end_io(h) < 0) {
-		errstr(_("Cannot finish IO on new quotafile: %s\n"),
-			strerror(errno));
+		errstr(_("Cannot finish IO on new quotafile: %s\n"), strerror(errno));
 		return -1;
 	}
 	if (rename_files(mnt, type) < 0)
@@ -692,8 +696,7 @@ static int dump_to_file(char *mnt_fsname, struct mntent *mnt, int type)
 		filename = get_qf_name(mnt, type, cfmt);
 		if (quotactl(QCMD(Q_QUOTAOFF, type), mnt_fsname, 0, NULL)
 		    || quotactl(QCMD(Q_QUOTAON, type), mnt_fsname, 0, filename))
-			errstr(
-				_("Cannot turn %s quotas on %s off and on: %s\nKernel won't know about changes quotacheck did.\n"),
+			errstr(_("Cannot turn %s quotas on %s off and on: %s\nKernel won't know about changes quotacheck did.\n"),
 				type2name(type), mnt_fsname, strerror(errno));
 		free(filename);
 	}

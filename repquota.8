@@ -3,18 +3,18 @@
 .SH NAME
 repquota \- summarize quotas for a filesystem
 .SH SYNOPSIS
-.B /usr/etc/repquota
+.B /usr/sbin/repquota
 [
-.B \-vug
+.B \-vtug
 ] [
 .B \-F
 .I format-name
 ]
 .IR filesystem .\|.\|.
 .LP
-.B /usr/etc/repquota
+.B /usr/sbin/repquota
 [
-.B \-avug
+.B \-avtug
 ] [
 .B \-F
 .I format-name
@@ -44,6 +44,10 @@ to be read-write with quotas.
 .B \-v
 Report all quotas, even if there is no usage. Be also more verbose about quotafile
 information.
+.TP
+.B \-t
+Truncate user/group names longer than 9 characters. This results in nicer output when
+there are such names.
 .TP
 .B \-F \f2format-name\f1
 Report quota for specified format (ie. don't perform format autodetection).

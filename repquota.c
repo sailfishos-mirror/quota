@@ -19,10 +19,13 @@
 #include "quotasys.h"
 #include "quotaio.h"
 
+#define PRINTNAMELEN 9	/* Number of characters to be reserved for name on screen */
+
 #define FL_USER 1
 #define FL_GROUP 2
 #define FL_VERBOSE 4
 #define FL_ALL 8
+#define FL_TRUNCNAMES 16
 
 int flags, fmt = -1;
 char **mnt;
@@ -31,7 +34,7 @@ char *progname;
 
 static void usage(void)
 {
-	errstr(_("Utility for reporting quotas.\nUsage:\n%s [-vug] [-F quotaformat] (-a | mntpoint)\n"), progname);
+	errstr(_("Utility for reporting quotas.\nUsage:\n%s [-vugt] [-F quotaformat] (-a | mntpoint)\n"), progname);
 	errstr(_("Bugs to %s\n"), MY_EMAIL);
 	exit(1);
 }
@@ -46,30 +49,33 @@ static void parse_options(int argcnt, char **argstr)
 	else
 		slash++;
 
-	while ((ret = getopt(argcnt, argstr, "VavughF:")) != -1) {
+	while ((ret = getopt(argcnt, argstr, "VavughtF:")) != -1) {
 		switch (ret) {
-		  case '?':
-		  case 'h':
-			  usage();
-		  case 'V':
-			  version();
-			  exit(0);
-		  case 'u':
-			  flags |= FL_USER;
-			  break;
-		  case 'g':
-			  flags |= FL_GROUP;
-			  break;
-		  case 'v':
-			  flags |= FL_VERBOSE;
-			  break;
-		  case 'a':
-			  flags |= FL_ALL;
-			  break;
-		  case 'F':
-			  if ((fmt = name2fmt(optarg)) == QF_ERROR)
-				  exit(1);
-			  break;
+			case '?':
+			case 'h':
+				usage();
+			case 'V':
+				version();
+				exit(0);
+			case 'u':
+				flags |= FL_USER;
+				break;
+			case 'g':
+				flags |= FL_GROUP;
+				break;
+			case 'v':
+				flags |= FL_VERBOSE;
+				break;
+			case 'a':
+				flags |= FL_ALL;
+				break;
+			case 't':
+				flags |= FL_TRUNCNAMES;
+				break;
+			case 'F':
+				if ((fmt = name2fmt(optarg)) == QF_ERROR)
+					exit(1);
+				break;
 
 		}
 	}
@@ -99,13 +105,15 @@ static char overlim(uint usage, uint softlim, uint hardlim)
 
 static int print(struct dquot *dquot, char *name)
 {
+	char pname[PRINTNAMELEN+1];
 	char time[MAXTIMELEN];
 	struct util_dqblk *entry = &dquot->dq_dqb;
 
 	if (!entry->dqb_curspace && !entry->dqb_curinodes && !(flags & FL_VERBOSE))
 		return 0;
+	sstrncpy(pname, name, sizeof(pname));
 	difftime2str(entry->dqb_btime, time);
-	printf("%-10s%c%c%8Lu%8Lu%8Lu%7s", name,
+	printf("%-*s %c%c%8Lu%8Lu%8Lu%7s", PRINTNAMELEN, pname,
 	       overlim(qb2kb(toqb(entry->dqb_curspace)), qb2kb(entry->dqb_bsoftlimit),
 		       qb2kb(entry->dqb_bhardlimit)), overlim(entry->dqb_curinodes,
 							      entry->dqb_isoftlimit,
