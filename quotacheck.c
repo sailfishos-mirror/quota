@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.4 2001/04/11 10:12:36 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.5 2001/04/12 05:56:53 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -240,6 +240,8 @@ static loff_t getqsize(char *fname, struct stat *st)
 	loff_t size;
 
 	if (S_ISLNK(st->st_mode))	/* There's no way to do ioctl() on links... */
+		return st->st_blocks << 9;
+	if (!S_ISDIR(st->st_mode) && !S_ISREG(st->st_mode))
 		return st->st_blocks << 9;
 	if ((fd = open(fname, O_RDONLY)) == -1)
 		die(2, _("Cannot open file %s: %s\n"), fname, strerror(errno));

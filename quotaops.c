@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaops.c,v 1.2 2001/04/11 10:12:36 jkar8572 Exp $"
+#ident "$Id: quotaops.c,v 1.3 2001/04/12 05:56:53 jkar8572 Exp $"
 
 #include <rpc/rpc.h>
 #include <sys/types.h>
@@ -208,7 +208,7 @@ static void merge_to_list(struct dquot *qlist, char *dev, u_int64_t blocks, u_in
 	struct dquot *q;
 
 	for (q = qlist; q; q = q->dq_next) {
-		if (devcmp_handle(dev, q->dq_h))
+		if (!devcmp_handle(dev, q->dq_h))
 			continue;
 
 		/*
