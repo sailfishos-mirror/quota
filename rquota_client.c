@@ -9,7 +9,7 @@
  *
  *          This part does the rpc-communication with the rquotad.
  *
- * Version: $Id: rquota_client.c,v 1.8 2004/02/12 09:45:14 jkar8572 Exp $
+ * Version: $Id: rquota_client.c,v 1.9 2005/03/31 11:48:02 jkar8572 Exp $
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
@@ -149,8 +149,10 @@ int rpc_rquota_get(struct dquot *dquot)
 	 * Strip off pathname on nfs mounted dir. Ignore entries of any
 	 * automounter.
 	 */
-	if ((pathname = strchr(fsname_tmp, ':')) == (char *)0 || *(pathname + 1) == '(')
+	if ((pathname = strchr(fsname_tmp, ':')) == (char *)0 || *(pathname + 1) == '(') {
+		free(fsname_tmp);
 		return -ENOENT;
+	}
 
 	*pathname++ = '\0';
 

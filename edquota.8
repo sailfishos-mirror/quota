@@ -127,13 +127,13 @@ Edit the soft time limits for each filesystem.
 In old quota format if the time limits are zero, the default time limits in
 .B <linux/quota.h>
 are used. In new quota format time limits must be specified (there is no default
-value set in kernel). Time units of 'seconds', 'minutes', 'hours', 'days', 'weeks', and 'months'
+value set in kernel). Time units of 'seconds', 'minutes', 'hours', and 'days'
 are understood. Time limits are printed in the greatest possible time unit such that
 the value is greater than or equal to one.
 .TP
 .B \-T
 Edit time for the user/group when softlimit is enforced. Possible values
-are 'unset' or number and unit. Units are same as used in
+are 'unset' or number and unit. Units are the same as in
 .B \-t
 option.
 .SH FILES

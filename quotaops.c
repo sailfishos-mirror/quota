@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaops.c,v 1.15 2004/08/26 15:38:10 jkar8572 Exp $"
+#ident "$Id: quotaops.c,v 1.16 2005/03/31 11:48:02 jkar8572 Exp $"
 
 #include <rpc/rpc.h>
 #include <sys/types.h>
@@ -503,7 +503,7 @@ format_err:
 				goto format_err;
 			if (str2timeunits(btime, bunits, &bseconds) < 0) {
 units_err:
-				errstr(_("Bad time units. Units are 'second', 'minute', 'hour' and 'day'.\n"));
+				errstr(_("Bad time units. Units are 'second', 'minute', 'hour', and 'day'.\n"));
 				return -1;
 			}
 			bseconds += now;
@@ -639,7 +639,7 @@ int readtimes(struct quota_handle **handles, int infd)
 #endif
 		if (str2timeunits(btime, bunits, &bseconds) < 0 ||
 		    str2timeunits(itime, iunits, &iseconds) < 0) {
-			errstr(_("Bad time units. Units are 'second', 'minute', 'hour' and 'day'.\n"));
+			errstr(_("Bad time units. Units are 'second', 'minute', 'hour', and 'day'.\n"));
 			return -1;
 		}
 		for (i = 0; handles[i]; i++) {

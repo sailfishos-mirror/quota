@@ -110,9 +110,9 @@ static void blk_corrupted(int *corrupted, uint * lblk, uint blk, char *fmtstr, .
 	}
 	else if (*lblk != blk) {
 		if (!*corrupted)
-			errstr( "%u", blk);
+			fprintf(stderr, "%u", blk);
 		else
-			errstr( ", %u", blk);
+			fprintf(stderr, ", %u", blk);
 	}
 	*corrupted = 1;
 	*lblk = blk;
@@ -164,7 +164,9 @@ static int buffer_entry(dqbuf_t buf, uint blk, int *corrupted, uint * lblk, int 
 				return 0;
 			}
 			else if (flags & FL_INTERACTIVE) {
-				errstr(_("\nFound more structures for ID %u. Values: BHARD: %Ld/%Ld BSOFT: %Ld/%Ld IHARD: %Ld/%Ld ISOFT: %Ld/%Ld\n"),
+				if (!(flags & (FL_DEBUG | FL_VERBOSE)))
+					fputc('\n', stderr);
+				errstr(_("Found more structures for ID %u. Values: BHARD: %Ld/%Ld BSOFT: %Ld/%Ld IHARD: %Ld/%Ld ISOFT: %Ld/%Ld\n"),
 					(uint) id, (long long)fdq->dqb_bhardlimit, (long long)mdq.dqb_bhardlimit,
 					(long long)fdq->dqb_bsoftlimit, (long long)mdq.dqb_bsoftlimit,
 					(long long)fdq->dqb_ihardlimit, (long long)mdq.dqb_ihardlimit,
@@ -282,7 +284,7 @@ static int check_tree_blk(int fd, uint blk, int depth, int type, uint blocks, ui
 				}
 		}
 		else if (check_tree_ref(blk, __le32_to_cpu(r[i]), blocks, 0, corrupted, lblk) >= 0 && __le32_to_cpu(r[i]))
-			if (check_data_blk(fd, __le32_to_cpu(r[i]), type, blocks, corrupted, lblk) < 0) {
+			if (!GET_BLK(__le32_to_cpu(r[i])) && check_data_blk(fd, __le32_to_cpu(r[i]), type, blocks, corrupted, lblk) < 0) {
 				freedqbuf(buf);
 				return -1;
 			}

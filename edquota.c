@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: edquota.c,v 1.15 2004/07/13 12:08:55 jkar8572 Exp $"
+#ident "$Id: edquota.c,v 1.16 2005/03/31 11:48:02 jkar8572 Exp $"
 
 /*
  * Disk quota editor.
@@ -65,14 +65,14 @@ char *dirname;
 void usage(void)
 {
 #if defined(RPC_SETQUOTA)
-	errstr("%s%s%s",
-		_("Usage:\tedquota [-r] [-u] [-F formatname] [-p username] [-f filesystem] username ...\n"),
+	errstr("%s%s%s%s",
+		_("Usage:\n\tedquota [-r] [-u] [-F formatname] [-p username] [-f filesystem] username ...\n"),
 		_("\tedquota [-r] -g [-F formatname] [-p groupname] [-f filesystem] groupname ...\n"),
 		_("\tedquota [-r] [-u|g] [-F formatname] [-f filesystem] -t\n"),
 		_("\tedquota [-r] [-u|g] [-F formatname] [-f filesystem] -T username|groupname ...\n"));
 #else
-	errstr("%s%s%s",
-		_("Usage:\tedquota [-u] [-F formatname] [-p username] [-f filesystem] username ...\n"),
+	errstr("%s%s%s%s",
+		_("Usage:\n\tedquota [-u] [-F formatname] [-p username] [-f filesystem] username ...\n"),
 		_("\tedquota -g [-F formatname] [-p groupname] [-f filesystem] groupname ...\n"),
 		_("\tedquota [-u|g] [-F formatname] [-f filesystem] -t\n"),
 		_("\tedquota [-u|g] [-F formatname] [-f filesystem] -T username|groupname ...\n"));

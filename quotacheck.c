@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.45 2005/03/18 11:21:57 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.46 2005/03/31 11:48:02 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -559,8 +559,8 @@ int ask_yn(char *q, int def)
 	printf("%s [%c]: ", q, def ? 'y' : 'n');
 	fflush(stdout);
 	while (1) {
-		fgets(a, sizeof(a), stdin);
-		if (*a == '\n')
+		fgets(a, sizeof(a)-1, stdin);
+		if (a[0] == '\n')
 			return def;
 		if (!strcasecmp(a, "y\n"))
 			return 1;
@@ -651,7 +651,7 @@ static int rename_files(struct mntent *mnt, int type)
 	int fd;
 #endif
 
-	debug(FL_DEBUG, _("Data dumped.\n"));
+	debug(FL_DEBUG, _("Renaming new files to proper names.\n"));
 	if (get_qf_name(mnt, type, (1 << cfmt), 0, &filename) < 0)
 		die(2, _("Cannot get name of old quotafile on %s.\n"), mnt->mnt_dir);
 	if (stat(filename, &st) < 0) {	/* File doesn't exist? */
@@ -761,8 +761,7 @@ static int dump_to_file(struct mntent *mnt, int type)
 		errstr(_("Cannot finish IO on new quotafile: %s\n"), strerror(errno));
 		return -1;
 	}
-	if (rename_files(mnt, type) < 0)
-	        return -1;
+	debug(FL_DEBUG, _("Data dumped.\n"));
 	if (cfmt == kern_quota_on(mnt->mnt_fsname, type, 1 << cfmt)) {	/* Quota turned on? */
 		char *filename;
 
@@ -776,6 +775,9 @@ static int dump_to_file(struct mntent *mnt, int type)
 			else {
 				int ret;
 
+				/* Rename files - if it fails we cannot do anything better then just turn on quotas again */
+				rename_files(mnt, type);
+
 				if (kernel_iface == IFACE_GENERIC)
 					ret = quotactl(QCMD(Q_QUOTAON, type), mnt->mnt_fsname, util2kernfmt(cfmt), filename);
 				else
@@ -787,6 +789,9 @@ static int dump_to_file(struct mntent *mnt, int type)
 			free(filename);
 		}
 	}
+	else
+		if (rename_files(mnt, type) < 0)
+		        return -1;
 	return 0;
 }
 
