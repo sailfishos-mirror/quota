@@ -345,9 +345,9 @@ int main(int argc, char **argv)
 
 	parse_options(argc, argv);
 	init_kernel_interface();
-	if (init_mounts_scan(1, &mntpoint) < 0)
+	if (init_mounts_scan(1, &mntpoint, 0) < 0)
 		return 1;
-	if (!(mnt = get_next_mount(0))) {
+	if (!(mnt = get_next_mount())) {
 		end_mounts_scan();
 		return 1;
 	}

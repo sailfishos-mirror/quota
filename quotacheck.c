@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.28 2002/04/26 11:59:19 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.29 2002/05/03 07:05:46 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -853,9 +853,9 @@ static void check_all(void)
 	struct mntent *mnt;
 	int checked = 0;
 
-	if (init_mounts_scan((flags & FL_ALL) ? 0 : 1, &mntpoint) < 0)
+	if (init_mounts_scan((flags & FL_ALL) ? 0 : 1, &mntpoint, 0) < 0)
 		die(2, _("Can't initialize mountpoint scan.\n"));
-	while ((mnt = get_next_mount(0))) {
+	while ((mnt = get_next_mount())) {
 		if (flags & FL_ALL && flags & FL_NOROOT && !strcmp(mnt->mnt_dir, "/"))
 			continue;
 		if (!strcmp(mnt->mnt_type, MNTTYPE_XFS) || !strcmp(mnt->mnt_type, MNTTYPE_NFS)) {

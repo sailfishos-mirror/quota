@@ -94,7 +94,8 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 			fmt = kernfmt;	/* Default is kernel used format */
 		}
 	}
-	if ((fmt = get_qf_name(mnt, type, (fmt == -1) ? ((1 << QF_VFSOLD) | (1 << QF_VFSV0)) : (1 << fmt), NF_FORMAT, &qfname)) < 0) {
+	if ((fmt = get_qf_name(mnt, type, (fmt == -1) ? ((1 << QF_VFSOLD) | (1 << QF_VFSV0)) : (1 << fmt),
+	    (!QIO_ENABLED(h) || flags & IOI_OPENFILE) ? NF_FORMAT : 0, &qfname)) < 0) {
 		errstr(_("Quota file not found or has wrong format.\n"));
 		goto out_handle;
 	}

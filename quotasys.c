@@ -371,7 +371,7 @@ static int check_fmtfile_ok(char *name, int type, int fmt, int flags)
 				ret = quotafile_ops_1.check_file(fd, type);
 			close(fd);
 		}
-		else if (errno != ENOENT)
+		else if (errno != ENOENT && errno != EPERM)
 			errstr(_("Can't open quotafile %s: %s\n"), name, strerror(errno));
 		return ret;
 	}
@@ -437,9 +437,9 @@ struct quota_handle **create_handle_list(int count, char **mntpoints, int type, 
 	int gotmnt = 0;
 	static struct quota_handle *hlist[MAXMNTPOINTS];
 
-	if (init_mounts_scan(count, mntpoints) < 0)
+	if (init_mounts_scan(count, mntpoints, 0) < 0)
 		die(2, _("Can't initialize mountpoint scan.\n"));
-	while ((mnt = get_next_mount(0))) {
+	while ((mnt = get_next_mount())) {
 		if (strcmp(mnt->mnt_type, MNTTYPE_NFS)) {	/* No NFS? */
 			if (gotmnt+1 == MAXMNTPOINTS)
 				die(2, _("Too many mountpoints with quota. Contact %s\n"), MY_EMAIL);
@@ -820,8 +820,21 @@ static int cache_mnt_table(void)
 	return 0;
 }
 
+/* Find mountpoint of filesystem hosting dir in 'st'; Store it in 'st' */
+static char *find_dir_mntpoint(struct stat *st)
+{
+	int i;
+
+	for (i = 0; i < mnt_entries_cnt; i++)
+		if (mnt_entries[i].me_dev == st->st_dev) {
+			st->st_ino = mnt_entries[i].me_ino;
+			return mnt_entries[i].me_dir;
+		}
+	return NULL;
+}
+
 /* Process and store given paths */
-static int process_dirs(int dcnt, char **dirs)
+static int process_dirs(int dcnt, char **dirs, int flags)
 {
 	struct stat st;
 	int i;
@@ -838,10 +851,17 @@ static int process_dirs(int dcnt, char **dirs)
 			}
 			check_dirs[check_dirs_cnt].sd_dir = S_ISDIR(st.st_mode);
 			if (S_ISDIR(st.st_mode)) {
+				char *realmnt = dirs[i];
+
+				/* Return st of mountpoint of dir in st.. */
+				if (flags & MS_NO_MNTPOINT && !(realmnt = find_dir_mntpoint(&st))) {
+					errstr(_("Can't find filesystem mountpoint for directory %s\n"), dirs[i]);
+					continue;
+				}
 				check_dirs[check_dirs_cnt].sd_dev = st.st_dev;
 				check_dirs[check_dirs_cnt].sd_ino = st.st_ino;
-				if (!realpath(dirs[i], mntpointbuf)) {
-					errstr(_("Can't resolve path %s: %s\n"), dirs[i], strerror(errno));
+				if (!realpath(realmnt, mntpointbuf)) {
+					errstr(_("Can't resolve path %s: %s\n"), realmnt, strerror(errno));
 					continue;
 				}
 			}
@@ -875,11 +895,11 @@ static int process_dirs(int dcnt, char **dirs)
 /*
  *	Initialize mountpoint scan
  */ 
-int init_mounts_scan(int dcnt, char **dirs)
+int init_mounts_scan(int dcnt, char **dirs, int flags)
 {
 	if (cache_mnt_table() < 0)
 		return -1;
-	if (process_dirs(dcnt, dirs) < 0) {
+	if (process_dirs(dcnt, dirs, flags) < 0) {
 		end_mounts_scan();
 		return -1;
 	}
@@ -906,7 +926,7 @@ static int find_next_entry_all(int *pos)
 }
 
 /* Find next usable mountpoint when scanning selected mountpoints */
-static int find_next_entry_sel(int *pos, int flags)
+static int find_next_entry_sel(int *pos)
 {
 	int i;
 	struct searched_dir *sd;
@@ -917,8 +937,7 @@ restart:
 	sd = check_dirs + act_checked;
 	for (i = 0; i < mnt_entries_cnt; i++) {
 		if (sd->sd_dir) {
-			if (sd->sd_dev == mnt_entries[i].me_dev &&
-			    (flags & MS_NO_MNTPOINT || sd->sd_ino == mnt_entries[i].me_ino))
+			if (sd->sd_dev == mnt_entries[i].me_dev && sd->sd_ino == mnt_entries[i].me_ino)
 				break;
 		}
 		else
@@ -936,7 +955,7 @@ restart:
 /*
  *	Return next directory from the list
  */
-struct mntent *get_next_mount(int flags)
+struct mntent *get_next_mount(void)
 {
 	static struct mntent mnt;
 	int mntpos;
@@ -947,7 +966,7 @@ struct mntent *get_next_mount(int flags)
 		mnt.mnt_dir = (char *)mnt_entries[mntpos].me_dir;
 	}
 	else {
-		if (!find_next_entry_sel(&mntpos, flags))
+		if (!find_next_entry_sel(&mntpos))
 			return NULL;
 		mnt.mnt_dir = (char *)check_dirs[act_checked].sd_name;
 	}

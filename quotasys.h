@@ -113,13 +113,13 @@ void init_kernel_interface(void);
 /* Check whether is quota turned on on given device for given type */
 int kern_quota_on(const char *dev, int type, int fmt);
 
-/* Initialize mountpoints scan */
-int init_mounts_scan(int dcnt, char **dirs);
-
-/* Flags for get_next_mount() */
+/* Flags for init_mounts_scan() */
 #define MS_NO_MNTPOINT 0x01	/* Specified directory needn't be mountpoint */
+/* Initialize mountpoints scan */
+int init_mounts_scan(int dcnt, char **dirs, int flags);
+
 /* Return next mountpoint for scan */
-struct mntent *get_next_mount(int flags);
+struct mntent *get_next_mount(void);
 
 /* Free all structures associated with mountpoints scan */
 void end_mounts_scan(void);

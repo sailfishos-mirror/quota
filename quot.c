@@ -119,7 +119,7 @@ int main(int argc, char **argv)
 		usage();
 	if (!uflag && !gflag)
 		uflag++;
-	if (init_mounts_scan(aflag ? 0 : argc - optind, argv + optind) < 0)
+	if (init_mounts_scan(aflag ? 0 : argc - optind, argv + optind, 0) < 0)
 		return 1;
 	mounttable();
 	end_mounts_scan();
@@ -131,7 +131,7 @@ static void mounttable(void)
 	int doit = 0;
 	struct mntent *mntp;
 
-	while ((mntp = get_next_mount(0))) {
+	while ((mntp = get_next_mount())) {
 		/* Currently, only XFS is implemented... */
 		if (strcmp(mntp->mnt_type, MNTTYPE_XFS) == 0) {
 			checkXFS(mntp->mnt_fsname, mntp->mnt_dir);

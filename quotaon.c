@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaon.c,v 1.14 2002/03/27 16:21:26 jkar8572 Exp $"
+#ident "$Id: quotaon.c,v 1.15 2002/05/03 07:05:46 jkar8572 Exp $"
 
 /*
  * Turn quota on/off for a filesystem.
@@ -314,9 +314,9 @@ int main(int argc, char **argv)
 	if (fmt != -1 && !(kernel_formats & (1 << fmt)))
 		die(1, _("Required format %s not supported by kernel.\n"), fmt2name(fmt));
 
-	if (init_mounts_scan(mntcnt, mntpoints) < 0)
+	if (init_mounts_scan(mntcnt, mntpoints, 0) < 0)
 		return 1;
-	while ((mnt = get_next_mount(0))) {
+	while ((mnt = get_next_mount())) {
 		if (!strcmp(mnt->mnt_type, MNTTYPE_NFS)) {
 			if (!(flags & FL_ALL))
 				fprintf(stderr, "%s: Quota can't be turned on on NFS filesystem\n", mnt->mnt_fsname);
