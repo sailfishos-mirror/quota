@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaops.c,v 1.12 2004/04/14 16:03:14 jkar8572 Exp $"
+#ident "$Id: quotaops.c,v 1.13 2004/04/20 19:33:05 jkar8572 Exp $"
 
 #include <rpc/rpc.h>
 #include <sys/types.h>
@@ -96,7 +96,7 @@ struct dquot *getprivs(qid_t id, struct quota_handle **handles, int quiet)
 #if defined(BSD_BEHAVIOUR)
 	int j, ngroups;
 	uid_t euid;
-	gid_t gidset[NGROUPS];
+	gid_t gidset[NGROUPS], *gidsetp;
 	char name[MAXNAMELEN];
 #endif
 
@@ -107,18 +107,29 @@ struct dquot *getprivs(qid_t id, struct quota_handle **handles, int quiet)
 				euid = geteuid();
 				if (euid != id && euid != 0) {
 					uid2user(id, name);
-					die(1, _("%s (uid %d): Permission denied\n"),  name, id);
+					errstr(_("%s (uid %d): Permission denied\n"), name, id);
+					return (struct dquot *)NULL;
 				}
 				break;
 			case GRPQUOTA:
-				ngroups = getgroups(NGROUPS, gidset);
+				ngroups = sysconf(_SC_NGROUPS_MAX);
+				if (ngroups > NGROUPS) {
+					gidsetp = malloc(ngroups * sizeof(gid_t));
+					if (!gidsetp) {
+						errstr(_("%s: gid set allocation (%d): %s\n"), name, ngroups, strerror(errno));
+						return (struct dquot *)NULL;
+					}
+				} else {
+					gidsetp = &gidset[0];
+				}
+				ngroups = getgroups(ngroups, gidsetp);
 				if (ngroups < 0) {
-					die(1, _("Error while trying getgroups(): %s\n"), strerror(errno));
-					continue;
+					errstr(_("%s: error while trying getgroups(): %s\n"), name, strerror(errno));
+					return (struct dquot *)NULL;
 				}
 
 				for (j = 0; j < ngroups; j++)
-					if (id == gidset[j])
+					if (id == gidsetp[j])
 						break;
 
 				if (j >= ngroups && geteuid() != 0) {
@@ -136,8 +147,8 @@ struct dquot *getprivs(qid_t id, struct quota_handle **handles, int quiet)
 		if (!(q = handles[i]->qh_ops->read_dquot(handles[i], id))) {
 			/* If rpc.rquotad is not running filesystem might be just without quotas... */
 			if (errno != ENOENT && (errno != ECONNREFUSED || !quiet))
-				errstr(_("Error while getting quota from %s for %u: %s\n"),
-					handles[i]->qh_quotadev, id, strerror(errno));
+				errstr(_("%s: error while getting quota from %s for %u: %s\n"),
+					name, handles[i]->qh_quotadev, id, strerror(errno));
 			continue;
 		}
 		if (qhead == NULL)

@@ -19,7 +19,7 @@ quota \- display disk usage and limits
 .BR -uvsil \ |
 .B q
 ]
-.I user
+.IR user ...
 .br
 .B quota
 [
@@ -29,7 +29,7 @@ quota \- display disk usage and limits
 .BR -gvsil \ |
 .B q
 ]
-.I group
+.IR group ...
 .SH DESCRIPTION
 .B quota
 displays users' disk usage and limits.
@@ -57,7 +57,9 @@ Possible format names are:
 .B \-g
 Print group quotas for the group 
 of which the user is a member.
-The optional
+The optional 
+.B group
+argument(s) restricts the display to the specified group(s).
 .TP
 .B \-u
 flag is equivalent to the default.

@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quota.c,v 1.14 2004/04/14 16:03:14 jkar8572 Exp $"
+#ident "$Id: quota.c,v 1.15 2004/04/20 19:33:05 jkar8572 Exp $"
 
 /*
  * Disk quota reporting program.
@@ -79,7 +79,7 @@ void heading(int type, qid_t id, char *name, char *tag);
 int main(int argc, char **argv)
 {
 	int ngroups;
-	gid_t gidset[NGROUPS];
+	gid_t gidset[NGROUPS], *gidsetp;
 	int i, ret;
 
 	gettexton();
@@ -134,11 +134,19 @@ int main(int argc, char **argv)
 		if (flags & FL_USER)
 			ret |= showquotas(USRQUOTA, getuid());
 		if (flags & FL_GROUP) {
-			ngroups = getgroups(NGROUPS, gidset);
+			ngroups = sysconf(_SC_NGROUPS_MAX);
+			if (ngroups > NGROUPS) {
+				gidsetp = malloc(ngroups * sizeof(gid_t));
+				if (!gidsetp)
+					die(1, _("quota: gid set allocation (%d): %s\n"), ngroups, strerror(errno));
+			} else {
+				gidsetp = &gidset[0];
+			}
+			ngroups = getgroups(ngroups, gidsetp);
 			if (ngroups < 0)
 				die(1, _("quota: getgroups(): %s\n"), strerror(errno));
 			for (i = 0; i < ngroups; i++)
-				ret |= showquotas(GRPQUOTA, gidset[i]);
+				ret |= showquotas(GRPQUOTA, gidsetp[i]);
 		}
 		exit(ret);
 	}
@@ -253,7 +261,7 @@ int showquotas(int type, qid_t id)
 			continue;
 		}
 	}
-	if (!(flags & FL_QUIET) && !lines)
+	if (!(flags & FL_QUIET) && !lines && qlist)
 		heading(type, id, name, _("none"));
 	freeprivs(qlist);
 	dispose_handle_list(handles);
