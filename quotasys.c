@@ -579,42 +579,51 @@ void init_kernel_interface(void)
 		die(2, _("Can't set signal handler: %s\n"), strerror(errno));
 
 	kernel_formats = 0;
-	if (!stat("/proc/fs/xfs/stat", &st) || quotactl(QCMD(Q_XGETQSTAT, 0), NULL, 0, NULL) != ENOSYS)
+	if (!stat("/proc/fs/xfs/stat", &st))
 		kernel_formats |= (1 << QF_XFS);
-	if (!stat("/proc/sys/fs/quota", &st) || quotactl(QCMD(Q_GETQUOTA, USRQUOTA), NULL, 0, NULL) != ENOSYS) {
+	else
+		if (!quotactl(QCMD(Q_XGETQSTAT, 0), NULL, 0, NULL) || (errno != EINVAL && errno != ENOSYS))
+			kernel_formats |= (1 << QF_XFS);
+	if (!stat("/proc/sys/fs/quota", &st)) {
 		kernel_iface = IFACE_GENERIC;
 		kernel_formats |= (1 << QF_VFSOLD) | (1 << QF_VFSV0);
 	}
 	else {
-		struct v2_dqstats v2_stats;
-
-		if (quotactl(QCMD(Q_V2_GETSTATS, 0), NULL, 0, (void *)&v2_stats) >= 0) {
-			kernel_formats |= (1 << QF_VFSV0);
-			kernel_iface = IFACE_VFSV0;
+		if (!quotactl(QCMD(Q_GETQUOTA, USRQUOTA), NULL, 0, NULL) || (errno != EINVAL && errno != ENOSYS)) {
+			kernel_iface = IFACE_GENERIC;
+			kernel_formats |= (1 << QF_VFSOLD) | (1 << QF_VFSV0);
 		}
-		else if (errno != ENOSYS && errno != ENOTSUP) {
-			/* RedHat 7.1 (2.4.2-2) newquota check 
-			 * Q_V2_GETSTATS in it's old place, Q_GETQUOTA in the new place
-			 * (they haven't moved Q_GETSTATS to its new value) */
-			int err_stat = 0;
-			int err_quota = 0;
- 			char tmp[1024];         /* Just temporary buffer */
+		else {
+			struct v2_dqstats v2_stats;
 
-			if (quotactl(QCMD(Q_V1_GETSTATS, 0), NULL, 0, tmp))
-				err_stat = errno;
-			if (quotactl(QCMD(Q_V1_GETQUOTA, 0), "/dev/null", 0, tmp))
-				err_quota = errno;
-
-			/* On a RedHat 2.4.2-2 	we expect 0, EINVAL
-			 * On a 2.4.x 		we expect 0, ENOENT
-			 * On a 2.4.x-ac	we wont get here */
-			if (err_stat == 0 && err_quota == EINVAL) {
+			if (quotactl(QCMD(Q_V2_GETSTATS, 0), NULL, 0, (void *)&v2_stats) >= 0) {
 				kernel_formats |= (1 << QF_VFSV0);
 				kernel_iface = IFACE_VFSV0;
 			}
-			else {
-				kernel_formats |= (1 << QF_VFSOLD);
-				kernel_iface = IFACE_VFSOLD;
+			else if (errno != ENOSYS && errno != ENOTSUP) {
+				/* RedHat 7.1 (2.4.2-2) newquota check 
+				 * Q_V2_GETSTATS in it's old place, Q_GETQUOTA in the new place
+				 * (they haven't moved Q_GETSTATS to its new value) */
+				int err_stat = 0;
+				int err_quota = 0;
+ 				char tmp[1024];         /* Just temporary buffer */
+
+				if (quotactl(QCMD(Q_V1_GETSTATS, 0), NULL, 0, tmp))
+					err_stat = errno;
+				if (quotactl(QCMD(Q_V1_GETQUOTA, 0), "/dev/null", 0, tmp))
+					err_quota = errno;
+
+				/* On a RedHat 2.4.2-2 	we expect 0, EINVAL
+				 * On a 2.4.x 		we expect 0, ENOENT
+				 * On a 2.4.x-ac	we wont get here */
+				if (err_stat == 0 && err_quota == EINVAL) {
+					kernel_formats |= (1 << QF_VFSV0);
+					kernel_iface = IFACE_VFSV0;
+				}
+				else {
+					kernel_formats |= (1 << QF_VFSOLD);
+					kernel_iface = IFACE_VFSOLD;
+				}
 			}
 		}
 	}

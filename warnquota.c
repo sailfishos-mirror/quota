@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.14 2003/10/12 08:09:18 marcovw Exp $
+ * Version: $Id: warnquota.c,v 1.15 2003/10/12 11:42:37 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -458,7 +458,7 @@ int readconfigfile(const char *filename, struct configparams *config)
 		else {
 			len--;
 			if (buff[len-1] == '\\') {	/* Should join with next line? */
-				bufpos += len-1;
+				bufpos = len-1;
 				continue;
 			}
 		}
