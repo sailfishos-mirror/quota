@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.42 2004/09/20 07:46:50 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.43 2005/03/10 16:20:45 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -267,13 +267,17 @@ static loff_t getqsize(char *fname, struct stat *st)
 /*
  * Show a blitting cursor as means of visual progress indicator.
  */
-static inline void blit(void)
+static inline void blit(char *msg)
 {
 	static short bitc = 0;
 	static const char bits[] = "|/-\\";
 
-	putc(bits[bitc], stdout);
-	putc('\b', stdout);
+	if (flags & FL_VERYVERBOSE && msg) {
+		putchar('\r');
+		printf("%-70s ", msg);
+	}
+	putchar(bits[bitc]);
+	putchar('\b');
 	fflush(stdout);
 	bitc++;
 	bitc %= BITS_SIZE;
@@ -306,7 +310,10 @@ static void parse_options(int argcnt, char **argstr)
 			  setlinebuf(stderr);
 			  break;
 		  case 'v':
-			  flags |= FL_VERBOSE;
+			  if (flags & FL_VERBOSE)
+				flags |= FL_VERYVERBOSE;
+			  else
+				flags |= FL_VERBOSE;
 			  break;
 		  case 'f':
 			  flags |= FL_FORCE;
@@ -404,7 +411,7 @@ static int ext2_direct_scan(char *device)
 		if (inode.i_links_count) {
 			debug(FL_DEBUG, _("Found i_num %ld, blocks %ld\n"), (long)i_num, (long)inode.i_blocks);
 			if (flags & FL_VERBOSE)
-				blit();
+				blit(NULL);
 			uid = inode.i_uid | (inode.i_uid_high << 16);
 			gid = inode.i_gid | (inode.i_gid_high << 16);
 			if (inode.i_uid_high | inode.i_gid_high)
@@ -463,11 +470,13 @@ static int scan_dir(char *pathname)
 		die(2, _("\nCan open directory %s: %s\n"), pathname, strerror(errno));
 
 	chdir(pathname);
+	if (flags & FL_VERYVERBOSE)
+		blit(pathname);
 	while ((de = readdir(dp)) != (struct dirent *)NULL) {
 		if (!strcmp(de->d_name, ".") || !strcmp(de->d_name, ".."))
 			continue;
 		if (flags & FL_VERBOSE)
-			blit();
+			blit(NULL);
 
 		if ((lstat(de->d_name, &st)) == -1) {
 			errstr(_("lstat Cannot stat `%s/%s': %s\nGuess you'd better run fsck first !\nexiting...\n"),
@@ -821,7 +830,7 @@ static void check_dir(struct mntent *mnt)
 	if (lstat(mnt->mnt_dir, &st) < 0)
 		die(2, _("Cannot stat mountpoint %s: %s\n"), mnt, strerror(errno));
 	if (!S_ISDIR(st.st_mode))
-		die(2, _("Mountpoint %s isn't directory?!\n"), mnt);
+		die(2, _("Mountpoint %s isn't a directory?!\n"), mnt);
 	cur_dev = st.st_dev;
 	files_done = dirs_done = 0;
 	if (ucheck)
@@ -864,6 +873,8 @@ Please stop all programs writing to filesystem or use -m flag to force checking.
 #else
 	if (mnt->mnt_dir) {
 #endif
+		if (flags & FL_VERYVERBOSE)
+			putchar('\n');
 		if (scan_dir(mnt->mnt_dir) < 0)
 			goto out;
 	}
@@ -877,7 +888,7 @@ Please stop all programs writing to filesystem or use -m flag to force checking.
 		sub_quota_file(mnt, GRPQUOTA, GRPQUOTA);
 	}
 	if (flags & FL_VERBOSE)
-		fputs(_("done\n"), stderr);
+		fputs(_("done\n"), stdout);
 	debug(FL_DEBUG | FL_VERBOSE, _("Checked %d directories and %d files\n"), dirs_done,
 	      files_done);
 	if (remounted) {
