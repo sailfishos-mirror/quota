@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.3 2001/05/04 08:43:25 jkar8572 Exp $
+ * Version: $Id: warnquota.c,v 1.4 2001/11/09 08:10:42 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -225,6 +225,8 @@ void get_quotatable(void)
 	     quotatable =
 	     (quotatable_t *) realloc(quotatable, sizeof(quotatable_t) * (qtab_i + 1)),
 	     fgets(buffer, sizeof(buffer), fp) != (char *)NULL; qtab_i++) {
+		quotatable[qtab_i].devname = NULL;
+		quotatable[qtab_i].devdesc = NULL;
 		if ((colpos = strchr(buffer, ':'))) {
 			*colpos = 0;
 			quotatable[qtab_i].devname = (char *)smalloc(strlen(buffer) + 1);
