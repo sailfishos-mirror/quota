@@ -100,7 +100,7 @@ repquota: repquota.o $(LIBOBJS)
 
 warnquota: warnquota.o $(LIBOBJS)
 
-quotastats: quotastats.o pot.o
+quotastats: quotastats.o common.o pot.o
 
 xqmstats: xqmstats.o common.o pot.o
 

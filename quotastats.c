@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: quotastats.c,v 1.3 2001/07/16 03:24:49 jkar8572 Exp $
+ * Version: $Id: quotastats.c,v 1.4 2001/09/10 10:34:16 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -25,38 +25,70 @@
 #include <string.h>
 
 #include "pot.h"
+#include "common.h"
 #include "quota.h"
+#include "quotasys.h"
 #include "quotaio_v1.h"
 #include "dqblk_v1.h"
+
+char *progname;
 
 static inline int get_stats(struct dqstats *dqstats)
 {
 	struct v1_dqstats old_dqstats;
-	
-	if (quotactl(QCMD(Q_GETSTATS, 0), NULL, 0, (caddr_t)dqstats) < 0) {
-		if (errno != EINVAL)
-			return -1;
-		if (quotactl(QCMD(Q_V1_GETSTATS, 0), NULL, 0, (caddr_t)&old_dqstats) < 0)
-			return -1;
+	FILE *f;
+	int ret = -1;
+
+	if ((f = fopen(QSTAT_FILE, "r"))) {
+		if (fscanf(f, "Version %u", &dqstats->version) != 1) {
+			errstr(_("Can't parse quota version.\n"));
+			goto out;
+		}
+		if (dqstats->version > KERN_KNOWN_QUOTA_VERSION) {
+			errstr(_("Kernel quota version %u is too new.\n"), dqstats->version);
+			goto out;
+		}
+		if (fscanf(f, "%u %u %u %u %u %u %u %u", &dqstats->lookups, &dqstats->drops,
+			   &dqstats->reads, &dqstats->writes, &dqstats->cache_hits,
+			   &dqstats->allocated_dquots, &dqstats->free_dquots, &dqstats->syncs) != 8) {
+			errstr(_("Can't parse quota statistics.\n"));
+			goto out;
+		}
+	}
+	else if (quotactl(QCMD(Q_GETSTATS, 0), NULL, 0, (caddr_t)dqstats) < 0) {
+		if (errno != EINVAL) {
+			errstr(_("Error while getting quota statistics from kernel: %s\n"), strerror(errno));
+			goto out;
+		}
+		if (quotactl(QCMD(Q_V1_GETSTATS, 0), NULL, 0, (caddr_t)&old_dqstats) < 0) {
+			errstr(_("Error while getting old quota statistics from kernel: %s\n"), strerror(errno));
+			goto out;
+		}
 		memcpy(dqstats, &old_dqstats, sizeof(old_dqstats));
 		dqstats->version = 0;
 	}
-	return 0;
+	ret = 0;
+out:
+	if (f)
+		fclose(f);
+	return ret;
 }
 
 static inline int print_stats(struct dqstats *dqstats)
 {
-	fprintf(stdout, _("Number of dquot lookups: %ld\n"), (long)dqstats->lookups);
-	fprintf(stdout, _("Number of dquot drops: %ld\n"), (long)dqstats->drops);
-	fprintf(stdout, _("Number of still active inodes with quota : %ld\n"),
-		(long)(dqstats->lookups - dqstats->drops));
-	fprintf(stdout, _("Number of dquot reads: %ld\n"), (long)dqstats->reads);
-	fprintf(stdout, _("Number of dquot writes: %ld\n"), (long)dqstats->writes);
-	fprintf(stdout, _("Number of quotafile syncs: %ld\n"), (long)dqstats->syncs);
-	fprintf(stdout, _("Number of dquot cache hits: %ld\n"), (long)dqstats->cache_hits);
-	fprintf(stdout, _("Number of allocated dquots: %ld\n"), (long)dqstats->allocated_dquots);
-	fprintf(stdout, _("Number of free dquots: %ld\n"), (long)dqstats->free_dquots);
-	fprintf(stdout, _("Number of in use dquot entries (user/group): %ld\n"),
+	if (!dqstats->version)
+		printf(_("Kernel quota version: old\n"));
+	else
+		printf(_("Kernel quota version: %u.%u.%u\n"), dqstats->version/10000, dqstats->version/100%100, dqstats->version%100);
+	printf(_("Number of dquot lookups: %ld\n"), (long)dqstats->lookups);
+	printf(_("Number of dquot drops: %ld\n"), (long)dqstats->drops);
+	printf(_("Number of dquot reads: %ld\n"), (long)dqstats->reads);
+	printf(_("Number of dquot writes: %ld\n"), (long)dqstats->writes);
+	printf(_("Number of quotafile syncs: %ld\n"), (long)dqstats->syncs);
+	printf(_("Number of dquot cache hits: %ld\n"), (long)dqstats->cache_hits);
+	printf(_("Number of allocated dquots: %ld\n"), (long)dqstats->allocated_dquots);
+	printf(_("Number of free dquots: %ld\n"), (long)dqstats->free_dquots);
+	printf(_("Number of in use dquot entries (user/group): %ld\n"),
 		(long)(dqstats->allocated_dquots - dqstats->free_dquots));
 	return (0);
 }
@@ -66,6 +98,7 @@ int main(int argc, char **argv)
 	struct dqstats dqstats;
 
 	gettexton();
+	progname = basename(argv[0]);
 
 	if (!get_stats(&dqstats))
 		print_stats(&dqstats);

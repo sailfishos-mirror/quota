@@ -454,17 +454,23 @@ int devcmp_handles(struct quota_handle *a, struct quota_handle *b)
  *	Check kernel quota version
  */
 
-#define KERN_KNOWN_QUOTA_VERSION (6*10000 + 5*100 + 0)
-
 int kern_quota_format(void)
 {
 	struct dqstats stats;
+	FILE *f;
 	int ret = 0;
 	struct stat st;
 
 	if (!stat("/proc/fs/xfs/stat", &st))
 		ret |= (1 << QF_XFS);
-	if (quotactl(QCMD(Q_GETSTATS, 0), NULL, 0, (void *)&stats) < 0) {
+	if ((f = fopen(QSTAT_FILE, "r"))) {
+		if (fscanf(f, "Version %u", &stats.version) != 1) {
+			fclose(f);
+			return QF_TOONEW;
+		}
+		fclose(f);
+	}
+	else if (quotactl(QCMD(Q_GETSTATS, 0), NULL, 0, (void *)&stats) < 0) {
 		if (errno == ENOSYS || errno == ENOTSUP)	/* Quota not compiled? */
 			return QF_ERROR;
 		if (errno == EINVAL || errno == EFAULT || errno == EPERM)	/* Old quota compiled? */
@@ -474,7 +480,11 @@ int kern_quota_format(void)
 	/* We might do some more generic checks in future but this should be enough for now */
 	if (stats.version > KERN_KNOWN_QUOTA_VERSION)	/* Newer kernel than we know? */
 		return QF_TOONEW;
-	return ret | (1 << QF_VFSV0);	/* New format supported */
+	if (stats.version <= 6*10000+4*100+0)		/* Old quota format? */
+		ret |= (1 << QF_VFSOLD);
+	else
+		ret |= (1 << QF_VFSV0);
+	return ret;	/* New format supported */
 }
 
 /*
