@@ -545,7 +545,8 @@ static void remove_tree(struct quota_handle *h, struct dquot *dquot, uint * blk,
 
 		ref[V2_GETIDINDEX(dquot->dq_id, depth)] = __cpu_to_le32(0);
 		for (i = 0; i < V2_DQBLKSIZE && !buf[i]; i++);	/* Block got empty? */
-		if (i == V2_DQBLKSIZE) {
+		/* Don't put the root block into the free block list */
+		if (i == V2_DQBLKSIZE && *blk != V2_DQTREEOFF) {
 			put_free_dqblk(h, buf, *blk);
 			*blk = 0;
 		}
