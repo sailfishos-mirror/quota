@@ -215,9 +215,10 @@ static void parse_options(int argcnt, char **argstr)
 }
 
 /* Set user limits */
-static void setlimits(struct quota_handle **handles)
+static int setlimits(struct quota_handle **handles)
 {
 	struct dquot *q, *protoq, *protoprivs = NULL, *curprivs;
+	int ret = 0;
 
 	curprivs = getprivs(id, handles, 0);
 	if (flags & FL_PROTO) {
@@ -240,8 +241,10 @@ static void setlimits(struct quota_handle **handles)
 			update_grace_times(q);
 		}
 	}
-	putprivs(curprivs, COMMIT_LIMITS);
+	if (putprivs(curprivs, COMMIT_LIMITS) == -1)
+		ret = -1;
 	freeprivs(curprivs);
+	return ret;
 }
 
 #define MAXLINELEN (MAXNUMLEN*4+MAXNAMELEN+16)
@@ -274,11 +277,12 @@ static int read_entry(qid_t *id, qsize_t *isoftlimit, qsize_t *ihardlimit, qsize
 }
 
 /* Set user limits in batch mode */
-static void batch_setlimits(struct quota_handle **handles)
+static int batch_setlimits(struct quota_handle **handles)
 {
 	struct dquot *curprivs, *q;
 	qsize_t bhardlimit, bsoftlimit, ihardlimit, isoftlimit;
 	qid_t id;
+	int ret = 0;
 
 	while (!read_entry(&id, &isoftlimit, &ihardlimit, &bsoftlimit, &bhardlimit)) {
 		curprivs = getprivs(id, handles, 0);
@@ -289,13 +293,15 @@ static void batch_setlimits(struct quota_handle **handles)
 			q->dq_dqb.dqb_ihardlimit = ihardlimit;
 			update_grace_times(q);
 		}
-		putprivs(curprivs, COMMIT_LIMITS);
+		if (putprivs(curprivs, COMMIT_LIMITS) == -1)
+			ret = -1;
 		freeprivs(curprivs);
 	}
+	return ret;
 }
 
 /* Set grace times */
-static void setgraces(struct quota_handle **handles)
+static int setgraces(struct quota_handle **handles)
 {
 	int i;
 
@@ -304,11 +310,13 @@ static void setgraces(struct quota_handle **handles)
 		handles[i]->qh_info.dqi_igrace = toset.dqb_itime;
 		mark_quotafile_info_dirty(handles[i]);
 	}
+	return 0;
 }
 
 /* Set grace times for individual user */
-static void setindivgraces(struct quota_handle **handles)
+static int setindivgraces(struct quota_handle **handles)
 {
+	int ret = 0;
 	struct dquot *q, *curprivs;
 
 	curprivs = getprivs(id, handles, 0);
@@ -316,14 +324,18 @@ static void setindivgraces(struct quota_handle **handles)
 		q->dq_dqb.dqb_btime = toset.dqb_btime;
 		q->dq_dqb.dqb_itime = toset.dqb_itime;
 	}
-	if (putprivs(curprivs, COMMIT_TIMES) == -1)
+	if (putprivs(curprivs, COMMIT_TIMES) == -1) {
 		errstr(_("Can't write times for %s. Maybe kernel doesn't support such operation?\n"), type2name(flags & FL_USER ? USRQUOTA : GRPQUOTA));
+		ret = -1;
+	}
 	freeprivs(curprivs);
+	return ret;
 }
 
 int main(int argc, char **argv)
 {
 	struct quota_handle **handles;
+	int ret;
 
 	gettexton();
 	progname = basename(argv[0]);
@@ -337,15 +349,16 @@ int main(int argc, char **argv)
 		handles = create_handle_list(mntcnt, mnt, flag2type(flags), fmt, (flags & FL_RPC) ? 0 : IOI_LOCALONLY, 0);
 
 	if (flags & FL_GRACE)
-		setgraces(handles);
+		ret = setgraces(handles);
 	else if (flags & FL_INDIVIDUAL_GRACE)
-		setindivgraces(handles);
+		ret = setindivgraces(handles);
 	else if (flags & FL_BATCH)
-		batch_setlimits(handles);
+		ret = batch_setlimits(handles);
 	else
-		setlimits(handles);
+		ret = setlimits(handles);
 
-	dispose_handle_list(handles);
+	if (dispose_handle_list(handles) == -1)
+		ret = -1;
 
-	return 0;
+	return ret ? 1 : 0;
 }

@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: edquota.c,v 1.14 2004/04/14 16:03:14 jkar8572 Exp $"
+#ident "$Id: edquota.c,v 1.15 2004/07/13 12:08:55 jkar8572 Exp $"
 
 /*
  * Disk quota editor.
@@ -155,6 +155,7 @@ int main(int argc, char **argv)
 		return 0;
 	}
 	if (pflag) {
+		ret = 0;
 		protoid = name2id(protoname, quotatype, NULL);
 		protoprivs = getprivs(protoid, handles, 0);
 		while (argc-- > 0) {
@@ -177,12 +178,14 @@ int main(int argc, char **argv)
 					update_grace_times(cprivs);
 				}
 			}
-			putprivs(curprivs, COMMIT_LIMITS);
+			if (putprivs(curprivs, COMMIT_LIMITS) == -1)
+				ret = -1;
 			freeprivs(curprivs);
 		}
-		dispose_handle_list(handles);
+		if (dispose_handle_list(handles) == -1)
+			ret = -1;
 		freeprivs(protoprivs);
-		exit(0);
+		exit(ret ? 1 : 0);
 	}
 
 	umask(077);
@@ -195,18 +198,19 @@ int main(int argc, char **argv)
 	strcat(tmpfil, "/EdP.aXXXXXX");
 	tmpfd = mkstemp(tmpfil);
 	fchown(tmpfd, getuid(), getgid());
+	ret = 0;
 	if (tflag) {
 		if (writetimes(handles, tmpfd) < 0) {
-			unlink(tmpfil);
-			die(1, _("Can't write grace times to file.\n"));
+			errstr(_("Can't write grace times to file.\n"));
+			ret = -1;
 		}
 		if (editprivs(tmpfil) < 0) {
-			unlink(tmpfil);
-			die(1, _("Error while editting grace times.\n"));
+			errstr(_("Error while editting grace times.\n"));
+			ret = -1;
 		}
 		if (readtimes(handles, tmpfd) < 0) {
-			unlink(tmpfil);
-			die(1, _("Failed to parse grace times file.\n"));
+			errstr(_("Failed to parse grace times file.\n"));
+			ret = -1;
 		}
 	}
 	else if (Tflag) {
@@ -215,17 +219,21 @@ int main(int argc, char **argv)
 			curprivs = getprivs(id, handles, 0);
 			if (writeindividualtimes(curprivs, tmpfd, *argv, quotatype) < 0) {
 				errstr(_("Can't write individual grace times to file.\n"));
+				ret = -1;
 				continue;
 			}
 			if (editprivs(tmpfil) < 0) {
 				errstr(_("Error while editting individual grace times.\n"));
+				ret = -1;
 				continue;
 			}
 			if (readindividualtimes(curprivs, tmpfd) < 0) {
 				errstr(_("Can't read individual grace times from file.\n"));
+				ret = -1;
 				continue;
 			}
-			putprivs(curprivs, COMMIT_TIMES);
+			if (putprivs(curprivs, COMMIT_TIMES) == -1)
+				ret = -1;
 			freeprivs(curprivs);
 		}
 	}
@@ -235,10 +243,12 @@ int main(int argc, char **argv)
 			curprivs = getprivs(id, handles, 0);
 			if (writeprivs(curprivs, tmpfd, *argv, quotatype) < 0) {
 				errstr(_("Can't write quotas to file.\n"));
+				ret = -1;
 				continue;
 			}
 			if (editprivs(tmpfil) < 0) {
 				errstr(_("Error while editting quotas.\n"));
+				ret = -1;
 				continue;
 			}
 			close(tmpfd);
@@ -246,16 +256,19 @@ int main(int argc, char **argv)
 				die(1, _("Can't reopen!"));
 			if (readprivs(curprivs, tmpfd) < 0) {
 				errstr(_("Can't read quotas from file.\n"));
+				ret = -1;
 				continue;
 			}
-			putprivs(curprivs, COMMIT_LIMITS);
+			if (putprivs(curprivs, COMMIT_LIMITS) == -1)
+				ret = -1;
 			freeprivs(curprivs);
 		}
 	}
-	dispose_handle_list(handles);
+	if (dispose_handle_list(handles) == -1)
+		ret = -1;
 
 	close(tmpfd);
 	unlink(tmpfil);
 	free(tmpfil);
-	return 0;
+	return ret ? 1 : 0;
 }

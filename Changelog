@@ -1,4 +1,5 @@
 Changes in quota-tools from 3.12 to 3.13
+* fixed exit codes of setquota(8) and edquota(8) (Jan Kara)
 * updated Polish translations (Jakub Bogusz)
 
 Changes in quota-tools from 3.11 to 3.12

@@ -585,12 +585,15 @@ struct quota_handle **create_handle_list(int count, char **mntpoints, int type, 
 int dispose_handle_list(struct quota_handle **hlist)
 {
 	int i;
+	int ret = 0;
 
 	for (i = 0; hlist[i]; i++)
-		if (end_io(hlist[i]) < 0)
+		if (end_io(hlist[i]) < 0) {
 			errstr(_("Error while releasing file on %s\n"),
 				hlist[i]->qh_quotadev);
-	return 0;
+			ret = -1;
+		}
+	return ret;
 }
 
 /*
