@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.36 2004/01/05 09:34:42 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.37 2004/01/06 12:19:31 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -401,7 +401,7 @@ static int ext2_direct_scan(char *device)
 
 	while ((long)i_num) {
 		if (inode.i_links_count) {
-			debug(FL_DEBUG, _("Found i_num %ld, %ld\n"), (long)i_num, (long)inode.i_blocks);
+			debug(FL_DEBUG, _("Found i_num %ld, blocks %ld\n"), (long)i_num, (long)inode.i_blocks);
 			if (flags & FL_VERBOSE)
 				blit();
 			uid = inode.i_uid | (inode.i_uid_high << 16);
@@ -438,7 +438,7 @@ static int ext2_direct_scan(char *device)
  */
 static int scan_dir(char *pathname)
 {
-	struct dirs *dir_stack = { (struct dirs *)NULL };
+	struct dirs *dir_stack = NULL;
 	struct dirs *new_dir;
 	struct dirent *de;
 	struct stat st;
@@ -447,7 +447,7 @@ static int scan_dir(char *pathname)
 	int ret;
 
 	if (lstat(pathname, &st) == -1) {
-		errstr(_("Cannot stat root directory %s: %s\n"), pathname, strerror(errno));
+		errstr(_("Cannot stat directory %s: %s\n"), pathname, strerror(errno));
 		goto out;
 	}
 	qspace = getqsize(pathname, &st);
@@ -474,14 +474,6 @@ static int scan_dir(char *pathname)
 			goto out;
 		}
 
-		qspace = getqsize(de->d_name, &st);
-		if (ucheck)
-			add_to_quota(USRQUOTA, st.st_ino, st.st_uid, st.st_gid, st.st_mode,
-				     st.st_nlink, qspace, !S_ISDIR(st.st_mode));
-		if (gcheck)
-			add_to_quota(GRPQUOTA, st.st_ino, st.st_uid, st.st_gid, st.st_mode,
-				     st.st_nlink, qspace, !S_ISDIR(st.st_mode));
-
 		if (S_ISDIR(st.st_mode)) {
 			if (st.st_dev != cur_dev)
 				continue;
@@ -497,8 +489,15 @@ static int scan_dir(char *pathname)
 			dir_stack = new_dir;
 		}
 		else {
-			debug(FL_DEBUG, _("\tAdding %s size %d ino %d links %d\n"), de->d_name,
-			      st.st_size, st.st_ino, st.st_nlink);
+			qspace = getqsize(de->d_name, &st);
+			if (ucheck)
+				add_to_quota(USRQUOTA, st.st_ino, st.st_uid, st.st_gid, st.st_mode,
+					     st.st_nlink, qspace, 1);
+			if (gcheck)
+				add_to_quota(GRPQUOTA, st.st_ino, st.st_uid, st.st_gid, st.st_mode,
+					     st.st_nlink, qspace, 1);
+			debug(FL_DEBUG, _("\tAdding %s size %Ld ino %d links %d uid %u gid %u\n"), de->d_name,
+			      (long long)st.st_size, (int)st.st_ino, (int)st.st_nlink, (int)st.st_uid, (int)st.st_gid);
 			files_done++;
 		}
 	}

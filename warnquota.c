@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.16 2004/01/05 09:34:42 jkar8572 Exp $
+ * Version: $Id: warnquota.c,v 1.17 2004/01/06 12:19:31 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -301,8 +301,9 @@ int mail_user(struct offenderlist *offender, struct configparams *config)
 	char timebuf[MAXTIMELEN];
 	char numbuf[3][MAXNUMLEN];
 	struct util_dqblk *dqb;
-	char *to = NULL, searchbuf[256];
+	char *to = NULL;
 #ifdef USE_LDAP_MAIL_LOOKUP
+       	char searchbuf[256];
 	LDAPMessage *result, *entry;
 	BerElement     *ber = NULL;
 	struct berval  **bvals = NULL;
@@ -863,4 +864,5 @@ int main(int argc, char **argv)
 	warn_quota();
 
 	wc_exit(0);
+	return 0;
 }
