@@ -3,6 +3,7 @@ Changes in quota-tools form 3.10 to 3.11
 * added -q flag to quot(8) to avoid sorting of names (Andre Nathan)
 * added #include <paths.h> in quotasys.c to avoid compile problems on some systems (Jan Kara)
 * changed detection of filesystem to be able to parse comma separated list (Jan Kara)
+* fixed bug in quotacheck(8) which counted wrongly files larger than 2GB (Posta Zoltan)
 
 Changes in quota-tools from 3.09 to 3.10
 * alternative port can be specified to rpc.rquotad by -p option (Jan Kara)
