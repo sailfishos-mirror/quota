@@ -12,7 +12,7 @@
  *          changes for new utilities by Jan Kara <jack@suse.cz>
  *          patches by Jani Jaakkola <jjaakkol@cs.helsinki.fi>
  *
- * Version: $Id: rquota_svc.c,v 1.15 2003/09/25 14:51:59 jkar8572 Exp $
+ * Version: $Id: rquota_svc.c,v 1.16 2003/12/02 13:04:20 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -41,8 +41,8 @@
 #define SIG_PF void(*)(int)
 #endif
 
-extern int svctcp_socket (u_long __number, int __reuse);
-extern int svcudp_socket (u_long __number, int __reuse);
+extern int svctcp_socket (u_long __number, int __port, int __reuse);
+extern int svcudp_socket (u_long __number, int __port, int __reuse);
 
 #include "pot.h"
 #include "common.h"
@@ -56,9 +56,12 @@ char *progname;
  */
 struct authunix_parms *unix_cred;
 
-int disable_setquota=1;            /* Disables setquota rpc */
-int disable_daemon=0;              /* Disable daemon() call */
-int enable_autofs=0;               /* Don't ignore autofs mountpoins */
+#define FL_SETQUOTA 1	/* Enable setquota rpc */
+#define FL_NODAEMON 2	/* Disable daemon() call */
+#define FL_AUTOFS   4	/* Don't ignore autofs mountpoints */
+
+int flags;			/* Options specified on command line */ 
+int port;			/* Port to use (0 for default one) */
 
 static struct option options[]= {
 	{ "version", 0, NULL, 'V' },
@@ -69,6 +72,7 @@ static struct option options[]= {
 	{ "setquota", 0, NULL, 'S' },
 #endif
 	{ "autofs", 0, NULL, 'I'},
+	{ "port", 1, NULL, 'p' },
 	{ NULL, 0, NULL , 0 }
 };
 
@@ -81,20 +85,22 @@ static void show_help(void)
  -F --foreground   starts the quota service in foreground\n\
  -s --no-setquota  disables remote calls to setquota (default)\n\
  -S --setquota     enables remote calls to setquota\n\
- -I --autofs       do not ignore mountpoints mounted by automounter\n"), progname);
+ -I --autofs       do not ignore mountpoints mounted by automounter\n\
+ -p --port <port>  listen on given port\n"), progname);
 
 #else
 	errstr(_("Usage: %s [options]\nOptions are:\n\
  -h --help         shows this text\n\
  -V --version      shows version information\n\
  -F --foreground   starts the quota service in foreground\n\
- -I --autofs       do not ignore mountpoints mounted by automounter\n"), progname);
+ -I --autofs       do not ignore mountpoints mounted by automounter\n\
+ -p --port <port>  listen on given port\n"), progname);
 #endif
 }
 
 static void parse_options(int argc, char **argv)
 {
-	char ostr[128]="";
+	char ostr[128]="", *endptr;
 	int i,opt;
 	int j=0;
 
@@ -104,14 +110,34 @@ static void parse_options(int argc, char **argv)
 	}
 	while ((opt=getopt_long(argc, argv, ostr, options, NULL))>=0) {
 		switch(opt) {
-			case 'V': version(); exit(0);
-			case 'h': show_help(); exit(0);
-			case 'F': disable_daemon = 1; break;
+			case 'V': 
+				version();
+				exit(0);
+			case 'h':
+				show_help();
+				exit(0);
+			case 'F':
+				flags |= FL_NODAEMON;
+				break;
 #ifdef RPC_SETQUOTA
-			case 's': disable_setquota = 1; break;
-			case 'S': disable_setquota = 0; break;
+			case 's':
+				flags &= ~FL_SETQUOTA;
+				break;
+			case 'S':	
+				flags |= FL_SETQUOTA;
+				break;
 #endif
-			case 'I': enable_autofs = 1; break;
+			case 'I':
+				flags |= FL_AUTOFS;
+				break;
+			case 'p': 
+				port = strtol(optarg, &endptr, 0);
+				if (*endptr || port <= 0) {
+					errstr(_("Illegal port number: %s\n"), optarg);
+					show_help();
+					exit(1);
+				}
+				break;
 			default:
 				errstr(_("Unknown option '%c'.\n"), opt);
 				show_help();
@@ -136,7 +162,7 @@ int good_client(struct sockaddr_in *addr, ulong rq_proc)
 	if (rq_proc==RQUOTAPROC_SETQUOTA ||
 	     rq_proc==RQUOTAPROC_SETACTIVEQUOTA) {
 		/* If setquota is disabled, fail always */
-		if (disable_setquota) {
+		if (!(flags & FL_SETQUOTA)) {
 			errstr(_("host %s attempted to call setquota when disabled\n"),
 			       remote);
 
@@ -392,7 +418,7 @@ int main(int argc, char **argv)
 	sigaction(SIGINT, &sa, NULL);
 	sigaction(SIGTERM, &sa, NULL);
 
-	sock = svcudp_socket(RQUOTAPROG, 1);
+	sock = svcudp_socket(RQUOTAPROG, port, 1);
 	transp = svcudp_create(sock == -1 ? RPC_ANYSOCK : sock);
 	if (transp == NULL) {
 		errstr(_("cannot create udp service.\n"));
@@ -407,7 +433,7 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	sock = svctcp_socket(RQUOTAPROG, 1);
+	sock = svctcp_socket(RQUOTAPROG, port, 1);
 	transp = svctcp_create(sock == -1 ? RPC_ANYSOCK : sock, 0, 0);
 	if (transp == NULL) {
 		errstr(_("cannot create tcp service.\n"));
@@ -422,7 +448,7 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	if (!disable_daemon) {
+	if (!(flags & FL_NODAEMON)) {
 		use_syslog();
 		daemon(0, 0);
 	}

@@ -27,7 +27,7 @@
 #include "common.h"
 #include "pot.h"
 
-static int svc_socket (u_long number, int type, int protocol, int reuse)
+static int svc_socket (u_long number, int type, int protocol, int port, int reuse)
 {
 	struct sockaddr_in addr;
 	char rpcdata [1024], servdata [1024];
@@ -52,26 +52,30 @@ static int svc_socket (u_long number, int type, int protocol, int reuse)
 	memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
 
-	ret = getrpcbynumber_r(number, &rpcbuf, rpcdata, sizeof(rpcdata), &rpcp);
-	if (ret == 0 && rpcp != NULL) {
-		/* First try name */
-		ret = getservbyname_r(rpcp->r_name, proto, &servbuf, servdata,
-		                       sizeof servdata, &servp);
-		if ((ret != 0 || servp == NULL) && rpcp->r_aliases) {
-			const char **a;
+	if (!port) {
+		ret = getrpcbynumber_r(number, &rpcbuf, rpcdata, sizeof(rpcdata), &rpcp);
+		if (ret == 0 && rpcp != NULL) {
+			/* First try name */
+			ret = getservbyname_r(rpcp->r_name, proto, &servbuf, servdata,
+			                       sizeof servdata, &servp);
+			if ((ret != 0 || servp == NULL) && rpcp->r_aliases) {
+				const char **a;
 
-			/* Then we try aliases.	*/
-			for (a = (const char **) rpcp->r_aliases; *a != NULL; a++) {
-				ret = getservbyname_r(*a, proto, &servbuf, servdata,
-						 sizeof servdata, &servp);
-				if (ret == 0 && servp != NULL)
-					break;
+				/* Then we try aliases.	*/
+				for (a = (const char **) rpcp->r_aliases; *a != NULL; a++) {
+					ret = getservbyname_r(*a, proto, &servbuf, servdata,
+							 sizeof servdata, &servp);
+					if (ret == 0 && servp != NULL)
+						break;
+				}
 			}
+			if (ret == 0 && servp != NULL)
+				port = servp->s_port;
 		}
 	}
 
-	if (ret == 0 && servp != NULL) {
-		addr.sin_port = servp->s_port;
+	if (port) {
+		addr.sin_port = port;
 		if (bind(sock, (struct sockaddr *) &addr, sizeof(struct sockaddr_in)) < 0) {
 			errstr(_("Cannot bind to given address: %s\n"), strerror(errno));
 			close (sock);
@@ -90,15 +94,15 @@ static int svc_socket (u_long number, int type, int protocol, int reuse)
 /*
  * Create and bind a TCP socket based on program number
  */
-int svctcp_socket(u_long number, int reuse)
+int svctcp_socket(u_long number, int port, int reuse)
 {
-	return svc_socket(number, SOCK_STREAM, IPPROTO_TCP, reuse);
+	return svc_socket(number, SOCK_STREAM, IPPROTO_TCP, port, reuse);
 }
 
 /*
  * Create and bind a UDP socket based on program number
  */
-int svcudp_socket(u_long number, int reuse)
+int svcudp_socket(u_long number, int port, int reuse)
 {
-	return svc_socket(number, SOCK_DGRAM, IPPROTO_UDP, reuse);
+	return svc_socket(number, SOCK_DGRAM, IPPROTO_UDP, port, reuse);
 }

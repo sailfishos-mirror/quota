@@ -9,7 +9,7 @@
  *
  *          This part does the lookup of the info.
  *
- * Version: $Id: rquota_server.c,v 1.13 2003/10/18 17:32:49 jkar8572 Exp $
+ * Version: $Id: rquota_server.c,v 1.14 2003/12/02 13:04:20 jkar8572 Exp $
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
@@ -49,7 +49,9 @@
 int allow_severity = LOG_INFO;
 int deny_severity = LOG_WARNING;
 
-extern int enable_autofs;
+/* Options from rquota_svc.c */
+#define FL_AUTOFS 4
+extern int flags;
 
 /*
  * Global unix authentication credentials.
@@ -160,7 +162,7 @@ setquota_rslt *setquotainfo(int flags, caddr_t * argp, struct svc_req *rqstp)
 	result.status = Q_NOQUOTA;
 	result.setquota_rslt_u.sqr_rquota.rq_bsize = RPC_DQBLK_SIZE;
 
-	if (init_mounts_scan(1, &pathname, MS_QUIET | MS_NO_MNTPOINT | (enable_autofs ? 0 : MS_NO_AUTOFS)) < 0)
+	if (init_mounts_scan(1, &pathname, MS_QUIET | MS_NO_MNTPOINT | ((flags & FL_AUTOFS) ? 0 : MS_NO_AUTOFS)) < 0)
 		goto out;
 	if (!(mnt = get_next_mount())) {
 		end_mounts_scan();
@@ -244,7 +246,7 @@ getquota_rslt *getquotainfo(int flags, caddr_t * argp, struct svc_req * rqstp)
 	result.status = Q_NOQUOTA;
 	result.getquota_rslt_u.gqr_rquota.rq_bsize = RPC_DQBLK_SIZE;
 
-	if (init_mounts_scan(1, &pathname, MS_QUIET | MS_NO_MNTPOINT | (enable_autofs ? 0 : MS_NO_AUTOFS)) < 0)
+	if (init_mounts_scan(1, &pathname, MS_QUIET | MS_NO_MNTPOINT | ((flags & FL_AUTOFS) ? 0 : MS_NO_AUTOFS)) < 0)
 		goto out;
 	if (!(mnt = get_next_mount())) {
 		end_mounts_scan();

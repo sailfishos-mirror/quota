@@ -4,7 +4,9 @@ rquotad, rpc.rquotad \- remote quota server
 .SH SYNOPSIS
 .B rpc.rquotad
 [
-.B \-sSF
+.B \-sSFI
+] [
+.B \-p \f2port\f1
 ]
 .SH DESCRIPTION
 .LP
@@ -62,6 +64,10 @@ Run daemon in foreground (may be useful for debugging purposes).
 .TP
 .B \-I, \-\-autofs
 Do not ignore autofs mountpoints.
+.TP
+.B \-p \f2port\f3, \-\-port \f2port\f1
+Listen on alternate port
+.IR port.
 
 .SH FILES
 .PD 0
