@@ -396,7 +396,7 @@ struct quota_handle **create_handle_list(int count, char **mntpoints, int type, 
 
 	if (init_mounts_scan(count, mntpoints) < 0)
 		die(2, _("Can't initialize mountpoint scan.\n"));
-	while ((mnt = get_next_mount())) {
+	while ((mnt = get_next_mount(0))) {
 		if (strcmp(mnt->mnt_type, MNTTYPE_NFS)) {	/* No NFS? */
 			if (gotmnt+1 == MAXMNTPOINTS)
 				die(2, _("Too many mountpoints with quota. Contact %s\n"), MY_EMAIL);
@@ -635,6 +635,7 @@ static int cache_mnt_table(void)
 			}
 	}
 	mnt_entries = smalloc(sizeof(struct mount_entry) * ALLOC_ENTRIES_NUM);
+	mnt_entries_cnt = 0;
 	allocated += ALLOC_ENTRIES_NUM;
 	while ((mnt = getmntent(mntf))) {
 		const char *devname;
@@ -753,7 +754,11 @@ int init_mounts_scan(int dcnt, char **dirs)
 {
 	if (cache_mnt_table() < 0)
 		return -1;
-	return process_dirs(dcnt, dirs);
+	if (process_dirs(dcnt, dirs) < 0) {
+		end_mounts_scan();
+		return -1;
+	}
+	return 0;
 }
 
 /* Find next usable mountpoint when scanning all mountpoints */
@@ -776,7 +781,7 @@ static int find_next_entry_all(int *pos)
 }
 
 /* Find next usable mountpoint when scanning selected mountpoints */
-static int find_next_entry_sel(int *pos)
+static int find_next_entry_sel(int *pos, int flags)
 {
 	int i;
 	struct searched_dir *sd;
@@ -787,7 +792,8 @@ restart:
 	sd = check_dirs + act_checked;
 	for (i = 0; i < mnt_entries_cnt; i++) {
 		if (sd->sd_dir) {
-			if (sd->sd_dev == mnt_entries[i].me_dev && sd->sd_ino == mnt_entries[i].me_ino)
+			if (sd->sd_dev == mnt_entries[i].me_dev &&
+			    (flags & MS_NO_MNTPOINT || sd->sd_ino == mnt_entries[i].me_ino))
 				break;
 		}
 		else
@@ -805,7 +811,7 @@ restart:
 /*
  *	Return next directory from the list
  */
-struct mntent *get_next_mount(void)
+struct mntent *get_next_mount(int flags)
 {
 	static struct mntent mnt;
 	int mntpos;
@@ -816,7 +822,7 @@ struct mntent *get_next_mount(void)
 		mnt.mnt_dir = (char *)mnt_entries[mntpos].me_dir;
 	}
 	else {
-		if (!find_next_entry_sel(&mntpos))
+		if (!find_next_entry_sel(&mntpos, flags))
 			return NULL;
 		mnt.mnt_dir = (char *)check_dirs[act_checked].sd_name;
 	}

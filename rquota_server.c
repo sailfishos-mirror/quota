@@ -9,7 +9,7 @@
  *
  *          This part does the lookup of the info.
  *
- * Version: $Id: rquota_server.c,v 1.9 2001/09/27 21:34:58 jkar8572 Exp $
+ * Version: $Id: rquota_server.c,v 1.10 2001/11/26 18:18:25 jkar8572 Exp $
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
@@ -160,7 +160,7 @@ setquota_rslt *setquotainfo(int flags, caddr_t * argp, struct svc_req *rqstp)
 
 	if (init_mounts_scan(1, &pathname) < 0)
 		goto out;
-	if (!(mnt = get_next_mount())) {
+	if (!(mnt = get_next_mount(MS_NO_MNTPOINT))) {
 		end_mounts_scan();
 		goto out;
 	}
@@ -244,7 +244,7 @@ getquota_rslt *getquotainfo(int flags, caddr_t * argp, struct svc_req * rqstp)
 
 	if (init_mounts_scan(1, &pathname) < 0)
 		goto out;
-	if (!(mnt = get_next_mount())) {
+	if (!(mnt = get_next_mount(MS_NO_MNTPOINT))) {
 		end_mounts_scan();
 		goto out;
 	}

@@ -38,6 +38,8 @@ IOOBJS += $(RPCCLNTOBJS)
 LIBOBJS = bylabel.o common.o quotasys.o pot.o $(IOOBJS)
 LIBOBJS += @LIBMALLOC@
 
+.PHONY: all clean clobber realclean pot mo inst_mo
+
 .%.d: %.c
 	set -e; $(CC) -MM -MG $(CPPFLAGS) $< | \
 		sed 's/\($*\)\.o[ :]*/\1.o $@ : /g' > $@; \

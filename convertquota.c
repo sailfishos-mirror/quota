@@ -350,7 +350,7 @@ int main(int argc, char **argv)
 	parse_options(argc, argv);
 	if (init_mounts_scan(1, &mntpoint) < 0)
 		return 1;
-	if (!(mnt = get_next_mount())) {
+	if (!(mnt = get_next_mount(0))) {
 		end_mounts_scan();
 		return 1;
 	}

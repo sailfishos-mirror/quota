@@ -131,7 +131,7 @@ static void mounttable(void)
 	int doit = 0;
 	struct mntent *mntp;
 
-	while ((mntp = get_next_mount())) {
+	while ((mntp = get_next_mount(0))) {
 		/* Currently, only XFS is implemented... */
 		if (strcmp(mntp->mnt_type, MNTTYPE_XFS) == 0) {
 			checkXFS(mntp->mnt_fsname, mntp->mnt_dir);
