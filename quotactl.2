@@ -4,7 +4,7 @@ quotactl \- manipulate disk quotas
 .SH SYNOPSIS
 .nf
 .B #include <linux/quota.h>
-.B #include <linux/xqm.h>
+.B #include <xfs/xqm.h>
 .LP
 .B long quotactl(int cmd, char \(**special, qid_t id, caddr_t addr)
 .fi
@@ -166,7 +166,7 @@ Therefore, XFS expects the addr to be a pointer to an unsigned int
 that contains either the flags XFS_QUOTA_UDQ_ACCT and/or
 XFS_QUOTA_UDQ_ENFD (for user quota), or XFS_QUOTA_GDQ_ACCT and/or
 XFS_QUOTA_GDQ_ENFD (for group quota), as defined in
-.BR <linux/xqm.h> .
+.BR <xfs/xqm.h> .
 This call is restricted to the superuser.
 .TP
 .SB Q_XQUOTAOFF
@@ -183,7 +183,7 @@ Get disk quota limits and current usage for user
 is a pointer to a
 .B fs_disk_quota
 structure (defined in
-.BR <linux/xqm.h> ).
+.BR <xfs/xqm.h> ).
 Only the superuser may get the quotas of a user other than himself.
 .TP
 .SB Q_XSETQLIM
@@ -193,7 +193,7 @@ Set disk quota limits for user
 is a pointer to a
 .B fs_disk_quota
 structure (defined in
-.BR <linux/xqm.h> ).
+.BR <xfs/xqm.h> ).
 This call is restricted to the superuser.
 .TP
 .SB Q_XGETQSTAT

@@ -328,7 +328,6 @@ static int hasxfsquota(struct mntent *mnt, int type)
 	int ret = 0;
 	u_int16_t sbflags;
 	struct xfs_mem_dqinfo info;
-	int nonrootfs = strcmp(mnt->mnt_dir, "/");
 	const char *dev = get_device_name(mnt->mnt_fsname);
 
 	if (!dev)
@@ -341,12 +340,19 @@ static int hasxfsquota(struct mntent *mnt, int type)
 			ret = 1;
 		else if (type == GRPQUOTA && (info.qs_flags & XFS_QUOTA_GDQ_ACCT))
 			ret = 1;
-		else if (nonrootfs)
+#ifdef XFS_ROOTHACK
+		/*
+		 * Old XFS filesystems (up to XFS 1.2 / Linux 2.5.47) had a
+		 * hack to allow enabling quota on the root filesystem without
+		 * having to specify it at mount time.
+		 */
+		else if (strcmp(mnt->mnt_dir, "/"))
 			ret = 0;
 		else if (type == USRQUOTA && (sbflags & XFS_QUOTA_UDQ_ACCT))
 			ret = 1;
 		else if (type == GRPQUOTA && (sbflags & XFS_QUOTA_GDQ_ACCT))
 			ret = 1;
+#endif /* XFS_ROOTHACK */
 	}
 	free((char *)dev);
 	return ret;

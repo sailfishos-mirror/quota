@@ -1,3 +1,8 @@
+Changes in quota-tools from 3.07 to 3.08
+* Fixed bug in convertquota(8) when quota was turned on during converting (Jan Kara)
+* Add support for XFS filesystems without root special casing (Christoph Hellwig)
+* XFS documentation updates (Nathan Scott)
+
 Changes in quota-tools from 3.06 to 3.07
 * Added creation of bin and sbin dir during make install; removed hardcoded 
   /sbin directory for some utilities. (Jan Kara)

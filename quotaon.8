@@ -60,9 +60,8 @@ information as filesystem metadata and uses journaling to provide
 a higher level guarantee of consistency.
 There are two components to the XFS disk quota system:
 accounting and limit enforcement.
-Except in the case of the root filesystem, XFS filesystems require
-that quota accounting be turned on at mount time.
-It is possible to enable and disable limit enforcement on any XFS
+XFS filesystems require that quota accounting be turned on at mount time.
+It is possible to enable and disable limit enforcement on an XFS
 filesystem after quota accounting is already turned on.
 The default is to turn on both accounting and enforcement.
 .PP
@@ -147,37 +146,30 @@ Switch off limit enforcement for XFS filesystems (perform
 quota accounting only).
 This option is only applicable to XFS, and is silently
 ignored for other filesystem types.
-.LP
-.SH "XFS EXAMPLES"
-.TP 0
-.B "Turning on quotas on a non-root XFS filesystem"
-Use
+.SH "NOTES ON XFS FILESYSTEMS"
+To enable quotas on an XFS filesystem, use
 .IR mount (8)
 or
 .B /etc/fstab
-option quota to enable both accounting and limit enforcement.
+quota option to enable both accounting and limit enforcement.
 .B quotaon
 utility cannot be used for this purpose.
-.TP
-.B "Turning on quotas on an XFS root filesystem"
-Use
-.BR "quotaon -v /" ,
-and
-.IR reboot (8).
-This procedure will enable both accounting and limit enforcement.
-.TP
-.B "Turning off quota limit enforcement on any XFS filesystem"
-Make sure that quota accounting and enforcement are both turned on using
+.PP
+Turning on quotas on an XFS root filesystem requires the quota mount
+options be passed into the kernel at boot time through the Linux
+.B rootflags
+boot option.
+.PP
+To turn off quota limit enforcement on any XFS filesystem, first make
+sure that quota accounting and enforcement are both turned on using
 .BR "repquota -s" .
-Use
+Then, use
 .B "quotaoff -vo"
 to disable limit enforcement.
 This may be done while the filesystem is mounted.
-.TP
-.BR "Turning on quota limit enforcement on any XFS filesystem"
-Make sure that quota accounting is turned on using
-.BR "repquota -s" .
-Use
+.PP
+Turning on quota limit enforcement on an XFS filesystem is
+achieved using
 .BR "quotaon -v" .
 This may be done while the filesystem is mounted.
 .SH FILES

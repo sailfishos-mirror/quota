@@ -21,7 +21,7 @@
  *	Ensure we don't attempt to go into a dodgey state.
  */
 
-static int xfs_state_check(int qcmd, int type, int flags, char *dev, int root, int *xopts)
+static int xfs_state_check(int qcmd, int type, int flags, char *dev, int roothack, int *xopts)
 {
 	struct xfs_mem_dqinfo info;
 	int state;
@@ -56,7 +56,7 @@ static int xfs_state_check(int qcmd, int type, int flags, char *dev, int root, i
 		    case Q_XFS_QUOTARM:
 			    return 1;
 		    case Q_XFS_QUOTAON:
-			    if (root) {
+			    if (roothack) {
 				    *xopts |= (type == USRQUOTA) ?
 					    XFS_QUOTA_UDQ_ACCT : XFS_QUOTA_GDQ_ACCT;
 				    printf(_("Enabling %s quota on root filesystem"
@@ -78,7 +78,7 @@ static int xfs_state_check(int qcmd, int type, int flags, char *dev, int root, i
 				    type2name(type), dev);
 			    return -1;
 		    case Q_XFS_QUOTAON:
-			    if (root) {
+			    if (roothack) {
 				    *xopts |= (type == USRQUOTA) ?
 					    XFS_QUOTA_UDQ_ACCT : XFS_QUOTA_GDQ_ACCT;
 				    printf(_("Enabling %s quota on root filesystem"
@@ -119,13 +119,13 @@ static int xfs_state_check(int qcmd, int type, int flags, char *dev, int root, i
 	return -1;
 }
 
-static int xfs_onoff(char *dev, int type, int flags, int rootfs, int *xopts)
+static int xfs_onoff(char *dev, int type, int flags, int roothack, int *xopts)
 {
 	int qoff, qcmd, check;
 
 	qoff = (flags & STATEFLAG_OFF);
 	qcmd = qoff ? Q_XFS_QUOTAOFF : Q_XFS_QUOTAON;
-	check = xfs_state_check(qcmd, type, flags, dev, rootfs, xopts);
+	check = xfs_state_check(qcmd, type, flags, dev, roothack, xopts);
 	if (check != 1)
 		return (check < 0);
 
@@ -140,12 +140,12 @@ static int xfs_onoff(char *dev, int type, int flags, int rootfs, int *xopts)
 	return 0;
 }
 
-static int xfs_delete(char *dev, int type, int flags, int rootfs, int *xopts)
+static int xfs_delete(char *dev, int type, int flags, int roothack, int *xopts)
 {
 	int qcmd, check;
 
 	qcmd = Q_XFS_QUOTARM;
-	check = xfs_state_check(qcmd, type, flags, dev, rootfs, xopts);
+	check = xfs_state_check(qcmd, type, flags, dev, roothack, xopts);
 	if (check != 1)
 		return (check < 0);
 
@@ -170,32 +170,51 @@ int xfs_newstate(struct mntent *mnt, int type, char *xarg, int flags)
 {
 	int err = 1;
 	int xopts = 0;
-	int rootfs = !strcmp(mnt->mnt_dir, "/");
+	int roothack = 0;
 	const char *dev = get_device_name(mnt->mnt_fsname);
 
 	if (!dev)
 		return err;
 
+#ifdef XFS_ROOTHACK
+	/*
+	 * Old XFS filesystems (up to XFS 1.2 / Linux 2.5.47) had a
+	 * hack to allow enabling quota on the root filesystem without
+	 * having to specify it at mount time.
+	 */
+	if ((strcmp(mnt->mnt_dir, "/") == 0)) {
+		struct xfs_mem_dqinfo info;
+		u_int16_t sbflags = 0;
+
+		if (!quotactl(QCMD(Q_XFS_GETQSTAT, type), dev, 0, (void *)&info))
+			sbflags = (info.qs_flags & 0xff00) >> 8;
+
+		if ((type == USRQUOTA && (sbflags & XFS_QUOTA_UDQ_ACCT)) &&
+		    (type == GRPQUOTA && (sbflags & XFS_QUOTA_GDQ_ACCT)))
+			roothack = 1;
+	}
+#endif /* XFS_ROOTHACK */
+
 	if (xarg == NULL) {	/* both acct & enfd on/off */
 		xopts |= (type == USRQUOTA) ?
 			(XFS_QUOTA_UDQ_ACCT | XFS_QUOTA_UDQ_ENFD) :
 			(XFS_QUOTA_GDQ_ACCT | XFS_QUOTA_GDQ_ENFD);
-		err = xfs_onoff((char *)dev, type, flags, rootfs, &xopts);
+		err = xfs_onoff((char *)dev, type, flags, roothack, &xopts);
 	}
 	else if (strcmp(xarg, "account") == 0) {
 		/* only useful if we want root accounting only */
-		if (!rootfs || !(flags & STATEFLAG_ON))
+		if (!roothack || !(flags & STATEFLAG_ON))
 			goto done;
 		xopts |= (type == USRQUOTA) ? XFS_QUOTA_UDQ_ACCT : XFS_QUOTA_GDQ_ACCT;
-		err = xfs_onoff((char *)dev, type, flags, rootfs, &xopts);
+		err = xfs_onoff((char *)dev, type, flags, roothack, &xopts);
 	}
 	else if (strcmp(xarg, "enforce") == 0) {
 		xopts |= (type == USRQUOTA) ? XFS_QUOTA_UDQ_ENFD : XFS_QUOTA_GDQ_ENFD;
-		err = xfs_onoff((char *)dev, type, flags, rootfs, &xopts);
+		err = xfs_onoff((char *)dev, type, flags, roothack, &xopts);
 	}
 	else if (strcmp(xarg, "delete") == 0) {
 		xopts |= (type == USRQUOTA) ? XFS_USER_QUOTA : XFS_GROUP_QUOTA;
-		err = xfs_delete((char *)dev, type, flags, rootfs, &xopts);
+		err = xfs_delete((char *)dev, type, flags, roothack, &xopts);
 	}
 	else
 		die(1, _("Invalid argument \"%s\"\n"), xarg);
