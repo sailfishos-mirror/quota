@@ -10,7 +10,7 @@
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: rquota_svc.c,v 1.5 2001/08/22 21:17:56 jkar8572 Exp $
+ * Version: $Id: rquota_svc.c,v 1.6 2001/09/17 11:48:40 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -48,9 +48,6 @@ char *progname;
  * Global authentication credentials.
  */
 struct authunix_parms *unix_cred;
-
-char **argvargs;
-int argcargs;
 
 #ifdef HOSTS_ACCESS
 int good_client(struct sockaddr_in *addr)
@@ -263,12 +260,12 @@ static void rquotaprog_2(struct svc_req *rqstp, register SVCXPRT * transp)
 int main(int argc, char **argv)
 {
 	register SVCXPRT *transp;
-
-	argcargs = argc;
-	argvargs = argv;
+	int background = 1;
 
 	gettexton();
 	progname = basename(argv[0]);
+	if (argc == 2 && (!strcmp(argv[1], "--foreground") || !strcmp(argv[1], "-f")))
+		background = 0;
 
 	warn_new_kernel(-1);
 
@@ -303,7 +300,8 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	daemon(1, 1);
+	if (background)
+		daemon(0, 0);
 	svc_run();
 	errstr(_("svc_run returned\n"));
 	exit(1);

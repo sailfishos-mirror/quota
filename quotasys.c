@@ -688,7 +688,7 @@ static int process_dirs(int dcnt, char **dirs)
 					errstr(_("Can't find mountpoint for device %s\n"), dirs[i]);
 					continue;
 				}
-				strcpy(mntpointbuf, mnt_entries[mentry].me_dir);
+				sstrncpy(mntpointbuf, mnt_entries[mentry].me_dir, PATH_MAX-1);
 			}
 			else {
 				errstr(_("Specified path %s is not directory nor device.\n"), dirs[i]);
@@ -699,6 +699,7 @@ static int process_dirs(int dcnt, char **dirs)
 		}
 		if (!check_dirs_cnt) {
 			errstr(_("No correct mountpoint specified.\n"));
+			free(check_dirs);
 			return -1;
 		}
 	}
