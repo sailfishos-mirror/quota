@@ -34,12 +34,13 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quota.c,v 1.2 2001/04/04 10:42:12 jkar8572 Exp $"
+#ident "$Id: quota.c,v 1.3 2001/04/25 12:52:19 jkar8572 Exp $"
 
 /*
  * Disk quota reporting program.
  */
 #include <sys/types.h>
+#include <sys/param.h>
 #include <getopt.h>
 #include <stdio.h>
 #include <pwd.h>
