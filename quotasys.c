@@ -197,6 +197,38 @@ void time2str(time_t seconds, char *buf, int flags)
 }
 
 /*
+ *	Check for XFS filesystem with quota accounting enabled
+ */
+static int hasxfsquota(struct mntent *mnt, int type)
+{
+	int ret = 0;
+	u_int16_t sbflags;
+	struct xfs_mem_dqinfo info;
+	int nonrootfs = strcmp(mnt->mnt_dir, "/");
+	const char *dev = get_device_name(mnt->mnt_fsname);
+
+	if (!dev)
+		return ret;
+
+	memset(&info, 0, sizeof(struct xfs_mem_dqinfo));
+	if (!quotactl(QCMD(Q_XFS_GETQSTAT, type), dev, 0, (void *)&info)) {
+		sbflags = (info.qs_flags & 0xff00) >> 8;
+		if (type == USRQUOTA && (info.qs_flags & XFS_QUOTA_UDQ_ACCT))
+			ret = 1;
+		else if (type == GRPQUOTA && (info.qs_flags & XFS_QUOTA_GDQ_ACCT))
+			ret = 1;
+		else if (nonrootfs)
+			ret = 0;
+		else if (type == USRQUOTA && (sbflags & XFS_QUOTA_UDQ_ACCT))
+			ret = 1;
+		else if (type == GRPQUOTA && (sbflags & XFS_QUOTA_GDQ_ACCT))
+			ret = 1;
+	}
+	free((char *)dev);
+	return ret;
+}
+
+/*
  *	Check to see if a particular quota is to be enabled (filesystem mounted with proper option)
  */
 int hasquota(struct mntent *mnt, int type)
@@ -206,14 +238,14 @@ int hasquota(struct mntent *mnt, int type)
 	if (!CORRECT_FSTYPE(mnt->mnt_type))
 		return 0;
 	
-	option = hasmntopt(mnt, MNTOPT_USRQUOTA);
-	if ((type == USRQUOTA) && (option || !strcmp(mnt->mnt_type, MNTTYPE_XFS)))
+	if (!strcmp(mnt->mnt_type, MNTTYPE_XFS))
+		return hasxfsquota(mnt, type);
+
+	if ((type == USRQUOTA) && (option = hasmntopt(mnt, MNTOPT_USRQUOTA)))
 		return 1;
-	option = hasmntopt(mnt, MNTOPT_GRPQUOTA);
-	if ((type == GRPQUOTA) && (option || !strcmp(mnt->mnt_type, MNTTYPE_XFS)))
+	if ((type == GRPQUOTA) && (option = hasmntopt(mnt, MNTOPT_GRPQUOTA)))
 		return 1;
-	option = hasmntopt(mnt, MNTOPT_QUOTA);
-	if ((type == USRQUOTA) && (option || !strcmp(mnt->mnt_type, MNTTYPE_XFS)))
+	if ((type == USRQUOTA) && (option = hasmntopt(mnt, MNTOPT_QUOTA)))
 		return 1;
 	return 0;
 }
@@ -418,9 +450,9 @@ static int xfs_kern_quota_on(const char *dev, int type)
 	struct xfs_mem_dqinfo info;
 
 	if (!quotactl(QCMD(Q_XFS_GETQSTAT, type), dev, 0, (void *)&info)) {
-		if (type == USRQUOTA && info.qs_flags & XFS_QUOTA_UDQ_ACCT)
+		if (type == USRQUOTA && (info.qs_flags & XFS_QUOTA_UDQ_ACCT))
 			return 1;
-		else if (type == GRPQUOTA && info.qs_flags & XFS_QUOTA_GDQ_ACCT)
+		if (type == GRPQUOTA && (info.qs_flags & XFS_QUOTA_GDQ_ACCT))
 			return 1;
 	}
 	return 0;

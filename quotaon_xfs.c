@@ -122,12 +122,13 @@ static int xfs_state_check(int qcmd, int type, int flags, char *dev, int root, i
 
 static int xfs_onoff(char *dev, int type, int flags, int rootfs, int *xopts)
 {
-	int qoff, qcmd;
+	int qoff, qcmd, check;
 
 	qoff = (flags & STATEFLAG_OFF);
 	qcmd = qoff ? Q_XFS_QUOTAOFF : Q_XFS_QUOTAON;
-	if (xfs_state_check(qcmd, type, flags, dev, rootfs, xopts) < 0)
-		return 1;
+	check = xfs_state_check(qcmd, type, flags, dev, rootfs, xopts);
+	if (check != 1)
+		return (check < 0);
 
 	if (quotactl(QCMD(qcmd, type), dev, 0, (void *)xopts) < 0) {
 		fprintf(stderr, qoff ? "quotaoff: " : "quotaon: ");
