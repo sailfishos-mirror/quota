@@ -619,7 +619,7 @@ static int cache_mnt_table(void)
 	FILE *mntf;
 	struct mntent *mnt;
 	struct stat st;
-	int allocated = 0, i = 0;
+	int allocated = 0, i = 0, flags;
 	dev_t dev = 0;
 	char mntpointbuf[PATH_MAX];
 
@@ -651,6 +651,7 @@ static int cache_mnt_table(void)
 			free((char *)devname);
 			continue;
 		}
+		flags = 0;
 		if (strcmp(mnt->mnt_type, MNTTYPE_NFS)) {
 			if (stat(devname, &st) < 0) {	/* Can't stat mounted device? */
 				errstr(_("Can't stat() mounted device %s: %s\n"), devname, strerror(errno));
@@ -660,16 +661,24 @@ static int cache_mnt_table(void)
 			if (!S_ISBLK(st.st_mode) && !S_ISCHR(st.st_mode)) {	/* Some 'bind' or 'loop' mount? */
 				char *opt;
 				
-				if (hasmntopt(mnt, MNTOPT_BIND))
-					dev = st.st_dev;
+				if (hasmntopt(mnt, MNTOPT_BIND)) {
+					free((char *)devname);
+					continue;	/* We just ignore bind mounts... */
+				}
 				else if ((opt = hasmntopt(mnt, MNTOPT_LOOP))) {
+					char loopdev[PATH_MAX];
+					int i;
+
 					if (!(opt = strchr(opt, '='))) {
 						errstr(_("Can't find device of loopback mount in options for %s. Skipping.\n"), devname);
 						free((char *)devname);
 						continue;
 					}
-					opt++;
-					if (stat(opt, &st) < 0) {	/* Can't stat loopback device? */
+					/* Copy the device name */
+					for (opt++, i = 0; *opt && i < sizeof(loopdev)-1 && *opt != ','; opt++, i++)
+						loopdev[i] = *opt;
+					loopdev[i] = 0;
+					if (stat(loopdev, &st) < 0) {	/* Can't stat loopback device? */
 						errstr(_("Can't stat() loopback device %s: %s\n"), opt, strerror(errno));
 						free((char *)devname);
 						continue;
@@ -680,6 +689,8 @@ static int cache_mnt_table(void)
 						continue;
 					}
 					dev = st.st_rdev;
+					free((char *)devname);
+					devname = sstrdup(loopdev);
 				}
 				else {
 					errstr(_("Device (%s) filesystem is mounted on isn't block or character device nor it's loopback or bind mount. Skipping.\n"), devname);
@@ -721,6 +732,7 @@ static int cache_mnt_table(void)
 			free((char *)devname);	/* We don't need it any more */
 	}
 	endmntent(mntf);
+
 	return 0;
 }
 
