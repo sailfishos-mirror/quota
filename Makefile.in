@@ -54,7 +54,7 @@ clean:
 	-rm -f core *.o .*.d
 
 clobber: clean
-	-rm -f $(PROGS) Makefile config.{status,cache,log}
+	-rm -f $(PROGS) Makefile config.status config.cache config.log
 
 realclean: clobber
 	-rm -f $(RPCSRC) po/*.mo
