@@ -1,500 +1,1342 @@
-# polish translation for LinuxPL.
+# Polish translation for quota.
 # i know that there are many mismatches, please inform me about them
 # Copyright (C) 2000 Free Software Foundation, Inc.
 # PAUL NIEWIADOMSKI <lilo@free.poltronic.net>, 2000.
+# Jakub Bogusz <qboosh@pld.org.pl>, 2003.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 1\n"
-"POT-Creation-Date: 2000-07-19 17:30+0200\n"
-"PO-Revision-Date: 2000-07-17 15:22+0200\n"
+"Project-Id-Version: quota 3.09\n"
+"POT-Creation-Date: 2003-07-12 21:42+0200\n"
+"PO-Revision-Date: 2003-07-12 21:56+0200\n"
 "Last-Translator: PAUL NIEWIADOMSKI <lilo@free.poltronic.net>\n"
-"Language-Team: PL <PL@li.org>\n"
+"Language-Team: Polish <translation-team-pl@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=ISO-8859-2\n"
 "Content-Transfer-Encoding: 8-BIT\n"
 
-#: edquota.c:81 quotaops.c:143 setquota.c:111
+#: bylabel.c:234
 #, c-format
-msgid "%s: no such user\n"
-msgstr "%s: nie ma takiego u¿ytkownika\n"
+msgid "Found an invalid UUID: %s\n"
+msgstr "Znaleziono nieprawid³owy UUID: %s\n"
 
-#: edquota.c:86 quotaops.c:148 setquota.c:116
+#: bylabel.c:254
 #, c-format
-msgid "%s: no such group\n"
-msgstr "%s: nie ma takiej grupy\n"
+msgid "Error checking device name: %s\n"
+msgstr "B³±d podczas sprawdzania nazwy urz±dzenia: %s\n"
 
-#: edquota.c:89 quotaops.c:151 setquota.c:119
+#: common.c:122
 #, c-format
-msgid "%d: unknown quota type\n"
-msgstr "%d: nieznany typ limitu\n"
+msgid "Quota utilities version %s.\n"
+msgstr "Narzêdzia Quota w wersji %s.\n"
 
-#: edquota.c:162
+#: common.c:124
+msgid "Compiled with "
+msgstr "Skompilowano z "
+
+#: common.c:126
+msgid "RPC and EXT2_DIRECT"
+msgstr "RPC i EXT2_DIRECT"
+
+#: common.c:128
+msgid "RPC"
+msgstr "RPC"
+
+#: common.c:130
+msgid "EXT2_DIRECT"
+msgstr "EXT2_DIRECT"
+
+#: common.c:133 convertquota.c:38 quotacheck.c:285 repquota.c:47
+#, c-format
+msgid "Bugs to %s\n"
+msgstr "B³êdy na adres %s\n"
+
+#: convertquota.c:37
+#, c-format
+msgid ""
+"Utility for converting quota files.\n"
+"Usage:\n"
+"\t%s [-u] [-g] [-e|-f] mountpoint\n"
+msgstr ""
+"Narzêdzie do konwersji plików limitów.\n"
+"Sk³adnia:\n"
+"\t%s [-u] [-g] [-e|-f] punkt-montowania\n"
+
+#: convertquota.c:71
+msgid "Bad number of arguments."
+msgstr "B³êdna liczba argumentów."
+
+#: convertquota.c:121 quotacheck_v2.c:214 quotaio_v2.c:276
+#, c-format
+msgid "Can't read block %u: %s\n"
+msgstr "Nie mo¿na odczytaæ bloku %u: %s\n"
+
+#: convertquota.c:145 convertquota.c:237
+#, c-format
+msgid "Can't commit dquot for id %u: %s\n"
+msgstr "Nie mo¿na utrwaliæ dquot dla id %u: %s\n"
+
+#: convertquota.c:193
+msgid "Can't read header of old quotafile.\n"
+msgstr "Nie mo¿na odczytaæ nag³ówka starego pliku limitów.\n"
+
+#: convertquota.c:197
+msgid "Bad file magic or version (probably not quotafile with bad endianity).\n"
+msgstr "B³êdny magic lub wersja (raczej nie plik limitów dla innego procesora).\n"
+
+#: convertquota.c:208
+msgid "Can't read information about old quotafile.\n"
+msgstr "Nie mo¿na odczytaæ informacji o starym pliku limitów.\n"
+
+#: convertquota.c:250
+msgid "Can't get name of new quotafile.\n"
+msgstr "Nie mo¿na uzyskaæ nazwy nowego pliku limitów.\n"
+
+#: convertquota.c:256
+#, c-format
+msgid "Can't rename new quotafile %s to name %s: %s\n"
+msgstr "Nie mo¿na zmieniæ nazwy nowego pliku limitów %s na %s: %s\n"
+
+#: convertquota.c:270
+#, c-format
+msgid "Can't open old format file for %ss on %s\n"
+msgstr "Nie mo¿na otworzyæ pliku limitów %s w starym formacie na %s\n"
+
+#: convertquota.c:275 convertquota.c:308
+#, c-format
+msgid "Can't create file for %ss for new format on %s: %s\n"
+msgstr "Nie mo¿na utworzyæ pliku limitów %s dla nowego formatu na %s: %s\n"
+
+#: convertquota.c:298
+#, c-format
+msgid "Can't open old quota file on %s: %s\n"
+msgstr "Nie mo¿na otworzyæ starego pliku limitów na %s: %s\n"
+
+#: convertquota.c:334
+msgid "Unknown action should be performed.\n"
+msgstr "Mia³a byæ wykonana nieznana akcja.\n"
+
+#: edquota.c:69
+msgid "Usage:\tedquota [-r] [-u] [-F formatname] [-p username] [-f filesystem] username ...\n"
+msgstr "Sk³adnia:\tedquota [-r] [-u] [-F format] [-p u¿ytkownik] [-f system-plików] u¿ytkownik ...\n"
+
+#: edquota.c:70
+msgid "\tedquota [-r] -g [-F formatname] [-p groupname] [-f filesystem] groupname ...\n"
+msgstr "\tedquota [-r] -g [-F format] [-p grupa] [-f system-plików] grupa ...\n"
+
+#: edquota.c:71
+msgid "\tedquota [-r] [-u|g] [-F formatname] [-f filesystem] -t\n"
+msgstr "\tedquota [-r] [-u|g] [-F format] [-f system-plików] -t\n"
+
+#: edquota.c:72
+msgid "\tedquota [-r] [-u|g] [-F formatname] [-f filesystem] -T username|groupname ...\n"
+msgstr "\tedquota [-r] [-u|g] [-F format] [-f system-plików] -T u¿ytkownik|grupa ...\n"
+
+#: edquota.c:75
+msgid "Usage:\tedquota [-u] [-F formatname] [-p username] [-f filesystem] username ...\n"
+msgstr "Sk³adnia:\tedquota [-u] [-F format] [-p u¿ytkownik] [-f system-plików] u¿ytkownik ...\n"
+
+#: edquota.c:76
+msgid "\tedquota -g [-F formatname] [-p groupname] [-f filesystem] groupname ...\n"
+msgstr "\tedquota -g [-F format] [-p grupa] [-f system-plików] grupa ...\n"
+
+#: edquota.c:77
+msgid "\tedquota [-u|g] [-F formatname] [-f filesystem] -t\n"
+msgstr "\tedquota [-u|g] [-F format] [-f system-plików] -t\n"
+
+#: edquota.c:78
+msgid "\tedquota [-u|g] [-F formatname] [-f filesystem] -T username|groupname ...\n"
+msgstr "\tedquota [-u|g] [-F format] [-f system-plików] -T u¿ytkownik|grupa ...\n"
+
+#: edquota.c:80 quota.c:164 setquota.c:57
+#, c-format
+msgid "Bugs to: %s\n"
+msgstr "B³êdy na adres: %s\n"
+
+#: edquota.c:154
+msgid "No filesystems with quota detected.\n"
+msgstr "Nie wykryto systemów plików z limitami.\n"
+
+#: edquota.c:167
 msgid "fsname mismatch\n"
-msgstr "nieprawid³owa nazwa systemu plików\n"
+msgstr "nazwa systemu plików siê nie zgadza\n"
 
-#: edquota.c:207
-msgid "Usage:\tedquota [-n] [-u] [-p username] username ...\n"
-msgstr "U¿ycie:\tedquota [-n] [-u] [-p u¿ytkownik] u¿ytkownik ...\n"
+#: edquota.c:201
+msgid "Can't write grace times to file.\n"
+msgstr "Nie mo¿na zapisaæ okresów pob³a¿liwo¶ci do pliku.\n"
 
-#: edquota.c:208
-msgid "\tedquota [-n] -g [-p groupname] groupname ...\n"
-msgstr "\tedquota [-n] -g [-p grupa] grupa ...\n"
-
-#: edquota.c:209
-msgid "\tedquota [-n] [-u] -t\n"
-msgstr ""
+#: edquota.c:205
+msgid "Error while editting grace times.\n"
+msgstr "B³±d podczas edycji okresów pob³a¿liwo¶ci.\n"
 
 #: edquota.c:209
-msgid "\tedquota [-n] -g -t\n"
-msgstr ""
+msgid "Failed to parse grace times file.\n"
+msgstr "Analiza pliku okresów pob³a¿liwo¶ci nie powiod³a siê.\n"
 
-#: edquota.c:212
-msgid "Usage:\tedquota [-u] [-p username] username ...\n"
-msgstr "U¿ycie:\tedquota [-u] [-p u¿ytkownik] u¿ytkownik ...\n"
+#: edquota.c:217
+msgid "Can't write individual grace times to file.\n"
+msgstr "Nie mo¿na zapisaæ do pliku pojedynczych okresów pob³a¿liwo¶ci.\n"
 
-#: edquota.c:213
-msgid "\tedquota -g [-p groupname] groupname ...\n"
-msgstr "\tedquota -g [-p grupa] grupa ...\n"
+#: edquota.c:221
+msgid "Error while editting individual grace times.\n"
+msgstr "B³±d podczas edycji pojedynczych okresów pob³a¿liwo¶ci.\n"
 
-#: edquota.c:214
-msgid "\tedquota [-u] -t\n"
-msgstr ""
+#: edquota.c:225
+msgid "Can't read individual grace times from file.\n"
+msgstr "Nie mo¿na odczytaæ z pliku pojedynczych okresów pob³a¿liwo¶ci.\n"
 
-#: edquota.c:214
-msgid "\tedquota -g -t\n"
-msgstr ""
+#: edquota.c:237
+msgid "Can't write quotas to file.\n"
+msgstr "Nie mo¿na zapisaæ limitów do pliku.\n"
 
-#: quota.c:81
+#: edquota.c:241
+msgid "Error while editting quotas.\n"
+msgstr "B³±d podczas edycji limitów.\n"
+
+#: edquota.c:246
+msgid "Can't reopen!"
+msgstr "Nie mo¿na ponownie otworzyæ!"
+
+#: edquota.c:248
+msgid "Can't read quotas from file.\n"
+msgstr "Nie mo¿na odczytaæ limitów z pliku.\n"
+
+#: quot.c:81
 #, c-format
-msgid "quota %s, with RPC and EXT2_DIRECT options.\n"
-msgstr "quota %s, z opcjami RPC i EXT2_DIRECT.\n"
+msgid "Usage: %s [-acfugvVi] [filesystem...]\n"
+msgstr "Sk³adnia: %s [-acfugvVi] [system-plików...]\n"
 
-#: quota.c:83
+#: quot.c:172
 #, c-format
-msgid "quota %s, with RPC options.\n"
-msgstr "quota %s, z opcjami RPC.\n"
+msgid "%s (%s):\n"
+msgstr "%s (%s):\n"
 
-#: quota.c:87
+#: quot.c:176 quot.c:180
 #, c-format
-msgid "quota %s, with EXT2_DIRECT options.\n"
-msgstr "quota %s, z opcjami EXT2_DIRECT.\n"
+msgid "%d\t%llu\t%llu\n"
+msgstr "%d\t%llu\t%llu\n"
 
-#: quota.c:89
+#: quot.c:189
 #, c-format
-msgid "quota %s, without special options.\n"
-msgstr "quota %s, bez ¿adnych specjalnych opcji.\n"
+msgid "%s (%s) %s:\n"
+msgstr "%s (%s) %s:\n"
 
-#: quota.c:169
-msgid "Usage: quota [-guqvV]"
-msgstr "U¿ycie: quota [-guqvV]"
-
-#: quota.c:170
-msgid "\tquota [-qv] -u username ..."
-msgstr "\tquota [-qv] -u u¿ytkownik ..."
-
-#: quota.c:171
-msgid "\tquota [-qv] -g groupname ..."
-msgstr "\tquota [-qv] -g grupa ..."
-
-#: quota.c:185
-msgid "(no account)"
-msgstr "(brak konta)"
-
-#: quota.c:190 quota.c:210
+#: quot.c:196 quot.c:198
 #, c-format
-msgid "quota: %s (uid %d): permission denied\n"
-msgstr "quota: %s (uid %d): brak prawa dostêpu\n"
+msgid "%8llu    "
+msgstr "%8llu    "
 
-#: quota.c:205
+#: quot.c:200
 #, c-format
-msgid "quota: %s: unknown user\n"
-msgstr "quota: %s: nieznany u¿ytkownik\n"
+msgid "%-8.8s"
+msgstr "%-8.8s"
 
-#: quota.c:229
-msgid "(no entry)"
-msgstr "(brak wpisu)"
-
-#: quota.c:242 quota.c:272
+#: quot.c:202
 #, c-format
-msgid "quota: %s (gid %d): permission denied\n"
-msgstr "quota: %s (gid %d): brak prawa dostêpu\n"
+msgid "#%-7d"
+msgstr "#%-7d"
 
-#: quota.c:260
+#: quot.c:204
 #, c-format
-msgid "quota: %s: unknown group\n"
-msgstr "quota: %s: nieznana grupa\n"
+msgid "    %8llu    %8llu    %8llu"
+msgstr "    %8llu    %8llu    %8llu"
 
-#: quota.c:301
+#: quot.c:352
+#, c-format
+msgid "cannot open %s: %s\n"
+msgstr "nie mo¿na otworzyæ %s: %s\n"
+
+#: quot.c:372
+#, c-format
+msgid "XFS_IOC_FSBULKSTAT ioctl failed: %s\n"
+msgstr "ioctl XFS_IOC_FSBULKSTAT nie powiód³ siê: %s\n"
+
+#: quota.c:139
+#, c-format
+msgid "quota: getgroups(): %s\n"
+msgstr "quota: getgroups(): %s\n"
+
+#: quota.c:161
+msgid "Usage: quota [-guqvs] [-l | -Q] [-i] [-F quotaformat]\n"
+msgstr "Sk³adnia: quota [-guqvs] [-l | -Q] [-i] [-F format]\n"
+
+#: quota.c:162
+msgid "\tquota [-qvs] [-l | -Q] [-i] [-F quotaformat] -u username ...\n"
+msgstr "\tquota [-qvs] [-l | -Q] [-i] [-F format] -u u¿ytkownik ...\n"
+
+#: quota.c:163
+msgid "\tquota [-qvs] [-l | -Q] [-i] [-F quotaformat] -g groupname ...\n"
+msgstr "\tquota [-qvs] [-l | -Q] [-i] [-F format] -g grupa ...\n"
+
+#: quota.c:190
 msgid "File limit reached on"
-msgstr "Limit plików osi±gniêty na"
+msgstr "Twardy limit plików osi±gniêty na"
 
-#: quota.c:305
+#: quota.c:196
 msgid "In file grace period on"
-msgstr "Okres pob³a¿liwo¶ci dla przekroczonego limitu plików na"
+msgstr "Okres pob³a¿liwo¶ci dla plików na"
 
-#: quota.c:307
+#: quota.c:200
 msgid "Over file quota on"
-msgstr "Limit plików przekroczony na"
+msgstr "Miêkki limit dla plików przekroczony na"
 
-#: quota.c:311
+#: quota.c:206
 msgid "Block limit reached on"
-msgstr "Limit bloków osi±gniêty na"
+msgstr "Twardy limit bloków osi±gniêty na"
 
-#: quota.c:315
+#: quota.c:212
 msgid "In block grace period on"
-msgstr "Okres pob³a¿liwo¶ci dla przekroczonego limitu bloków na"
+msgstr "Okres pob³a¿liwo¶ci dla bloków na"
 
-#: quota.c:317
+#: quota.c:216
 msgid "Over block quota on"
-msgstr "Limit bloków przekroczony na"
+msgstr "Miêkki limit dla bloków przekroczony na"
 
-#: quota.c:366 quota.c:400 repquota.c:309 warnquota.c:150
+#: quota.c:257 quotasys.c:245
 msgid "none"
 msgstr "brak"
 
-#: quota.c:371
+#: quota.c:265
 #, c-format
 msgid "Disk quotas for %s %s (%cid %d): %s\n"
-msgstr "Limity dyskowe dla %s %s (%cid %d): %s\n"
+msgstr "Ograniczenia dyskowe %s %s (%cid %d): %s\n"
 
-#: quota.c:375
+#: quota.c:268
 msgid "Filesystem"
 msgstr "System plików"
 
-#: quota.c:376
+#: quota.c:269
 msgid "blocks"
 msgstr "bloki"
 
-#: quota.c:377 quota.c:381
+#: quota.c:269 quota.c:270
 msgid "quota"
 msgstr "miêkki"
 
-#: quota.c:378 quota.c:382
+#: quota.c:269 quota.c:270
 msgid "limit"
 msgstr "twardy"
 
-#: quota.c:379 quota.c:383
+#: quota.c:269 quota.c:270
 msgid "grace"
 msgstr "pob³."
 
-#: quota.c:380
+#: quota.c:270
 msgid "files"
 msgstr "pliki"
 
-#: quotacheck.c:111 warnquota.c:72
-msgid "Virtual memory exhausted\n"
-msgstr "Brak wirtualnej pamiêci\n"
+#: quotacheck.c:94
+msgid "Not enough memory.\n"
+msgstr "Za ma³o pamiêci.\n"
 
-#: quotacheck.c:146
+#: quotacheck.c:126
+#, c-format
+msgid "Adding hardlink for ino %d\n"
+msgstr "Dodawanie dowi±zania dla i-wêz³a %d\n"
+
+#: quotacheck.c:169
 #, c-format
 msgid "Adding dquot structure type %s for %d\n"
-msgstr "Dodajê strukturê dquot typu %s dla %d\n"
+msgstr "Dodawanie struktury dquot typu %s dla %d\n"
 
-#: quotacheck.c:190
-msgid ""
-"Usage:\n"
-"\tquotacheck [-g] [-u] [-R] [-vd] -a\n"
-msgstr ""
-"U¿ycie:\n"
-"\tquotacheck [-g] [-u] [-R] [-vd] -a\n"
-
-#: quotacheck.c:191
-msgid "\tquotacheck [-g] [-u] [-vd] filesys ...\n"
-msgstr "\tquotacheck [-g] [-u] [-vd] systemplików ...\n"
-
-#: quotacheck.c:270
+#: quotacheck.c:255
 #, c-format
-msgid "%s: not found\n"
-msgstr "nie znaleziono: %s\n"
+msgid "Cannot open file %s: %s\n"
+msgstr "Nie mo¿na otworzyæ pliku %s: %s\n"
 
-#: quotacheck.c:276
-#, c-format
-msgid "Scanning %s [%s] "
-msgstr "Skanujê %s [%s] "
+#: quotacheck.c:260
+msgid "Cannot get exact used space... Results might be inaccurate.\n"
+msgstr "Nie mo¿na dok³adnie uzyskaæ u¿ytej przestrzeni... wyniki mog± byæ niedok³adne.\n"
 
-#: quotacheck.c:299
-msgid "done\n"
-msgstr "zrobiono\n"
-
-#: quotacheck.c:301
-#, c-format
-msgid "Checked %d directories and %d files\n"
-msgstr "Sprawdzono %d katalogów i %d plików\n"
-
-#: quotacheck.c:304
-#, c-format
-msgid "%s: not a directory\n"
-msgstr "%s: nie jest katalogiem\n"
-
-#: quotacheck.c:319 quotaon.c:156 repquota.c:153
-#, c-format
-msgid "%s not found in fstab\n"
-msgstr "%s nie zosta³ znaleziony w fstab\n"
-
-#: quotacheck.c:322
+#: quotacheck.c:284
 #, c-format
 msgid ""
-"Allocated %d bytes memory\n"
-"Free'd %d bytes\n"
-"Lost %d bytes\n"
+"Utility for checking and repairing quota files.\n"
+"%s [-gucfinvdmMR] [-F <quota-format>] filesystem|-a\n"
 msgstr ""
-"Zaallokowano %d bajtów pamiêci\n"
-"Zwolniono %d bajtów\n"
-"Stracono %d bajtów\n"
+"Narzêdzie do sprawdzania i naprawiania plików limitów.\n"
+"%s [-gucfinvdmMR] [-F format] system-plików|-a\n"
 
-#: quotacheck.c:341
+#: quotacheck.c:349 quotaon.c:110 repquota.c:104 setquota.c:150
+msgid "Bad number of arguments.\n"
+msgstr "B³êdna liczba argumentów.\n"
+
+#: quotacheck.c:353
+msgid "XFS quota format needs no checking.\n"
+msgstr "Limity w formacie XFS nie wymagaj± sprawdzania.\n"
+
+#: quotacheck.c:379
 #, c-format
-msgid "quotacheck: error while opening %s\n"
-msgstr "quotacheck: b³±d podczas otwierania %s\n"
-
-#: quotacheck.c:345
-msgid "in-use inode map"
-msgstr "mapa u¿ywanych i-wêz³ów"
-
-#: quotacheck.c:346
-msgid "quotacheck: error while allocating inode file bitmap\n"
-msgstr "quotacheck: b³±d podczas allokowania bitmapy i-wêz³ów plików\n"
-
-#: quotacheck.c:350
-msgid "directory inode map"
-msgstr "mapa i-wêz³ów katalogów"
-
-#: quotacheck.c:351
-msgid "quotacheck: error while allocating inode directory bitmap\n"
-msgstr "quotacheck: b³±d podczas allokowania bitmapy i-wêz³ów katalogów\n"
-
-#: quotacheck.c:356
-msgid "quotacheck: error while opening inode scan\n"
-msgstr "quotacheck: b³±d podczas otwierania skanu i-wêz³ów\n"
-
-#: quotacheck.c:361
-msgid "quotacheck: error while starting inode scan\n"
-msgstr "quotacheck: b³±d podczas uruchamiania skanu i-wêz³ów\n"
-
-#: quotacheck.c:368
-#, c-format
-msgid "Found i_num %ld\n"
-msgstr "Znaleziono i_num %ld\n"
+msgid "error (%d) while opening %s\n"
+msgstr "b³±d (%d) podczas otwierania %s\n"
 
 #: quotacheck.c:384
-msgid "Something weird while scanning\n"
-msgstr "Co¶ dziwnego podczas skanowania\n"
-
-#: quotacheck.c:415
 #, c-format
-msgid "Hmm, file `%s/%s' not found\n"
-msgstr "Hmm, plik %s/%s nie zosta³ znaleziony\n"
+msgid "error (%d) while allocating inode file bitmap\n"
+msgstr "b³±d (%d) podczas przydzielania bitmapy i-wêz³ów plików\n"
 
-#: quotacheck.c:416
+#: quotacheck.c:389
+#, c-format
+msgid "errstr (%d) while allocating inode directory bitmap\n"
+msgstr "errstr (%d) podczas przydzielania bitmapy i-wêz³ów katalogów\n"
+
+#: quotacheck.c:394
+#, c-format
+msgid "error (%d) while opening inode scan\n"
+msgstr "b³±d (%d) podczas otwierania skanu i-wêz³ów\n"
+
+#: quotacheck.c:399
+#, c-format
+msgid "error (%d) while starting inode scan\n"
+msgstr "b³±d (%d) podczas uruchamiania skanu i-wêz³ów\n"
+
+#: quotacheck.c:405
+#, c-format
+msgid "Found i_num %ld, %ld\n"
+msgstr "Znaleziono i_num %ld, %ld\n"
+
+#: quotacheck.c:411
+msgid "High uid detected.\n"
+msgstr "Wykryto du¿y uid.\n"
+
+#: quotacheck.c:427
+#, c-format
+msgid "Something weird happened while scanning. Error %d\n"
+msgstr "Podczas skanowania zdarzy³o siê co¶ dziwnego. B³±d %d\n"
+
+#: quotacheck.c:451
+#, c-format
+msgid "Cannot stat root directory %s: %s\n"
+msgstr "Nie mo¿na wykonaæ stat na g³ównym katalogu %s: %s\n"
+
+#: quotacheck.c:463
+#, c-format
 msgid ""
+"\n"
+"Can open directory %s: %s\n"
+msgstr ""
+"\n"
+"Nie mo¿na otworzyæ katalogu %s: %s\n"
+
+#: quotacheck.c:473
+#, c-format
+msgid ""
+"lstat Cannot stat `%s/%s': %s\n"
 "Guess you'd better run fsck first !\n"
 "exiting...\n"
 msgstr ""
-"Ururchom najpierw fsck !\n"
-"Koñczê...\n"
+"lstat: Nie mo¿na wykonaæ stat na `%s/%s': %s\n"
+"Lepiej najpierw uruchomiæ fsck!\n"
+"zakoñczenie...\n"
 
-#: quotacheck.c:443
+#: quotacheck.c:492
+#, c-format
+msgid "pushd %s/%s\n"
+msgstr "pushd %s/%s\n"
+
+#: quotacheck.c:501
 #, c-format
 msgid "\tAdding %s size %d ino %d links %d\n"
-msgstr "\tDodajê %s, o rozmiarze %d, iwêze³ %d, po³±czeñ %d\n"
+msgstr "\tDodawanie %s, o rozmiarze %d, i-wêze³ %d, dowi±zañ %d\n"
 
-#: quotacheck.c:454
+#: quotacheck.c:511
 msgid "Scanning stored directories from directory stack\n"
-msgstr "Skanujê zapisane na stosie katalogi\n"
+msgstr "Skanowanie zapisanych na stosie katalogów\n"
 
-#: quotacheck.c:459
+#: quotacheck.c:515
 #, c-format
 msgid ""
 "popd %s\n"
 "Entering directory %s\n"
 msgstr ""
 "popd %s\n"
-"Wchodzê do katalogu %s\n"
+"Wej¶cie do katalogu %s\n"
 
-#: quotacheck.c:470
+#: quotacheck.c:527
 #, c-format
 msgid "Leaving %s\n"
-msgstr "Opuszczam %s\n"
+msgstr "Opuszczanie %s\n"
 
-#: quotacheck.c:482
+#: quotacheck.c:567
 #, c-format
-msgid "Adding hardlink for ino %d\n"
-msgstr "Dodajê dowi±zanie na i-wêze³ %d\n"
+msgid "Going to check %s quota file of %s\n"
+msgstr "Rozpoczynanie sprawdzania pliku limitów %s na %s\n"
 
-#: quotacheck.c:528
+#: quotacheck.c:573
 #, c-format
-msgid "Can't add dquot structure type %s for uid %d\n"
-msgstr "Nie mogê dodaæ struktury dquot typu %s dla uid %d\n"
+msgid "Quota for %ss is enabled on mountpoint %s so quotacheck might damage the file.\n"
+msgstr "Limity %s w³±czone w punkcie montowania %s - quotacheck mo¿e uszkodziæ plik.\n"
 
-#: quotacheck.c:558
+#: quotacheck.c:574 quotacheck.c:778
+msgid "Should I continue"
+msgstr "Czy kontynuowaæ"
+
+#: quotacheck.c:575 quotacheck.c:779
+msgid "As you wish... Canceling check of this file.\n"
+msgstr "Wedle ¿yczenia... anulowanie sprawdzania tego pliku.\n"
+
+#: quotacheck.c:580
 #, c-format
-msgid "Adding blocks from hardlinks for %s %d\n"
-msgstr "Dodajê bloki z dowi±zañ na %s %d\n"
+msgid ""
+"Quota for %ss is enabled on mountpoint %s so quotacheck might damage the file.\n"
+"Please turn quotas off or use -f to force checking.\n"
+msgstr ""
+"Limity %s w³±czone w punkcie montowania %s - quotacheck mo¿e uszkodziæ plik.\n"
+"Proszê wy³±czyæ limity lub u¿yæ -f, aby wymusiæ sprawdzanie.\n"
 
-#: quotacheck.c:622
+#: quotacheck.c:587
 #, c-format
-msgid "Using quotafile %s\n"
-msgstr "Korzystam z pliku limitów %s\n"
+msgid "Error while syncing quotas on %s: %s\n"
+msgstr "B³±d podczas synchronizacji limitów na %s: %s\n"
 
-#: quotacheck.c:628
+#: quotacheck.c:592
 #, c-format
-msgid "Updating in-core %s quotas\n"
-msgstr "Aktualizujê wewnêtrzne limity typu %s\n"
+msgid "Cannot get quotafile name for %s\n"
+msgstr "Nie mo¿na uzyskaæ nazwy pliku limitów dla %s\n"
 
-#: quotacheck.c:665
+#: quotacheck.c:597
 #, c-format
-msgid "%s %d: curinodes: %d curblocks: %d without hardlinks\n"
-msgstr "%s %d: akt.iwêz³ów: %d akt.bloków: %d bez dowi±zañ\n"
+msgid "Cannot open quotafile %s: %s\n"
+msgstr "Nie mo¿na otworzyæ pliku limitów %s: %s\n"
 
-#: quotacheck.c:669
+#: quotacheck.c:613
 #, c-format
-msgid "%s %d: curinodes: %d curblocks: %d with hardlinks\n"
-msgstr "%s %d: akt.iwêz³ów: %d akt.bloków: %d z dowi±zaniami\n"
+msgid "Too new quotafile format on %s\n"
+msgstr "Za nowy format pliku limitów na %s\n"
 
-#: quotaon.c:86
+#: quotacheck.c:637
+msgid "Data dumped.\n"
+msgstr "Dane zrzucone.\n"
+
+#: quotacheck.c:639
+#, c-format
+msgid "Cannot get name of old quotafile on %s.\n"
+msgstr "Nie mo¿na uzyskaæ nazwy starego pliku limitów na %s.\n"
+
+#: quotacheck.c:642
+msgid "Old file not found.\n"
+msgstr "Nie znaleziono starego pliku.\n"
+
+#: quotacheck.c:645
+#, c-format
+msgid "Error while searching for old quota file %s: %s\n"
+msgstr "B³±d podczas poszukiwania starego pliku limitów %s: %s\n"
+
+#: quotacheck.c:652
+#, c-format
+msgid "Renaming old quotafile to %s~\n"
+msgstr "Zmiana nazwy starego pliku limitów na %s~\n"
+
+#: quotacheck.c:658
+#, c-format
+msgid "Name of quota file too long. Contact %s.\n"
+msgstr "Nazwa pliku limitów zbyt d³uga. Proszê o kontakt z %s.\n"
+
+#: quotacheck.c:660
+#, c-format
+msgid "Cannot rename old quotafile %s to %s: %s\n"
+msgstr "Nie mo¿na zmieniæ nazwy starego pliku limitów %s na %s: %s\n"
+
+#: quotacheck.c:666
+msgid "Renaming new quotafile\n"
+msgstr "Zmiana nazwy nowego pliku limitów\n"
+
+#: quotacheck.c:672
+#, c-format
+msgid "Cannot rename new quotafile %s to name %s: %s\n"
+msgstr "Nie mo¿na zmieniæ nazwy nowego pliku limitów %s na %s: %s\n"
+
+#: quotacheck.c:678
+#, c-format
+msgid "Cannot change permission of %s: %s\n"
+msgstr "Nie mo¿na zmieniæ uprawnieñ %s: %s\n"
+
+#: quotacheck.c:697
+#, c-format
+msgid "Dumping gathered data for %ss.\n"
+msgstr "Zrzucanie zgromadzonych danych typu %s.\n"
+
+#: quotacheck.c:699
+#, c-format
+msgid "Cannot initialize IO on new quotafile: %s\n"
+msgstr "Nie mo¿na zainicjowaæ we/wy na nowym pliku limitów: %s\n"
+
+#: quotacheck.c:717
+#, c-format
+msgid "Cannot finish IO on new quotafile: %s\n"
+msgstr "Nie mo¿na zakoñczyæ we/wy na nowym pliku limitów: %s\n"
+
+#: quotacheck.c:726
+#, c-format
+msgid "Cannot find checked quota file for %ss on %s!\n"
+msgstr "Nie mo¿na znale¼æ sprawdzonego pliku limitów %s na %s!\n"
+
+#: quotacheck.c:730
+#, c-format
+msgid ""
+"Cannot turn %s quotas off on %s: %s\n"
+"Kernel won't know about changes quotacheck did.\n"
+msgstr ""
+"Nie mo¿na wy³±czyæ limitów %s na %s: %s\n"
+"J±dro nie zauwa¿y zmian wykonanych przez checkquota.\n"
+
+#: quotacheck.c:740
+#, c-format
+msgid ""
+"Cannot turn %s quotas on on %s: %s\n"
+"Kernel won't know about changes quotacheck did.\n"
+msgstr ""
+"Nie mo¿na w³±czyæ limitów %s na %s: %s\n"
+"J±dro nie zauwa¿y zmian wykonanych przez checkquota.\n"
+
+#: quotacheck.c:757
+#, c-format
+msgid "Cannot stat mountpoint %s: %s\n"
+msgstr "Nie mo¿na wykonaæ stat na punkcie montowania %s: %s\n"
+
+#: quotacheck.c:759
+#, c-format
+msgid "Mountpoint %s isn't directory?!\n"
+msgstr "Punkt montowania %s: nie jest katalogiem?!\n"
+
+#: quotacheck.c:777
+#, c-format
+msgid "Cannot remount filesystem mounted on %s read-only. Counted values might not be right.\n"
+msgstr "Nie mo¿na przemontowaæ r/o systemu plików zamontowanego pod %s. Policzone warto¶ci mog± byæ b³êdne.\n"
+
+#: quotacheck.c:784
+#, c-format
+msgid ""
+"Cannot remount filesystem mounted on %s read-only so counted values might not be right.\n"
+"Please stop all programs writing to filesystem or use -m flag to force checking.\n"
+msgstr ""
+"Nie mo¿na przemontowaæ r/o systemu plików zamontowanego pod %s, wiêc policzone\n"
+"warto¶ci mog± byæ b³êdne. Proszê zatrzymaæ wszystkie programy pisz±ce na ten\n"
+"system plików lub u¿yæ flagi -m, aby wymusiæ sprawdzanie.\n"
+
+#: quotacheck.c:791
+msgid "Filesystem remounted read-only\n"
+msgstr "System plików przemontowany tylko do odczytu\n"
+
+#: quotacheck.c:793
+#, c-format
+msgid "Scanning %s [%s] "
+msgstr "Skanowanie %s [%s] "
+
+#: quotacheck.c:808
+msgid "done\n"
+msgstr "zrobiono\n"
+
+#: quotacheck.c:809
+#, c-format
+msgid "Checked %d directories and %d files\n"
+msgstr "Sprawdzono %d katalogów i %d plików\n"
+
+#: quotacheck.c:813
+#, c-format
+msgid "Cannot remount filesystem %s read-write. cannot write new quota files.\n"
+msgstr "Nie mo¿na przemontowaæ r/w systemu plików %s. Nie mo¿na zapisaæ nowych plików.\n"
+
+#: quotacheck.c:814
+msgid "Filesystem remounted RW.\n"
+msgstr "Przemontowano system plików do zapisu i odczytu.\n"
+
+#: quotacheck.c:842
+#, c-format
+msgid "Can't find quota option on filesystem %s with quotas!\n"
+msgstr "Nie mo¿na znale¼æ opcji limitów dla systemu plików %s z limitami!\n"
+
+#: quotacheck.c:867 quotasys.c:493
+msgid "Can't initialize mountpoint scan.\n"
+msgstr "Nie mo¿na zainicjowaæ skanu punktów montowania.\n"
+
+#: quotacheck.c:872
+#, c-format
+msgid "Skipping %s [%s]\n"
+msgstr "Pomijanie %s [%s]\n"
+
+#: quotacheck.c:888
+#, c-format
+msgid "Cannot guess format from filename on %s. Please specify format on commandline.\n"
+msgstr "Nie mo¿na odgadn±æ formatu z nazwy pliku na %s. Proszê podaæ format w poleceniu.\n"
+
+#: quotacheck.c:892
+#, c-format
+msgid "Detected quota format %s\n"
+msgstr "Wykryto format limitów %s\n"
+
+#: quotacheck.c:899
+msgid "Can't find filesystem to check or filesystem not mounted with quota option.\n"
+msgstr "Nie znaleziono systemu plików do sprawdzenia lub jest zamontowany bez limitów.\n"
+
+#: quotacheck.c:912
+#, c-format
+msgid ""
+"Allocated %d bytes memory\n"
+"Free'd %d bytes\n"
+"Lost %d bytes\n"
+msgstr ""
+"Przydzielono %d bajtów pamiêci\n"
+"Zwolniono %d bajtów\n"
+"Stracono %d bajtów\n"
+
+#: quotacheck_v1.c:30
+#, c-format
+msgid "Can't read entry for id %u from quotafile %s: %s\n"
+msgstr "Nie mo¿na odczytaæ wpisu dla id %u z pliku limitów %s: %s\n"
+
+#: quotacheck_v1.c:33
+#, c-format
+msgid "Entry for id %u is truncated.\n"
+msgstr "Wpis dla id %u jest uciêty.\n"
+
+#: quotacheck_v1.c:62
+msgid "Loading first quota entry with grace times.\n"
+msgstr "Wczytywanie pierwszego wpisu limitów z okresami pob³a¿liwo¶ci.\n"
+
+#: quotacheck_v1.c:66
+#, c-format
+msgid "Can't read first entry from quotafile %s: %s\n"
+msgstr "Nie mo¿na odczytaæ pierwszego wpisu z pliku limitów %s: %s\n"
+
+#: quotacheck_v1.c:70
+#, c-format
+msgid "WARNING - Quotafile %s was probably truncated. Can't save quota settings...\n"
+msgstr "UWAGA - plik limitów %s zapewne by³ uciêty. Nie mo¿na zapisaæ ustawieñ...\n"
+
+#: quotacheck_v1.c:76
+msgid "First entry loaded.\n"
+msgstr "Wczytano pierwszy wpis.\n"
+
+#: quotacheck_v2.c:51
+msgid "Checking quotafile info...\n"
+msgstr "Sprawdzanie informacji w pliku limitów...\n"
+
+#: quotacheck_v2.c:56
+#, c-format
+msgid "Can't read info from quota file %s: %s\n"
+msgstr "Nie mo¿na odczytaæ informacji z pliku limitów %s: %s\n"
+
+#: quotacheck_v2.c:61
+#, c-format
+msgid "WARNING - Quota file %s was probably truncated. Can't save quota settings...\n"
+msgstr "UWAGA - plik limitów %s zapewne by³ uciêty. Nie mo¿na zapisaæ ustawieñ...\n"
+
+#: quotacheck_v2.c:73
+msgid "WARNING - Quota file info was corrupted.\n"
+msgstr "UWAGA - informacje w pliku limitów by³y uszkodzone.\n"
+
+#: quotacheck_v2.c:74
+#, c-format
+msgid ""
+"Size of file: %lu\n"
+"Blocks: %u Free block: %u Block with free entry: %u Flags: %x\n"
+msgstr ""
+"Rozmiar pliku: %lu\n"
+"Bloki: %u Wolny blok: %u Blok z wolnym wpisem: %u Flagi: %x\n"
+
+#: quotacheck_v2.c:81
+#, c-format
+msgid ""
+"Setting grace times and other flags to default values.\n"
+"Assuming number of blocks is %u.\n"
+msgstr ""
+"Ustawianie okresów pob³a¿liwo¶ci i innych flag na warto¶ci domy¶lne.\n"
+"Przyjêcie liczby bloków %u.\n"
+
+#: quotacheck_v2.c:91
+msgid "File info done.\n"
+msgstr "Informacje z pliku wczytane.\n"
+
+#: quotacheck_v2.c:102
+msgid "Corrupted blocks: "
+msgstr "Bloki uszkodzone: "
+
+#: quotacheck_v2.c:106
+#, c-format
+msgid "Block %u: "
+msgstr "Blok %u: "
+
+#: quotacheck_v2.c:157
+msgid "Duplicated entries."
+msgstr "Powtórzone wpisy."
+
+#: quotacheck_v2.c:161
+#, c-format
+msgid "Found more structures for ID %u. Using values: BHARD: %Ld BSOFT: %Ld IHARD: %Ld ISOFT: %Ld\n"
+msgstr "Znaleziono wiêcej struktur dla ID %u. U¿ycie warto¶ci: BHARD: %Ld BSOFT %Ld IHARD: %Ld ISOFT: %Ld\n"
+
+#: quotacheck_v2.c:167
+#, c-format
+msgid ""
+"\n"
+"Found more structures for ID %u. Values: BHARD: %Ld/%Ld BSOFT: %Ld/%Ld IHARD: %Ld/%Ld ISOFT: %Ld/%Ld\n"
+msgstr ""
+"\n"
+"Znaleziono wiêcej struktur dla ID %u. Warto¶ci: BHARD %Ld/%Ld BSOFT: %Ld/%Ld IHARD: %Ld/%Ld ISOFT: %Ld/%Ld\n"
+
+#: quotacheck_v2.c:172
+msgid "Should I use new values"
+msgstr "Czy u¿yæ nowych warto¶ci"
+
+#: quotacheck_v2.c:182
+#, c-format
+msgid "ID %u has more structures. User intervention needed (use -i for interactive mode or -n for automatic answer).\n"
+msgstr "ID %u ma wiêcej struktur. Potrzebna inwencja u¿ytkownika (-i dla trybu interaktywnego lub -n dla automatycznej odpowiedzi).\n"
+
+#: quotacheck_v2.c:216
+#, c-format
+msgid "Block %u is truncated.\n"
+msgstr "Blok %u jest uciêty.\n"
+
+#: quotacheck_v2.c:225
+#, c-format
+msgid "Reference to illegal block %u"
+msgstr "Odniesienie do nieprawid³owego bloku %u"
+
+#: quotacheck_v2.c:230
+#, c-format
+msgid "Block %u in tree referenced twice"
+msgstr "Dwukrotne odniesienie w drzewie do bloku %u"
+
+#: quotacheck_v2.c:245
+#, c-format
+msgid "Illegal free block reference to block %u"
+msgstr "B³êdne odniesienie pustego bloku do bloku %u"
+
+#: quotacheck_v2.c:248
+#, c-format
+msgid "Corrupted number of used entries (%u)"
+msgstr "Uszkodzona liczba u¿ytych wpisów (%u)"
+
+#: quotacheck_v2.c:294
+msgid "Checking quotafile headers...\n"
+msgstr "Sprawdzanie nag³ówków pliku limitów...\n"
+
+#: quotacheck_v2.c:298
+#, c-format
+msgid "Can't read header from quotafile %s: %s\n"
+msgstr "Nie mo¿na odczytaæ nag³ówka z pliku limitów %s: %s\n"
+
+#: quotacheck_v2.c:300
+#, c-format
+msgid "WARNING -  Quotafile %s was probably truncated. Can't save quota settings...\n"
+msgstr "UWAGA - plik limitów %s zapewne by³ uciêty. Nie mo¿na zapisaæ ustawieñ...\n"
+
+#: quotacheck_v2.c:305
+#, c-format
+msgid "WARNING - Quota file %s has corrupted headers\n"
+msgstr "UWAGA - plik limitów %s ma uszkodzone nag³ówki\n"
+
+#: quotacheck_v2.c:307
+msgid "Headers checked.\n"
+msgstr "Nag³ówki sprawdzone.\n"
+
+#: quotacheck_v2.c:325
+#, c-format
+msgid "Headers of file %s checked. Going to load data...\n"
+msgstr "Nag³ówki pliku %s sprawdzone. Rozpoczêcie wczytywania danych...\n"
+
+#: quotacheck_v2.c:333
+msgid "Can't gather quota data. Tree root node corrupted.\n"
+msgstr "Nie mo¿na zgromadziæ danych o limitach. Korzeñ drzewa uszkodzony.\n"
+
+#: quotacheck_v2.c:341
+msgid "WARNING - Some data might be changed due to corruption.\n"
+msgstr "UWAGA - czê¶æ danych mo¿e byæ zmieniona z powodu uszkodzenia.\n"
+
+#: quotacheck_v2.c:344
+msgid "Not found any corrupted blocks. Congratulations.\n"
+msgstr "Nie znaleziono ¿adnych uszkodzonych bloków. Gratulacje.\n"
+
+#: quotaio.c:59
+msgid "Only RPC quota format is allowed on NFS filesystem.\n"
+msgstr "Na systemie plików NFS dozwolony jest tylko format limitów RPC.\n"
+
+#: quotaio.c:68
+msgid "RPC quota format not compiled.\n"
+msgstr "Format limitów RPC nie wkompilowany.\n"
+
+#: quotaio.c:75
+msgid "Only XFS quota format is allowed on XFS filesystem.\n"
+msgstr "Na systemie plików XFS dozwolony jest tylko format limitów XFS.\n"
+
+#: quotaio.c:86
+msgid "XFS quota allowed only on XFS filesystem.\n"
+msgstr "Format limitów XFS dozwolony tylko na systemie plików XFS.\n"
+
+#: quotaio.c:99
+msgid "Quota file not found or has wrong format.\n"
+msgstr "Pliku limitów nie znaleziono lub ma z³y format.\n"
+
+#: quotaio.c:105 quotasys.c:427
+#, c-format
+msgid "Can't open quotafile %s: %s\n"
+msgstr "Nie mo¿na otworzyæ pliku limitów %s: %s\n"
+
+#: quotaio.c:126
+#, c-format
+msgid "Can't initialize quota on %s: %s\n"
+msgstr "Nie mo¿na zainicjowaæ limitów na %s: %s\n"
+
+#: quotaio.c:154
+#, c-format
+msgid "Creation of %s quota format is not supported.\n"
+msgstr "Tworzenie limitów w formacie %s nie jest obs³ugiwane.\n"
+
+#: quotaio.c:164
+#, c-format
+msgid "Can't create new quotafile %s: %s\n"
+msgstr "Nie mo¿na utworzyæ nowego pliku limitów %s: %s\n"
+
+#: quotaio_generic.c:49
+#, c-format
+msgid "Cannot get info for %s quota file from kernel on %s: %s\n"
+msgstr "Nie mo¿na uzyskaæ od j±dra informacji o pliku limitów %s na %s: %s\n"
+
+#: quotaio_generic.c:67
+#, c-format
+msgid "Cannot set info for %s quota file from kernel on %s: %s\n"
+msgstr "Nie mo¿na ustawiæ w j±drze informacji o pliku limitów %s na %s: %s\n"
+
+#: quotaio_generic.c:79
+#, c-format
+msgid "Cannot get quota for %s %d from kernel on %s: %s\n"
+msgstr "Nie mo¿na uzyskaæ od j±dra limitu %s dla id %d na %s: %s\n"
+
+#: quotaio_generic.c:94
+#, c-format
+msgid "Cannot set quota for %s %d from kernel on %s: %s\n"
+msgstr "Nie mo¿na ustawiæ w j±drze limitu %s dla id %d na %s: %s\n"
+
+#: quotaio_rpc.c:56 quotaio_v1.c:302 quotaio_v2.c:678
+#, c-format
+msgid "Trying to write quota to readonly quotafile on %s\n"
+msgstr "Próba zapisu limitów do pliku limitów tylko do odczytu na %s\n"
+
+#: quotaio_v1.c:208
+#, c-format
+msgid "Trying to write info to readonly quotafile on %s.\n"
+msgstr "Próba zapisu informacji do pliku limitów tylko do odczytu na %s.\n"
+
+#: quotaio_v1.c:356 quotaio_v2.c:791
+#, c-format
+msgid "Can't sync quotas on device %s: %s\n"
+msgstr "Nie mo¿na zsynchronizowaæ limitów na urz±dzeniu %s: %s\n"
+
+#: quotaio_v2.c:152
+msgid "Your quota file is stored in wrong endianity. Please use convertquota(8) to convert it.\n"
+msgstr "Plik limitów jest zapisany dla innego procesora. Do konwersji s³u¿y convertquota(8).\n"
+
+#: quotaio_v2.c:234
+#, c-format
+msgid "Trying to write info to readonly quotafile on %s\n"
+msgstr "Próba zapisu informacji do pliku limitów tylko do odczytu na %s\n"
+
+#: quotaio_v2.c:289
+#, c-format
+msgid "Can't write block (%u): %s\n"
+msgstr "Nie mo¿na zapisaæ bloku (%u): %s\n"
+
+#: quotaio_v2.c:312
+msgid "Can't allocate new quota block (out of disk space).\n"
+msgstr "Nie mo¿na przydzieliæ nowego bloku limitów (brak miejsca na dysku).\n"
+
+#: quotaio_v2.c:418
+msgid "find_free_dqentry(): Data block full but it shouldn't.\n"
+msgstr "find_free_dqentry(): Blok danych jest pe³ny, a nie powinien.\n"
+
+#: quotaio_v2.c:454
+#, c-format
+msgid "Inserting already present quota entry (block %u).\n"
+msgstr "Wstawianie ju¿ obecnego wpisu limitów (blok %u).\n"
+
+#: quotaio_v2.c:477
+#, c-format
+msgid "Can't write quota (id %u): %s\n"
+msgstr "Nie mo¿na zapisaæ limitów (id %u): %s\n"
+
+#: quotaio_v2.c:495
+#, c-format
+msgid "Quota write failed (id %u): %s\n"
+msgstr "Zapis limitów nie powiód³ siê (id %u): %s\n"
+
+#: quotaio_v2.c:506
+#, c-format
+msgid "Quota structure has offset to other block (%u) than it should (%u).\n"
+msgstr "Struktura limitów ma wskazanie na inny blok (%u) ni¿ powinna (%u).\n"
+
+#: quotaio_v2.c:585
+#, c-format
+msgid "Quota for id %u referenced but not present.\n"
+msgstr "Limit dla id %u nie istnieje, ale jest odniesienie do niego.\n"
+
+#: quotaio_v2.c:661
+#, c-format
+msgid "Can't read quota structure for id %u: %s\n"
+msgstr "Nie mo¿na odczytaæ struktury limitów dla id %u: %s\n"
+
+#: quotaio_v2.c:813
+#, c-format
+msgid ""
+"Statistics:\n"
+"Total blocks: %u\n"
+"Data blocks: %u\n"
+"Entries: %u\n"
+"Used average: %f\n"
+msgstr ""
+"Statystyki:\n"
+"Bloków w sumie: %u\n"
+"Bloków danych: %u\n"
+"Wpisów: %u\n"
+"U¿yte ¶rednio: %f\n"
+
+#: quotaio_xfs.c:242
+#, c-format
+msgid "*** Status for %s quotas on device %s\n"
+msgstr "*** Raport dla limitów %s na urz±dzeniu %s\n"
+
+#: quotaio_xfs.c:244 quotaio_xfs.c:259
+msgid "ON"
+msgstr "W£¡CZONE"
+
+#: quotaio_xfs.c:244 quotaio_xfs.c:259
+msgid "OFF"
+msgstr "WY£¡CZONE"
+
+#: quotaio_xfs.c:246 quotaio_xfs.c:250
+#, c-format
+msgid "Accounting: %s; Enforcement: %s\n"
+msgstr "Podliczanie: %s; Wymuszanie: %s\n"
+
+#: quotaio_xfs.c:262 quotaio_xfs.c:266
+#, c-format
+msgid "Accounting [ondisk]: %s; Enforcement [ondisk]: %s\n"
+msgstr "Podliczanie [na dysku]: %s; Wymuszanie [na dysku]: %s\n"
+
+#: quotaio_xfs.c:275 quotaio_xfs.c:284
+msgid "Inode: none\n"
+msgstr "I-wêze³: ¿aden\n"
+
+#: quotaio_xfs.c:277 quotaio_xfs.c:286
+#, c-format
+msgid "Inode: #%Lu (%Lu blocks, %u extents)\n"
+msgstr "I-wêze³: #%Lu (%Lu bloków, %u zasiêgów)\n"
+
+#: quotaon.c:67
+#, c-format
+msgid ""
+"Usage:\n"
+"\t%s [-guvp] [-F quotaformat] [-x state] -a\n"
+"\t%s [-guvp] [-F quotaformat] [-x state] filesys ...\n"
+msgstr ""
+"Sk³adnia:\n"
+"\t%s [-guvp] [-F format] [-x etap] -a\n"
+"\t%s [-guvp] [-F format] [-x etap] system-plików ...\n"
+
+#: quotaon.c:114
+msgid "Can't turn on/off quotas via RPC.\n"
+msgstr "Nie mo¿na w³±czyæ/wy³±czyæ limitów przez RPC.\n"
+
+#: quotaon.c:142
+msgid "Can't change state of XFS quota. It's not compiled in kernel.\n"
+msgstr "Nie mo¿na zmieniæ stanu limitów XFS. Nie s± wkompilowane w j±dro.\n"
+
+#: quotaon.c:156
+#, c-format
+msgid "Cannot find quota file on %s [%s] to turn quotas on/off.\n"
+msgstr "Nie mo¿na znale¼æ pliku limitów na %s [%s], aby w³±czyæ/wy³±czyæ limity.\n"
+
+#: quotaon.c:180
+#, c-format
+msgid "%s quota on %s (%s) is %s\n"
+msgstr "Limity %s na %s (%s) s± %s\n"
+
+#: quotaon.c:181
+msgid "on"
+msgstr "w³±czone"
+
+#: quotaon.c:181
+msgid "off"
+msgstr "wy³±czone"
+
+#: quotaon.c:199
+#, c-format
+msgid "quotactl on %s [%s]: %s\n"
+msgstr "quotactl na %s [%s]: %s\n"
+
+#: quotaon.c:203
+#, c-format
+msgid "%s [%s]: %s quotas turned off\n"
+msgstr "%s [%s]: limity %s wy³±czone\n"
+
+#: quotaon.c:216
+#, c-format
+msgid "can't find %s on %s [%s]\n"
+msgstr "nie mo¿na znale¼æ %s na %s [%s]\n"
+
+#: quotaon.c:218
+#, c-format
+msgid "using %s on %s [%s]: %s\n"
+msgstr "u¿ycie %s na %s [%s]: %s\n"
+
+#: quotaon.c:220
+msgid "Maybe create new quota files with quotacheck(8)?\n"
+msgstr "Mo¿e utworzyæ nowe pliki limitów przez quotacheck(8)?\n"
+
+#: quotaon.c:222
+msgid "Quota format not supported in kernel.\n"
+msgstr "Format limitów nie obs³ugiwany przez j±dro.\n"
+
+#: quotaon.c:226
+#, c-format
+msgid "%s [%s]: %s quotas turned on\n"
+msgstr "%s [%s]: limity %s w³±czone\n"
+
+#: quotaon.c:253
+#, c-format
+msgid "set root_squash on %s: %s\n"
+msgstr "ustawianie root_squash na %s: %s\n"
+
+#: quotaon.c:257
+#, c-format
+msgid "%s: %s root_squash turned off\n"
+msgstr "%s: wy³±czono %s root_squash\n"
+
+#: quotaon.c:259
+#, c-format
+msgid "%s: %s root_squash turned on\n"
+msgstr "%s: w³±czono %s root_squash\n"
+
+#: quotaon.c:311
 #, c-format
 msgid "Name must be quotaon or quotaoff not %s\n"
 msgstr "Nazw± musi byæ quotaon, lub quotaoff, nie %s\n"
 
-#: quotaon.c:163
+#: quotaon.c:317
 #, c-format
-msgid ""
-"Usage:\n"
-"\t%s [-g] [-u] [-v] -a\n"
-msgstr ""
-"U¿ycie:\n"
-"\t%s [-g] [-u] [-v] -a\n"
+msgid "Required format %s not supported by kernel.\n"
+msgstr "Wymagany format %s nie obs³ugiwany przez j±dro.\n"
 
-#: quotaon.c:164
+#: quotaon_xfs.c:34
 #, c-format
-msgid "\t%s [-g] [-u] [-v] filesys ...\n"
-msgstr "\t%s [-g] [-u] [-v] systemplików ...\n"
+msgid "quotactl() on %s: %s\n"
+msgstr "quotactl() na %s: %s\n"
 
-#: quotaon.c:177
+#: quotaon_xfs.c:62 quotaon_xfs.c:84
+#, c-format
+msgid "Enabling %s quota on root filesystem (reboot to take effect)\n"
+msgstr "W³±czanie limitów %s na / (zostan± uwzglêdnione po reboocie)\n"
+
+#: quotaon_xfs.c:66
+#, c-format
+msgid "Enable XFS %s quota during mount\n"
+msgstr "Nale¿y w³±czyæ limity %s na XFS podczas montowania\n"
+
+#: quotaon_xfs.c:76
+#, c-format
+msgid "Cannot delete %s quota on %s - switch quota accounting off first\n"
+msgstr "Nie mo¿na usun±æ limitów %s na %s - najpierw trzeba wy³±czyæ podliczanie\n"
+
+#: quotaon_xfs.c:88
+#, c-format
+msgid "Enabling %s quota accounting on %s\n"
+msgstr "W³±czanie podliczania limitów %s na %s\n"
+
+#: quotaon_xfs.c:92
+#, c-format
+msgid "Disabling %s quota accounting on %s\n"
+msgstr "Wy³±czanie podliczania limitów %s na %s\n"
+
+#: quotaon_xfs.c:102
+#, c-format
+msgid "Cannot delete %s quota on %s - switch quota enforcement off first\n"
+msgstr "Nie mo¿na usun±æ limitów %s na %s - najpierw nale¿y wy³±czyæ wymuszanie\n"
+
+#: quotaon_xfs.c:107
+#, c-format
+msgid "Enforcing %s quota already on %s\n"
+msgstr "Wymuszanie limitów %s by³o ju¿ w³±czone na %s\n"
+
+#: quotaon_xfs.c:111
+#, c-format
+msgid "Disabling %s quota enforcement on %s\n"
+msgstr "Wy³±czanie wymuszania limitów %s na %s\n"
+
+#: quotaon_xfs.c:118
+#, c-format
+msgid "Unexpected XFS quota state sought on %s\n"
+msgstr "Zauwa¿ono nieoczekiwany stan limitów XFS na %s\n"
+
+#: quotaon_xfs.c:133
+#, c-format
+msgid "quotactl on %s: %s\n"
+msgstr "quotactl na %s: %s\n"
+
+#: quotaon_xfs.c:137
 #, c-format
 msgid "%s: %s quotas turned off\n"
-msgstr "%s: %s limity wy³±czone\n"
+msgstr "%s: limity %s wy³±czone\n"
 
-#: quotaon.c:182
-#, c-format
-msgid "quotaon: using %s on "
-msgstr "quotaon: u¿ywam %s dla "
-
-#: quotaon.c:187
+#: quotaon_xfs.c:139
 #, c-format
 msgid "%s: %s quotas turned on\n"
-msgstr "%s: %s limity w³±czone\n"
+msgstr "%s: limity %s w³±czone\n"
 
-#: quotaon.c:199
-msgid "quotaon: set root_squash on"
-msgstr "quotaon: w³±czono root_squash"
-
-#: quotaon.c:205
+#: quotaon_xfs.c:153
 #, c-format
-msgid "%s: %s root_squash turned off\n"
-msgstr "%s: %s wy³±czono root_squash\n"
+msgid "Failed to delete quota: %s\n"
+msgstr "Nie uda³o siê usun±æ limitów: %s\n"
 
-#: quotaon.c:207
+#: quotaon_xfs.c:159
 #, c-format
-msgid "%s: %s root_squash turned on\n"
-msgstr "%s: %s w³±czono root_squash\n"
+msgid "%s: deleted %s quota blocks\n"
+msgstr "%s: usuniêto bloki limitów %s\n"
 
-#: quotaops.c:82
-msgid "day"
-msgstr "dzieñ"
-
-#: quotaops.c:84 repquota.c:314 warnquota.c:155
+#: quotaon_xfs.c:220
 #, c-format
-msgid "%d days"
-msgstr "%d dni"
+msgid "Invalid argument \"%s\"\n"
+msgstr "B³êdny argument \"%s\"\n"
 
-#: quotaops.c:89
-msgid "hour"
-msgstr "godzina"
-
-#: quotaops.c:91
+#: quotaops.c:110
 #, c-format
-msgid "%d hours"
-msgstr "%d godziny"
+msgid "%s (uid %d): Permission denied\n"
+msgstr "%s (uid %d): Brak uprawnieñ\n"
 
-#: quotaops.c:96
-msgid "minute"
-msgstr "minuta"
-
-#: quotaops.c:98
+#: quotaops.c:116
 #, c-format
-msgid "%d minutes"
-msgstr "%d minuty"
+msgid "Error while trying getgroups(): %s\n"
+msgstr "B³±d podczas próby wykonania getgroups(): %s\n"
 
-#: quotaops.c:103
-msgid "second"
-msgstr "sekunda"
-
-#: quotaops.c:105
+#: quotaops.c:126
 #, c-format
-msgid "%d seconds"
-msgstr "%d sekundy"
+msgid "%s (gid %d): Permission denied\n"
+msgstr "%s (gid %d): Brak uprawnieñ\n"
 
-#: quotaops.c:124
+#: quotaops.c:139
 #, c-format
-msgid ""
-"%s: bad units, specify:\n"
-" %s, %s, %s, or %s"
-msgstr ""
-"%s: z³e jednostki, podaj:\n"
-" %s, %s, %s, lub %s"
+msgid "Error while getting quota from %s for %u: %s\n"
+msgstr "B³±d podczas uzyskiwania limitów z %s dla %u: %s\n"
 
-#: quotaops.c:182
-msgid "edquota: out of memory\n"
-msgstr "edquota: brak pamiêci\n"
+#: quotaops.c:163
+#, c-format
+msgid "Can't write quota for %u on %s: %s\n"
+msgstr "Nie mo¿na zapisaæ limitów dla %u na %s: %s\n"
 
-#: quotaops.c:191
-msgid "Warning: Quotas are not compiled into this kernel\n"
-msgstr "Uwaga: Quota nie jest wkompilowane w to j±dro\n"
+#: quotaops.c:200
+#, c-format
+msgid "Can't exec %s\n"
+msgstr "Nie mo¿na uruchomiæ %s\n"
 
-#: quotaops.c:315
+#: quotaops.c:219 quotaops.c:404
+#, c-format
+msgid "Can't duplicate descriptor of file to write to: %s\n"
+msgstr "Nie mo¿na powieliæ deskryptora pliku do zapisu: %s\n"
+
+#: quotaops.c:222
 #, c-format
 msgid "Disk quotas for %s %s (%cid %d):\n"
-msgstr "Limity dla %s %s (%cid %d):\n"
+msgstr "Limity dyskowe %s %s (%cid %d):\n"
 
-#: quotaops.c:319
-msgid ""
-"  Filesystem                   blocks       soft       hard     inodes     "
-"soft     hard\n"
-msgstr ""
-"  System plików                bloki        miêkki     twardy   i-wêz³y    "
-"miêkki   twardy\n"
+#: quotaops.c:226
+msgid "  Filesystem                   blocks       soft       hard     inodes     soft     hard\n"
+msgstr "  System plików                bloki        miêkki     twardy   i-wêz³y    miêkki   twardy\n"
 
-#: quotaops.c:332
+#: quotaops.c:238
 #, c-format
 msgid "Quotas for %s %s:\n"
-msgstr "Limity dla %s %s:\n"
+msgstr "Limity %s %s:\n"
 
-#: quotaops.c:334
-#, c-format
-msgid "%s: %s %d, limits (soft = %d, hard = %d)\n"
-msgstr "%s: %s %d, limity (miêkki = %d, twardy = %d)\n"
-
-#: quotaops.c:335
-msgid "blocks in use:"
-msgstr "u¿ywanych bloków:"
-
-#: quotaops.c:339
+#: quotaops.c:240 quotaops.c:244
 #, c-format
 msgid "%s %d, limits (soft = %d, hard = %d)\n"
 msgstr "%s %d, limity (miêkki = %d, twardy = %d)\n"
 
-#: quotaops.c:340
+#: quotaops.c:241
+msgid "blocks in use:"
+msgstr "u¿ywanych bloków:"
+
+#: quotaops.c:245
 msgid "\tinodes in use:"
-msgstr "\tu¿ywanych iwêz³ów:"
+msgstr "\tu¿ywanych i-wêz³ów:"
 
-#: quotaops.c:367 quotaops.c:580
-msgid "Can't re-read temp file!!\n"
-msgstr "Nie mogê odczytaæ pliku tymczasowego\n"
+#: quotaops.c:271
+#, c-format
+msgid "WARNING - %s: cannot change current block allocation\n"
+msgstr "UWAGA - %s: nie mo¿na zmieniæ aktualnego przydzia³u bloków\n"
 
-#: quotaops.c:385 quotaops.c:596
+#: quotaops.c:274
+#, c-format
+msgid "WARNING - %s: cannot change current inode allocation\n"
+msgstr "UWAGA - %s: nie mo¿na zmieniæ aktualnego przydzia³u i-wêz³ów\n"
+
+#: quotaops.c:297 quotaops.c:446
+#, c-format
+msgid "Can't duplicate descriptor of temp file: %s\n"
+msgstr "Nie mo¿na powieliæ deskryptora pliku tymczasowego: %s\n"
+
+#: quotaops.c:311
+#, c-format
+msgid ""
+"Bad format:\n"
+"%s\n"
+msgstr ""
+"Z³y format:\n"
+"%s\n"
+
+#: quotaops.c:324 quotaops.c:588
+#, c-format
+msgid "%s - bad format\n"
+msgstr "%s - z³y format\n"
+
+#: quotaops.c:328
+#, c-format
+msgid "%s -  %s -- bad format\n"
+msgstr "%s -  %s -- z³y format\n"
+
+#: quotaops.c:333
+#, c-format
+msgid " blocks in use: %Lu, limits (soft = %Lu, hard = %Lu)"
+msgstr " u¿ywanych bloków: %Lu, limity (miêkki = %Lu, twardy = %Lu)"
+
+#: quotaops.c:336 quotaops.c:342 quotaops.c:350 quotaops.c:592 quotaops.c:599
+#, c-format
+msgid "%s - %s -- bad format\n"
+msgstr "%s - %s -- z³y format\n"
+
+#: quotaops.c:347
+#, c-format
+msgid "\tinodes in use: %Lu, limits (soft = %Lu, hard = %Lu)"
+msgstr "\tu¿ywanych i-wêz³ów: %Lu, limity (miêkki = %Lu, twardy = %Lu)"
+
+#: quotaops.c:406
+#, c-format
+msgid "Times to enforce softlimit for %s %s (%cid %d):\n"
+msgstr "Okresy wymuszenia miêkkich limitów %s %s (%cid %d):\n"
+
+#: quotaops.c:408 quotaops.c:511 quotaops.c:520
+msgid "Time units may be: days, hours, minutes, or seconds\n"
+msgstr "Jednostkami czasu mog± byæ: days, hours, minutes, seconds\n"
+
+#: quotaops.c:410
+msgid "  Filesystem                         block grace               inode grace\n"
+msgstr "  System plików         Pob³a¿liwo¶æ dla bloków Pob³a¿liwo¶æ dla i-wêz³ów\n"
+
+#: quotaops.c:415 quotaops.c:421 quotaops.c:463 quotaops.c:475 setquota.c:174
+#: setquota.c:180
+msgid "unset"
+msgstr "nie ustawiona"
+
+#: quotaops.c:417 quotaops.c:423
+msgid "0seconds"
+msgstr "0 sekund"
+
+#: quotaops.c:425 quotasys.c:277
+#, c-format
+msgid "%useconds"
+msgstr "%u sekund"
+
+#: quotaops.c:460 quotaops.c:576
 #, c-format
 msgid ""
 "bad format:\n"
@@ -503,336 +1345,550 @@ msgstr ""
 "z³y format:\n"
 "%s\n"
 
-#: quotaops.c:421
-#, c-format
-msgid "%s: cannot change current block allocation\n"
-msgstr "%s: nie mogê zmieniæ aktualnej allokacji bloków\n"
+#: quotaops.c:470 quotaops.c:606
+msgid "Bad time units. Units are 'second', 'minute', 'hour' and 'day'.\n"
+msgstr "Z³e jednostki czasu. Jednostkami s± 'second', 'minute', 'hour' i 'day'.\n"
 
-#: quotaops.c:423
+#: quotaops.c:506
 #, c-format
-msgid "%s: cannot change current inode allocation\n"
-msgstr "%s: nie mogê zmieniæ aktualnej allokacji iwêz³ów\n"
+msgid "Can't duplicate descriptor of file to edit: %s\n"
+msgstr "Nie mo¿na powieliæ deskryptora pliku do edycji: %s\n"
 
-#: quotaops.c:434 quotaops.c:608
-#, c-format
-msgid "%s: bad format\n"
-msgstr "%s: z³y format\n"
-
-#: quotaops.c:438 quotaops.c:455 quotaops.c:462 quotaops.c:612
-#, c-format
-msgid "%s: %s: bad format\n"
-msgstr "%s: %s: z³y format\n"
-
-#: quotaops.c:443
-#, c-format
-msgid " blocks in use: %d, limits (soft = %d, hard = %d)"
-msgstr " u¿ywanych bloków: %d, limity (miêkki = %d, twardy = %d)"
-
-#: quotaops.c:446 quotaops.c:620
-#, c-format
-msgid "%s:%s: bad format\n"
-msgstr "%s:%s: z³y format\n"
-
-#: quotaops.c:459
-#, c-format
-msgid "\tinodes in use: %d, limits (soft = %d, hard = %d)"
-msgstr "\tu¿ywanych iwêz³ów: %d, limity (miêkki = %d, twardy = %d)"
-
-#: quotaops.c:499
-#, c-format
-msgid "%s: cannot change current allocation\n"
-msgstr "%s: nie mogê zmieniæ aktualnej allokacji\n"
-
-#: quotaops.c:537 quotaops.c:547
+#: quotaops.c:509 quotaops.c:521
 #, c-format
 msgid "Grace period before enforcing soft limits for %ss:\n"
-msgstr "Okres pob³a¿liwo¶ci przed wymuszeniem miêkkich limitów dla %s:\n"
+msgstr "Okres pob³a¿liwo¶ci przed wymuszeniem miêkkich limitów %s:\n"
 
-#: quotaops.c:538 quotaops.c:546
-msgid "Time units may be: days, hours, minutes, or seconds\n"
-msgstr "Jednostkami czasu mog± byæ: days, hours, minutes, seconds\n"
-
-#: quotaops.c:539
+#: quotaops.c:512
 msgid "  Filesystem             Block grace period     Inode grace period\n"
-msgstr ""
-"  System plików         Pob³a¿liwo¶æ dla bloków Pob³a¿liwo¶æ dla iwêz³ów\n"
+msgstr "  System plików         Pob³a¿liwo¶æ dla bloków Pob³a¿liwo¶æ dla i-wêz³ów\n"
 
-#: quotaops.c:550
+#: quotaops.c:526
 #, c-format
-msgid "%s: block grace period: %s, "
-msgstr "%s: okres pob³a¿liwo¶ci dla bloków: %s,"
+msgid "block grace period: %s, file grace period: %s\n"
+msgstr "okres pob³a¿liwo¶ci dla bloków: %s, okres pob³a¿liwo¶ci dla plików: %s\n"
 
-#: quotaops.c:552
+#: quotaops.c:554
 #, c-format
-msgid "file grace period: %s\n"
-msgstr "okres pob³a¿liwo¶ci dla plików: %s\n"
+msgid "Can't reopen temp file: %s\n"
+msgstr "Nie mo¿na ponownie otworzyæ pliku tymczasowego: %s\n"
 
-#: quotaops.c:617
+#: quotaops.c:596
 #, c-format
 msgid " block grace period: %d %s file grace period: %d %s"
-msgstr ""
-" okres pob³a¿liwo¶ci dla bloków: %d %s okres pob³a¿liwo¶ci dla plików: %d %s"
+msgstr " okres pob³a¿liwo¶ci dla bloków: %d %s okres pob³a¿liwo¶ci dla plików: %d %s"
 
-#: quotastats.c:35
+#: quotastats.c:48
+#, c-format
+msgid "Can't read stat file %s: %s\n"
+msgstr "Nie mogê odczytaæ pliku statystyk %s: %s\n"
+
+#: quotastats.c:83
+#, c-format
+msgid "Error while getting quota statistics from kernel: %s\n"
+msgstr "B³±d podczas pobierania od j±dra statystyk limitów: %s\n"
+
+#: quotastats.c:87
+#, c-format
+msgid "Error while getting old quota statistics from kernel: %s\n"
+msgstr "B³±d podczas pobierania od j±dra starych statystyk limitów: %s\n"
+
+#: quotastats.c:101
+msgid "Kernel quota version: old\n"
+msgstr "Wersja limitów w j±drze: stara\n"
+
+#: quotastats.c:103
+#, c-format
+msgid "Kernel quota version: %u.%u.%u\n"
+msgstr "Wersja limitów w j±drze: %u.%u.%u\n"
+
+#: quotastats.c:104
 #, c-format
 msgid "Number of dquot lookups: %ld\n"
 msgstr "Liczba poszukiwañ dquot: %ld\n"
 
-#: quotastats.c:36
+#: quotastats.c:105
 #, c-format
 msgid "Number of dquot drops: %ld\n"
 msgstr "Liczba zrzutów dquot: %ld\n"
 
-#: quotastats.c:37
-#, c-format
-msgid "Number of still active inodes with quota : %ld\n"
-msgstr "Liczba aktywnych iwêz³ów dla limitu: %ld\n"
-
-#: quotastats.c:39
+#: quotastats.c:106
 #, c-format
 msgid "Number of dquot reads: %ld\n"
 msgstr "Liczba odczytów dquot: %ld\n"
 
-#: quotastats.c:40
+#: quotastats.c:107
 #, c-format
 msgid "Number of dquot writes: %ld\n"
 msgstr "Liczba zapisów dquot: %ld\n"
 
-#: quotastats.c:41
+#: quotastats.c:108
 #, c-format
 msgid "Number of quotafile syncs: %ld\n"
 msgstr "Liczba synchronizacji pliku limitów: %ld\n"
 
-#: quotastats.c:42
+#: quotastats.c:109
 #, c-format
 msgid "Number of dquot cache hits: %ld\n"
-msgstr "Liczba trafieñ cache'u dquot: %ld\n"
+msgstr "Liczba trafieñ bufora dquot: %ld\n"
 
-#: quotastats.c:43
+#: quotastats.c:110
 #, c-format
 msgid "Number of allocated dquots: %ld\n"
-msgstr "Liczba zaallokowanych struktur dquot: %ld\n"
+msgstr "Liczba przydzielonych struktur dquot: %ld\n"
 
-#: quotastats.c:44
+#: quotastats.c:111
 #, c-format
 msgid "Number of free dquots: %ld\n"
 msgstr "Liczba wolnych dquot: %ld\n"
 
-#: quotastats.c:45
+#: quotastats.c:112
 #, c-format
 msgid "Number of in use dquot entries (user/group): %ld\n"
 msgstr "Liczba u¿ywanych wpisów dquot (u¿ytkownik/grupa): %ld\n"
 
-#: repquota.c:159
+#: quotasys.c:70
+#, c-format
+msgid "User %s doesn't exist.\n"
+msgstr "U¿ytkownik %s nie istnieje.\n"
+
+#: quotasys.c:89
+#, c-format
+msgid "Group %s doesn't exist.\n"
+msgstr "Grupa %s nie istnieje.\n"
+
+#: quotasys.c:186
 #, c-format
 msgid ""
+"Unknown quota format: %s\n"
+"Supported formats are:\n"
+"  vfsold - original quota format\n"
+"  vfsv0 - new quota format\n"
+"  rpc - use RPC calls\n"
+"  xfs - XFS quota format\n"
+msgstr ""
+"Nieznany format limitów: %s\n"
+"Obs³ugiwane formaty to:\n"
+"  vfsold - oryginalny format limitów\n"
+"  vfsv0 - nowy format limitów\n"
+"  rpc - u¿ywanie wywo³añ RPC\n"
+"  xfs - format limitów na XFS\n"
+
+#: quotasys.c:201
+msgid "Unknown format"
+msgstr "Nieznany format"
+
+#: quotasys.c:265
+#, c-format
+msgid "%ddays"
+msgstr "%d dni"
+
+#: quotasys.c:267
+#, c-format
+msgid "%02d:%02d"
+msgstr "%02d:%02d"
+
+#: quotasys.c:279
+#, c-format
+msgid "%uminutes"
+msgstr "%u minut"
+
+#: quotasys.c:281
+#, c-format
+msgid "%uhours"
+msgstr "%u godzin"
+
+#: quotasys.c:283
+#, c-format
+msgid "%udays"
+msgstr "%u dni"
+
+#: quotasys.c:411
+#, c-format
+msgid "Can't stat quota file %s: %s\n"
+msgstr "Nie mo¿na wykonaæ stat na pliku limitów %s: %s\n"
+
+#: quotasys.c:497 quotasys.c:505
+#, c-format
+msgid "Too many mountpoints with quota. Contact %s\n"
+msgstr "Zbyt du¿o punktów montowania z limitami. Proszê o kontakt z %s\n"
+
+#: quotasys.c:515
+msgid "Not all specified mountpoints are using quota.\n"
+msgstr "Nie wszystkie podane punkty montowania u¿ywaj± limitów.\n"
+
+#: quotasys.c:528
+#, c-format
+msgid "Error while releasing file on %s\n"
+msgstr "B³±d podczas zwalniania pliku na %s\n"
+
+#: quotasys.c:586
+#, c-format
+msgid "Can't create set for sigaction(): %s\n"
+msgstr "Nie mo¿na ustawiæ zbioru dla sigaction(): %s\n"
+
+#: quotasys.c:589
+#, c-format
+msgid "Can't set signal handler: %s\n"
+msgstr "Nie mo¿na ustawiæ obs³ugi sygna³u: %s\n"
+
+#: quotasys.c:620
+#, c-format
+msgid "Can't reset signal handler: %s\n"
+msgstr "Nie mo¿na przywróciæ obs³ugi sygna³u: %s\n"
+
+#: quotasys.c:730 quotasys.c:735 warnquota.c:426
+#, c-format
+msgid "Can't open %s: %s\n"
+msgstr "Nie mo¿na otworzyæ %s: %s\n"
+
+#: quotasys.c:746
+#, c-format
+msgid "Can't get device name for %s\n"
+msgstr "Nie mo¿na uzyskaæ nazwy urz±dzenia dla %s\n"
+
+#: quotasys.c:778
+#, c-format
+msgid "Can't resolve mountpoint path %s: %s\n"
+msgstr "Nie mo¿na rozwi±zaæ ¶cie¿ki punktu montowania %s: %s\n"
+
+#: quotasys.c:784
+#, c-format
+msgid "Can't statfs() %s: %s\n"
+msgstr "Nie mo¿na wykonaæ statfs() %s: %s\n"
+
+#: quotasys.c:796
+#, c-format
+msgid "Can't stat() mounted device %s: %s\n"
+msgstr "Nie mo¿na wykonaæ stat() na podmontowanym urz±dzeniu %s: %s\n"
+
+#: quotasys.c:812
+#, c-format
+msgid "Can't find device of loopback mount in options for %s. Skipping.\n"
+msgstr "Nie znaleziono urz±dzenia montowanego po loopbacku w opcjach dla %s. Pominiêto.\n"
+
+#: quotasys.c:821
+#, c-format
+msgid "Can't stat() loopback device %s: %s\n"
+msgstr "Nie mo¿na wykonaæ stat() na urz±dzeniu loopback %s: %s\n"
+
+#: quotasys.c:826
+#, c-format
+msgid "Loopback device %s isn't block device!\n"
+msgstr "Urz±dzenie loopback %s nie jest urz±dzeniem blokowym!\n"
+
+#: quotasys.c:835
+#, c-format
+msgid "Device (%s) filesystem is mounted on isn't block or character device nor it's loopback or bind mount. Skipping.\n"
+msgstr "Urz±dzenie (%s), na którym jest podmontowany system plików nie jest urz±dzeniem blokowym ani znakowym, ani nie jest montowane przez loopback lub bind. Pominiêto.\n"
+
+#: quotasys.c:847
+#, c-format
+msgid "Can't stat() mountpoint %s: %s\n"
+msgstr "Nie mo¿na wykonaæ stat() na punkcie montowania %s: %s\n"
+
+#: quotasys.c:904
+#, c-format
+msgid ""
+"Can't stat() given mountpoint %s: %s\n"
+"Skipping...\n"
+msgstr ""
+"Nie mo¿na wykonaæ stat() na podanym punkcie montowania %s: %s\n"
+"Pomijanie...\n"
+
+#: quotasys.c:913
+#, c-format
+msgid "Can't find filesystem mountpoint for directory %s\n"
+msgstr "Nie mo¿na znale¼æ punktu montowania systemu plików dla katalogu %s\n"
+
+#: quotasys.c:919
+#, c-format
+msgid "Can't resolve path %s: %s\n"
+msgstr "Nie mo¿na rozwi±zaæ ¶cie¿ki %s: %s\n"
+
+#: quotasys.c:929
+#, c-format
+msgid "Can't find mountpoint for device %s\n"
+msgstr "Nie mo¿na znale¼æ punktu montowania dla urz±dzenia %s\n"
+
+#: quotasys.c:935
+#, c-format
+msgid "Specified path %s is not directory nor device.\n"
+msgstr "Podana ¶cie¿ka %s nie jest katalogiem ani urz±dzeniem.\n"
+
+#: quotasys.c:942
+msgid "No correct mountpoint specified.\n"
+msgstr "Nie podano poprawnego punktu montowania.\n"
+
+#: quotasys.c:1003
+#, c-format
+msgid "Mountpoint (or device) %s not found.\n"
+msgstr "Nie znaleziono punktu montowania (lub urz±dzenia) %s.\n"
+
+#: repquota.c:46
+#, c-format
+msgid ""
+"Utility for reporting quotas.\n"
 "Usage:\n"
-"\t%s\n"
-"\t%s\n"
+"%s [-vugsi] [-c|C] [-t|n] [-F quotaformat] (-a | mntpoint)\n"
 msgstr ""
-"U¿ycie:\n"
-"\t%s\n"
-"\t%s\n"
+"Narzêdzie do raportowania limitów.\n"
+"Sk³adnia:\n"
+"%s [-vugsi] [-c|C] [-t|n] [-F format] (-a | punkt-montowania)\n"
 
-#: repquota.c:160
-#, fuzzy
-msgid "repquota [-v] [-g] [-u] -a"
-msgstr "repquota [-v] [-g] [-u] systemplików ..."
+#: repquota.c:108
+msgid "Repquota can't report through RPC calls.\n"
+msgstr "repquota nie mo¿e raportowaæ poprzez wywo³ania RPC.\n"
 
-#: repquota.c:161
-msgid "repquota [-v] [-g] [-u] filesys ..."
-msgstr "repquota [-v] [-g] [-u] systemplików ..."
+#: repquota.c:112
+msgid "Specified both -n and -t but only one of them can be used.\n"
+msgstr "Podano jednocze¶nie -n i -t, ale tylko jedna z nich mo¿e byæ u¿yte.\n"
 
-#: repquota.c:181
-msgid "*** Warning: Quotas are not compiled into this kernel\n"
-msgstr "*** Uwaga: Quota nie s± wkompilowane w to j±dro\n"
-
-#: repquota.c:186
+#: repquota.c:241
 #, c-format
-msgid "*** Report for %s quotas on %s (%s)\n"
-msgstr "*** Raport dla %s limitów na %s (%s)\n"
+msgid "*** Report for %s quotas on device %s\n"
+msgstr "*** Raport dla limitów %s na urz±dzeniu %s\n"
 
-#: repquota.c:203
-msgid "                        Block limits               File limits\n"
-msgstr "                        Limity bloków          Limity plików\n"
+#: repquota.c:244
+#, c-format
+msgid "Block grace time: %s; Inode grace time: %s\n"
+msgstr "Okres pob³a¿liwo¶ci dla bloków: %s; Okres pob³a¿liwo¶ci dla i-wêz³ów: %s\n"
 
-#: repquota.c:204
+#: repquota.c:245
+msgid "                        Block limits                File limits\n"
+msgstr "                        Limity bloków               Limity plików\n"
+
+#: repquota.c:246
+#, c-format
+msgid "%-9s       used    soft    hard  grace    used  soft  hard  grace\n"
+msgstr "%-9s       u¿yw.   miêk.   twar. pob³.    u¿yw. miêk. twar. pob³.\n"
+
+#: repquota.c:246
+msgid "User"
+msgstr "U¿ytkownik"
+
+#: repquota.c:246
+msgid "Group"
+msgstr "Grupa"
+
+#: rquota_svc.c:78
+#, c-format
 msgid ""
-"User            used    soft    hard  grace    used  soft  hard  grace\n"
+"Usage: %s [options]\n"
+"Options are:\n"
+" -h --help         shows this text\n"
+" -V --version      shows version information\n"
+" -F --foreground   starts the quota service in foreground\n"
+" -s --no-setquota  disables remote calls to setquota (default)\n"
+" -S --setquota     enables remote calls to setquota\n"
+" -I --autofs       do not ignore mountpoints mounted by automounter\n"
 msgstr ""
-"U¿ytkownik      u¿yw.   miê.    twa.  pob.     u¿yw. miê.  twa.  pob.\n"
+"Sk³adnia: %s [opcje]\n"
+"Opcje to:\n"
+" -h --help         wy¶wietlenie tego opisu\n"
+" -V --version      wy¶wietlenie informacji o wersji\n"
+" -F --foreground   uruchomienie us³ugi quota jako procesu pierwszoplanowego\n"
+" -s --no-setquota  wy³±czenie zdalnych wywo³añ setquota (domy¶lne)\n"
+" -S --setquota     w³±czenie zdalnych wywo³añ setquota\n"
+" -I --autofs       nie ignorowanie punktów obs³ugiwanych przez automounter\n"
 
-#: repquota.c:279
-msgid "out of memory for fileusage structures\n"
-msgstr "brak p±miêci dla struktury wykorzystania systemu plików\n"
+#: rquota_svc.c:87
+#, c-format
+msgid ""
+"Usage: %s [options]\n"
+"Options are:\n"
+" -h --help         shows this text\n"
+" -V --version      shows version information\n"
+" -F --foreground   starts the quota service in foreground\n"
+" -I --autofs       do not ignore mountpoints mounted by automounter\n"
+msgstr ""
+"Sk³adnia: %s [opcje]\n"
+"Opcje to:\n"
+" -h --help         wy¶wietlenie tego opisu\n"
+" -V --version      wy¶wietlenie informacji o wersji\n"
+" -F --foreground   uruchomienie us³ugi quota jako procesu pierwszoplanowego\n"
+" -I --autofs       nie ignorowanie punktów obs³ugiwanych przez automounter\n"
 
-#: rquota_svc.c:103 rquota_svc.c:182
-msgid "unable to free arguments"
-msgstr "nie mogê usun±æ argumentów"
+#: rquota_svc.c:116
+#, c-format
+msgid "Unknown option '%c'.\n"
+msgstr "Nieznana opcja '%c'.\n"
 
-#: rquota_svc.c:202
-msgid "cannot create udp service."
-msgstr "nie mogê stworzyæ us³ugi udp."
+#: rquota_svc.c:140
+#, c-format
+msgid "host %s attempted to call setquota when disabled\n"
+msgstr "host %s próbowa³ wywo³aæ setquota kiedy ta operacja jest wy³±czona\n"
 
-#: rquota_svc.c:206
-msgid "unable to register (RQUOTAPROG, RQUOTAVERS, udp)."
-msgstr "nie mogê zarejestrowaæ (RQUOTAPROG, RQUOTAVERS, udp)."
+#: rquota_svc.c:147
+#, c-format
+msgid "host %s attempted to call setquota from port >= 1024\n"
+msgstr "host %s próbowa³ wywo³aæ setquota z portu >= 1024\n"
 
-#: rquota_svc.c:210
-msgid "unable to register (RQUOTAPROG, EXT_RQUOTAVERS, udp)."
-msgstr "nie mogê zarejestrowaæ (RQUOTAPROG, EXT_RQUOTAVERS, udp)."
+#: rquota_svc.c:183
+#, c-format
+msgid "Denied access to host %s\n"
+msgstr "Odrzucono próbê dostêpu z hosta %s\n"
 
-#: rquota_svc.c:216
-msgid "cannot create tcp service."
-msgstr "nie mogê stworzyæ us³ugi tcp."
+#: rquota_svc.c:271 rquota_svc.c:357
+msgid "unable to free arguments\n"
+msgstr "nie mo¿na usun±æ argumentów\n"
 
-#: rquota_svc.c:220
-msgid "unable to register (RQUOTAPROG, RQUOTAVERS, tcp)."
-msgstr "nie mogê zarejestrowaæ (RQUOTAPROG, RQUOTAVERS, tcp)."
+#: rquota_svc.c:397
+msgid "cannot create udp service.\n"
+msgstr "nie mo¿na utworzyæ us³ugi udp.\n"
 
-#: rquota_svc.c:224
-msgid "unable to register (RQUOTAPROG, EXT_RQUOTAVERS, tcp)."
-msgstr "nie mogê zarejestrowaæ (RQUOTAPROG, EXT_RQOUTAVERS, tcp)."
+#: rquota_svc.c:401
+msgid "unable to register (RQUOTAPROG, RQUOTAVERS, udp).\n"
+msgstr "nie mo¿na zarejestrowaæ (RQUOTAPROG, RQUOTAVERS, udp).\n"
 
-#: rquota_svc.c:230
-msgid "svc_run returned"
-msgstr "swc_run zwróci³o"
+#: rquota_svc.c:405
+msgid "unable to register (RQUOTAPROG, EXT_RQUOTAVERS, udp).\n"
+msgstr "nie mo¿na zarejestrowaæ (RQUOTAPROG, EXT_RQUOTAVERS, udp).\n"
 
-#: set_limits_example.c:17
+#: rquota_svc.c:412
+msgid "cannot create tcp service.\n"
+msgstr "nie mo¿na utworzyæ us³ugi tcp.\n"
+
+#: rquota_svc.c:416
+msgid "unable to register (RQUOTAPROG, RQUOTAVERS, tcp).\n"
+msgstr "nie mo¿na zarejestrowaæ (RQUOTAPROG, RQUOTAVERS, tcp).\n"
+
+#: rquota_svc.c:420
+msgid "unable to register (RQUOTAPROG, EXT_RQUOTAVERS, tcp).\n"
+msgstr "nie mo¿na zarejestrowaæ (RQUOTAPROG, EXT_RQOUTAVERS, tcp).\n"
+
+#: rquota_svc.c:429
+msgid "svc_run returned\n"
+msgstr "svc_run powróci³o\n"
+
+#: set_limits_example.c:18
 #, c-format
 msgid "copy_user_quota_limits: Failed to set userquota for uid %ld : %s\n"
-msgstr ""
-"copy_user_quota_limits: nie mogê ustawiæ limitów u¿ytkownika dla uid %ld : "
-"%s\n"
+msgstr "copy_user_quota_limits: nie uda³o siê ustawiæ limitów u¿ytkownika dla uid %ld : %s\n"
 
-#: set_limits_example.c:23
+#: set_limits_example.c:25
 #, c-format
 msgid "copy_user_quota_limits: Failed to get userquota for uid %ld : %s\n"
-msgstr ""
-"copy_user_quota_limits: nie mogê pobraæ limitów u¿ytkownika dla uid %ld : "
-"%s\n"
+msgstr "copy_user_quota_limits: nie uda³o siê pobraæ limitów u¿ytkownika dla uid %ld : %s\n"
 
-#: set_limits_example.c:38
+#: set_limits_example.c:41
 #, c-format
 msgid "copy_group_quota_limits: Failed to set groupquota for uid %ld : %s\n"
-msgstr ""
-"copy_group_quota_limits: nie mogê ustawiæ limitów grupy dla uid %ld : %s\n"
+msgstr "copy_group_quota_limits: nie uda³o siê ustawiæ limitów grupy dla uid %ld : %s\n"
 
-#: set_limits_example.c:44
+#: set_limits_example.c:48
 #, c-format
 msgid "copy_group_quota_limits: Failed to get groupquota for uid %ld : %s\n"
-msgstr ""
-"copy_group_quota_limits: nie mogê odczytaæ limitór grupy dla uid %ld : %s\n"
+msgstr "copy_group_quota_limits: nie uda³o siê odczytaæ limitów grupy dla uid %ld : %s\n"
 
-#: setquota.c:74
+#: setquota.c:43
 msgid ""
 "Usage:\n"
-"\tsetquota [-u|-g] [-n] <username|groupname> <filesystem>\n"
-"\t\t<block-softlimit> <block-hardlimit> <inode-softlimit> <inode-hardlimit>\n"
-"\tsetquota [-u|-g] [-n] <-p protousername|protogroupname> "
-"<username|groupname> <filesystem>\n"
+"  setquota [-u|-g] [-r] [-F quotaformat] <user|group>\n"
+"\t<block-softlimit> <block-hardlimit> <inode-softlimit> <inode-hardlimit> -a|<filesystem>...\n"
+"  setquota [-u|-g] [-r] [-F quotaformat] <-p protouser|protogroup> <user|group> -a|<filesystem>...\n"
+"  setquota [-u|-g] [-F quotaformat] -t <blockgrace> <inodegrace> -a|<filesystem>...\n"
+"  setquota [-u|-g] [-F quotaformat] <user|group> -T <blockgrace> <inodegrace> -a|<filesystem>...\n"
 msgstr ""
-"U¿ycie:\n"
-"\tsetquota [-u|-g] [-n] <u¿ytkownik|grupa> <systemplików>\n"
-"\t\t<bloki-miêkki> <bloki-twardy> <iwêz³umiêkki> <iwêz³ytwary>\n"
-"\tsetquota [-u|-g] [-n] <-p u_prototyp|g_prototyp> <u¿ytkownik|grupa> "
-"<systemplików>\n"
+"Sk³adnia:\n"
+"  setquota [-u|-g] [-r] [-F format] <u¿ytkownik|grupa>\n"
+"\t<miêkki-limit-bloków> <twardy-limit-bloków> <miêkki-limit-iwêz³ów> <twardy-limit-iwêz³ów> -a|<system-plików>...\n"
+"  setquota [-u|-g] [-r] [-F format] <-p wzorcowy-u¿ytkownik|grupa> <u¿ytkownik|grupa> -a|<system-plików>...\n"
+"  setquota [-u|-g] [-F format] -t <pob³-bloki> <pob³-iwêz³y> -a|<system-plików>...\n"
+"  setquota [-u|-g] [-F format] <u¿ytkownik|grupa> -T <pob³-bloki> <pob³-iwêz³y> -a|<system-plików>...\n"
 
-#: setquota.c:79
+#: setquota.c:50
 msgid ""
 "Usage:\n"
-"\tsetquota [-u|-g] <username|groupname> <filesystem>\n"
-"\t\t<block-softlimit> <block-hardlimit> <inode-softlimit> <inode-hardlimit>\n"
-"\tsetquota [-u|-g] <-p protousername|protogroupname> <username|groupname> "
-"<filesystem>\n"
+"  setquota [-u|-g] [-F quotaformat] <user|group>\n"
+"\t<block-softlimit> <block-hardlimit> <inode-softlimit> <inode-hardlimit> -a|<filesystem>...\n"
+"  setquota [-u|-g] [-F quotaformat] <-p protouser|protogroup> <user|group> -a|<filesystem>...\n"
+"  setquota [-u|-g] [-F quotaformat] -t <blockgrace> <inodegrace> -a|<filesystem>...\n"
+"  setquota [-u|-g] [-F quotaformat] <user|group> -T <blockgrace> <inodegrace> -a|<filesystem>...\n"
 msgstr ""
-"U¿ycie:\n"
-"\tsetquota [-u|-g] <u¿ytkownik|grupa> <systemplików>\n"
-"\t\t<bloki-miêkki> <bloki-twardy> <iwêz³y-miêkki> <iwêz³y-twardy>\n"
-"\tsetquota [-u|-g] <-p u_prototyp|g_prototyp> <u¿ytkownik|grupa> "
-"<systemplików>\n"
+"Sk³adnia:\n"
+"  setquota [-u|-g] [-F format] <u¿ytkownik|grupa>\n"
+"\t<miêkki-limit-bloków> <twardy-limit-bloków> <miêkki-limit-iwêz³ów> <twardy-limit-iwêz³ów> -a|<system-plików>...\n"
+"  setquota [-u|-g] [-F format] <-p wzorcowy-u¿ytkownik|grupa> <u¿ytkownik|grupa> -a|<system-plików>...\n"
+"  setquota [-u|-g] [-F format] -t <pob³-bloki> <pob³-iwêz³y> -a|<system-plików>...\n"
+"  setquota [-u|-g] [-F format] <u¿ytkownik|grupa> -T <pob³-bloki> <pob³-iwêz³y> -a|<system-plików>...\n"
 
-#: setquota.c:152
-msgid "setquota: permission denied\n"
-msgstr "setquota: brak prawa dostêpu\n"
-
-#: setquota.c:180
+#: setquota.c:68
 #, c-format
-msgid "Unknown option -%c\n"
-msgstr "Nieznana opcja -%c\n"
+msgid "Bad %s: %s\n"
+msgstr "B³êdny %s: %s\n"
 
-#: setquota.c:193
+#: setquota.c:133
+msgid "Group and user quotas can't be used together.\n"
+msgstr "Limity grupy i u¿ytkownika nie mog± byæ u¿yte razem.\n"
+
+#: setquota.c:137
+msgid "Prototype user has no sense when editting grace times.\n"
+msgstr "Wzorcowy u¿ytkownik nie ma sensu przy edycji okresów pob³a¿liwo¶ci.\n"
+
+#: setquota.c:158
+msgid "block softlimit"
+msgstr "miêkki limit bloków"
+
+#: setquota.c:159
+msgid "block hardlimit"
+msgstr "twardy limit bloków"
+
+#: setquota.c:160
+msgid "inode softlimit"
+msgstr "miêkki limit i-wêz³ów"
+
+#: setquota.c:161
+msgid "inode hardlimit"
+msgstr "twardy limit i-wêz³ów"
+
+#: setquota.c:167 setquota.c:179
+msgid "block grace time"
+msgstr "okres pob³a¿liwo¶ci dla bloków"
+
+#: setquota.c:168 setquota.c:185
+msgid "inode grace time"
+msgstr "okres pob³a¿liwo¶ci dla i-wêz³ów"
+
+#: setquota.c:191
+msgid "Mountpoint not specified.\n"
+msgstr "Nie podano punktu montowania.\n"
+
+#: setquota.c:250
 #, c-format
-msgid "Unknown protoname %s for quotatype %s\n"
-msgstr "Nieznany prototyp %s dla limity typu %s\n"
+msgid "Can't write times for %s. Maybe kernel doesn't support such operation?\n"
+msgstr "Nie mo¿na zapisaæ okresów %s. Mo¿e j±dro nie obs³uguje takiej operacji?\n"
 
-#: setquota.c:213 setquota.c:231
+#: svc_socket.c:40
 #, c-format
-msgid "File system %s not found\n"
-msgstr "Nie znaleziono system plików %s\n"
+msgid "Cannot create socket: %s\n"
+msgstr "Nie mo¿na utworzyæ gniazda: %s\n"
 
-#: setquota.c:252
-msgid "Invalid number: block-soft\n"
-msgstr "Nieprawid³owa liczba: bloki-miêkki\n"
+#: svc_socket.c:47
+#, c-format
+msgid "Cannot set socket options: %s\n"
+msgstr "Nie mo¿na ustawiæ opcji gniazda: %s\n"
 
-#: setquota.c:260
-msgid "Invalid number: block-hard\n"
-msgstr "Nieprawid³owa liczba: bloki-twardy\n"
+#: svc_socket.c:76
+#, c-format
+msgid "Cannot bind to given address: %s\n"
+msgstr "Nie mo¿na przypisaæ do podanego adresu: %s\n"
 
-#: setquota.c:268
-msgid "Invalid number: inode-soft\n"
-msgstr "Nieprawid³owa liczba: iwêz³y-miêkki\n"
-
-#: setquota.c:276
-msgid "Invalid number: inode-hard\n"
-msgstr "Nieprawid³owa liczba: iwêz³y-twardy\n"
-
-#: setquota.c:293
-msgid "File system not found\n"
-msgstr "Nie znaleziono system plików\n"
-
-#: warnquota.c:177
-msgid "/usr/lib/sendmail -t"
-msgstr ""
-
-#: warnquota.c:178 warnquota.c:179
-msgid "support@localhost"
-msgstr ""
-
-#: warnquota.c:180
-msgid "Disk Quota usage on system"
-msgstr "Wykorzystanie limitów dyskowych"
-
-#: warnquota.c:182
-msgid "root"
-msgstr ""
-
-#: warnquota.c:184
+#: warnquota.c:48
 msgid ""
 "Hi,\n"
 "\n"
 "We noticed that you are in violation with the quotasystem\n"
 "used on this system. We have found the following violations:\n"
+"\n"
 msgstr ""
 "Cze¶æ!\n"
+"\n"
 "Zauwa¿yli¶my naruszenie zasad systemu limitowania przestrzeni dyskowej,\n"
 "u¿ywanego na tym systemie. Znale¼li¶my nastêpuj±ce naruszenia:\n"
 
-#: warnquota.c:191
-msgid ""
-"\n"
-"                        Block limits               File limits\n"
-msgstr ""
-"\n"
-"                        Limity bloków              Limity plików\n"
-
-#: warnquota.c:192
-msgid ""
-"Filesystem           used    soft    hard  grace    used  soft  hard  grace\n"
-msgstr ""
-"System plików        u¿yw.   miêkkie twa.  pob³.    u¿yw. miê.  twa.  pob³.\n"
-
-#: warnquota.c:217
+#: warnquota.c:50
+#, c-format
 msgid ""
 "\n"
 "We hope that you will cleanup before your grace period expires.\n"
@@ -842,16 +1898,232 @@ msgid ""
 "and get below your quota before the grace period expires, the system will\n"
 "prevent you from creating new files.\n"
 "\n"
-"For additional assistance, please contact us at support@localhost or via\n"
-"phone at (xxx) xxx-xxxx or (xxx) xxx-xxxx.\n"
+"For additional assistance, please contact us at %s\n"
+"or via phone at %s.\n"
 msgstr ""
 "\n"
 "Mamy nadziejê, ¿e posprz±tasz przed up³yniêciem okresu pob³a¿liwo¶ci.\n"
 "\n"
-"Oznancza to, i¿ system uwa¿a, ¿e u¿ywasz, na podanych systemach plików,\n"
-"wiêcej powierzchni, ni¿ jeste¶ upowa¿niony. Je¿eli nie posprz±tasz tak, aby\n"
+"Oznacza to, i¿ system uwa¿a, ¿e na podanych systemach plików u¿ywasz\n"
+"wiêcej miejsca, ni¿ jeste¶ upowa¿niony. Je¿eli nie posprz±tasz tak, aby\n"
 "znale¼æ siê poni¿ej limitów przed up³yniêciem okresu pob³a¿liwo¶ci, system\n"
 "zabroni Ci tworzyæ nowe pliki.\n"
 "\n"
-"Je¿eli chcesz dowiedzieæ siê wiêcej skontaktuj siê z nami: "
-"support@localhost\n"
+"Aby uzyskaæ dodatkowe wyja¶nienia prosimy skontaktowaæ siê z nami pod\n"
+"adresem %s lub telefonicznie pod numerem %s.\n"
+
+#: warnquota.c:57
+#, c-format
+msgid ""
+"Hi,\n"
+"\n"
+"We noticed that the group %s you are member of violates the quotasystem\n"
+"used on this system. We have found the following violations:\n"
+"\n"
+msgstr ""
+"Cze¶æ!\n"
+"\n"
+"Zauwa¿yli¶my, ¿e grupa %s, której jeste¶ cz³onkiem, narusza zasady\n"
+"systemu limitowania przestrzeni dyskowej, u¿ywanego na tym systemie.\n"
+"Znale¼li¶my nastêpuj±ce naruszenia:\n"
+
+#: warnquota.c:59
+#, c-format
+msgid ""
+"\n"
+"Please cleanup the group data before the grace period expires.\n"
+"\n"
+"Basically, this means that the system thinks group is using more disk space\n"
+"on the above partition(s) than it is allowed.  If you do not delete files\n"
+"and get below group quota before the grace period expires, the system will\n"
+"prevent you and other members of the group from creating new files owned by\n"
+"the group.\n"
+"\n"
+"For additional assistance, please contact us at %s\n"
+"or via phone at %s.\n"
+msgstr ""
+"\n"
+"Prosimy posprz±taæ dane grupy przed up³yniêciem okresu pob³a¿liwo¶ci.\n"
+"\n"
+"Oznacza to, i¿ system uwa¿a, ¿e na podanych systemach plików grupa u¿ywa\n"
+"wiêcej miejsca, ni¿ jest upowa¿niona. Je¶li nie posprz±tacie tak, aby\n"
+"znale¼æ siê poni¿ej limitów przed up³yniêciem okresu pob³a¿liwo¶ci, system\n"
+"zabroni Ci i innym cz³onkom grupy tworzyæ nowe pliki nale¿±ce do tej grupy.\n"
+"\n"
+"Aby uzyskaæ dodatkowe wyja¶nienia prosimy skontaktowaæ siê z nami pod\n"
+"adresem %s lub telefonicznie pod numerem %s.\n"
+
+#: warnquota.c:136
+#, c-format
+msgid "Can't get name for uid/gid %u.\n"
+msgstr "Nie mo¿na uzyskaæ nazwy dla uid/gid %u.\n"
+
+#: warnquota.c:189
+#, c-format
+msgid "Can't create pipe: %s\n"
+msgstr "Nie mo¿na utworzyæ potoku: %s\n"
+
+#: warnquota.c:195
+#, c-format
+msgid "Can't fork: %s\n"
+msgstr "Nie mo¿na wykonaæ fork: %s\n"
+
+#: warnquota.c:200
+#, c-format
+msgid "Can't duplicate descriptor: %s\n"
+msgstr "Nie mo¿na powieliæ deskryptora: %s\n"
+
+#: warnquota.c:204
+#, c-format
+msgid "Can't execute '%s': %s\n"
+msgstr "Nie mo¿na uruchomiæ '%s': %s\n"
+
+#: warnquota.c:209
+#, c-format
+msgid "Can't open pine: %s\n"
+msgstr "Nie mo¿na otworzyæ potoku: %s\n"
+
+#: warnquota.c:234
+#, c-format
+msgid "Administrator for a group %s not found. Cancelling mail.\n"
+msgstr "Nie znaleziono administratora dla grupy %s. Anulowanie poczty.\n"
+
+#: warnquota.c:267
+msgid ""
+"\n"
+"                        Block limits               File limits\n"
+msgstr ""
+"\n"
+"                        Limity bloków              Limity plików\n"
+
+#: warnquota.c:268
+msgid "Filesystem           used    soft    hard  grace    used  soft  hard  grace\n"
+msgstr "System plików        u¿yw.   miêk.   twar. pob³.    u¿yw. miêk. twar. pob³.\n"
+
+#: warnquota.c:301
+#, c-format
+msgid "Can't wait for mailer: %s\n"
+msgstr "Nie mo¿na czekaæ na wys³anie poczty: %s\n"
+
+#: warnquota.c:303
+msgid "Warning: Mailer exitted abnormally.\n"
+msgstr "Uwaga: Program wysy³aj±cy pocztê nie zakoñczy³ siê normalnie.\n"
+
+#: warnquota.c:360
+#, c-format
+msgid ""
+"Can't open %s: %s\n"
+"Will use device names.\n"
+msgstr ""
+"Nie mo¿na otworzyæ %s: %s\n"
+"Bêd± u¿ywane nazwy urz±dzeñ.\n"
+
+#: warnquota.c:383
+#, c-format
+msgid "Can't parse line %d in quotatab (missing ':')\n"
+msgstr "Nie mo¿na przeanalizowaæ linii %d w pliku quotatab (brakuje ':')\n"
+
+#: warnquota.c:397
+#, c-format
+msgid "Can't stat device %s (maybe typo in quotatab)\n"
+msgstr "Nie mo¿na wykonaæ stat na urz±dzeniu %s (mo¿e b³±d w quotatab)\n"
+
+#: warnquota.c:446
+#, c-format
+msgid "Line %d too long. Truncating.\n"
+msgstr "Linia %d zbyt d³uga. Uciêto.\n"
+
+#: warnquota.c:496
+#, c-format
+msgid "Error in config file (line %d), ignoring\n"
+msgstr "B³±d w pliku konfiguracyjnym (linia %d), zignorowano\n"
+
+#: warnquota.c:499
+#, c-format
+msgid "Possible error in config file (line %d), ignoring\n"
+msgstr "Mo¿liwy b³±d w pliku konfiguracyjnym (linia %d), zignorowano\n"
+
+#: warnquota.c:502
+msgid "Unterminated last line, ignoring\n"
+msgstr "Niezakoñczona ostatnia linia, zignorowano\n"
+
+#: warnquota.c:521
+#, c-format
+msgid "Can't open file with group administrators: %s\n"
+msgstr "Nie mo¿na otworzyæ pliku z administratorami grup: %s\n"
+
+#: warnquota.c:536
+#, c-format
+msgid "Parse error at line %d. Can't find end of group name.\n"
+msgstr "B³±d podczas analizy linii %d. Nie mo¿na znale¼æ nazwy grupy.\n"
+
+#: warnquota.c:545
+#, c-format
+msgid "Parse error at line %d. Can't find administrators name.\n"
+msgstr "B³±d podczas analizy linii %d. Nie mo¿na znale¼æ nazwy administratora.\n"
+
+#: warnquota.c:555
+#, c-format
+msgid "Parse error at line %d. Trailing characters after administrators name.\n"
+msgstr "B³±d podczas analizy linii %d. Nadmiarowe znaki po nazwie administratora.\n"
+
+#: warnquota.c:602
+msgid ""
+"Usage:\n"
+"  warnquota [-ugi] [-F quotaformat] [-c configfile] [-q quotatabfile]\n"
+msgstr ""
+"Sk³adnia:\n"
+"  warnquota [-ugi] [-F format] [-c plik-konfiguracyjny] [-q plik-quotatab]\n"
+
+#: xqmstats.c:31 xqmstats.c:36
+msgid "The running kernel does not support XFS\n"
+msgstr "Dzia³aj±ce j±dro nie obs³uguje XFS\n"
+
+#: xqmstats.c:48
+msgid "XFS Quota Manager dquot statistics\n"
+msgstr "Statystyki dquot Zarz±dcy Limitów na XFS\n"
+
+#: xqmstats.c:49
+#, c-format
+msgid "  reclaims:        %u\n"
+msgstr "  poprawki:          %u\n"
+
+#: xqmstats.c:50
+#, c-format
+msgid "  missed reclaims: %u\n"
+msgstr "  chybione poprawki: %u\n"
+
+#: xqmstats.c:51
+#, c-format
+msgid "  dquot dups:      %u\n"
+msgstr "  duplikaty dquot:   %u\n"
+
+#: xqmstats.c:52
+#, c-format
+msgid "  cache misses:    %u\n"
+msgstr "  chybienia bufora:  %u\n"
+
+#: xqmstats.c:53
+#, c-format
+msgid "  cache hits:      %u\n"
+msgstr "  trafienia bufora:  %u\n"
+
+#: xqmstats.c:54
+#, c-format
+msgid "  dquot wants:     %u\n"
+msgstr "  ¿±dania dquot:     %u\n"
+
+#: xqmstats.c:55
+#, c-format
+msgid "  shake reclaims:  %u\n"
+msgstr "  poprawki shake:    %u\n"
+
+#: xqmstats.c:56
+#, c-format
+msgid "  inact reclaims:  %u\n"
+msgstr "  poprawki inact:    %u\n"
+
+#: xqmstats.c:61
+#, c-format
+msgid "Maximum %u dquots (currently %u incore, %u on freelist)\n"
+msgstr "Maksimum %u dquot (aktualnie %u w rdzeniu, %u na li¶cie wolnych)\n"

@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaon.c,v 1.16 2002/06/16 19:00:46 jkar8572 Exp $"
+#ident "$Id: quotaon.c,v 1.17 2003/07/15 22:40:34 jkar8572 Exp $"
 
 /*
  * Turn quota on/off for a filesystem.
@@ -177,8 +177,8 @@ static int print_state(struct mntent *mnt, int type)
 	else if (kernel_formats & (1 << QF_VFSOLD))
 		on = kern_quota_on(mnt->mnt_fsname, type, 1 << QF_VFSOLD) != -1;
 
-	printf("%s quota on %s (%s) is %s\n", type2name(type), mnt->mnt_dir, mnt->mnt_fsname,
-	  on ? "on" : "off");
+	printf(_("%s quota on %s (%s) is %s\n"), type2name(type), mnt->mnt_dir, mnt->mnt_fsname,
+	  on ? _("on") : _("off"));
 	
 	return on;
 }
