@@ -1,12 +1,12 @@
 PROGS         = quotacheck quotaon quota quot repquota warnquota quotastats xqmstats edquota setquota convertquota rpc.rquotad 
-CFLAGS        = @CFLAGS@ @EXT2_DIRECT@ -D_GNU_SOURCE -Wall -D_LARGEFILE64_SOURCE
+SOURCES       = bylabel.c common.c convertquota.c edquota.c pot.c quot.c quota.c quotacheck.c quotacheck_v1.c quotacheck_v2.c quotaio.c quotaio_rpc.c quotaio_v1.c quotaio_v2.c quotaio_xfs.c quotaon.c quotaon_xfs.c quotaops.c quotastats.c quotasys.c repquota.c rquota_client.c rquota_server.c rquota_svc.c setquota.c warnquota.c xqmstats.c
+VERSIONDEF    = -DQUOTA_VERSION=\"3.01\"
+CFLAGS        = @CFLAGS@ @EXT2_DIRECT@ -D_GNU_SOURCE -Wall -D_LARGEFILE64_SOURCE $(VERSIONDEF)
 EXT2LIBS      = @EXT2LIBS@
 RPCSRC        = rquota.h rquota_xdr.c rquota_clnt.c
-VERSIONDEF    = -DQUOTA_VERSION=\"3.01\"
 LIBS          = @LIBS@
 LDFLAGS       = @LDFLAGS@
 
-#
 # Uncomment the two lines below to add tcp_wrapper support for rpc.rquotad
 # Then add lines to /etc/hosts.allow and /etc/hosts.deny
 # like: "rquotad: ALL@ALL except my.host.i.want.com" in hosts.deny means
@@ -15,7 +15,6 @@ LDFLAGS       = @LDFLAGS@
 # depending on how your resolver returns first. IP Addresses will work as well.
 #
 CFLAGS       += @HOSTS_ACCESS@
-CFLAGS       += $(VERSIONDEF)
 
 INSTALL       = @INSTALL@
 LN            = ln -sf
@@ -42,12 +41,16 @@ IOOBJS = quotaio.o quotaio_v1.o quotaio_v2.o quotaio_rpc.o quotaio_xfs.o
 IOOBJS += $(RPCCLNTOBJS)
 LIBOBJS = bylabel.o common.o quotasys.o pot.o $(IOOBJS)
 LIBOBJS += @LIBMALLOC@
-INCLUDE = common.h quotasys.h bylabel.h mntopt.h rquota.h
 
+.%.d: %.c
+	set -e; $(CC) -MM -MG $(CPPFLAGS) $< | \
+		sed 's/\($*\)\.o[ :]*/\1.o $@ : /g' > $@; \
+		[ -s $@ ] || rm -f $@
+ 
 all: $(PROGS)
 
 clean:
-	-rm -f core *.o
+	-rm -f core *.o .*.d
 
 clobber: clean
 	-rm -f $(PROGS) Makefile config.{status,cache,log}
@@ -89,41 +92,31 @@ install: all inst_mo
 	-$(INSTALL) -m $(DEF_MAN_MODE) *.3 $(ROOTDIR)$(mandir)/man3
 	-$(INSTALL) -m $(DEF_MAN_MODE) *.8 $(ROOTDIR)$(mandir)/man8
 
-quotaon: $(INCLUDE) quotaon.o quotaon_xfs.o $(LIBOBJS)
-	$(CC) $(LDFLAGS) -o $@ quotaon.o quotaon_xfs.o $(LIBOBJS)
+quotaon: quotaon.o quotaon_xfs.o $(LIBOBJS)
 
-quotacheck: $(INCLUDE) quotacheck.o quotacheck_v1.o quotacheck_v2.o quotacheck.h quotaops.o $(LIBOBJS)
-	$(CC) $(LDFLAGS) -o $@ quotacheck.o quotacheck_v1.o quotacheck_v2.o quotaops.o $(EXT2LIBS) $(LIBOBJS)
+quotacheck: quotacheck.o quotacheck_v1.o quotacheck_v2.o quotaops.o $(LIBOBJS)
+	$(CC) $(LDFLAGS) -o $@ $(EXT2LIBS) $^
 
-quota: $(INCLUDE) rquota.h quota.o quotaops.o $(LIBOBJS)
-	$(CC) $(LDFLAGS) -o $@ quota.o quotaops.o $(LIBOBJS)
+quota: quota.o quotaops.o $(LIBOBJS)
 
-quot: $(INCLUDE) quot.h quot.o $(LIBOBJS)
-	$(CC) $(LDFLAGS) -o $@ quot.o $(LIBOBJS)
+quot: quot.o $(LIBOBJS)
 
-repquota: $(INCLUDE) repquota.o $(LIBOBJS)
-	$(CC) $(LDFLAGS) -o $@ repquota.o $(LIBOBJS)
+repquota: repquota.o $(LIBOBJS)
 
-warnquota: $(INCLUDE) common.h warnquota.o $(LIBOBJS)
-	$(CC) $(LDFLAGS) -o $@ warnquota.o $(LIBOBJS)
+warnquota: warnquota.o $(LIBOBJS)
 
 quotastats: quotastats.o pot.o
-	$(CC) $(LDFLAGS) -o $@ quotastats.o pot.o
 
 xqmstats: xqmstats.o common.o pot.o
-	$(CC) $(LDFLAGS) -o $@ xqmstats.o common.o pot.o
 
-edquota: $(INCLUDE) quotaops.h quotaio.h edquota.o quotaops.o $(LIBOBJS)
-	$(CC) $(LDFLAGS) -o $@ edquota.o quotaops.o $(LIBOBJS)
+edquota: edquota.o quotaops.o $(LIBOBJS)
 
-setquota: $(INCLUDE) setquota.o quotaops.o rquota.h $(LIBOBJS)
-	$(CC) $(LDFLAGS) -o $@ setquota.o quotaops.o $(LIBOBJS)
+setquota: setquota.o quotaops.o $(LIBOBJS)
 
-convertquota: $(INCLUDE) convertquota.o $(LIBOBJS)
-	$(CC) $(LDFLAGS) -o $@ convertquota.o $(LIBOBJS)
+convertquota: convertquota.o $(LIBOBJS)
 
-rpc.rquotad: $(INCLUDE) rquota.h rquota_server.o rquota_svc.o $(LIBOBJS)
-	$(CC) $(LDFLAGS) -o $@ rquota_server.o rquota_svc.o $(LIBOBJS) $(LIBS)
+rpc.rquotad: rquota_server.o rquota_svc.o $(LIBOBJS)
+	$(CC) $(LDFLAGS) -o $@ $(LIBS) $^
 
 pot.o: pot.c pot.h
 	$(CC) $(CFLAGS) -c $<
@@ -139,3 +132,5 @@ rquota_xdr.o: rquota_xdr.c rquota.h
 
 rquota_clnt.c: rquota.x
 	$(RPCGEN) -l -o $@ $<
+
+-include $(SOURCES:%.c=.%.d)
