@@ -3,6 +3,7 @@ Changes in quota-tools from 3.08 to 3.09
 * repquota(8) handles multiple entries in /etc/passwd better (Jan Kara)
 * made tools not to touch mountpoints mounted without quota options (Jan Kara)
 * added option for ignoring autofs mountpoints to quota(1), quot(8) and repquota(8) (Jan Kara, Paul Szabo)
+* updated xqmstats (Nathan Scott)
 
 Changes in quota-tools from 3.07 to 3.08
 * Fixed infinite loop in quotacheck under RH7.1 (?)

@@ -2,7 +2,7 @@
  *	Display XFS quota manager statistics from /proc.
  */
 
-#ident "Copyright (c) 2001 Silicon Graphics, Inc."
+#ident "Copyright (c) 2001-2003 Silicon Graphics, Inc."
 
 #include <stdio.h>
 #include <unistd.h>
@@ -12,6 +12,7 @@
 
 #define XQMFILE		"/proc/fs/xfs/xqm"
 #define STATFILE	"/proc/fs/xfs/stat"
+#define XQMSTATS	"/proc/fs/xfs/xqmstat"
 
 char *progname;
 
@@ -26,9 +27,15 @@ int main(int argc, char **argv)
 
 	memset(values, 0, sizeof(unsigned) * 8);
 
-	if ((stats = fopen(STATFILE, "r")) == NULL || (xqm = fopen(XQMFILE, "r")) == NULL) {
+	if ((xqm = fopen(XQMFILE, "r")) == NULL) {
 		errstr(_("The running kernel does not support XFS\n"));
 		return 1;
+	}
+	if ((stats = fopen(XQMSTATS, "r")) == NULL) {
+		if ((stats = fopen(STATFILE, "r")) == NULL) {
+			errstr(_("The running kernel does not support XFS\n"));
+			return 1;
+		}
 	}
 	while (!feof(stats)) {
 		fgets(buffer, 256, stats);
@@ -48,9 +55,11 @@ int main(int argc, char **argv)
 		printf(_("  shake reclaims:  %u\n"), values[6]);
 		printf(_("  inact reclaims:  %u\n"), values[7]);
 	}
-	if (fscanf(xqm, "%u %u %u %u\n", &values[0], &values[1], &values[2], &values[3]) == 4)
-		printf(_("Maximum %u dquots (currently %u incore, %u on freelist)\n"), values[0],
-		       values[1], values[3]);
+	if (fscanf(xqm, "%u %u %u %u\n",
+			&values[0], &values[1], &values[2], &values[3]) == 4)
+		printf(
+		_("Maximum %u dquots (currently %u incore, %u on freelist)\n"),
+			values[0], values[1], values[3]);
 	fclose(stats);
 	fclose(xqm);
 	return 0;
