@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaio_v1.c,v 1.4 2001/05/02 09:32:22 jkar8572 Exp $"
+#ident "$Id: quotaio_v1.c,v 1.5 2001/05/04 08:43:25 jkar8572 Exp $"
 
 #include <unistd.h>
 #include <errno.h>
@@ -46,13 +46,14 @@
 #include "quotaio_v1.h"
 #include "dqblk_v1.h"
 #include "quotaio.h"
+#include "quotasys.h"
 
 static int v1_init_io(struct quota_handle *h);
 static int v1_new_io(struct quota_handle *h);
 static int v1_write_info(struct quota_handle *h);
 static struct dquot *v1_read_dquot(struct quota_handle *h, qid_t id);
 static int v1_commit_dquot(struct dquot *dquot);
-static int v1_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct dquot * dquot));
+static int v1_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct dquot *dquot, char *dqname));
 
 struct quotafile_ops quotafile_ops_1 = {
 init_io:	v1_init_io,
@@ -281,9 +282,10 @@ static int v1_commit_dquot(struct dquot *dquot)
 /*
  *	Scan all dquots in file and call callback on each
  */
-static int v1_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct dquot * dquot))
+static int v1_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct dquot *, char *))
 {
 	int rd;
+	char name[MAXNAMELEN];
 	struct v1_disk_dqblk ddqblk;
 	struct dquot *dquot = get_empty_dquot();
 	qid_t id = 0;
@@ -303,7 +305,8 @@ static int v1_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct d
 			continue;
 		v1_disk2memdqblk(&dquot->dq_dqb, &ddqblk);
 		dquot->dq_id = id;
-		if ((rd = process_dquot(dquot)) < 0) {
+		id2name(dquot->dq_id, h->qh_type, name);
+		if ((rd = process_dquot(dquot, name)) < 0) {
 			free(dquot);
 			return rd;
 		}

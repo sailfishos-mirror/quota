@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.2 2001/05/02 09:32:22 jkar8572 Exp $
+ * Version: $Id: warnquota.c,v 1.3 2001/05/04 08:43:25 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -25,7 +25,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include <pwd.h>
 
 #include "mntopt.h"
 #include "pot.h"
@@ -92,26 +91,22 @@ quotatable_t *quotatable = (quotatable_t *) NULL;
  */
 static struct offenderlist *offenders = (struct offenderlist *)0;
 
-struct offenderlist *add_offender(int id)
+struct offenderlist *add_offender(int id, char *name)
 {
-	struct passwd *pwd;
 	struct offenderlist *offender;
-
-	if ((pwd = getpwuid(id)) == (struct passwd *)0)
-		return ((struct offenderlist *)0);
 
 	offender = (struct offenderlist *)smalloc(sizeof(struct offenderlist));
 
 	offender->offender_id = id;
-	offender->offender_name = (char *)smalloc(strlen(pwd->pw_name) + 1);
+	offender->offender_name = (char *)smalloc(strlen(name) + 1);
 	offender->usage = (struct usage *)NULL;
-	strcpy(offender->offender_name, pwd->pw_name);
+	strcpy(offender->offender_name, name);
 	offender->next = offenders;
 	offenders = offender;
 	return offender;
 }
 
-void add_offence(struct dquot *dquot)
+void add_offence(struct dquot *dquot, char *name)
 {
 	struct offenderlist *lptr;
 	struct usage *usage;
@@ -121,7 +116,7 @@ void add_offence(struct dquot *dquot)
 			break;
 
 	if (!lptr)
-		if (!(lptr = add_offender(dquot->dq_id)))
+		if (!(lptr = add_offender(dquot->dq_id, name)))
 			return;
 
 	usage = (struct usage *)smalloc(sizeof(struct usage));
@@ -135,13 +130,13 @@ void add_offence(struct dquot *dquot)
 	lptr->usage = usage;
 }
 
-int check_offence(struct dquot *dquot)
+int check_offence(struct dquot *dquot, char *name)
 {
 	if (
 	    (dquot->dq_dqb.dqb_bsoftlimit
 	     && toqb(dquot->dq_dqb.dqb_curspace) >= dquot->dq_dqb.dqb_bsoftlimit)
 	    || (dquot->dq_dqb.dqb_isoftlimit
-		&& dquot->dq_dqb.dqb_curinodes >= dquot->dq_dqb.dqb_isoftlimit)) add_offence(dquot);
+		&& dquot->dq_dqb.dqb_curinodes >= dquot->dq_dqb.dqb_isoftlimit)) add_offence(dquot, name);
 	return 0;
 }
 

@@ -72,7 +72,7 @@ void parse_options(int argcnt, char **argstr)
 	mntpoint = argstr[optind];
 }
 
-int convert_dquot(struct dquot *dquot)
+int convert_dquot(struct dquot *dquot, char *name)
 {
 	struct dquot newdquot;
 
@@ -88,8 +88,8 @@ int convert_dquot(struct dquot *dquot)
 	newdquot.dq_dqb.dqb_btime = dquot->dq_dqb.dqb_btime;
 	newdquot.dq_dqb.dqb_itime = dquot->dq_dqb.dqb_itime;
 	if (qn->qh_ops->commit_dquot(&newdquot) < 0) {
-		errstr(_("Can't commit dquot for id %u: %s\n"),
-			(uint)dquot->dq_id, strerror(errno));
+		errstr(_("Can't commit dquot for id %u (%s): %s\n"),
+			(uint)dquot->dq_id, name, strerror(errno));
 		return -1;
 	}
 	return 0;

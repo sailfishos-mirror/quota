@@ -17,6 +17,7 @@
 #include "quotaio_v2.h"
 #include "dqblk_v2.h"
 #include "quotaio.h"
+#include "quotasys.h"
 
 typedef char *dqbuf_t;
 
@@ -25,7 +26,7 @@ static int v2_new_io(struct quota_handle *h);
 static int v2_write_info(struct quota_handle *h);
 static struct dquot *v2_read_dquot(struct quota_handle *h, qid_t id);
 static int v2_commit_dquot(struct dquot *dquot);
-static int v2_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct dquot * dquot));
+static int v2_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct dquot *dquot, char *dqname));
 static int v2_report(struct quota_handle *h, int verbose);
 
 struct quotafile_ops quotafile_ops_2 = {
@@ -656,11 +657,12 @@ static int v2_commit_dquot(struct dquot *dquot)
 #define get_bit(bmp, ind) ((bmp)[(ind) >> 3] & (1 << ((ind) & 7)))
 
 static int report_block(struct dquot *dquot, uint blk, char *bitmap,
-			int (*process_dquot) (struct dquot *))
+			int (*process_dquot) (struct dquot *, char *))
 {
 	dqbuf_t buf = getdqbuf();
 	struct v2_disk_dqdbheader *dh;
 	struct v2_disk_dqblk *ddata;
+	char name[MAXNAMELEN];
 	int entries, i;
 
 	set_bit(bitmap, blk);
@@ -672,7 +674,8 @@ static int report_block(struct dquot *dquot, uint blk, char *bitmap,
 		if (!empty_dquot(ddata + i)) {
 			v2_disk2memdqblk(&dquot->dq_dqb, ddata + i);
 			dquot->dq_id = __le32_to_cpu(ddata[i].dqb_id);
-			if (process_dquot(dquot) < 0)
+			id2name(dquot->dq_id, dquot->dq_h->qh_type, name);
+			if (process_dquot(dquot, name) < 0)
 				break;
 		}
 	freedqbuf(buf);
@@ -680,7 +683,7 @@ static int report_block(struct dquot *dquot, uint blk, char *bitmap,
 }
 
 static int report_tree(struct dquot *dquot, uint blk, int depth, char *bitmap,
-		       int (*process_dquot) (struct dquot *))
+		       int (*process_dquot) (struct dquot *, char *))
 {
 	int entries = 0, i;
 	dqbuf_t buf = getdqbuf();
@@ -714,7 +717,7 @@ static uint find_set_bits(char *bmp, int blocks)
 	return used;
 }
 
-static int v2_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct dquot * dquot))
+static int v2_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct dquot *, char *))
 {
 	char *bitmap;
 	struct v2_mem_dqinfo *info = &h->qh_info.u.v2_mdqi;

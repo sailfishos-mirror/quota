@@ -29,7 +29,7 @@ char **mnt;
 int mntcnt;
 char *progname;
 
-static void usage()
+static void usage(void)
 {
 	errstr(_("Utility for reporting quotas.\nUsage:\n%s [-vug] [-F quotaformat] (-a | mntpoint)\n"), progname);
 	errstr(_("Bugs to %s\n"), MY_EMAIL);
@@ -97,15 +97,13 @@ static char overlim(uint usage, uint softlim, uint hardlim)
 	return '-';
 }
 
-static int print(struct dquot *dquot)
+static int print(struct dquot *dquot, char *name)
 {
-	char name[MAXNAMELEN];
 	char time[MAXTIMELEN];
 	struct util_dqblk *entry = &dquot->dq_dqb;
 
 	if (!entry->dqb_curspace && !entry->dqb_curinodes && !(flags & FL_VERBOSE))
 		return 0;
-	id2name(dquot->dq_id, dquot->dq_h->qh_type, name);
 	difftime2str(entry->dqb_btime, time);
 	printf("%-10s%c%c%8Lu%8Lu%8Lu%7s", name,
 	       overlim(qb2kb(toqb(entry->dqb_curspace)), qb2kb(entry->dqb_bsoftlimit),

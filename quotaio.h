@@ -122,7 +122,7 @@ struct quotafile_ops {
 	int (*write_info) (struct quota_handle * h);	/* Write info about quotafile */
 	struct dquot *(*read_dquot) (struct quota_handle * h, qid_t id);	/* Read dquot into memory */
 	int (*commit_dquot) (struct dquot * dquot);	/* Write given dquot to disk */
-	int (*scan_dquots) (struct quota_handle * h, int (*process_dquot) (struct dquot * dquot));	/* Scan quotafile and call callback on every structure */
+	int (*scan_dquots) (struct quota_handle * h, int (*process_dquot) (struct dquot * dquot, char * dqname));	/* Scan quotafile and call callback on every structure */
 	int (*report) (struct quota_handle * h, int verbose);	/* Function called after 'repquota' to print format specific file information */
 };
 

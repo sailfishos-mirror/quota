@@ -28,7 +28,7 @@ static int xfs_init_io(struct quota_handle *h);
 static int xfs_write_info(struct quota_handle *h);
 static struct dquot *xfs_read_dquot(struct quota_handle *h, qid_t id);
 static int xfs_commit_dquot(struct dquot *dquot);
-static int xfs_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct dquot * dquot));
+static int xfs_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct dquot *dquot, char *dqname));
 static int xfs_report(struct quota_handle *h, int verbose);
 
 struct quotafile_ops quotafile_ops_xfs = {
@@ -166,7 +166,8 @@ static int xfs_commit_dquot(struct dquot *dquot)
  */
 static int xfs_scan_dquot(struct quota_handle *h,
 			  struct xfs_kern_dqblk *d,
-			  struct dquot *dq, int (*process_dquot) (struct dquot * dquot))
+			  char *name, struct dquot *dq,
+			  int (*process_dquot) (struct dquot *dquot, char *dqname))
 {
 	int qcmd = QCMD(Q_XFS_GETQUOTA, h->qh_type);
 
@@ -180,13 +181,13 @@ static int xfs_scan_dquot(struct quota_handle *h,
 	    d->d_ino_hardlimit == 0 &&
 	    d->d_ino_softlimit == 0 && d->d_bcount == 0 && d->d_icount == 0) return 0;
 	xfs_kern2utildqblk(&dq->dq_dqb, d);
-	return process_dquot(dq);
+	return process_dquot(dq, name);
 }
 
 /*
  *	Scan all known dquots and call callback on each
  */
-static int xfs_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct dquot * dquot))
+static int xfs_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct dquot *dquot, char *dqname))
 {
 	struct dquot *dq;
 	struct xfs_kern_dqblk d;
@@ -203,7 +204,8 @@ static int xfs_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct 
 		setpwent();
 		while ((usr = getpwent()) != NULL) {
 			dq->dq_id = usr->pw_uid;
-			if ((rd = xfs_scan_dquot(h, &d, dq, process_dquot)) < 0)
+			rd = xfs_scan_dquot(h, &d, usr->pw_name, dq, process_dquot);
+			if (rd < 0)
 				break;
 		}
 		endpwent();
@@ -214,7 +216,8 @@ static int xfs_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct 
 		setgrent();
 		while ((grp = getgrent()) != NULL) {
 			dq->dq_id = grp->gr_gid;
-			if ((rd = xfs_scan_dquot(h, &d, dq, process_dquot)) < 0)
+			rd = xfs_scan_dquot(h, &d, grp->gr_name, dq, process_dquot);
+			if (rd < 0)
 				break;
 		}
 		endgrent();
