@@ -12,8 +12,8 @@ AC_ARG_WITH(ext2direct,
 	,
 	with_ext2direct="try")
 if test "x$with_ext2direct" != "xno"; then
-	AC_CHECK_LIB(com_err, com_err)
-	AC_CHECK_LIB(ext2fs, ext2fs_initialize)
+	AC_CHECK_LIB(com_err, com_err, EXT2LIBS="-lcom_err $EXT2LIBS")
+	AC_CHECK_LIB(ext2fs, ext2fs_initialize, EXT2LIBS="-lext2fs $EXT2LIBS",, "-lcom_err")
 	if test "${ac_cv_lib_com_err_com_err}" != "yes" -o "${ac_cv_lib_ext2fs_ext2fs_initialize}" != "yes"; then
 		if test "x$with_ext2direct" = "xyes"; then
 			AC_MSG_ERROR([Ext2 direct support required but libraries not found.])
@@ -21,6 +21,7 @@ if test "x$with_ext2direct" != "xno"; then
 			AC_MSG_WARN([Ext2 direct support won't be compiled. Libraries not found.])
 		fi
 		with_ext2direct="no"
+		EXT2LIBS=""
 	else
 		AC_CHECK_HEADER(ext2fs/ext2fs.h,ext2fshead="yes")
 		if test "x$ext2fshead" != "xyes"; then
@@ -30,6 +31,7 @@ if test "x$with_ext2direct" != "xno"; then
 				AC_MSG_WARN([Ext2 direct support won't be compiled. Header files not found.])
 			fi
 			with_ext2direct="no"
+			EXT2LIBS=""
 		else
 			with_ext2direct="yes"
 		fi
@@ -39,9 +41,7 @@ if test "x$with_ext2direct" != "xno"; then
 		AC_SUBST(EXT2_DIRECT)
 	fi
 fi
-EXT2LIBS=${LIBS}
 AC_SUBST(EXT2LIBS)
-LIBS=""
 
 AC_CHECK_LIB(nsl, main)
 AC_CHECK_LIB(wrap, main)
