@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaops.c,v 1.4 2001/05/02 09:32:22 jkar8572 Exp $"
+#ident "$Id: quotaops.c,v 1.5 2001/07/16 03:24:49 jkar8572 Exp $"
 
 #include <rpc/rpc.h>
 #include <sys/types.h>
@@ -49,6 +49,7 @@
 #include <signal.h>
 #include <paths.h>
 #include <unistd.h>
+#include <time.h>
 
 #if defined(RPC)
 #include "rquota.h"
@@ -81,6 +82,28 @@ static int cvtatos(time_t time, char *units, time_t * seconds)
 		return -1;
 	}
 	return 0;
+}
+
+/*
+ * Set grace time if needed
+ */
+void update_grace_times(struct dquot *q)
+{
+	time_t now;
+
+	time(&now);
+	if (q->dq_dqb.dqb_bsoftlimit && toqb(q->dq_dqb.dqb_curspace) >= q->dq_dqb.dqb_bsoftlimit) {
+		if (!q->dq_dqb.dqb_btime)
+			q->dq_dqb.dqb_btime = now + q->dq_h->qh_info.dqi_bgrace;
+	}
+	else
+		q->dq_dqb.dqb_btime = 0;
+	if (q->dq_dqb.dqb_isoftlimit && q->dq_dqb.dqb_curinodes >= q->dq_dqb.dqb_isoftlimit) {
+		if (!q->dq_dqb.dqb_itime)
+			q->dq_dqb.dqb_itime = now + q->dq_h->qh_info.dqi_igrace;
+	}
+	else
+		q->dq_dqb.dqb_itime = 0;
 }
 
 /*
@@ -177,7 +200,7 @@ int editprivs(char *tmpfile)
 	sigaddset(&nmask, SIGHUP);
 	sigprocmask(SIG_SETMASK, &nmask, &omask);
 	if ((pid = fork()) < 0) {
-		perror("fork");
+		errstr("Can't fork(): %s\n", strerror(errno));
 		return -1;
 	}
 	if (pid == 0) {
@@ -254,26 +277,12 @@ static void merge_to_list(struct dquot *qlist, char *dev, u_int64_t blocks, u_in
 		if (!devcmp_handle(dev, q->dq_h))
 			continue;
 
-		/*
-		 * Cause time limit to be reset when the quota is
-		 * next used if previously had no soft limit or were
-		 * under it, but now have a soft limit and are over
-		 * it.
-		 */
-		if (bsoft && (toqb(q->dq_dqb.dqb_curspace) >= bsoft) &&
-		    (q->dq_dqb.dqb_bsoftlimit == 0 ||
-		     toqb(q->dq_dqb.dqb_curspace) < q->dq_dqb.dqb_bsoftlimit))
-				q->dq_dqb.dqb_btime = 0;
-
-		if (isoft && (q->dq_dqb.dqb_curinodes >= isoft) &&
-		    (q->dq_dqb.dqb_isoftlimit == 0 ||
-		     q->dq_dqb.dqb_curinodes < q->dq_dqb.dqb_isoftlimit)) q->dq_dqb.dqb_itime = 0;
-
 		q->dq_dqb.dqb_bsoftlimit = bsoft;
 		q->dq_dqb.dqb_bhardlimit = bhard;
 		q->dq_dqb.dqb_isoftlimit = isoft;
 		q->dq_dqb.dqb_ihardlimit = ihard;
 		q->dq_flags |= DQ_FOUND;
+		update_grace_times(q);
 
 		if (blocks != toqb(q->dq_dqb.dqb_curspace))
 			errstr(_("WARNING - %s: cannot change current block allocation\n"),

@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: quotastats.c,v 1.2 2001/05/02 09:32:22 jkar8572 Exp $
+ * Version: $Id: quotastats.c,v 1.3 2001/07/16 03:24:49 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -21,13 +21,27 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <errno.h>
+#include <string.h>
 
 #include "pot.h"
 #include "quota.h"
+#include "quotaio_v1.h"
+#include "dqblk_v1.h"
 
 static inline int get_stats(struct dqstats *dqstats)
 {
-	return quotactl(QCMD(Q_GETSTATS, 0), (char *)NULL, 0, (caddr_t)dqstats);
+	struct v1_dqstats old_dqstats;
+	
+	if (quotactl(QCMD(Q_GETSTATS, 0), NULL, 0, (caddr_t)dqstats) < 0) {
+		if (errno != EINVAL)
+			return -1;
+		if (quotactl(QCMD(Q_V1_GETSTATS, 0), NULL, 0, (caddr_t)&old_dqstats) < 0)
+			return -1;
+		memcpy(dqstats, &old_dqstats, sizeof(old_dqstats));
+		dqstats->version = 0;
+	}
+	return 0;
 }
 
 static inline int print_stats(struct dqstats *dqstats)

@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: edquota.c,v 1.4 2001/05/02 09:32:22 jkar8572 Exp $"
+#ident "$Id: edquota.c,v 1.5 2001/07/16 03:24:49 jkar8572 Exp $"
 
 /*
  * Disk quota editor.
@@ -79,7 +79,7 @@ void usage(void)
 
 int main(int argc, char **argv)
 {
-	struct dquot *q, *protoprivs, *curprivs, *pprivs, *cprivs;
+	struct dquot *protoprivs, *curprivs, *pprivs, *cprivs;
 	long id, protoid;
 	int quotatype, tmpfd, ret;
 	char *protoname = NULL;
@@ -145,10 +145,6 @@ int main(int argc, char **argv)
 	if (pflag) {
 		protoid = name2id(protoname, quotatype);
 		protoprivs = getprivs(protoid, handles);
-		for (q = protoprivs; q; q = q->dq_next) {
-			q->dq_dqb.dqb_btime = 0;
-			q->dq_dqb.dqb_itime = 0;
-		}
 		while (argc-- > 0) {
 			id = name2id(*argv++, quotatype);
 			curprivs = getprivs(id, handles);
@@ -166,11 +162,14 @@ int main(int argc, char **argv)
 						pprivs->dq_dqb.dqb_isoftlimit;
 					cprivs->dq_dqb.dqb_ihardlimit =
 						pprivs->dq_dqb.dqb_ihardlimit;
+					update_grace_times(cprivs);
 				}
 			}
 			putprivs(curprivs);
+			freeprivs(curprivs);
 		}
 		dispose_handle_list(handles);
+		freeprivs(protoprivs);
 		warn_new_kernel(fmt);
 		exit(0);
 	}
@@ -186,17 +185,36 @@ int main(int argc, char **argv)
 	tmpfd = mkstemp(tmpfil);
 	fchown(tmpfd, getuid(), getgid());
 	if (tflag) {
-		writetimes(handles, tmpfd);
-		if (!editprivs(tmpfil) && (readtimes(handles, tmpfd) < 0))
+		if (writetimes(handles, tmpfd) < 0) {
+			unlink(tmpfil);
+			die(1, _("Can't write grace times to file.\n"));
+		}
+		if (editprivs(tmpfil) < 0) {
+			unlink(tmpfil);
+			die(1, _("Error while editting grace times.\n"));
+		}
+		if (readtimes(handles, tmpfd) < 0) {
+			unlink(tmpfil);
 			die(1, _("Failed to parse grace times file.\n"));
+		}
 	}
 	else {
 		for (; argc > 0; argc--, argv++) {
 			id = name2id(*argv, quotatype);
 			curprivs = getprivs(id, handles);
-			writeprivs(curprivs, tmpfd, *argv, quotatype);
-			if (!editprivs(tmpfil) && !readprivs(curprivs, tmpfd))
-				putprivs(curprivs);
+			if (writeprivs(curprivs, tmpfd, *argv, quotatype) < 0) {
+				errstr(_("Can't write quotas to file.\n"));
+				continue;
+			}
+			if (editprivs(tmpfil) < 0) {
+				errstr(_("Error while editting quotas.\n"));
+				continue;
+			}
+			if (readprivs(curprivs, tmpfd) < 0) {
+				errstr(_("Can't read quotas from file.\n"));
+				continue;
+			}
+			putprivs(curprivs);
 			freeprivs(curprivs);
 		}
 	}

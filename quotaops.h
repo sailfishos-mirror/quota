@@ -3,14 +3,14 @@
 
 #include "quotaio.h"
 
-__BEGIN_DECLS extern struct dquot *getprivs __P((qid_t id, struct quota_handle ** handles));
-extern int putprivs __P((struct dquot * qlist));
-extern int editprivs __P((char *tmpfile));
-extern int writeprivs __P((struct dquot * qlist, int outfd, char *name, int quotatype));
-extern int readprivs __P((struct dquot * qlist, int infd));
-extern int writetimes __P((struct quota_handle ** handles, int outfd));
-extern int readtimes __P((struct quota_handle ** handles, int infd));
-extern void freeprivs __P((struct dquot * qlist));
+struct dquot *getprivs(qid_t id, struct quota_handle ** handles);
+int putprivs(struct dquot * qlist);
+int editprivs(char *tmpfile);
+int writeprivs(struct dquot * qlist, int outfd, char *name, int quotatype);
+int readprivs(struct dquot * qlist, int infd);
+int writetimes(struct quota_handle ** handles, int outfd);
+int readtimes(struct quota_handle ** handles, int infd);
+void freeprivs(struct dquot * qlist);
+void update_grace_times(struct dquot *q);
 
-__END_DECLS
 #endif /* _QUOTAOPS_H */

@@ -185,6 +185,7 @@ static void setlimits(struct quota_handle **handles)
 			q->dq_dqb.dqb_bhardlimit = protoq->dq_dqb.dqb_bhardlimit;
 			q->dq_dqb.dqb_isoftlimit = protoq->dq_dqb.dqb_isoftlimit;
 			q->dq_dqb.dqb_ihardlimit = protoq->dq_dqb.dqb_ihardlimit;
+			update_grace_times(q);
 		}
 		freeprivs(protoprivs);
 	}
@@ -194,6 +195,7 @@ static void setlimits(struct quota_handle **handles)
 			q->dq_dqb.dqb_bhardlimit = toset.dqb_bhardlimit;
 			q->dq_dqb.dqb_isoftlimit = toset.dqb_isoftlimit;
 			q->dq_dqb.dqb_ihardlimit = toset.dqb_ihardlimit;
+			update_grace_times(q);
 		}
 	}
 	putprivs(curprivs);

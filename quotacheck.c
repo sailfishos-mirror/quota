@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.12 2001/05/26 19:46:40 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.13 2001/07/16 03:24:49 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -39,6 +39,7 @@
 #include "mntopt.h"
 #include "bylabel.h"
 #include "quotacheck.h"
+#include "quotaops.h"
 
 #define LINKSHASHSIZE 16384	/* Size of hashtable for hardlinked inodes */
 #define DQUOTHASHSIZE 32768	/* Size of hashtable for dquots from file */
@@ -677,11 +678,7 @@ static int dump_to_file(char *mnt_fsname, struct mntent *mnt, int type)
 	for (i = 0; i < DQUOTHASHSIZE; i++)
 		for (dquot = dquot_hash[type][i]; dquot; dquot = dquot->dq_next) {
 			dquot->dq_h = h;
-			/* Unset grace times if limit is not exceeded; if limit is not set, clear times too... */
-			if (dquot->dq_dqb.dqb_bsoftlimit > toqb(dquot->dq_dqb.dqb_curspace))
-				dquot->dq_dqb.dqb_btime = 0;
-			if (dquot->dq_dqb.dqb_isoftlimit > dquot->dq_dqb.dqb_curinodes)
-				dquot->dq_dqb.dqb_itime = 0;
+			update_grace_times(dquot);
 			h->qh_ops->commit_dquot(dquot);
 		}
 	if (end_io(h) < 0) {
