@@ -15,6 +15,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <signal.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/vfs.h>
@@ -542,9 +543,18 @@ void init_kernel_interface(void)
 	}
 	else {
 		struct v2_dqstats v2_stats;
+		struct sigaction sig, oldsig;
 
 		if (!stat("/proc/fs/xfs/stat", &st))
 			kernel_formats |= (1 << QF_XFS);
+		/* This signal handling is needed because old kernels send us SIGSEGV as they try to resolve the device */
+		sig.sa_handler = SIG_IGN;
+		sig.sa_sigaction = NULL;
+		if (sigemptyset(&sig.sa_mask) < 0)
+			die(2, _("Can't create set for sigaction(): %s\n"), strerror(errno));
+		sig.sa_flags = 0;
+		if (sigaction(SIGSEGV, &sig, &oldsig) < 0)
+			die(2, _("Can't set signal handler: %s\n"), strerror(errno));
 		if (quotactl(QCMD(Q_V2_GETSTATS, 0), NULL, 0, (void *)&v2_stats) >= 0) {
 			version = v2_stats.version;
 			kernel_formats |= (1 << QF_VFSV0);
@@ -578,6 +588,8 @@ void init_kernel_interface(void)
 				version = 6*10000+4*100+0;
 			}
 		}
+		if (sigaction(SIGSEGV, &oldsig, NULL) < 0)
+			die(2, _("Can't reset signal handler: %s\n"), strerror(errno));
 	}
 
 	if (version > KERN_KNOWN_QUOTA_VERSION)

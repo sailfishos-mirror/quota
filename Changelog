@@ -2,6 +2,7 @@ Changes in quota-tools from 3.04 to 3.05
 * added support for quota 6.5.1 (Jan Kara)
 * quotaon(8) now can get format parameter (Jan Kara)
 * fixed bad return value of quota(1) (Jan Kara)
+* fixed bug in quota format format detection (Jan Kara)
 
 Changes in quota-tools from 3.03 to 3.04
 * added -D_FILE_OFFSET_BITS=64 to Makefile - fixes problems with large files with some libcs (Michael Meskes)
