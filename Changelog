@@ -1,4 +1,5 @@
 Changes in quota-tools from 3.12 to 3.13
+* added JFS into a set of supported filesystems (David Kleikamp)
 * added French translation (Jerome Schnell)
 * fixed quota tools to set of grace time only after exceeding soft limit, not
   at reaching (Jan Kara)
