@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.27 2002/03/27 16:21:26 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.28 2002/04/26 11:59:19 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -841,7 +841,11 @@ static int detect_filename_format(struct mntent *mnt, int type)
 	if (!stat(namebuf, &statbuf))
 		return QF_VFSOLD;
 	/* Old quota files don't exist, just create newest quotafile available */
-	return QF_VFSV0;
+	if (kernel_formats & (1 << QF_VFSV0))
+		return QF_VFSV0;
+	if (kernel_formats & (1 << QF_VFSOLD))
+		return QF_VFSOLD;
+	return -1;
 }
 
 static void check_all(void)

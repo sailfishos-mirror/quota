@@ -53,7 +53,18 @@ fi
 AC_SUBST(EXT2LIBS)
 
 AC_CHECK_LIB(nsl, main)
-AC_CHECK_LIB(wrap, main)
+AC_CACHE_VAL(ac_cv_lib_wrap_main,
+	saved_LIBS="$LIBS"
+	LIBS="$LIBS -lwrap"
+	[AC_TRY_LINK([#include <stdio.h>
+	#include <sys/types.h>
+	#include <sys/socket.h>
+	#include <netinet/in.h>
+	#include <tcpd.h>
+	struct request_info request;
+	int deny_severity, allow_severity;],[hosts_access(&request);],
+	[ac_cv_lib_wrap_main=yes],[ac_cv_lib_wrap_main=no,LIBS="$saved_LIBS="])
+	])
 
 if test ${ac_cv_lib_wrap_main} = yes; then
 	AC_CHECK_HEADER(tcpd.h,, [

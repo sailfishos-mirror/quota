@@ -1,4 +1,9 @@
 Changes in quota-tools from 3.04 to 3.05
+* fixes in manpages (Arkadiusz Miskiewicz)
+* fixed detection of libwrap in configure (Arkadiusz Miskiewicz)
+* added forgotten ROOTDIR to path to gettext catalogs (Arkadiusz Miskiewicz)
+* quotacheck uses newest format supported by kernel when creating new quota files (Jan Kara)
+* fixed bug in IO initialization when -F xfs was given (Jan Kara)
 * added support for quota 6.5.1 (Jan Kara)
 * quotaon(8) now can get format parameter (Jan Kara)
 * fixed bad return value of quota(1) (Jan Kara)

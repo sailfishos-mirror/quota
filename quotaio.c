@@ -82,6 +82,10 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 		h->qh_ops->init_io(h);
 		return h;
 	}
+	else if (fmt == QF_XFS) {
+		errstr(_("XFS quota allowed only on XFS filesystem.\n"));
+		goto out_handle;
+	}
 	if (kernel_formats > 0 && (fmt == -1 || (1 << fmt) & kernel_formats)) {	/* Quota compiled and desired format available? */
 		/* Quota turned on? */
 		kernfmt = kern_quota_on(h->qh_quotadev, type, fmt == -1 ? kernel_formats : (1 << fmt));

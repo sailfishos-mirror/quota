@@ -65,7 +65,7 @@ mo: po
 	done
 
 inst_mo: mo
-	mkdir -p $(locale_dir)
+	mkdir -p $(ROOTDIR)$(locale_dir)
 	for n in $(shell ls po/*.po | sed 's/\.po/\.mo/'); do \
 	l=`basename $$n .mo`; \
 	$(INSTALL) -m 755 -d $(ROOTDIR)$(locale_dir)/$$l; \

@@ -2,34 +2,42 @@
 .SH NAME
 quota \- display disk usage and limits
 .SH SYNOPSIS
-quota [
+.B quota
+[
 .B -F
 .I format-name
 ] [
-.B -guvs | q
+.BR -guvs \ |
+.B q
 ]
 .br
-quota [
+.B quota
+[
 .B -F
 .I format-name
 ] [
-.B -uvs | q
-] user
+.BR -uvs \ |
+.B q
+]
+.I user
 .br
-quota [
+.B quota
+[
 .B -F
 .I format-name
 ] [
-.B -gvs | q
-] group
+.BR -gvs \ |
+.B q
+]
+.I group
 .SH DESCRIPTION
-.B Quota
+.B quota
 displays users' disk usage and limits.
 By default only the user quotas are printed.
 .PP
-.B Quota
+.B quota
 reports the quotas of all the filesystems listed in
-.B /etc/mtab.
+.BR /etc/mtab .
 For filesystems that are NFS-mounted a call to the rpc.rquotad on
 the server machine is performed to get the information.
 .SH OPTIONS
@@ -60,7 +68,7 @@ where no storage is allocated.
 .TP
 .B \-s
 flag will make
-.BR quota(1)
+.BR quota (1)
 try to choose units for showing limits, used space and used inodes.
 .TP
 .B \-q
@@ -99,10 +107,10 @@ are over quota.
 .SH FILES
 .PD 0
 .TP 20
-.B aquota.user or aquota.group
+.B aquota.user " or " aquota.group
 quota file at the filesystem root (version 2 quota, non-XFS filesystems)
 .TP 20
-.B quota.user or quota.group
+.B quota.user " or " quota.group
 quota file at the filesystem root (version 1 quota, non-XFS filesystems)
 .TP
 .B /etc/mtab
