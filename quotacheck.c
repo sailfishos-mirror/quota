@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.30 2002/07/23 15:59:27 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.31 2002/08/26 14:34:43 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -372,6 +372,8 @@ static int ext2_direct_scan(char *device)
 	int inode_buffer_blocks = 0;
 	ext2fs_inode_bitmap inode_used_map;
 	ext2fs_inode_bitmap inode_dir_map;
+	uid_t uid;
+	gid_t gid;
 
 	if ((error = ext2fs_open(device, 0, 0, 0, unix_io_manager, &fs))) {
 		errstr(_("error (%d) while opening %s\n"), (int)error, device);
@@ -403,12 +405,14 @@ static int ext2_direct_scan(char *device)
 			debug(FL_DEBUG, _("Found i_num %ld\n"), i_num);
 			if (flags & FL_VERBOSE)
 				blit();
+			uid = inode.i_uid | (inode.i_uid_high << 16);
+			gid = inode.i_gid | (inode.i_hid_high << 16);
 			if (ucheck)
-				add_to_quota(USRQUOTA, i_num, inode.i_uid, inode.i_gid,
+				add_to_quota(USRQUOTA, i_num, uid, gid,
 					     inode.i_mode, inode.i_links_count,
 					     inode.i_blocks << 9);
 			if (gcheck)
-				add_to_quota(GRPQUOTA, i_num, inode.i_uid, inode.i_gid,
+				add_to_quota(GRPQUOTA, i_num, uid, gid,
 					     inode.i_mode, inode.i_links_count,
 					     inode.i_blocks << 9);
 			if (S_ISDIR(inode.i_mode))
