@@ -1,4 +1,6 @@
 Changes in quota-tools form 3.10 to 3.11
+* quotacheck(8) does not count quota files to usage (Jan Kara)
+* tools now honor journalled quota mount options (Jan Kara)
 * manpage of repquota(8) stated falsely that repquota works over RPC (Jan Kara)
 * added -T flag to quot(8) to avoid truncation of names (Andre Nathan)
 * added -q flag to quot(8) to avoid sorting of names (Andre Nathan)
