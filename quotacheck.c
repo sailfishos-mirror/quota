@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.41 2004/09/06 14:35:10 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.42 2004/09/20 07:46:50 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -933,7 +933,7 @@ jquota_err:
 		option += strlen(MNTOPT_JQFMT);
 		if (*option != '=')
 			goto jquota_err;
-		space = strchr(option, ' ');
+		space = strchr(option, ',');
 		if (!space)
 			space = option + strlen(option);
 		if (space-option > sizeof(fmtbuf))
