@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaio_v1.c,v 1.11 2001/11/08 23:56:11 jkar8572 Exp $"
+#ident "$Id: quotaio_v1.c,v 1.12 2002/03/27 16:21:26 jkar8572 Exp $"
 
 #include <unistd.h>
 #include <errno.h>
@@ -47,7 +47,9 @@
 #include "dqblk_v1.h"
 #include "quotaio.h"
 #include "quotasys.h"
+#include "quotaio_generic.h"
 
+static int v1_check_file(int fd, int type);
 static int v1_init_io(struct quota_handle *h);
 static int v1_new_io(struct quota_handle *h);
 static int v1_write_info(struct quota_handle *h);
@@ -56,6 +58,7 @@ static int v1_commit_dquot(struct dquot *dquot, int flags);
 static int v1_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct dquot *dquot, char *dqname));
 
 struct quotafile_ops quotafile_ops_1 = {
+check_file:	v1_check_file,
 init_io:	v1_init_io,
 new_io:		v1_new_io,
 write_info:	v1_write_info,
@@ -121,23 +124,43 @@ static inline void v1_util2kerndqblk(struct v1_kern_dqblk *k, struct util_dqblk 
 }
 
 /*
+ *	Check whether quotafile is in our format
+ */
+static int v1_check_file(int fd, int type)
+{
+	struct stat st;
+
+	if (fstat(fd, &st) < 0)
+		return 0;
+	if (!st.st_size || st.st_size % sizeof(struct v1_disk_dqblk))
+		return 0;
+	return 1;
+}
+
+/*
  *	Open quotafile
  */
 static int v1_init_io(struct quota_handle *h)
 {
 	if (QIO_ENABLED(h)) {
-		struct v1_kern_dqblk kdqblk;
-
-		if (quotactl(QCMD(Q_V1_GETQUOTA, h->qh_type), h->qh_quotadev, 0, (void *)&kdqblk) < 0) {
-			if (errno == EPERM) {	/* We have no permission to get this information? */
-				h->qh_info.dqi_bgrace = h->qh_info.dqi_igrace = 0;	/* It hopefully won't be needed */
-			}
-			else
+		if (kernel_iface == IFACE_GENERIC) {
+			if (vfs_get_info(h) < 0)
 				return -1;
 		}
 		else {
-			h->qh_info.dqi_bgrace = kdqblk.dqb_btime;
-			h->qh_info.dqi_igrace = kdqblk.dqb_itime;
+			struct v1_kern_dqblk kdqblk;
+
+			if (quotactl(QCMD(Q_V1_GETQUOTA, h->qh_type), h->qh_quotadev, 0, (void *)&kdqblk) < 0) {
+				if (errno == EPERM) {	/* We have no permission to get this information? */
+					h->qh_info.dqi_bgrace = h->qh_info.dqi_igrace = 0;	/* It hopefully won't be needed */
+				}
+				else
+					return -1;
+			}
+			else {
+				h->qh_info.dqi_bgrace = kdqblk.dqb_btime;
+				h->qh_info.dqi_igrace = kdqblk.dqb_itime;
+			}
 		}
 	}
 	else {
@@ -187,14 +210,20 @@ static int v1_write_info(struct quota_handle *h)
 		return -1;
 	}
 	if (QIO_ENABLED(h)) {
-		struct v1_kern_dqblk kdqblk;
+		if (kernel_iface == IFACE_GENERIC) {
+			if (vfs_set_info(h, IIF_BGRACE | IIF_IGRACE) < 0)
+				return -1;
+		}
+		else {
+			struct v1_kern_dqblk kdqblk;
 
-		if (quotactl(QCMD(Q_V1_GETQUOTA, h->qh_type), h->qh_quotadev, 0, (void *)&kdqblk) < 0)
-			return -1;
-		kdqblk.dqb_btime = h->qh_info.dqi_bgrace;
-		kdqblk.dqb_itime = h->qh_info.dqi_igrace;
-		if (quotactl(QCMD(Q_V1_SETQUOTA, h->qh_type), h->qh_quotadev, 0, (void *)&kdqblk) < 0)
-			return -1;
+			if (quotactl(QCMD(Q_V1_GETQUOTA, h->qh_type), h->qh_quotadev, 0, (void *)&kdqblk) < 0)
+				return -1;
+			kdqblk.dqb_btime = h->qh_info.dqi_bgrace;
+			kdqblk.dqb_itime = h->qh_info.dqi_igrace;
+			if (quotactl(QCMD(Q_V1_SETQUOTA, h->qh_type), h->qh_quotadev, 0, (void *)&kdqblk) < 0)
+				return -1;
+		}
 	}
 	else {
 		struct v1_disk_dqblk ddqblk;
@@ -223,13 +252,21 @@ static struct dquot *v1_read_dquot(struct quota_handle *h, qid_t id)
 	dquot->dq_id = id;
 	dquot->dq_h = h;
 	if (QIO_ENABLED(h)) {	/* Does kernel use the file? */
-		struct v1_kern_dqblk kdqblk;
-
-		if (quotactl(QCMD(Q_V1_GETQUOTA, h->qh_type), h->qh_quotadev, id, (void *)&kdqblk) < 0) {
-			free(dquot);
-			return NULL;
+		if (kernel_iface == IFACE_GENERIC) {
+			if (vfs_get_dquot(dquot) < 0) {
+				free(dquot);
+				return NULL;
+			}
 		}
-		v1_kern2utildqblk(&dquot->dq_dqb, &kdqblk);
+		else {
+			struct v1_kern_dqblk kdqblk;
+
+			if (quotactl(QCMD(Q_V1_GETQUOTA, h->qh_type), h->qh_quotadev, id, (void *)&kdqblk) < 0) {
+				free(dquot);
+				return NULL;
+			}
+			v1_kern2utildqblk(&dquot->dq_dqb, &kdqblk);
+		}
 	}
 	else {
 		lseek(h->qh_fd, (long)V1_DQOFF(id), SEEK_SET);
@@ -267,19 +304,25 @@ static int v1_commit_dquot(struct dquot *dquot, int flags)
 		return -1;
 	}
 	if (QIO_ENABLED(h)) {	/* Kernel uses same file? */
-		struct v1_kern_dqblk kdqblk;
-		int cmd;
+		if (kernel_iface == IFACE_GENERIC) {
+			if (vfs_set_dquot(dquot, flags) < 0)
+				return -1;
+		}
+		else {
+			struct v1_kern_dqblk kdqblk;
+			int cmd;
 
-		if (flags == COMMIT_USAGE)
-			cmd = Q_V1_SETUSE;
-		else if (flags == COMMIT_LIMITS)
-			cmd = Q_V1_SETQLIM;
-		else
-			cmd = Q_V1_SETQUOTA;
-		v1_util2kerndqblk(&kdqblk, &dquot->dq_dqb);
-		if (quotactl(QCMD(cmd, h->qh_type), h->qh_quotadev, dquot->dq_id,
-		     (void *)&kdqblk) < 0)
-			return -1;
+			if (flags == COMMIT_USAGE)
+				cmd = Q_V1_SETUSE;
+			else if (flags == COMMIT_LIMITS)
+				cmd = Q_V1_SETQLIM;
+			else
+				cmd = Q_V1_SETQUOTA;
+			v1_util2kerndqblk(&kdqblk, &dquot->dq_dqb);
+			if (quotactl(QCMD(cmd, h->qh_type), h->qh_quotadev, dquot->dq_id,
+			     (void *)&kdqblk) < 0)
+				return -1;
+		}
 	}
 	else {
 		v1_mem2diskdqblk(&ddqblk, &dquot->dq_dqb);
@@ -304,7 +347,8 @@ static int v1_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct d
 	qid_t id = 0;
 
 	if (QIO_ENABLED(h))	/* Kernel uses same file? */
-		if (quotactl(QCMD(Q_SYNC, h->qh_type), h->qh_quotadev, 0, NULL) < 0)
+		if (quotactl(QCMD((kernel_iface == IFACE_GENERIC) ? Q_SYNC : Q_6_5_SYNC, h->qh_type),
+			     h->qh_quotadev, 0, NULL) < 0)
 			die(4, _("Can't sync quotas on device %s: %s\n"), h->qh_quotadev,
 			    strerror(errno));
 	memset(dquot, 0, sizeof(*dquot));

@@ -218,7 +218,7 @@ int main(int argc, char **argv)
 	progname = basename(argv[0]);
 
 	parse_options(argc, argv);
-	warn_new_kernel(fmt);
+	init_kernel_interface();
 
 	if (flags & FL_ALL)
 		handles = create_handle_list(0, NULL, flag2type(flags), fmt, (flags & FL_RPC) ? 0 : IOI_LOCALONLY);

@@ -49,12 +49,6 @@ static void usage(void)
 static void parse_options(int argcnt, char **argstr)
 {
 	int ret;
-	char *slash = strrchr(argstr[0], '/');
-
-	if (!slash)
-		slash = argstr[0];
-	else
-		slash++;
 
 	while ((ret = getopt(argcnt, argstr, "VavughtsnF:")) != -1) {
 		switch (ret) {
@@ -256,7 +250,7 @@ int main(int argc, char **argv)
 	progname = basename(argv[0]);
 
 	parse_options(argc, argv);
-	warn_new_kernel(fmt);
+	init_kernel_interface();
 
 	if (flags & FL_USER)
 		report(USRQUOTA);

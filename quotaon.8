@@ -6,12 +6,18 @@ quotaon, quotaoff \- turn filesystem quotas on and off
 .B /usr/sbin/quotaon
 [
 .B \-vugfp
+] [
+.B \-F
+.I format-name
 ]
 .IR filesystem .\|.\|.
 .br
 .B /usr/sbin/quotaon
 [
 .B \-avugfp
+] [
+.B \-F
+.I format-name
 ]
 .LP
 .B /usr/sbin/quotaoff
@@ -101,6 +107,16 @@ Make
 behave like being called as
 .BR quotaoff .
 .SS quotaoff
+.TP
+.B \-F \f2format-name\f1
+Report quota for specified format (ie. don't perform format autodetection).
+Possible format names are:
+.B vfsold
+(version 1 quota),
+.B vfsv0
+(version 2 quota),
+.B xfs
+(quota on XFS filesystem)
 .TP
 .B \-a
 Force all filesystems in

@@ -25,7 +25,15 @@
 #define IOI_OPENFILE	0x4	/* Open file even if kernel has quotas turned on */
 
 #define QSTAT_FILE "/proc/fs/quota"	/* File with quotastats */
-#define KERN_KNOWN_QUOTA_VERSION (6*10000 + 5*100 + 0)
+#define KERN_KNOWN_QUOTA_VERSION (6*10000 + 5*100 + 1)
+
+/* Interface versions */
+#define IFACE_VFSOLD 1
+#define IFACE_VFSV0 2
+#define IFACE_GENERIC 3
+
+/* Kernel quota format and supported interface */
+extern int kernel_formats, kernel_iface;
 
 /*
  *	Exported functions
@@ -57,6 +65,12 @@ int name2fmt(char *str);
 /* Convert quota format number to name */
 char *fmt2name(int fmt);
 
+/* Convert kernel to utility format numbers */
+int kern2utilfmt(int fmt);
+
+/* Convert utility to kernel format numbers */
+int util2kernfmt(int fmt);
+
 /* Convert time difference between given time and current time to printable form */
 void difftime2str(time_t, char *);
 
@@ -72,8 +86,14 @@ void number2str(unsigned long long, char *, int);
 /* Check to see if particular quota is to be enabled */
 int hasquota(struct mntent *mnt, int type);
 
+/* Flags for get_qf_name() */
+#define NF_EXIST  1	/* Check whether file exists */
+#define NF_FORMAT 2	/* Check whether file is in proper format */
 /* Get quotafile name for given entry */
-char *get_qf_name(struct mntent *mnt, int type, int fmt);
+int get_qf_name(struct mntent *mnt, int type, int fmt, int flags, char **filename);
+
+/* Detect newest quota format with existing file */
+int detect_quota_files(struct mntent *mnt, int type, int fmt);
 
 /* Create NULL-terminated list of handles for quotafiles for given mountpoints */
 struct quota_handle **create_handle_list(int count, char **mntpoints, int type, int fmt,
@@ -87,11 +107,8 @@ int devcmp_handle(const char *dev, struct quota_handle *h);
 /* Check whether two quota handles have same device */
 int devcmp_handles(struct quota_handle *a, struct quota_handle *b);
 
-/* Warn about too new kernel */
-void warn_new_kernel(int fmt);
-
 /* Check kernel supported quotafile format */
-int kern_quota_format(void);
+void init_kernel_interface(void);
 
 /* Check whether is quota turned on on given device for given type */
 int kern_quota_on(const char *dev, int type, int fmt);

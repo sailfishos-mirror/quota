@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.9 2002/02/25 11:26:16 jkar8572 Exp $
+ * Version: $Id: warnquota.c,v 1.10 2002/03/27 16:21:26 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -463,11 +463,11 @@ static void usage(void)
 {
 	errstr(_("Usage:\n  warnquota [-F quotaformat] [-c configfile] [-q quotatabfile]\n"));
 }
-
+ 
 static void parse_options(int argcnt, char **argstr)
 {
 	int ret;
-
+ 
 	while ((ret = getopt(argcnt, argstr, "VF:hc:q:")) != -1) {
 		switch (ret) {
 		  case '?':
@@ -489,14 +489,14 @@ static void parse_options(int argcnt, char **argstr)
 		}
 	}
 }
-
+ 
 int main(int argc, char **argv)
 {
 	gettexton();
 	progname = basename(argv[0]);
 
-	warn_new_kernel(-1);
 	parse_options(argc, argv);
+	init_kernel_interface();
 	warn_quota();
 
 	return 0;

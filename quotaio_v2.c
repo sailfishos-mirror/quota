@@ -18,9 +18,11 @@
 #include "dqblk_v2.h"
 #include "quotaio.h"
 #include "quotasys.h"
+#include "quotaio_generic.h"
 
 typedef char *dqbuf_t;
 
+static int v2_check_file(int fd, int type);
 static int v2_init_io(struct quota_handle *h);
 static int v2_new_io(struct quota_handle *h);
 static int v2_write_info(struct quota_handle *h);
@@ -30,6 +32,7 @@ static int v2_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct d
 static int v2_report(struct quota_handle *h, int verbose);
 
 struct quotafile_ops quotafile_ops_2 = {
+check_file:	v2_check_file,
 init_io:	v2_init_io,
 new_io:		v2_new_io,
 write_info:	v2_write_info,
@@ -41,12 +44,6 @@ report:	v2_report
 
 #define getdqbuf() smalloc(V2_DQBLKSIZE)
 #define freedqbuf(buf) free(buf)
-
-static inline void mark_quotafile_metainfo_dirty(struct quota_handle *h)
-{
-	h->qh_info.u.v2_mdqi.dqi_flags |= V2_IOFL_METAINFO_DIRTY;
-	mark_quotafile_info_dirty(h);
-}
 
 /*
  *	Copy dquot from disk to memory
@@ -139,25 +136,53 @@ static int empty_dquot(struct v2_disk_dqblk *d)
 }
 
 /*
+ *	Check whether given quota file is in our format
+ */
+static int v2_check_file(int fd, int type)
+{
+	struct v2_disk_dqheader h;
+	int file_magics[] = INITQMAGICS;
+	int known_versions[] = INIT_V2_VERSIONS;
+
+	lseek(fd, 0, SEEK_SET);
+	if (read(fd, &h, sizeof(h)) != sizeof(h))
+		return 0;
+	if (__le32_to_cpu(h.dqh_magic) != file_magics[type]) {
+		if (__be32_to_cpu(h.dqh_magic) == file_magics[type])
+			die(3, _("Your quota file is stored in wrong endianity. Please use convertquota(8) to convert it.\n"));
+		return 0;
+	}
+	if (__le32_to_cpu(h.dqh_version) > known_versions[type])
+		return 0;
+	return 1;
+}
+
+/*
  *	Open quotafile
  */
 static int v2_init_io(struct quota_handle *h)
 {
 	if (QIO_ENABLED(h)) {
-		struct v2_kern_dqinfo kdqinfo;
-
-		if (quotactl(QCMD(Q_V2_GETINFO, h->qh_type), h->qh_quotadev, 0, (void *)&kdqinfo) < 0) {
-			/* Temporary check just before fix gets to kernel */
-			if (errno == EPERM)	/* Don't have permission to get information? */
-				return 0;
-			return -1;
+		if (kernel_iface == IFACE_GENERIC) {
+			if (vfs_get_info(h) < 0)
+				return -1;
 		}
-		h->qh_info.dqi_bgrace = kdqinfo.dqi_bgrace;
-		h->qh_info.dqi_igrace = kdqinfo.dqi_igrace;
-		h->qh_info.u.v2_mdqi.dqi_flags = kdqinfo.dqi_flags;
-		h->qh_info.u.v2_mdqi.dqi_blocks = kdqinfo.dqi_blocks;
-		h->qh_info.u.v2_mdqi.dqi_free_blk = kdqinfo.dqi_free_blk;
-		h->qh_info.u.v2_mdqi.dqi_free_entry = kdqinfo.dqi_free_entry;
+		else {
+			struct v2_kern_dqinfo kdqinfo;
+
+			if (quotactl(QCMD(Q_V2_GETINFO, h->qh_type), h->qh_quotadev, 0, (void *)&kdqinfo) < 0) {
+				/* Temporary check just before fix gets to kernel */
+				if (errno == EPERM)	/* Don't have permission to get information? */
+					return 0;
+				return -1;
+			}
+			h->qh_info.dqi_bgrace = kdqinfo.dqi_bgrace;
+			h->qh_info.dqi_igrace = kdqinfo.dqi_igrace;
+			h->qh_info.u.v2_mdqi.dqi_flags = kdqinfo.dqi_flags;
+			h->qh_info.u.v2_mdqi.dqi_blocks = kdqinfo.dqi_blocks;
+			h->qh_info.u.v2_mdqi.dqi_free_blk = kdqinfo.dqi_free_blk;
+			h->qh_info.u.v2_mdqi.dqi_free_entry = kdqinfo.dqi_free_entry;
+		}
 	}
 	else {
 		struct v2_disk_dqinfo ddqinfo;
@@ -211,22 +236,22 @@ static int v2_write_info(struct quota_handle *h)
 		return -1;
 	}
 	if (QIO_ENABLED(h)) {
-		struct v2_kern_dqinfo kdqinfo;
-
-		kdqinfo.dqi_bgrace = h->qh_info.dqi_bgrace;
-		kdqinfo.dqi_igrace = h->qh_info.dqi_igrace;
-		kdqinfo.dqi_flags = h->qh_info.u.v2_mdqi.dqi_flags;
-		kdqinfo.dqi_blocks = h->qh_info.u.v2_mdqi.dqi_blocks;
-		kdqinfo.dqi_free_blk = h->qh_info.u.v2_mdqi.dqi_free_blk;
-		kdqinfo.dqi_free_entry = h->qh_info.u.v2_mdqi.dqi_free_entry;
-		if (h->qh_info.u.v2_mdqi.dqi_flags & V2_IOFL_METAINFO_DIRTY) {
-			if (quotactl(QCMD(Q_V2_SETINFO, h->qh_type), h->qh_quotadev, 0, (void *)&kdqinfo) < 0)
+		if (kernel_iface == IFACE_GENERIC) {
+			if (vfs_set_info(h, IIF_BGRACE | IIF_IGRACE))
 				return -1;
 		}
 		else {
+			struct v2_kern_dqinfo kdqinfo;
+
+			kdqinfo.dqi_bgrace = h->qh_info.dqi_bgrace;
+			kdqinfo.dqi_igrace = h->qh_info.dqi_igrace;
+			kdqinfo.dqi_flags = h->qh_info.u.v2_mdqi.dqi_flags;
+			kdqinfo.dqi_blocks = h->qh_info.u.v2_mdqi.dqi_blocks;
+			kdqinfo.dqi_free_blk = h->qh_info.u.v2_mdqi.dqi_free_blk;
+			kdqinfo.dqi_free_entry = h->qh_info.u.v2_mdqi.dqi_free_entry;
 			if (quotactl(QCMD(Q_V2_SETGRACE, h->qh_type), h->qh_quotadev, 0, (void *)&kdqinfo) < 0 ||
 			    quotactl(QCMD(Q_V2_SETFLAGS, h->qh_type), h->qh_quotadev, 0, (void *)&kdqinfo) < 0)
-				return -1;
+					return -1;
 		}
 	}
 	else {
@@ -289,7 +314,7 @@ static int get_free_dqblk(struct quota_handle *h)
 		}
 		blk = info->dqi_blocks++;
 	}
-	mark_quotafile_metainfo_dirty(h);
+	mark_quotafile_info_dirty(h);
 	freedqbuf(buf);
 	return blk;
 }
@@ -304,7 +329,7 @@ static void put_free_dqblk(struct quota_handle *h, dqbuf_t buf, uint blk)
 	dh->dqdh_prev_free = __cpu_to_le32(0);
 	dh->dqdh_entries = __cpu_to_le16(0);
 	info->dqi_free_blk = blk;
-	mark_quotafile_metainfo_dirty(h);
+	mark_quotafile_info_dirty(h);
 	write_blk(h, blk, buf);
 }
 
@@ -329,7 +354,7 @@ static void remove_free_dqentry(struct quota_handle *h, dqbuf_t buf, uint blk)
 	}
 	else {
 		h->qh_info.u.v2_mdqi.dqi_free_entry = nextblk;
-		mark_quotafile_metainfo_dirty(h);
+		mark_quotafile_info_dirty(h);
 	}
 	freedqbuf(tmpbuf);
 	dh->dqdh_next_free = dh->dqdh_prev_free = __cpu_to_le32(0);
@@ -353,7 +378,7 @@ static void insert_free_dqentry(struct quota_handle *h, dqbuf_t buf, uint blk)
 	}
 	freedqbuf(tmpbuf);
 	info->dqi_free_entry = blk;
-	mark_quotafile_metainfo_dirty(h);
+	mark_quotafile_info_dirty(h);
 }
 
 /* Find space for dquot */
@@ -382,7 +407,7 @@ static uint find_free_dqentry(struct quota_handle *h, struct dquot *dquot, int *
 		}
 		memset(buf, 0, V2_DQBLKSIZE);
 		info->dqi_free_entry = blk;
-		mark_quotafile_metainfo_dirty(h);
+		mark_quotafile_info_dirty(h);
 	}
 	if (__le16_to_cpu(dh->dqdh_entries) + 1 >= V2_DQSTRINBLK)	/* Block will be full? */
 		remove_free_dqentry(h, buf, blk);
@@ -608,13 +633,21 @@ static struct dquot *v2_read_dquot(struct quota_handle *h, qid_t id)
 	memset(&dquot->dq_dqb, 0, sizeof(struct util_dqblk));
 
 	if (QIO_ENABLED(h)) {
-		struct v2_kern_dqblk kdqblk;
-
-		if (quotactl(QCMD(Q_V2_GETQUOTA, h->qh_type), h->qh_quotadev, id, (void *)&kdqblk) < 0) {
-			free(dquot);
-			return NULL;
+		if (kernel_iface == IFACE_GENERIC) {
+			if (vfs_get_dquot(dquot) < 0) {
+				free(dquot);
+				return NULL;
+			}
 		}
-		v2_kern2utildqblk(&dquot->dq_dqb, &kdqblk);
+		else {
+			struct v2_kern_dqblk kdqblk;
+
+			if (quotactl(QCMD(Q_V2_GETQUOTA, h->qh_type), h->qh_quotadev, id, (void *)&kdqblk) < 0) {
+				free(dquot);
+				return NULL;
+			}
+			v2_kern2utildqblk(&dquot->dq_dqb, &kdqblk);
+		}
 		return dquot;
 	}
 	offset = find_dqentry(h, dquot);
@@ -647,19 +680,25 @@ static int v2_commit_dquot(struct dquot *dquot, int flags)
 		return -1;
 	}
 	if (QIO_ENABLED(dquot->dq_h)) {
-		struct v2_kern_dqblk kdqblk;
-		int cmd;
+		if (kernel_iface == IFACE_GENERIC) {
+			if (vfs_set_dquot(dquot, flags) < 0)
+				return -1;
+		}
+		else {
+			struct v2_kern_dqblk kdqblk;
+			int cmd;
 
-		if (flags == COMMIT_USAGE)
-			cmd = Q_V2_SETUSE;
-		else if (flags == COMMIT_LIMITS)
-			cmd = Q_V2_SETQLIM;
-		else
-			cmd = Q_V2_SETQUOTA;
-		v2_util2kerndqblk(&kdqblk, &dquot->dq_dqb);
-		if (quotactl(QCMD(cmd, dquot->dq_h->qh_type), dquot->dq_h->qh_quotadev,
-		     dquot->dq_id, (void *)&kdqblk) < 0)
-			return -1;
+			if (flags == COMMIT_USAGE)
+				cmd = Q_V2_SETUSE;
+			else if (flags == COMMIT_LIMITS)
+				cmd = Q_V2_SETQLIM;
+			else
+				cmd = Q_V2_SETQUOTA;
+			v2_util2kerndqblk(&kdqblk, &dquot->dq_dqb);
+			if (quotactl(QCMD(cmd, dquot->dq_h->qh_type), dquot->dq_h->qh_quotadev,
+			     dquot->dq_id, (void *)&kdqblk) < 0)
+				return -1;
+		}
 		return 0;
 	}
 	if (!b->dqb_curspace && !b->dqb_curinodes && !b->dqb_bsoftlimit && !b->dqb_isoftlimit
@@ -739,12 +778,18 @@ static int v2_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct d
 {
 	char *bitmap;
 	struct v2_mem_dqinfo *info = &h->qh_info.u.v2_mdqi;
+	struct v2_disk_dqinfo ddqinfo;
 	struct dquot *dquot = get_empty_dquot();
 
 	if (QIO_ENABLED(h))	/* Kernel uses same file? */
-		if (quotactl(QCMD(Q_SYNC, h->qh_type), h->qh_quotadev, 0, NULL) < 0)
+		if (quotactl(QCMD((kernel_iface == IFACE_GENERIC) ? Q_SYNC : Q_6_5_SYNC, h->qh_type),
+			     h->qh_quotadev, 0, NULL) < 0)
 			die(4, _("Can't sync quotas on device %s: %s\n"), h->qh_quotadev,
 			    strerror(errno));
+	lseek(h->qh_fd, V2_DQINFOOFF, SEEK_SET);
+	if (read(h->qh_fd, &ddqinfo, sizeof(ddqinfo)) != sizeof(ddqinfo))
+		return -1;
+	info->dqi_blocks = __le32_to_cpu(ddqinfo.dqi_blocks);
 	dquot->dq_h = h;
 	bitmap = smalloc((info->dqi_blocks + 7) >> 3);
 	memset(bitmap, 0, (info->dqi_blocks + 7) >> 3);
@@ -758,12 +803,12 @@ static int v2_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct d
 /* Report information about quotafile */
 static int v2_report(struct quota_handle *h, int verbose)
 {
-	struct v2_mem_dqinfo *info = &h->qh_info.u.v2_mdqi;
+	if (verbose) {
+		struct v2_mem_dqinfo *info = &h->qh_info.u.v2_mdqi;
 
-	if (verbose)
-		printf
-			("Statistics:\nTotal blocks: %u\nData blocks: %u\nEntries: %u\nUsed average: %f\n",
+		printf(_("Statistics:\nTotal blocks: %u\nData blocks: %u\nEntries: %u\nUsed average: %f\n"),
 			 info->dqi_blocks, info->dqi_data_blocks, info->dqi_used_entries,
 			 ((float)info->dqi_used_entries) / info->dqi_data_blocks);
+	}
 	return 0;
 }

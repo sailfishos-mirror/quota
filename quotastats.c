@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: quotastats.c,v 1.8 2001/11/09 08:07:18 jkar8572 Exp $
+ * Version: $Id: quotastats.c,v 1.9 2002/03/27 16:21:26 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -41,12 +41,13 @@ static inline int get_stats(struct util_dqstats *dqstats)
 {
 	struct v1_dqstats old_dqstats;
 	struct v2_dqstats v0_dqstats;
+	char tmp[1024];
 	FILE *f;
 	int ret = -1;
 
 	signal(SIGSEGV, SIG_IGN);	/* Ignore SIGSEGV due to bad quotactl() */
 	if ((f = fopen(QSTAT_FILE, "r"))) {
-		if (fscanf(f, "Version %u", &dqstats->version) != 1) {
+		if (fscanf(f, "Version %u\n", &dqstats->version) != 1) {
 			errstr(_("Can't parse quota version.\n"));
 			goto out;
 		}
@@ -54,6 +55,8 @@ static inline int get_stats(struct util_dqstats *dqstats)
 			errstr(_("Kernel quota version %u is too new.\n"), dqstats->version);
 			goto out;
 		}
+		if (dqstats->version >= 6*10000+5*100+1)
+			fgets(tmp, sizeof(tmp), f);	/* Skip formats information */
 		if (fscanf(f, "%u %u %u %u %u %u %u %u", &dqstats->lookups, &dqstats->drops,
 			   &dqstats->reads, &dqstats->writes, &dqstats->cache_hits,
 			   &dqstats->allocated_dquots, &dqstats->free_dquots, &dqstats->syncs) != 8) {

@@ -41,6 +41,7 @@
 }
 
 /* Values for format handling */
+#define QF_UNKNOWN -3		/* Format cannot be detected from filename */
 #define QF_TOONEW -2		/* Quota format is too new to handle */
 #define QF_ERROR -1		/* There was error while detecting format (maybe unknown format...) */
 #define QF_VFSOLD 0		/* Old quota format */
@@ -129,12 +130,13 @@ struct dquot {
 };
 
 /* Flags for commit function (have effect only when quota in kernel is turned on) */
-#define COMMIT_USAGE 1
-#define COMMIT_LIMITS 2
+#define COMMIT_USAGE QIF_USAGE
+#define COMMIT_LIMITS QIF_LIMITS
 #define COMMIT_ALL (COMMIT_USAGE | COMMIT_LIMITS)
 
 /* Structure of quotafile operations */
 struct quotafile_ops {
+	int (*check_file) (int fd, int type);		/* Check whether quotafile is in our format */
 	int (*init_io) (struct quota_handle * h);	/* Open quotafile */
 	int (*new_io) (struct quota_handle * h);	/* Create new quotafile */
 	int (*end_io) (struct quota_handle * h);	/* Write all changes and close quotafile */
@@ -152,9 +154,6 @@ static inline void mark_quotafile_info_dirty(struct quota_handle *h)
 
 #define QIO_ENABLED(h)	((h)->qh_io_flags & IOFL_QUOTAON)
 #define QIO_RO(h)	((h)->qh_io_flags & IOFL_RO)
-
-/* Detect format of given quotafile */
-int detect_qf_format(int fd, int type);
 
 /* Check quota format used on specified medium and initialize it */
 struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags);

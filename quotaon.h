@@ -14,7 +14,6 @@
 #define STATEFLAG_OFF		0x02
 #define STATEFLAG_ALL		0x04
 #define STATEFLAG_VERBOSE	0x08
-#define STATEFLAG_VERYVERBOSE	0x10
 
 typedef int (newstate_t) (struct mntent * mnt, int type, char *file, int flags);
 extern int v1_newstate(struct mntent *mnt, int type, char *file, int flags);

@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.26 2001/12/14 07:50:48 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.27 2002/03/27 16:21:26 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -564,13 +564,13 @@ Please turn quotas off or use -f to force checking.\n"),
 				    type2name(type), mnt->mnt_dir);
 		}
 		/* At least sync quotas so damage will be smaller */
-		if (quotactl(QCMD(Q_SYNC, type), mnt->mnt_fsname, 0, NULL) < 0)
+		if (quotactl(QCMD((kernel_iface == IFACE_GENERIC)? Q_SYNC : Q_6_5_SYNC, type),
+			     mnt->mnt_fsname, 0, NULL) < 0)
 			die(4, _("Error while syncing quotas on %s: %s\n"), mnt->mnt_fsname, strerror(errno));
 	}
 
-	if (!(flags & FL_NEWFILE)) {	/* Need to really buffer file? */
-		qfname = get_qf_name(mnt, type, cfmt);
-		if (!qfname) {
+	if (!(flags & FL_NEWFILE)) {	/* Need to buffer file? */
+		if (get_qf_name(mnt, type, (1 << cfmt), NF_EXIST, &qfname) < 0) {
 			errstr(_("Cannot get quotafile name for %s\n"), mnt->mnt_fsname);
 			return -1;
 		}
@@ -617,7 +617,7 @@ static int rename_files(struct mntent *mnt, int type)
 	mode_t mode = S_IRUSR | S_IWUSR;
 
 	debug(FL_DEBUG, _("Data dumped.\n"));
-	if (!(filename = get_qf_name(mnt, type, cfmt)))
+	if (get_qf_name(mnt, type, (1 << cfmt), 0, &filename) < 0)
 		die(2, _("Cannot get name of old quotafile on %s.\n"), mnt->mnt_dir);
 	if (stat(filename, &st) < 0) {	/* File doesn't exist? */
 		if (errno == ENOENT) {
@@ -704,12 +704,26 @@ static int dump_to_file(struct mntent *mnt, int type)
 	if (cfmt == kern_quota_on(mnt->mnt_fsname, type, 1 << cfmt)) {	/* Quota turned on? */
 		char *filename;
 
-		filename = get_qf_name(mnt, type, cfmt);
-		if (quotactl(QCMD(Q_QUOTAOFF, type), mnt->mnt_fsname, 0, NULL)
-		    || quotactl(QCMD(Q_QUOTAON, type), mnt->mnt_fsname, 0, filename))
-			errstr(_("Cannot turn %s quotas on %s off and on: %s\nKernel won't know about changes quotacheck did.\n"),
-				type2name(type), mnt->mnt_fsname, strerror(errno));
-		free(filename);
+		if (get_qf_name(mnt, type, 1 << cfmt, NF_FORMAT, &filename) < 0)
+			errstr(_("Cannot find checked quota file for %ss on %s!\n"), type2name(type), mnt->mnt_fsname);
+		else {
+			if (quotactl(QCMD((kernel_iface == IFACE_GENERIC) ? Q_QUOTAOFF : Q_6_5_QUOTAOFF, type),
+				     mnt->mnt_fsname, 0, NULL) < 0)
+				errstr(_("Cannot turn %s quotas off on %s: %s\nKernel won't know about changes quotacheck did.\n"),
+					type2name(type), mnt->mnt_fsname, strerror(errno));
+			else {
+				int ret;
+
+				if (kernel_iface == IFACE_GENERIC)
+					ret = quotactl(QCMD(Q_QUOTAON, type), mnt->mnt_fsname, util2kernfmt(cfmt), filename);
+				else
+					ret = quotactl(QCMD(Q_6_5_QUOTAON, type), mnt->mnt_fsname, 0, filename);
+				if (ret < 0)
+					errstr(_("Cannot turn %s quotas on on %s: %s\nKernel won't know about changes quotacheck did.\n"),
+						type2name(type), mnt->mnt_fsname, strerror(errno));
+			}
+			free(filename);
+		}
 	}
 	return 0;
 }
@@ -877,7 +891,7 @@ int main(int argc, char **argv)
 	progname = basename(argv[0]);
 
 	parse_options(argc, argv);
-	warn_new_kernel(fmt);
+	init_kernel_interface();
 
 	check_all();
 #ifdef DEBUG_MALLOC

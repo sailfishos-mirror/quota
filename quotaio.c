@@ -26,36 +26,11 @@
 #include "dqblk_rpc.h"
 #include "dqblk_xfs.h"
 
-static int file_magics[] = INITQMAGICS;
-static int known_versions[] = INITKNOWNVERSIONS;
-
 /* Header in all newer quotafiles */
 struct disk_dqheader {
 	u_int32_t dqh_magic;
 	u_int32_t dqh_version;
 } __attribute__ ((packed));
-
-/*
- *	Detect quotafile format
- */
-int detect_qf_format(int fd, int type)
-{
-	struct disk_dqheader head;
-	int ret;
-
-	if ((ret = read(fd, &head, sizeof(head))) < 0)
-		die(2, _("Error while reading from quotafile: %s\n"), strerror(errno));
-	if (ret != sizeof(head))	/* Short file? Probably old format */
-		return QF_VFSOLD;
-	if (__le32_to_cpu(head.dqh_magic) != file_magics[type])
-		if (__be32_to_cpu(head.dqh_magic) == file_magics[type])
-			die(3, _("Your quota file is stored in wrong endianity. Please use convertquota to convert it.\n"));
-		else
-			return QF_VFSOLD;
-	if (__le32_to_cpu(head.dqh_version) > known_versions[type])	/* Too new format? */
-		return QF_TOONEW;
-	return QF_VFSV0;
-}
 
 /*
  *	Detect quota format and initialize quota IO
@@ -107,26 +82,19 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 		h->qh_ops->init_io(h);
 		return h;
 	}
-	kernfmt = kern_quota_format();	/* Check kernel quota format */
-	if (kernfmt == QF_TOONEW || kernfmt > 0) {
-		/* Try whether some quota isn't turned on */
-		if (fmt != -1) {
-			if (kern_quota_on(h->qh_quotadev, type, 1 << fmt) != -1)
-				h->qh_io_flags |= IOFL_QUOTAON;
+	if (kernel_formats > 0 && (fmt == -1 || (1 << fmt) & kernel_formats)) {	/* Quota compiled and desired format available? */
+		/* Quota turned on? */
+		kernfmt = kern_quota_on(h->qh_quotadev, type, fmt == -1 ? kernel_formats : (1 << fmt));
+		if (kernfmt >= 0) {
+			h->qh_io_flags |= IOFL_QUOTAON;
+			fmt = kernfmt;	/* Default is kernel used format */
 		}
-		else if (kernfmt == QF_TOONEW) {
-			if ((fmt = kern_quota_on(h->qh_quotadev, type, (1 << QF_VFSOLD) | (1 << QF_VFSV0))) != -1)
-				h->qh_io_flags |= IOFL_QUOTAON;
-		}
-		else
-			if ((fmt = kern_quota_on(h->qh_quotadev, type, kernfmt)) != -1)
-				h->qh_io_flags |= IOFL_QUOTAON;
 	}
-	if (!(qfname = get_qf_name(mnt, type, fmt))) {
-		errstr(_("Can't get quotafile name.\n"));
+	if ((fmt = get_qf_name(mnt, type, (fmt == -1) ? ((1 << QF_VFSOLD) | (1 << QF_VFSV0)) : (1 << fmt), NF_FORMAT, &qfname)) < 0) {
+		errstr(_("Quota file not found or has wrong format.\n"));
 		goto out_handle;
 	}
-	if (qfname[0] && (!QIO_ENABLED(h) || flags & IOI_OPENFILE)) {	/* Need to open file? */
+	if (!QIO_ENABLED(h) || flags & IOI_OPENFILE) {	/* Need to open file? */
 		/* We still need to open file for operations like 'repquota' */
 		if ((fd = open(qfname, QIO_RO(h) ? O_RDONLY : O_RDWR)) < 0) {
 			errstr(_("Can't open quotafile %s: %s\n"),
@@ -136,17 +104,7 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 		flock(fd, QIO_RO(h) ? LOCK_SH : LOCK_EX);
 		/* Init handle */
 		h->qh_fd = fd;
-
-		/* Check file format */
-		h->qh_fmt = detect_qf_format(fd, type);
-		if (h->qh_fmt == -2) {
-			errstr(_("Quotafile format too new in %s\n"), qfname);
-			goto out_lock;
-		}
-		if (fmt != -1 && h->qh_fmt != fmt) {
-			errstr(_("Quotafile format detected differs from the specified one (or the one kernel uses on the file).\n"));
-			goto out_lock;
-		}
+		h->qh_fmt = fmt;
 	}
 	else {
 		h->qh_fd = -1;
@@ -192,7 +150,7 @@ struct quota_handle *new_io(struct mntent *mnt, int type, int fmt)
 			fmt == QF_RPC ? "RPC" : "XFS");
 		return NULL;
 	}
-	if (!hasquota(mnt, type) || !(qfname = get_qf_name(mnt, type, fmt)))
+	if (get_qf_name(mnt, type, (1 << fmt), 0, &qfname) < 0)
 		return NULL;
 	sstrncpy(namebuf, qfname, PATH_MAX);
 	sstrncat(namebuf, ".new", PATH_MAX);

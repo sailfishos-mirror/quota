@@ -17,13 +17,8 @@ static struct dquot *rpc_read_dquot(struct quota_handle *h, qid_t id);
 static int rpc_commit_dquot(struct dquot *dquot, int flags);
 
 struct quotafile_ops quotafile_ops_rpc = {
-	NULL,			/* init_io */
-	NULL,			/* new_io */
-	NULL,			/* end_io */
-	NULL,			/* write_info */
-	rpc_read_dquot,
-	rpc_commit_dquot,
-	NULL			/* scan_dquots */
+read_dquot:	rpc_read_dquot,
+commit_dquot:	rpc_commit_dquot
 };
 
 /*

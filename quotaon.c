@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaon.c,v 1.13 2002/02/27 21:23:55 jkar8572 Exp $"
+#ident "$Id: quotaon.c,v 1.14 2002/03/27 16:21:26 jkar8572 Exp $"
 
 /*
  * Turn quota on/off for a filesystem.
@@ -46,53 +46,118 @@
 #include <stdlib.h>
 
 #include "quotaon.h"
+#include "quota.h"
+#include "quotasys.h"
 
-int aflag;			/* all file systems */
-int gflag;			/* operate on group quotas */
-int uflag;			/* operate on user quotas */
-int vflag;			/* verbose */
-int pflag;			/* just print status */
-int kqf;			/* kernel quota format */
+#define FL_USER 1
+#define FL_GROUP 2
+#define FL_VERBOSE 4
+#define FL_ALL 8
+#define FL_STAT 16
+#define FL_OFF 32
+
+int flags, fmt = -1;
 char *progname;
+char **mntpoints;
+int mntcnt;
+char *xarg = NULL;
 
 static void usage(void)
 {
-	errstr(_("Usage:\n\t%s [-guvp] [-x state] -a\n\t%s [-guvp] [-x state] filesys ...\n"), progname, progname);
+	errstr(_("Usage:\n\t%s [-guvp] [-F quotaformat] [-x state] -a\n\t%s [-guvp] [-F quotaformat] [-x state] filesys ...\n"), progname, progname);
 	exit(1);
+}
+
+static void parse_options(int argcnt, char **argstr)
+{
+	int c;
+
+	while ((c = getopt(argcnt, argstr, "afvugpx:VF:")) != -1) {
+		switch (c) {
+		  case 'a':
+			  flags |= FL_ALL;
+			  break;
+		  case 'f':
+			  flags |= FL_OFF;
+			  break;
+		  case 'g':
+			  flags |= FL_GROUP;
+			  break;
+		  case 'u':
+			  flags |= FL_USER;
+			  break;
+		  case 'v':
+			  flags |= FL_VERBOSE;
+			  break;
+		  case 'x':
+			  xarg = optarg;
+			  break;
+		  case 'p':
+			  flags |= FL_STAT;
+			  break;
+		  case 'F':
+			  if ((fmt = name2fmt(optarg)) == QF_ERROR)
+				exit(1);
+			  break;
+		  case 'V':
+			  version();
+			  exit(0);
+		  default:
+			  usage();
+		}
+	}
+	if ((flags & FL_ALL && optind != argcnt) || (!(flags & FL_ALL) && optind == argcnt)) {
+		fputs(_("Bad number of arguments.\n"), stderr);
+		usage();
+	}
+	if (fmt == QF_RPC) {
+		fputs(_("Can't turn on/off quotas via RPC.\n"), stderr);
+		exit(1);
+	}
+	if (!(flags & (FL_USER | FL_GROUP)))
+		flags |= FL_USER | FL_GROUP;
+	if (!(flags & FL_ALL)) {
+		mntpoints = argstr + optind;
+		mntcnt = argcnt - optind;
+	}
 }
 
 /*
  *	For both VFS quota formats, need to pass in the quota file;
  *	for XFS quota manager, pass on the -x command line option.
  */
-static int newstate(struct mntent *mnt, int offmode, int type, char *extra)
+static int newstate(struct mntent *mnt, int type, char *extra)
 {
-	int flags, ret = 0;
+	int sflags, ret = 0, usefmt;
 	newstate_t *statefunc;
 
-	flags = offmode ? STATEFLAG_OFF : STATEFLAG_ON;
-	if (vflag > 1)
-		flags |= STATEFLAG_VERYVERBOSE;
-	else if (vflag)
-		flags |= STATEFLAG_VERBOSE;
-	if (aflag)
-		flags |= STATEFLAG_ALL;
+	sflags = flags & FL_OFF ? STATEFLAG_OFF : STATEFLAG_ON;
+	if (flags & FL_VERBOSE)
+		sflags |= STATEFLAG_VERBOSE;
+	if (flags & FL_ALL)
+		sflags |= STATEFLAG_ALL;
 
 	if (!strcmp(mnt->mnt_type, MNTTYPE_XFS)) {	/* XFS filesystem has special handling... */
-		if (!(kqf & (1 << QF_XFS))) {
-			errstr("Can't change state of XFS quota. It's not compiled in kernel.\n");
+		if (!(kernel_formats & (1 << QF_XFS))) {
+			errstr(_("Can't change state of XFS quota. It's not compiled in kernel.\n"));
 			return 1;
 		}
-		if (kqf & (1 << QF_XFS) &&
-		    ((offmode && (kern_quota_on(mnt->mnt_fsname, USRQUOTA, 1 << QF_XFS)
+		if (kernel_formats & (1 << QF_XFS) &&
+		    ((flags & FL_OFF && (kern_quota_on(mnt->mnt_fsname, USRQUOTA, 1 << QF_XFS)
 		    || kern_quota_on(mnt->mnt_fsname, GRPQUOTA, 1 << QF_XFS)))
-		    || (!offmode && kern_quota_on(mnt->mnt_fsname, type, 1 << QF_XFS))))
-			ret = xfs_newstate(mnt, type, extra, flags);
+		    || (!(flags & FL_OFF) && kern_quota_on(mnt->mnt_fsname, type, 1 << QF_XFS))))
+			ret = xfs_newstate(mnt, type, extra, sflags);
 	}
 	else {
-		extra = get_qf_name(mnt, type, (kqf & (1 << QF_VFSV0)) ? QF_VFSV0 : QF_VFSOLD);
-		statefunc = (kqf & (1 << QF_VFSV0)) ? v2_newstate : v1_newstate;
-		ret = statefunc(mnt, type, extra, flags);
+		if (!hasquota(mnt, type))
+			return 0;
+		usefmt = get_qf_name(mnt, type, fmt == -1 ? kernel_formats : (1 << fmt), NF_FORMAT, &extra);
+		if (usefmt < 0) {
+			errstr(_("Cannot find quota file on %s [%s] to turn quotas on/off.\n"), mnt->mnt_dir, mnt->mnt_fsname);
+			return 1;
+		}
+		statefunc = (usefmt == QF_VFSV0) ? v2_newstate : v1_newstate;
+		ret = statefunc(mnt, type, extra, sflags);
 		free(extra);
 	}
 	return ret;
@@ -104,12 +169,12 @@ static int print_state(struct mntent *mnt, int type)
 	int on = 0;
 
 	if (!strcmp(mnt->mnt_type, MNTTYPE_XFS)) {
-		if (kqf & (1 << QF_XFS))
+		if (kernel_formats & (1 << QF_XFS))
 			on = kern_quota_on(mnt->mnt_fsname, type, 1 << QF_XFS) != -1;
 	}
-	else if (kqf & (1 << QF_VFSV0))
+	else if (kernel_formats & (1 << QF_VFSV0))
 		on = kern_quota_on(mnt->mnt_fsname, type, 1 << QF_VFSV0) != -1;
-	else if (kqf & (1 << QF_VFSOLD))
+	else if (kernel_formats & (1 << QF_VFSOLD))
 		on = kern_quota_on(mnt->mnt_fsname, type, 1 << QF_VFSOLD) != -1;
 
 	printf("%s quota on %s (%s) is %s\n", type2name(type), mnt->mnt_dir, mnt->mnt_fsname,
@@ -118,102 +183,18 @@ static int print_state(struct mntent *mnt, int type)
 	return on;
 }
 
-int main(int argc, char **argv)
-{
-	struct mntent *mnt;
-	char *xarg = NULL;
-	int c, offmode = 0, errs = 0;
-
-	gettexton();
-
-	progname = basename(argv[0]);
-	if (strcmp(progname, "quotaoff") == 0)
-		offmode++;
-	else if (strcmp(progname, "quotaon") != 0)
-		die(1, _("Name must be quotaon or quotaoff not %s\n"), progname);
-
-	while ((c = getopt(argc, argv, "afvugpx:V")) != -1) {
-		switch (c) {
-		  case 'a':
-			  aflag++;
-			  break;
-		  case 'f':
-			  offmode++;
-			  break;
-		  case 'g':
-			  gflag++;
-			  break;
-		  case 'u':
-			  uflag++;
-			  break;
-		  case 'v':
-			  vflag++;
-			  break;
-		  case 'x':
-			  xarg = optarg;
-			  break;
-		  case 'p':
-			  pflag++;
-			  break;
-		  case 'V':
-			  version();
-			  exit(0);
-		  default:
-			  usage();
-		}
-	}
-	argc -= optind;
-	argv += optind;
-
-	if (argc <= 0 && !aflag)
-		usage();
-	if (!gflag && !uflag) {
-		gflag++;
-		uflag++;
-	}
-
-	kqf = kern_quota_format();
-	if (kqf == QF_TOONEW) {
-		errstr(_("WARNING - Kernel quota newer than supported! Quota need not work properly.\n"));
-		kqf = 1 << QF_VFSV0;
-	}
-
-	if (init_mounts_scan(aflag ? 0 : argc, argv) < 0)
-		return 1;
-	while ((mnt = get_next_mount(0))) {
-		if (!strcmp(mnt->mnt_type, MNTTYPE_NFS)) {
-			if (!aflag)
-				fprintf(stderr, "%s: Quota can't be turned on on NFS filesystem\n", mnt->mnt_fsname);
-			continue;
-		}
-
-		if (!pflag) {
-			if (gflag)
-				errs += newstate(mnt, offmode, GRPQUOTA, xarg);
-			if (uflag)
-				errs += newstate(mnt, offmode, USRQUOTA, xarg);
-		}
-		else {
-			if (gflag)
-				errs += print_state(mnt, GRPQUOTA);
-			if (uflag)
-				errs += print_state(mnt, USRQUOTA);
-		}
-	}
-	end_mounts_scan();
-
-	return errs;
-}
-
 /*
  *	Enable/disable VFS quota on given filesystem
  */
-static int quotaonoff(char *quotadev, char *quotadir, char *quotafile, int type, int flags)
+static int quotaonoff(char *quotadev, char *quotadir, char *quotafile, int type, int fmt, int flags)
 {
-	int qcmd;
+	int qcmd, kqf;
 
 	if (flags & STATEFLAG_OFF) {
-		qcmd = QCMD(Q_QUOTAOFF, type);
+		if (kernel_iface == IFACE_GENERIC)
+			qcmd = QCMD(Q_QUOTAOFF, type);
+		else
+			qcmd = QCMD(Q_6_5_QUOTAOFF, type);
 		if (quotactl(qcmd, quotadev, 0, NULL) < 0) {
 			errstr(_("quotactl on %s [%s]: %s\n"), quotadev, quotadir, strerror(errno));
 			return 1;
@@ -222,8 +203,15 @@ static int quotaonoff(char *quotadev, char *quotadir, char *quotafile, int type,
 			printf(_("%s [%s]: %s quotas turned off\n"), quotadev, quotadir, type2name(type));
 		return 0;
 	}
-	qcmd = QCMD(Q_QUOTAON, type);
-	if (quotactl(qcmd, quotadev, 0, (void *)quotafile) < 0) {
+	if (kernel_iface == IFACE_GENERIC) {
+		qcmd = QCMD(Q_QUOTAON, type);
+ 		kqf = util2kernfmt(fmt);
+	}
+	else {
+		qcmd = QCMD(Q_6_5_QUOTAON, type);
+		kqf = 0;
+	}
+	if (quotactl(qcmd, quotadev, kqf, (void *)quotafile) < 0) {
 		if (errno == ENOENT)
 			errstr(_("can't find %s on %s [%s]\n"), quotafile, quotadev, quotadir);
 		else
@@ -243,10 +231,23 @@ static int quotaonoff(char *quotadev, char *quotadir, char *quotafile, int type,
 static int quotarsquashonoff(const char *quotadev, int type, int flags)
 {
 #if defined(MNTOPT_RSQUASH)
-	int mode = (flags & STATEFLAG_OFF) ? 0 : 1;
-	int qcmd = QCMD(Q_V1_RSQUASH, type);
+	int ret;
 
-	if (quotactl(qcmd, quotadev, 0, (void *)&mode) < 0) {
+	if (kernel_iface == IFACE_GENERIC) {
+		int qcmd = QCMD(Q_SETINFO, type);
+		struct if_dqinfo info;
+
+		info.dqi_flags = V1_DQF_RSQUASH;
+		info.dqi_valid = IIF_FLAGS;
+		ret = quotactl(qcmd, quotadev, 0, (void *)&info);
+	}
+	else {
+		int mode = (flags & STATEFLAG_OFF) ? 0 : 1;
+		int qcmd = QCMD(Q_V1_RSQUASH, type);
+
+		ret = quotactl(qcmd, quotadev, 0, (void *)&mode);
+	}
+	if (ret < 0) {
 		errstr(_("set root_squash on %s: %s\n"), quotadev, strerror(errno));
 		return 1;
 	}
@@ -271,7 +272,7 @@ int v1_newstate(struct mntent *mnt, int type, char *file, int flags)
 	if ((flags & STATEFLAG_OFF) && hasmntopt(mnt, MNTOPT_RSQUASH))
 		errs += quotarsquashonoff(dev, type, flags);
 	if (hasquota(mnt, type))
-		errs += quotaonoff((char *)dev, mnt->mnt_dir, file, type, flags);
+		errs += quotaonoff((char *)dev, mnt->mnt_dir, file, type, QF_VFSOLD, flags);
 	if ((flags & STATEFLAG_ON) && hasmntopt(mnt, MNTOPT_RSQUASH))
 		errs += quotarsquashonoff(dev, type, flags);
 	free((char *)dev);
@@ -289,7 +290,54 @@ int v2_newstate(struct mntent *mnt, int type, char *file, int flags)
 	if (!dev)
 		return 1;
 	if (hasquota(mnt, type))
-		errs = quotaonoff((char *)dev, mnt->mnt_dir, file, type, flags);
+		errs = quotaonoff((char *)dev, mnt->mnt_dir, file, type, QF_VFSV0, flags);
 	free((char *)dev);
 	return errs;
 }
+
+int main(int argc, char **argv)
+{
+	struct mntent *mnt;
+	int errs = 0;
+
+	gettexton();
+
+	progname = basename(argv[0]);
+	if (strcmp(progname, "quotaoff") == 0)
+		flags |= FL_OFF;
+	else if (strcmp(progname, "quotaon") != 0)
+		die(1, _("Name must be quotaon or quotaoff not %s\n"), progname);
+
+	parse_options(argc, argv);
+
+	init_kernel_interface();
+	if (fmt != -1 && !(kernel_formats & (1 << fmt)))
+		die(1, _("Required format %s not supported by kernel.\n"), fmt2name(fmt));
+
+	if (init_mounts_scan(mntcnt, mntpoints) < 0)
+		return 1;
+	while ((mnt = get_next_mount(0))) {
+		if (!strcmp(mnt->mnt_type, MNTTYPE_NFS)) {
+			if (!(flags & FL_ALL))
+				fprintf(stderr, "%s: Quota can't be turned on on NFS filesystem\n", mnt->mnt_fsname);
+			continue;
+		}
+
+		if (!(flags & FL_STAT)) {
+			if (flags & FL_GROUP)
+				errs += newstate(mnt, GRPQUOTA, xarg);
+			if (flags & FL_USER)
+				errs += newstate(mnt, USRQUOTA, xarg);
+		}
+		else {
+			if (flags & FL_GROUP)
+				errs += print_state(mnt, GRPQUOTA);
+			if (flags & FL_USER)
+				errs += print_state(mnt, USRQUOTA);
+		}
+	}
+	end_mounts_scan();
+
+	return errs;
+}
+

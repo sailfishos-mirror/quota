@@ -12,7 +12,7 @@
  *          changes for new utilities by Jan Kara <jack@suse.cz>
  *          patches by Jani Jaakkola <jjaakkol@cs.helsinki.fi>
  *
- * Version: $Id: rquota_svc.c,v 1.9 2001/09/26 12:26:11 jkar8572 Exp $
+ * Version: $Id: rquota_svc.c,v 1.10 2002/03/27 16:21:26 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -344,8 +344,7 @@ int main(int argc, char **argv)
 	progname = basename(argv[0]);
 	parse_options(argc, argv);
 
-	warn_new_kernel(-1);
-
+	init_kernel_interface();
 	(void)pmap_unset(RQUOTAPROG, RQUOTAVERS);
 	(void)pmap_unset(RQUOTAPROG, EXT_RQUOTAVERS);
 

@@ -42,15 +42,8 @@ static void usage(void)
 static void parse_options(int argcnt, char **argstr)
 {
 	int ret;
-	char *slash = strrchr(argstr[0], '/'), cmdname[PATH_MAX];
-
-	if (!slash)
-		slash = argstr[0];
-	else
-		slash++;
 
 	action = ACT_FORMAT;
-	sstrncpy(cmdname, slash, sizeof(cmdname));
 	while ((ret = getopt(argcnt, argstr, "Vugefh:")) != -1) {
 		switch (ret) {
 			case '?':
@@ -253,7 +246,10 @@ static int rename_file(int type, struct mntent *mnt)
 	char *qfname, namebuf[PATH_MAX];
 	int ret = 0;
 
-	qfname = get_qf_name(mnt, type, QF_VFSV0);
+	if (get_qf_name(mnt, type, (1 << QF_VFSV0), 0, &qfname) < 0) {
+		errstr(_("Can't get name of new quotafile.\n"));
+		return -1;
+	}
 	strcpy(namebuf, qfname);
 	sstrncat(namebuf, ".new", sizeof(namebuf));
 	if (rename(namebuf, qfname) < 0) {
@@ -296,7 +292,7 @@ static int convert_endian(int type, struct mntent *mnt)
 	int ofd;
 	char *qfname;
 
-	if (!(qfname = get_qf_name(mnt, type, QF_VFSV0)))
+	if (get_qf_name(mnt, type, (1 << QF_VFSV0), NF_EXIST, &qfname) < 0)
 		return -1;
 	if ((ofd = open(qfname, O_RDONLY)) < 0) {
 		errstr(_("Can't open old quota file on %s: %s\n"), mnt->mnt_dir, strerror(errno));
@@ -348,6 +344,7 @@ int main(int argc, char **argv)
 	progname = basename(argv[0]);
 
 	parse_options(argc, argv);
+	init_kernel_interface();
 	if (init_mounts_scan(1, &mntpoint) < 0)
 		return 1;
 	if (!(mnt = get_next_mount(0))) {

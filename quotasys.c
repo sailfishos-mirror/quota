@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/vfs.h>
@@ -173,6 +174,34 @@ char *fmt2name(int fmt)
 }
 
 /*
+ *	Convert kernel to utility quota format number
+ */
+int kern2utilfmt(int fmt)
+{
+	switch (fmt) {
+		case QFMT_VFS_OLD:
+			return QF_VFSOLD;
+		case QFMT_VFS_V0:
+			return QF_VFSV0;
+	}
+	return -1;
+}
+
+/*
+ *	Convert utility to kernel quota format number
+ */
+int util2kernfmt(int fmt)
+{
+	switch (fmt) {
+		case QF_VFSOLD:
+			return QFMT_VFS_OLD;
+		case QF_VFSV0:
+			return QFMT_VFS_V0;
+	}
+	return -1;
+}
+
+/*
  * Convert time difference of seconds and current time
  */
 void difftime2str(time_t seconds, char *buf)
@@ -317,71 +346,83 @@ int hasquota(struct mntent *mnt, int type)
 }
 
 /* Check whether quotafile for given format exists - return its name in namebuf */
-static int check_fmtfile_exists(struct mntent *mnt, int type, int fmt, char *namebuf)
+static int check_fmtfile_ok(char *name, int type, int fmt, int flags)
 {
-	struct stat buf;
-
-	snprintf(namebuf, PATH_MAX, "%s/%s.%s", mnt->mnt_dir, basenames[fmt], extensions[type]);
-	if (!stat(namebuf, &buf))
+	if (!flags)
 		return 1;
-	if (errno != ENOENT) {
-		errstr(_("Can't stat quotafile %s: %s\n"),
-			namebuf, strerror(errno));
-		return -1;
+	if (flags & NF_EXIST) {
+		struct stat st;
+
+		if (stat(name, &st) < 0) {
+			if (errno != ENOENT)
+				errstr(_("Can't stat quota file %s: %s\n"), name, strerror(errno));
+			return 0;
+		}
+		return 1;
 	}
-	return 0;
+	else {
+		int fd, ret = 0;
+
+		if ((fd = open(name, O_RDONLY)) >= 0) {
+			if (fmt == QF_VFSV0)
+				ret = quotafile_ops_2.check_file(fd, type);
+			else
+				ret = quotafile_ops_1.check_file(fd, type);
+			close(fd);
+		}
+		else if (errno != ENOENT)
+			errstr(_("Can't open quotafile %s: %s\n"), name, strerror(errno));
+		return ret;
+	}
 }
 
 /*
- *	Get quotafile name for given entry; "" means format has no quota
+ *	Get quotafile name for given entry. Return format and quota file name.
  *	Note that formats without quotafile *must* be detected prior to calling this function
  */
-char *get_qf_name(struct mntent *mnt, int type, int fmt)
+int get_qf_name(struct mntent *mnt, int type, int fmt, int flags, char **filename)
 {
 	char *option, *pathname, has_quota_file_definition = 0;
 	char qfullname[PATH_MAX] = "";
 
-	if ((type == USRQUOTA) && (option = hasmntopt(mnt, MNTOPT_USRQUOTA))) {
+	if (type == USRQUOTA && (option = hasmntopt(mnt, MNTOPT_USRQUOTA))) {
 		if (*(pathname = option + strlen(MNTOPT_USRQUOTA)) == '=')
 			has_quota_file_definition = 1;
 	}
-	else if ((type == GRPQUOTA) && (option = hasmntopt(mnt, MNTOPT_GRPQUOTA))) {
+	else if (type == GRPQUOTA && (option = hasmntopt(mnt, MNTOPT_GRPQUOTA))) {
 		if (*(pathname = option + strlen(MNTOPT_GRPQUOTA)) == '=')
 			has_quota_file_definition = 1;
 	}
-	else if ((type == USRQUOTA) && (option = hasmntopt(mnt, MNTOPT_QUOTA))) {
+	else if (type == USRQUOTA && (option = hasmntopt(mnt, MNTOPT_QUOTA))) {
 		if (*(pathname = option + strlen(MNTOPT_QUOTA)) == '=')
 			has_quota_file_definition = 1;
 	}
 	else
-		return NULL;
+		return -1;
 
 	if (has_quota_file_definition) {
 		if ((option = strchr(++pathname, ',')))
-			strncpy(qfullname, pathname, min((option - pathname), sizeof(qfullname)));
+			sstrncpy(qfullname, pathname, min((option - pathname), sizeof(qfullname)));
 		else
-			strncpy(qfullname, pathname, sizeof(qfullname));
+			sstrncpy(qfullname, pathname, sizeof(qfullname));
 	}
-	else if (fmt == -1) {	/* Should guess quota format? */
-		int ret;
-
-		if ((ret = check_fmtfile_exists(mnt, type, QF_VFSV0, qfullname)) == -1)
-			return NULL;
-		if (ret)
-			fmt = QF_VFSV0;
-		else {
-			if ((ret = check_fmtfile_exists(mnt, type, QF_VFSOLD, qfullname)) == -1)
-				return NULL;
-			if (ret)
-				fmt = QF_VFSOLD;
+	if (fmt & (1 << QF_VFSV0)) {
+		if (!has_quota_file_definition)
+			snprintf(qfullname, PATH_MAX, "%s/%s.%s", mnt->mnt_dir, basenames[QF_VFSV0], extensions[type]);
+		if (check_fmtfile_ok(qfullname, type, QF_VFSV0, flags)) {
+			*filename = sstrdup(qfullname);
+			return QF_VFSV0;
 		}
-		if (fmt == -1)
-			return NULL;
 	}
-	else if (basenames[fmt][0])	/* Any name specified? */
-		snprintf(qfullname, PATH_MAX, "%s/%s.%s", mnt->mnt_dir, basenames[fmt], extensions[type]);
-
-	return sstrdup(qfullname);
+	if (fmt & (1 << QF_VFSOLD)) {
+		if (!has_quota_file_definition)
+			snprintf(qfullname, PATH_MAX, "%s/%s.%s", mnt->mnt_dir, basenames[QF_VFSOLD], extensions[type]);
+		if (check_fmtfile_ok(qfullname, type, QF_VFSOLD, flags)) {
+			*filename = sstrdup(qfullname);
+			return QF_VFSOLD;
+		}
+	}
+	return -1;
 }
 
 /*
@@ -468,30 +509,49 @@ int devcmp_handles(struct quota_handle *a, struct quota_handle *b)
  *	Check kernel quota version
  */
 
-int kern_quota_format(void)
+int kernel_formats, kernel_iface;	/* Formats supported by kernel */
+
+void init_kernel_interface(void)
 {
-	struct util_dqstats stats;
-	struct v2_dqstats v2_stats;
 	FILE *f;
-	int ret = 0;
+	char buf[1024], *c;
+	int actfmt, version = -1;
 	struct stat st;
 
-	if (!stat("/proc/fs/xfs/stat", &st))
-		ret |= (1 << QF_XFS);
+	kernel_formats = 0;
 	if ((f = fopen(QSTAT_FILE, "r"))) {
-		if (fscanf(f, "Version %u", &stats.version) != 1) {
-			fclose(f);
-			return QF_TOONEW;
+		/* Parse statistics file */
+		fgets(buf, sizeof(buf), f);
+		sscanf(buf, "Version %u", &version);
+		if (version >= 6*10000+5*100+1) {
+			fgets(buf, sizeof(buf), f);
+			c = buf;
+			while ((c = strchr(c, ' '))) {
+				c++;
+				actfmt = kern2utilfmt(strtol(c, NULL, 10));
+				if (actfmt >= 0)	/* Known format? */
+					kernel_formats |= 1 << actfmt;
+			}
+			kernel_iface = IFACE_GENERIC;
+		}
+		else {
+			kernel_formats = 1 << QF_VFSV0;
+			kernel_iface = IFACE_VFSV0;
 		}
 		fclose(f);
 	}
-	else if (quotactl(QCMD(Q_V2_GETSTATS, 0), NULL, 0, (void *)&v2_stats) >= 0) {
-		stats.version = v2_stats.version;	/* Copy the version */
-	}
 	else {
-		if (errno == ENOSYS || errno == ENOTSUP)	/* Quota not compiled? */
-			return QF_ERROR;
-		if (errno == EINVAL || errno == EFAULT || errno == EPERM) {	/* Old quota compiled? */
+		struct v2_dqstats v2_stats;
+
+		if (!stat("/proc/fs/xfs/stat", &st))
+			kernel_formats |= (1 << QF_XFS);
+		if (quotactl(QCMD(Q_V2_GETSTATS, 0), NULL, 0, (void *)&v2_stats) >= 0) {
+			version = v2_stats.version;
+			kernel_formats |= (1 << QF_VFSV0);
+			kernel_iface = IFACE_VFSV0;
+			version = 6*10000+5*100+0;
+		}
+		else if (errno != ENOSYS && errno != ENOTSUP) {
 			/* RedHat 7.1 (2.4.2-2) newquota check 
 			 * Q_V2_GETSTATS in it's old place, Q_GETQUOTA in the new place
 			 * (they haven't moved Q_GETSTATS to its new value) */
@@ -507,31 +567,21 @@ int kern_quota_format(void)
 			/* On a RedHat 2.4.2-2 	we expect 0, EINVAL
 			 * On a 2.4.x 		we expect 0, ENOENT
 			 * On a 2.4.x-ac	we wont get here */
-			if (err_stat == 0 && err_quota == EINVAL)
-				return ret | (1 << QF_VFSV0);	/* New format supported */
-			else
-				return ret | (1 << QF_VFSOLD);
+			if (err_stat == 0 && err_quota == EINVAL) {
+				kernel_formats |= (1 << QF_VFSV0);
+				kernel_iface = IFACE_VFSV0;
+				version = 6*10000+5*100+0;
+			}
+			else {
+				kernel_formats |= (1 << QF_VFSOLD);
+				kernel_iface = IFACE_VFSOLD;
+				version = 6*10000+4*100+0;
+			}
 		}
-		die(4, _("Error while detecting kernel quota version: %s\n"), strerror(errno));
 	}
-	/* We might do some more generic checks in future but this should be enough for now */
-	if (stats.version > KERN_KNOWN_QUOTA_VERSION)	/* Newer kernel than we know? */
-		return QF_TOONEW;
-	if (stats.version <= 6*10000+4*100+0)		/* Old quota format? */
-		ret |= (1 << QF_VFSOLD);
-	else
-		ret |= (1 << QF_VFSV0);
-	return ret;	/* New format supported */
-}
 
-/*
- *	Warn about too new kernel
- */
-void warn_new_kernel(int fmt)
-{
-	if (fmt == -1 && kern_quota_format() == QF_TOONEW)
-		errstr(
-			_("WARNING - Kernel quota is newer than supported. Quotafile used by utils need not be the one used by kernel.\n"));
+	if (version > KERN_KNOWN_QUOTA_VERSION)
+		errstr(_("WARNING - Kernel quota is newer than supported. Quota utilities need not work properly.\n"));
 }
 
 /* Check whether old quota is turned on on given device */
@@ -576,6 +626,16 @@ static int xfs_kern_quota_on(const char *dev, int type)
 int kern_quota_on(const char *dev, int type, int fmt)
 {
 	/* Check whether quota is turned on... */
+	if (kernel_iface == IFACE_GENERIC) {
+		int actfmt;
+
+		if (quotactl(QCMD(Q_GETFMT, type), dev, 0, (void *)&actfmt) < 0)
+			return -1;
+		actfmt = kern2utilfmt(actfmt);
+		if (actfmt >= 0 && (fmt == -1 || (1 << actfmt) & fmt))
+			return actfmt;
+		return -1;
+	}
 	if ((fmt & (1 << QF_VFSV0)) && v2_kern_quota_on(dev, type))	/* New quota format */
 		return QF_VFSV0;
 	if ((fmt & (1 << QF_XFS)) && xfs_kern_quota_on(dev, type))	/* XFS quota format */
@@ -621,7 +681,7 @@ static int cache_mnt_table(void)
 	struct mntent *mnt;
 	struct stat st;
 	struct statfs fsstat;
-	int allocated = 0, i = 0, flags;
+	int allocated = 0, i = 0;
 	dev_t dev = 0;
 	char mntpointbuf[PATH_MAX];
 
@@ -663,8 +723,7 @@ static int cache_mnt_table(void)
 			free((char *)devname);
 			continue;
 		}
-			 
-		flags = 0;
+
 		if (strcmp(mnt->mnt_type, MNTTYPE_NFS)) {
 			if (stat(devname, &st) < 0) {	/* Can't stat mounted device? */
 				errstr(_("Can't stat() mounted device %s: %s\n"), devname, strerror(errno));

@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: edquota.c,v 1.7 2001/12/14 08:17:02 jkar8572 Exp $"
+#ident "$Id: edquota.c,v 1.8 2002/03/27 16:21:26 jkar8572 Exp $"
 
 /*
  * Disk quota editor.
@@ -141,6 +141,7 @@ int main(int argc, char **argv)
 	if (tflag && argc != 0)
 		usage();
 
+	init_kernel_interface();
 	handles = create_handle_list(0, dirname ? &dirname : NULL, quotatype, fmt, rflag ? 0 : IOI_LOCALONLY);
 	if (!handles[0]) {
 		dispose_handle_list(handles);
@@ -175,7 +176,6 @@ int main(int argc, char **argv)
 		}
 		dispose_handle_list(handles);
 		freeprivs(protoprivs);
-		warn_new_kernel(fmt);
 		exit(0);
 	}
 
@@ -224,7 +224,6 @@ int main(int argc, char **argv)
 		}
 	}
 	dispose_handle_list(handles);
-	warn_new_kernel(fmt);
 
 	close(tmpfd);
 	unlink(tmpfil);
