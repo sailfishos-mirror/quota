@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.22 2001/09/27 21:34:57 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.23 2001/10/09 07:57:53 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -610,21 +610,22 @@ static int rename_files(struct mntent *mnt, int type)
 	struct stat st;
 	mode_t mode = S_IRUSR | S_IWUSR;
 
+	debug(FL_DEBUG, _("Data dumped.\n"));
 	if (!(filename = get_qf_name(mnt, type, cfmt)))
 		die(2, _("Cannot get name of old quotafile on %s.\n"), mnt->mnt_dir);
-	if (flags & FL_BACKUPS) {
-		debug(FL_DEBUG, _("Data dumped.\nRenaming old quotafile to %s~\n"), filename);
-		if (stat(filename, &st) < 0) {	/* File doesn't exist? */
-			if (errno == ENOENT) {
-				debug(FL_DEBUG | FL_VERBOSE, _("Old file not found.\n"));
-				goto rename_new;
-			}
-			errstr(_("Error while searching for old quota file %s: %s\n"),
-				filename, strerror(errno));
-			free(filename);
-			return -1;
+	if (stat(filename, &st) < 0) {	/* File doesn't exist? */
+		if (errno == ENOENT) {
+			debug(FL_DEBUG | FL_VERBOSE, _("Old file not found.\n"));
+			goto rename_new;
 		}
-		mode = st.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO);
+		errstr(_("Error while searching for old quota file %s: %s\n"),
+			filename, strerror(errno));
+		free(filename);
+		return -1;
+	}
+	mode = st.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO);
+	if (flags & FL_BACKUPS) {
+		debug(FL_DEBUG, _("Renaming old quotafile to %s~\n"), filename);
 		/* Backup old file */
 		strcpy(newfilename, filename);
 		/* Make backingup safe */
