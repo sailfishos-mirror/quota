@@ -80,6 +80,10 @@ install: all inst_mo
 	-$(INSTALL) -m $(DEF_SBIN_MODE) \
 	edquota repquota warnquota quotastats setquota quot xqmstats \
 	$(ROOTDIR)$(sbindir)
+	-mkdir -p $(ROOTDIR)$(mandir)/man1
+	-mkdir -p $(ROOTDIR)$(mandir)/man2
+	-mkdir -p $(ROOTDIR)$(mandir)/man3
+	-mkdir -p $(ROOTDIR)$(mandir)/man8
 	-$(INSTALL) -m 755 -d $(ROOTDIR)$(includedir)/rpcsvc
 	-$(INSTALL) -m 644 rquota.h rquota.x $(ROOTDIR)$(includedir)/rpcsvc
 	-$(INSTALL) -s -m $(DEF_SBIN_MODE) quota $(ROOTDIR)$(bindir)

@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaon.c,v 1.11 2002/02/22 13:54:54 jkar8572 Exp $"
+#ident "$Id: quotaon.c,v 1.12 2002/02/22 14:58:32 jkar8572 Exp $"
 
 /*
  * Turn quota on/off for a filesystem.
@@ -220,7 +220,12 @@ static int quotaonoff(char *quotadev, char *quotadir, char *quotafile, int type,
 	}
 	qcmd = QCMD(Q_QUOTAON, type);
 	if (quotactl(qcmd, quotadev, 0, (void *)quotafile) < 0) {
-		errstr(_("using %s on %s [%s]: %s\n"), quotafile, quotadev, quotadir, strerror(errno));
+		if (errno == ENOENT)
+			errstr(_("can't find %s on %s [%s]\n"), quotafile, quotadev, quotadir);
+		else
+			errstr(_("using %s on %s [%s]: %s\n"), quotafile, quotadev, quotadir, strerror(errno));
+		if (errno == EINVAL)
+			errstr(_("Maybe create new quota files with quotacheck(8)?\n"));
 		return 1;
 	}
 	if (flags & STATEFLAG_VERBOSE)

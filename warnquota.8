@@ -3,12 +3,48 @@
 warnquota \- send mail to users over quota
 .SH SYNOPSIS
 .B warnquota
+[
+.B \-F
+.I quotaformat
+] [
+.B \-q
+.I quotatab
+] [
+.B \-c
+.I configfile
+]
 .SH DESCRIPTION
 .B warnquota
 checks the disk quota for each filesystem and mails a warning
 message to those users who have reached their limit.
 It is typically run via
 .BR cron (8).
+.TP
+.B -F \f2quotaformat\f1
+Perform setting for specified format (ie. don't perform format autodetection).
+Possible format names are:
+.B vfsold
+(version 1 quota),
+.B vfsv0
+(version 2 quota),
+.B rpc
+(quota over NFS),
+.B xfs
+(quota on XFS filesystem)
+.TP
+.B -q quotatab
+Use
+.I quotatab
+instead of
+.I /etc/quotatab
+as file with device description strings (see example file for syntax).
+.TP
+.B -c configfile
+Use
+.I configfile
+instead of
+.I /etc/warnquota.conf
+as configuration file (see example file for syntax).
 .SH FILES
 .PD 0
 .TP 20
@@ -20,6 +56,9 @@ quota file at the filesystem root (version 1 quota, non-XFS filesystems)
 .TP
 .B /etc/warnquota.conf
 configuration file
+.TP
+.B /etc/quotatab
+device description
 .TP
 .B /etc/mtab
 default filesystems
@@ -33,5 +72,5 @@ default set of users
 .BR edquota (8).
 .SH AUTHORS
 .BR warnquota (8)
-was written by Marco van Wieringen <mvw@planets.elm.net>.
-This reference page written by Heiko Schlittermann <heiko@lotte.sax.de>.
+was written by Marco van Wieringen <mvw@planets.elm.net>, modifications by Jan Kara <jack@suse.cz>.
+This reference page written by Heiko Schlittermann <heiko@lotte.sax.de>, modifications by Jan Kara <jack@suse.cz>

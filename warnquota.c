@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.7 2001/11/09 20:03:35 jkar8572 Exp $
+ * Version: $Id: warnquota.c,v 1.8 2002/02/22 14:58:32 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -89,7 +89,8 @@ typedef struct quotatable {
 	char *devdesc;
 } quotatable_t;
 
-int qtab_i = 0;
+int qtab_i = 0, fmt = -1;
+char *configfile = WARNQUOTA_CONF, *quotatabfile = QUOTATAB;
 char *progname;
 quotatable_t *quotatable = (quotatable_t *) NULL;
 
@@ -298,9 +299,10 @@ int get_quotatable(void)
 	int line;
 	struct stat st;
 
-	if (!(fp = fopen(QUOTATAB, "r"))) {
-		errstr(_("Can't open %s: %s\n"), QUOTATAB, strerror(errno));
-		return -1;
+	if (!(fp = fopen(quotatabfile, "r"))) {
+		errstr(_("Can't open %s: %s\nWill use device names.\n"), quotatabfile, strerror(errno));
+		qtab_i = 0;
+		return 0;
 	}
 
 	line = 0;
@@ -444,7 +446,7 @@ void warn_quota(void)
 	struct configparams config;
 	int i;
 
-	if (readconfigfile(WARNQUOTA_CONF, &config) < 0)
+	if (readconfigfile(configfile, &config) < 0)
 		exit(1);
 	if (get_quotatable() < 0)
 		exit(1);
@@ -456,12 +458,45 @@ void warn_quota(void)
 		exit(1);
 }
 
+/* Print usage information */
+static void usage(void)
+{
+	errstr(_("Usage:\n  warnquota [-F quotaformat] [-c configfile] [-q quotatabfile]\n"));
+}
+
+static void parse_options(int argcnt, char **argstr)
+{
+	int ret;
+
+	while ((ret = getopt(argcnt, argstr, "VF:hc:q:"))) {
+		switch (ret) {
+		  case '?':
+		  case 'h':
+			usage();
+		  case 'V':
+			version();
+			break;
+		  case 'F':
+			if ((fmt = name2fmt(optarg)) == QF_ERROR)
+				exit(1);
+			break;
+		  case 'c':
+			configfile = optarg;
+			break;
+		  case 'q':
+			quotatabfile = optarg;
+			break;
+		}
+	}
+}
+
 int main(int argc, char **argv)
 {
 	gettexton();
 	progname = basename(argv[0]);
 
 	warn_new_kernel(-1);
+	parse_options(argc, argv);
 	warn_quota();
 
 	return 0;
