@@ -42,7 +42,7 @@ IOOBJS = quotaio.o quotaio_v1.o quotaio_v2.o quotaio_rpc.o quotaio_xfs.o
 IOOBJS += $(RPCCLNTOBJS)
 LIBOBJS = bylabel.o common.o quotasys.o pot.o $(IOOBJS)
 LIBOBJS += @LIBMALLOC@
-INCLUDE = common.h quotasys.h bylabel.h mntopt.h
+INCLUDE = common.h quotasys.h bylabel.h mntopt.h rquota.h
 
 all: $(PROGS)
 

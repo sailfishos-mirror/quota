@@ -18,6 +18,7 @@ struct v1_disk_dqblk {
 	u_int32_t dqb_bsoftlimit;	/* preferred limit on disk blks */
 	u_int32_t dqb_curblocks;	/* current block count */
 	u_int32_t dqb_ihardlimit;	/* maximum # allocated inodes */
+	u_int32_t dqb_isoftlimit;	/* preferred limit on disk blks */
 	u_int32_t dqb_curinodes;	/* current # allocated inodes */
 	time_t dqb_btime;	/* time limit for excessive disk use */
 	time_t dqb_itime;	/* time limit for excessive files */
