@@ -66,7 +66,7 @@ if test "x$enable_ext2direct" != "xno"; then
 fi
 AC_SUBST(EXT2LIBS)
 
-AC_CHECK_LIB(nsl, main)
+AC_SEARCH_LIBS(gethostbyname, nsl)
 AC_CACHE_VAL(ac_cv_lib_wrap_main,
 	saved_LIBS="$LIBS"
 	LIBS="$LIBS -lwrap"
