@@ -132,10 +132,8 @@ static struct dquot *xfs_read_dquot(struct quota_handle *h, qid_t id)
 	}
 	else {
 		xfs_kern2utildqblk(&dquot->dq_dqb, &xdqblk);
-		return dquot;
 	}
-	free(dquot);
-	return NULL;
+	return dquot;
 }
 
 /*
@@ -242,11 +240,11 @@ static int xfs_report(struct quota_handle *h, int verbose)
 
 #define XQM_ON(flag) ((info->qs_flags & (flag)) ? _("ON") : _("OFF"))
 	if (h->qh_type == USRQUOTA) {
-		printf(_("Accounting: %s  Enforcement: %s\n"),
+		printf(_("Accounting: %s; Enforcement: %s\n"),
 		       XQM_ON(XFS_QUOTA_UDQ_ACCT), XQM_ON(XFS_QUOTA_UDQ_ENFD));
 	}
 	else {			/* qh_type == USRQUOTA */
-		printf(_("Accounting: %s  Enforcement: %s\n"),
+		printf(_("Accounting: %s; Enforcement: %s\n"),
 		       XQM_ON(XFS_QUOTA_GDQ_ACCT), XQM_ON(XFS_QUOTA_GDQ_ENFD));
 	}
 #undef XQM_ON
@@ -258,13 +256,11 @@ static int xfs_report(struct quota_handle *h, int verbose)
 #define XQM_ONDISK(flag) ((sbflags & (flag)) ? _("ON") : _("OFF"))
 	if ((sbflags = (info->qs_flags & 0xff00) >> 8) != 0) {
 		if (h->qh_type == USRQUOTA) {
-			printf(_("Accounting [ondisk]: %s  "
-				 "Enforcement [ondisk]: %s\n"),
+			printf(_("Accounting [ondisk]: %s; Enforcement [ondisk]: %s\n"),
 			       XQM_ONDISK(XFS_QUOTA_UDQ_ACCT), XQM_ONDISK(XFS_QUOTA_UDQ_ENFD));
 		}
 		else {		/* qh_type == USRQUOTA */
-			printf(_("Accounting [ondisk]: %s  "
-				 "Enforcement [ondisk]: %s\n"),
+			printf(_("Accounting [ondisk]: %s; Enforcement [ondisk]: %s\n"),
 			       XQM_ONDISK(XFS_QUOTA_GDQ_ACCT), XQM_ONDISK(XFS_QUOTA_GDQ_ENFD));
 		}
 #undef XQM_ONDISK

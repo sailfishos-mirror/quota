@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: edquota.c,v 1.1 2001/03/23 12:03:26 jkar8572 Exp $"
+#ident "$Id: edquota.c,v 1.2 2001/04/11 10:12:36 jkar8572 Exp $"
 
 /*
  * Disk quota editor.
@@ -153,7 +153,7 @@ int main(int argc, char **argv)
 
 			for (pprivs = protoprivs, cprivs = curprivs; pprivs && cprivs;
 			     pprivs = pprivs->dq_next, cprivs = cprivs->dq_next) {
-				if (strcmp(pprivs->dq_h->qh_quotadev, cprivs->dq_h->qh_quotadev))
+				if (!devcmp_handles(pprivs->dq_h, cprivs->dq_h))
 					fprintf(stderr, _("fsname mismatch\n"));
 				else {
 					cprivs->dq_dqb.dqb_bsoftlimit =

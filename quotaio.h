@@ -9,6 +9,7 @@
 
 #include <limits.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 
 #include "quota.h"
 #include "mntopt.h"
@@ -81,6 +82,7 @@ struct quota_handle {
 	char qh_quotadev[PATH_MAX];	/* Device file is for */
 	int qh_type;		/* Type of quotafile */
 	int qh_fmt;		/* Quotafile format */
+	struct stat qh_stat;	/* stat(2) for qh_quotadev */
 	struct quotafile_ops *qh_ops;	/* Operations on quotafile */
 	struct util_dqinfo qh_info;	/* Generic quotafile info */
 };

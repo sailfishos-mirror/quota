@@ -98,7 +98,7 @@ void convert_file(int type)
 	while ((mnt = getmntent(mntf))) {
 		if (!(dev = get_device_name(mnt->mnt_fsname)))
 			continue;
-		if (!strcmp(dev, mntpoint) || !strcmp(mnt->mnt_dir, mntpoint))
+		if (devcmp(dev, mntpoint) || dircmp(mnt->mnt_dir, mntpoint))
 			break;
 	}
 	if (!mnt)

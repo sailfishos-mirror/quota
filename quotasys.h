@@ -66,6 +66,12 @@ struct quota_handle **create_handle_list(int count, char **mntpoints, int type, 
 /* Dispose given list of handles */
 int dispose_handle_list(struct quota_handle **hlist);
 
+/* Check whether given device name matches quota handle device */
+int devcmp_handle(const char *dev, struct quota_handle *h);
+
+/* Check whether two quota handles have same device */
+int devcmp_handles(struct quota_handle *a, struct quota_handle *b);
+
 /* Warn about too new kernel */
 void warn_new_kernel(int fmt);
 

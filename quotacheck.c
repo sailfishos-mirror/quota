@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.3 2001/04/05 08:26:56 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.4 2001/04/11 10:12:36 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -814,7 +814,7 @@ static void check_all(void)
 			die(3, _("Too many mountpoints. Please report to: %s\n"), MY_EMAIL);
 		if (!(devlist[gotmnt] = (char *)get_device_name(mnt->mnt_fsname)))
 			continue;
-		for (i = 0; i < gotmnt && strcmp(devlist[i], devlist[gotmnt]); i++);
+		for (i = 0; i < gotmnt && !devcmp(devlist[i], devlist[gotmnt]); i++);
 		/* We already have this mountpoint? */
 		if (i < gotmnt)
 			continue;
@@ -824,7 +824,7 @@ static void check_all(void)
 		else
 			mnt_fslabel = devlist[gotmnt - 1];
 		if ((flags & FL_ALL && (!(flags & FL_NOROOT) || strcmp(mnt->mnt_dir, "/"))) ||
-		    !strcmp(mntpoint, devlist[gotmnt - 1]) || !strcmp(mntpoint, mnt->mnt_dir)) {
+		    devcmp(mntpoint, devlist[gotmnt - 1]) || dircmp(mntpoint, mnt->mnt_dir)) {
 			if (!strcmp(mnt->mnt_type, MNTTYPE_XFS)) {
 				debug(FL_DEBUG | FL_VERBOSE, _("Skipping %s [%s]\n"), mnt_fslabel,
 				      mnt->mnt_dir);

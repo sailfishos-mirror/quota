@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaops.c,v 1.1 2001/03/23 12:03:27 jkar8572 Exp $"
+#ident "$Id: quotaops.c,v 1.2 2001/04/11 10:12:36 jkar8572 Exp $"
 
 #include <rpc/rpc.h>
 #include <sys/types.h>
@@ -208,7 +208,7 @@ static void merge_to_list(struct dquot *qlist, char *dev, u_int64_t blocks, u_in
 	struct dquot *q;
 
 	for (q = qlist; q; q = q->dq_next) {
-		if (strcmp(dev, q->dq_h->qh_quotadev))
+		if (devcmp_handle(dev, q->dq_h))
 			continue;
 
 		/*
@@ -449,7 +449,7 @@ int readtimes(struct quota_handle **handles, int infd)
 		if (cvtatos(itime, iunits, &iseconds) < 0)
 			return -1;
 		for (i = 0; handles[i]; i++) {
-			if (strcmp(fsp, handles[i]->qh_quotadev))
+			if (!devcmp_handle(fsp, handles[i]))
 				continue;
 			handles[i]->qh_info.dqi_bgrace = bseconds;
 			handles[i]->qh_info.dqi_igrace = iseconds;

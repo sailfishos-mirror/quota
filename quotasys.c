@@ -351,13 +351,13 @@ struct quota_handle **create_handle_list(int count, char **mntpoints, int type, 
 	while ((mnt = getmntent(mntf))) {
 		if (!(dev = get_device_name(mnt->mnt_fsname)))
 			continue;
-		for (i = 0; i < gotmnt && strcmp(dev, hlist[i]->qh_quotadev); i++);
-		/* We already have this device? (can happen when filesystem is mounted multiple times */
+		/* Do we already have this device? (filesystem may be mounted multiple times) */
+		for (i = 0; i < gotmnt && !devcmp_handle(dev, hlist[i]); i++);
 		if (i < gotmnt)
 			continue;
 		for (i = 0; i < count; i++)
-			/* Is this what we want? */
-			if (!strcmp(dev, mntpoints[i]) || !strcmp(mnt->mnt_dir, mntpoints[i]))
+			/* Is this the filesystem we want? */
+			if (devcmp(dev, mntpoints[i]) || dircmp(mnt->mnt_dir, mntpoints[i]))
 				break;
 		free((char *)dev);
 		if (!count || i < count) {
@@ -400,6 +400,34 @@ int dispose_handle_list(struct quota_handle **hlist)
 			fprintf(stderr, _("Error while releasing file on %s\n"),
 				hlist[i]->qh_quotadev);
 	return 0;
+}
+
+/*
+ *	Check whether given device name matches this quota handle
+ */
+int devcmp_handle(const char *dev, struct quota_handle *h)
+{
+	struct stat sbuf;
+
+	if (stat(dev, &sbuf) < 0)
+		return (strcmp(dev, h->qh_quotadev) == 0);
+	if (!S_ISBLK(sbuf.st_mode))
+		return (strcmp(dev, h->qh_quotadev) == 0);
+	if (sbuf.st_rdev != h->qh_stat.st_rdev)
+		return 0;
+	return 1;
+}
+
+/*
+ *	Check whether two quota handles are for the same device
+ */
+int devcmp_handles(struct quota_handle *a, struct quota_handle *b)
+{
+	if (!S_ISBLK(a->qh_stat.st_mode) || !S_ISBLK(b->qh_stat.st_mode))
+		return (strcmp(a->qh_quotadev, b->qh_quotadev) == 0);
+	if (a->qh_stat.st_rdev != b->qh_stat.st_rdev)
+		return 0;
+	return 1;
 }
 
 /*

@@ -122,9 +122,9 @@ static void report_it(struct quota_handle *h, int type)
 	printf(_("*** Report for %s quotas on device %s\n"), type2name(type), h->qh_quotadev);
 	time2str(h->qh_info.dqi_bgrace, bgbuf, TF_ROUND);
 	time2str(h->qh_info.dqi_igrace, igbuf, TF_ROUND);
-	printf("Block grace time: %s; Inode grace time: %s\n", bgbuf, igbuf);
-	printf("                        Block limits                File limits\n");
-	printf("User            used    soft    hard  grace    used  soft  hard  grace\n");
+	printf(_("Block grace time: %s; Inode grace time: %s\n"), bgbuf, igbuf);
+	printf(_("                        Block limits                File limits\n"));
+	printf(_("%-10s       used    soft    hard  grace    used  soft  hard  grace\n"), (type == USRQUOTA)?_("User"):_("Group"));
 	printf("----------------------------------------------------------------------\n");
 
 	if (h->qh_ops->scan_dquots(h, print) < 0)

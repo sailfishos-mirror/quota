@@ -4,23 +4,29 @@ setquota \- set disk quotas
 .SH SYNOPSIS
 .B /usr/sbin/setquota
 [
-.B \-nr
+.B \-r
 ]
 [
 .B \-u
 |
 .B \-g
 ]
+[
+.B \-F
+.I quotaformat
+]
 .I name
-.I filesystem
 .I block-softlimit
 .I block-hardlimit
 .I inode-softlimit
 .I inode-hardlimit
+.B \-a
+|
+.I filesystem
 .LP
 .B /usr/sbin/setquota
 [
-.B \-nr
+.B \-r
 ]
 [
 .B \-u
@@ -28,9 +34,33 @@ setquota \- set disk quotas
 .B \-g
 ]
 [
-.B \-p protoname 
+.B \-F
+.I quotaformat
+]
+[
+.B \-p
+.I protoname 
 ]
 .I name
+.B \-a
+|
+.I filesystem
+.LP
+.B /usr/sbin/setquota
+.B \-t
+[
+.B \-u
+|
+.B \-g
+]
+[
+.B \-F
+.I quotaformat
+]
+.I block-grace
+.I inode-grace
+.B \-a
+|
 .I filesystem
 .SH DESCRIPTION
 .IX  "setquota command"  ""  "\fLsetquota\fP \(em set disk quotas"
@@ -44,13 +74,12 @@ is a command line quota editor.
 The filesystem, user/group name and new quotas for this
 filesystem can be specified on the command line.
 .TP
-.B -n
-Consider
-.I name
-to be a numeric ID (don't lookup user/group names).
-.TP
 .B -r
 Edit also remote quota use rpc.rquotad on remote server to set quota.
+.TP
+.B -F \f2quotaformat\f1
+Perform setting for specified quota format. If this option isn't specified
+newest option found is used.
 .TP
 .B -u
 Set user quotas for named user. This is the default.
@@ -62,6 +91,18 @@ Set group quotas for named group.
 Use quota settings of user or group
 .I protoname
 to set the quota for the named user or group.
+.TP
+.B -t
+Set grace times for users/groups. Times
+.B block-grace
+and
+.B inode-grace
+are specified in seconds.
+.TP
+.B -a
+Go through all filesystems with quota in
+.B /etc/mtab
+and perform setting.
 .PP
 To disable a quota, set the coresponding parameter to 0. To change quotas
 for several filesystems, invoke once for each filesystem.

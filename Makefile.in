@@ -78,7 +78,8 @@ install: all inst_mo
 	$(LN) quotaon $(ROOTDIR)$(root_sbindir)/quotaoff
 	chown -h $(BIN_OWNER):$(BIN_GROUP) $(ROOTDIR)$(root_sbindir)/quotaoff
 	-$(INSTALL) -m $(DEF_SBIN_MODE) \
-	edquota repquota warnquota quotastats setquota quot $(ROOTDIR)$(sbindir)
+	edquota repquota warnquota quotastats setquota quot xqmstats \
+	$(ROOTDIR)$(sbindir)
 	-$(INSTALL) -m 755 -d $(ROOTDIR)$(includedir)/rpcsvc
 	-$(INSTALL) -m 644 rquota.h rquota.x $(ROOTDIR)$(includedir)/rpcsvc
 	-$(INSTALL) -s -m $(DEF_SBIN_MODE) quota $(ROOTDIR)$(bindir)

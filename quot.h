@@ -35,9 +35,9 @@
 #define	SEC24HR	(60*60*24)	/* seconds per day */
 
 typedef struct {
-	uid_t uid;
+	__uint32_t id;
 	char name[UT_NAMESIZE + 1];
-} uidcache_t;
+} idcache_t;
 
 typedef struct du {
 	struct du *next;
@@ -46,17 +46,17 @@ typedef struct du {
 	__uint64_t blocks60;
 	__uint64_t blocks90;
 	__uint64_t nfiles;
-	uid_t uid;
+	__uint32_t id;
 } du_t;
 
 #define	NDU	60000
 #define	DUHASH	8209
-static du_t du[NDU];
-static du_t *duhash[DUHASH];
-static int ndu;
+static du_t du[2][NDU];
+static du_t *duhash[2][DUHASH];
+static int ndu[2];
 
-#define NUID	256
-#define UIDMASK	(NUID-1)
+#define NID	256
+#define IDMASK	(NID-1)
 
 /*
  *	=== Start XFS specific types and definitions ===

@@ -48,6 +48,7 @@
 #include <time.h>
 #include <utmp.h>
 #include <pwd.h>
+#include <grp.h>
 
 #include "pot.h"
 #include "quot.h"
@@ -59,20 +60,23 @@
 __uint64_t sizes[TSIZE];
 __uint64_t overflow;
 
-static int fflag;
-static int cflag;
-static int vflag;
 static int aflag;
+static int cflag;
+static int fflag;
+static int gflag;
+static int uflag;
+static int vflag;
 static char *progname;
 static time_t now;
 
 static void mounttable(char *);
-static char *username(uid_t);
-static void report(void);
+static char *idname(__uint32_t, int);
+static void report(const char *, char *, int);
+static void creport(const char *, char *);
 
 static void usage(void)
 {
-	fprintf(stderr, _("Usage: %s [-acfvV] [filesystem...]\n"), progname);
+	fprintf(stderr, _("Usage: %s [-acfugvV] [filesystem...]\n"), progname);
 	exit(1);
 }
 
@@ -83,7 +87,7 @@ int main(int argc, char **argv)
 	now = time(0);
 	progname = basename(argv[0]);
 
-	while ((c = getopt(argc, argv, "acfvV")) != EOF) {
+	while ((c = getopt(argc, argv, "acfguvV")) != EOF) {
 		switch (c) {
 		  case 'a':
 			  aflag++;
@@ -93,6 +97,12 @@ int main(int argc, char **argv)
 			  break;
 		  case 'f':
 			  fflag++;
+			  break;
+		  case 'g':
+			  gflag++;
+			  break;
+		  case 'u':
+			  uflag++;
 			  break;
 		  case 'v':
 			  vflag++;
@@ -106,6 +116,8 @@ int main(int argc, char **argv)
 	}
 	if ((aflag && optind != argc) || (!aflag && optind == argc))
 		usage();
+	if (!uflag && !gflag)
+		uflag++;
 	if (aflag)
 		mounttable(NULL);
 	else {
@@ -129,8 +141,7 @@ static void mounttable(char *entry)
 	while ((mntp = getmntent(mtab)) != NULL) {
 		doit = 0;
 		dev = get_device_name(mntp->mnt_fsname);
-		if ((entry != NULL) &&
-		    (strcmp(entry, mntp->mnt_dir) != 0) && (strcmp(entry, dev) != 0)) {
+		if (entry && !dircmp(mntp->mnt_dir, entry) && !devcmp(dev, entry)) {
 			free((char *)dev);
 			continue;
 		}
@@ -141,10 +152,13 @@ static void mounttable(char *entry)
 			doit = 1;
 		}
 		/* ...additional filesystems types here. */
-		free((char *)dev);
 
-		if (doit)
-			report();
+		if (doit) {
+			if (cflag) creport(dev, mntp->mnt_dir);
+			if (!cflag && uflag) report(dev, mntp->mnt_dir, 0);
+			if (!cflag && gflag) report(dev, mntp->mnt_dir, 1);
+		}
+		free((char *)dev);
 		if (entry != NULL) {
 			entry = NULL;	/* found, bail out */
 			break;
@@ -161,31 +175,34 @@ static int qcmp(du_t * p1, du_t * p2)
 		return -1;
 	if (p1->blocks < p2->blocks)
 		return 1;
-	if (p1->uid > p2->uid)
+	if (p1->id > p2->id)
 		return 1;
-	else if (p1->uid < p2->uid)
+	else if (p1->id < p2->id)
 		return -1;
 	return 0;
 }
 
-static void report(void)
+static void creport(const char *file, char *fsdir)
 {
 	int i;
+	__uint64_t t = 0;
+
+	printf(_("%s (%s):\n"), file, fsdir);
+	for (i = 0; i < TSIZE - 1; i++)
+		if (sizes[i] > 0) {
+			t += sizes[i] * i;
+			printf(_("%d\t%llu\t%llu\n"), i, sizes[i], t);
+		}
+	printf(_("%d\t%llu\t%llu\n"), TSIZE - 1, sizes[TSIZE - 1], overflow + t);
+}
+
+static void report(const char *file, char *fsdir, int type)
+{
 	du_t *dp;
 
-	if (cflag) {
-		__uint64_t t = 0;
-
-		for (i = 0; i < TSIZE - 1; i++)
-			if (sizes[i] > 0) {
-				t += sizes[i] * i;
-				printf(_("%d\t%llu\t%llu\n"), i, sizes[i], t);
-			}
-		printf(_("%d\t%llu\t%llu\n"), TSIZE - 1, sizes[TSIZE - 1], overflow + t);
-		return;
-	}
-	qsort(du, ndu, sizeof(du[0]), (int (*)(const void *, const void *))qcmp);
-	for (dp = du; dp < &du[ndu]; dp++) {
+	printf(_("%s (%s) %s:\n"), file, fsdir, type? "groups" : "users");
+	qsort(du[type], ndu[type], sizeof(du[type][0]), (int (*)(const void *, const void *))qcmp);
+	for (dp = du[type]; dp < &du[type][ndu[type]]; dp++) {
 		char *cp;
 
 		if (dp->blocks == 0)
@@ -193,10 +210,10 @@ static void report(void)
 		printf(_("%8llu    "), dp->blocks);
 		if (fflag)
 			printf(_("%8llu    "), dp->nfiles);
-		if ((cp = username(dp->uid)) != NULL)
+		if ((cp = idname(dp->id, type)) != NULL)
 			printf(_("%-8.8s"), cp);
 		else
-			printf(_("#%-7d"), dp->uid);
+			printf(_("#%-7d"), dp->id);
 		if (vflag)
 			printf(_("    %8llu    %8llu    %8llu"),
 			       dp->blocks30, dp->blocks60, dp->blocks90);
@@ -204,45 +221,62 @@ static void report(void)
 	}
 }
 
-static char *username(uid_t uid)
+static idcache_t *getnextent(int type, __uint32_t id, int byid)
 {
-	register struct passwd *pw;
-	register uidcache_t *ncp;
-	static uidcache_t nc[NUID];
-	static int entriesleft = NUID;
+	struct passwd *pw;
+	struct group  *gr;
+	static idcache_t idc;
+
+	if (type) {	/* /etc/group */
+		if ((gr = byid? getgrgid(id) : getgrent()) == NULL)
+			return NULL;
+		idc.id = gr->gr_gid;
+		strncpy(idc.name, gr->gr_name, UT_NAMESIZE);
+		return &idc;
+	}
+	/* /etc/passwd */
+	if ((pw = byid? getpwuid(id) : getpwent()) == NULL)
+		return NULL;
+	idc.id = pw->pw_uid;
+	strncpy(idc.name, pw->pw_name, UT_NAMESIZE);
+	return &idc;
+}
+
+static char *idname(__uint32_t id, int type)
+{
+	idcache_t *ncp, *idp;
+	static idcache_t nc[2][NID];
+	static int entriesleft[2] = { NID, NID };
 
 	/* check cache for name first */
-	ncp = &nc[uid & UIDMASK];
-	if (ncp->uid == uid && ncp->name[0])
+	ncp = &nc[type][id & IDMASK];
+	if (ncp->id == id && ncp->name[0])
 		return ncp->name;
-	if (entriesleft) {
+	if (entriesleft[type]) {
 		/*
-		 * If we haven't gone through the passwd file then
-		 * fill the cache while seaching for name.
-		 * This lets us run through passwd serially.
+		 * If we haven't gone through the passwd/group file
+		 * then fill the cache while seaching for name.
+		 * This lets us run through passwd/group serially.
 		 */
-		if (entriesleft == NUID)
-			setpwent();
-		while (((pw = getpwent()) != NULL) && entriesleft) {
-			entriesleft--;
-			ncp = &nc[pw->pw_uid & UIDMASK];
-			if (ncp->name[0] == '\0' || pw->pw_uid == uid) {
-				strncpy(ncp->name, pw->pw_name, UT_NAMESIZE);
-				ncp->uid = uid;
-			}
-			if (pw->pw_uid == uid)
+		if (entriesleft[type] == NID)
+			type? setgrent() : setpwent();
+		while (((idp = getnextent(type, id, 0)) != NULL) && entriesleft[type]) {
+			entriesleft[type]--;
+			ncp = &nc[type][idp->id & IDMASK];
+			if (ncp->name[0] == '\0' || idp->id == id)
+				memcpy(ncp, idp, sizeof(idcache_t));
+			if (idp->id == id)
 				return ncp->name;
 		}
-		endpwent();
-		entriesleft = 0;
-		ncp = &nc[uid & UIDMASK];
+		type? endgrent() : endpwent();
+		entriesleft[type] = 0;
+		ncp = &nc[type][id & IDMASK];
 	}
 
 	/* Not cached - do it the slow way & insert into cache */
-	if ((pw = getpwuid(uid)) == NULL)
+	if ((idp = getnextent(type, id, 1)) == NULL)
 		return NULL;
-	strncpy(ncp->name, pw->pw_name, UT_NAMESIZE);
-	ncp->uid = uid;
+	memcpy(ncp, idp, sizeof(idcache_t));
 	return ncp->name;
 }
 
@@ -250,11 +284,12 @@ static char *username(uid_t uid)
  *	=== XFS specific code follows ===
  */
 
-static void acctXFS(xfs_bstat_t * p)
+static void acctXFS(xfs_bstat_t *p)
 {
 	register du_t *dp;
 	du_t **hp;
 	__uint64_t size;
+	__uint32_t i, id;
 
 	if ((p->bs_mode & S_IFMT) == 0)
 		return;
@@ -270,32 +305,35 @@ static void acctXFS(xfs_bstat_t * p)
 		sizes[(int)size]++;
 		return;
 	}
-	hp = &duhash[p->bs_uid % DUHASH];
-	for (dp = *hp; dp; dp = dp->next)
-		if (dp->uid == p->bs_uid)
-			break;
-	if (dp == 0) {
-		if (ndu >= NDU)
-			return;
-		dp = &du[ndu++];
-		dp->next = *hp;
-		*hp = dp;
-		dp->uid = p->bs_uid;
-		dp->nfiles = 0;
-		dp->blocks = 0;
-		dp->blocks30 = 0;
-		dp->blocks60 = 0;
-		dp->blocks90 = 0;
-	}
-	dp->blocks += size;
+	for (i = 0; i < 2; i++) {
+		id = (i == 0)? p->bs_uid : p->bs_gid;
+		hp = &duhash[i][id % DUHASH];
+		for (dp = *hp; dp; dp = dp->next)
+			if (dp->id == id)
+				break;
+		if (dp == 0) {
+			if (ndu[i] >= NDU)
+				return;
+			dp = &du[i][(ndu[i]++)];
+			dp->next = *hp;
+			*hp = dp;
+			dp->id = id;
+			dp->nfiles = 0;
+			dp->blocks = 0;
+			dp->blocks30 = 0;
+			dp->blocks60 = 0;
+			dp->blocks90 = 0;
+		}
+		dp->blocks += size;
 
-	if (now - p->bs_atime.tv_sec > 30 * SEC24HR)
-		dp->blocks30 += size;
-	if (now - p->bs_atime.tv_sec > 60 * SEC24HR)
-		dp->blocks60 += size;
-	if (now - p->bs_atime.tv_sec > 90 * SEC24HR)
-		dp->blocks90 += size;
-	dp->nfiles++;
+		if (now - p->bs_atime.tv_sec > 30 * SEC24HR)
+			dp->blocks30 += size;
+		if (now - p->bs_atime.tv_sec > 60 * SEC24HR)
+			dp->blocks60 += size;
+		if (now - p->bs_atime.tv_sec > 90 * SEC24HR)
+			dp->blocks90 += size;
+		dp->nfiles++;
+	}
 }
 
 static void checkXFS(const char *file, char *fsdir)
@@ -316,16 +354,16 @@ static void checkXFS(const char *file, char *fsdir)
 	for (sts = 0; sts < TSIZE; sts++)
 		sizes[sts] = 0;
 	overflow = 0;
-	for (dp = duhash; dp < &duhash[DUHASH]; dp++)
-		*dp = 0;
-	ndu = 0;
+	for (i = 0; i < 2; i++)
+		for (dp = duhash[i]; dp < &duhash[i][DUHASH]; dp++)
+			*dp = 0;
+	ndu[0] = ndu[1] = 0;
 
 	fsfd = open(fsdir, O_RDONLY);
 	if (fsfd < 0) {
 		fprintf(stderr, _("%s: cannot open %s: %s\n"), progname, fsdir, strerror(errno));
 		exit(1);
 	}
-	printf(_("%s (%s):\n"), file, fsdir);
 	sync();
 
 	buf = (xfs_bstat_t *) smalloc(NBSTAT * sizeof(xfs_bstat_t));

@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaon.c,v 1.1 2001/03/23 12:03:27 jkar8572 Exp $"
+#ident "$Id: quotaon.c,v 1.2 2001/04/11 10:12:36 jkar8572 Exp $"
 
 /*
  * Turn quota on/off for a filesystem.
@@ -62,12 +62,12 @@ static void usage(char *whoami)
 /*
  *	Check to see if target appears in list of size cnt.
  */
-static int oneof(char *target, char *list[], int cnt)
+static int oneof(char *dir, char *dev, char *list[], int cnt)
 {
 	int i;
 
 	for (i = 0; i < cnt; i++)
-		if (strcmp(target, list[i]) == 0)
+		if (devcmp(dev, list[i]) || dircmp(dir, list[i]))
 			return (i);
 	return (-1);
 }
@@ -169,8 +169,7 @@ int main(int argc, char **argv)
 				continue;
 		}
 		else {
-			if ((argnum = oneof(mnt->mnt_dir, argv, argc)) >= 0 ||
-			    (argnum = oneof(mnt->mnt_fsname, argv, argc)) >= 0)
+			if ((argnum = oneof(mnt->mnt_dir, mnt->mnt_fsname, argv, argc)) >= 0)
 				done |= 1 << argnum;
 			else
 				continue;

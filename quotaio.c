@@ -65,6 +65,8 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt)
 		goto out_handle;
 	if (!(mnt_fsname = get_device_name(mnt->mnt_fsname)))
 		goto out_handle;
+	if (stat(mnt_fsname, &h->qh_stat) < 0)
+		memset(&h->qh_stat, 0, sizeof(struct stat));
 	h->qh_io_flags = 0;
 	h->qh_type = type;
 	sstrncpy(h->qh_quotadev, mnt_fsname, sizeof(h->qh_quotadev));
