@@ -1,4 +1,7 @@
 Changes in quota-tools from 3.06 to 3.07
+* updated manpage of rpc.rquotad (Jan Kara)
+* setquota is disabled by default in rpc.rquotad (Jan Kara)
+* setquota using RPC is disabled by default in configure (Jan Kara)
 * rised maximal number of mountpoint to 256 (Jan Kara)
 * small fix in configure (Nathan Scott)
 

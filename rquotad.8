@@ -3,6 +3,9 @@
 rquotad, rpc.rquotad \- remote quota server
 .SH SYNOPSIS
 .B rpc.rquotad
+[
+.B \-sSF
+]
 .SH DESCRIPTION
 .LP
 .IX  "rquotad daemon"  ""  "\fLrquotad\fP \(em remote quota server"
@@ -20,15 +23,41 @@ which is mounted by a remote machine over the
 .SM NFS\s0.
 It also allows setting of quotas on
 .SM NFS
-mounted filesystem. The results are used by
+mounted filesystem (if configured during compilation and allowed by a command line option
+.BR \-S ).
+The results are used by
 .BR quota (1)
 to display user quotas for remote filesystems and by
 .BR edquota (8)
 to set quotas on remote filesystems.
-The
+.B rquotad
+daemon uses tcp-wrappers library which allows you to specify hosts allowed/disallowed to use
+the daemon (see
+.BR hosts.allow (5)
+manpage for more information). The
 .B rquotad
 daemon is normally started at boot time from the
 system startup scripts.
+.SH OPTIONS
+.TP
+.B \-V, \-\-version
+Shows version of quota tools.
+.TP
+.B \-s, \-\-no-sequota
+Don't allow setting of quotas (default). This option is available only
+if utilities were compiled with the
+.I rpcsetquota
+option.
+.TP
+.B \-S, \-\-setquota
+Allow setting of quotas. This option is available only
+if utilities were compiled with the
+.I rpcsetquota
+option.
+.TP
+.B \-F, \-\-foreground
+Run daemon in foreground (may be useful for debugging purposes).
+
 .SH FILES
 .PD 0
 .TP 20

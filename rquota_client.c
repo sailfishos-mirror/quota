@@ -9,7 +9,7 @@
  *
  *          This part does the rpc-communication with the rquotad.
  *
- * Version: $Id: rquota_client.c,v 1.5 2001/08/22 21:17:56 jkar8572 Exp $
+ * Version: $Id: rquota_client.c,v 1.6 2002/06/27 08:14:09 jkar8572 Exp $
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
@@ -342,5 +342,6 @@ int rpc_rquota_set(int qcmd, struct dquot *dquot)
 	free(fsname_tmp);
 	return rquota_err(result?result->status:-1);
 #endif
+	return -1;
 }
 #endif

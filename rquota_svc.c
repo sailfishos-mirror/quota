@@ -12,7 +12,7 @@
  *          changes for new utilities by Jan Kara <jack@suse.cz>
  *          patches by Jani Jaakkola <jjaakkol@cs.helsinki.fi>
  *
- * Version: $Id: rquota_svc.c,v 1.10 2002/03/27 16:21:26 jkar8572 Exp $
+ * Version: $Id: rquota_svc.c,v 1.11 2002/06/27 08:14:09 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -52,24 +52,35 @@ char *progname;
  */
 struct authunix_parms *unix_cred;
 
-int disable_setquota=0;            /* Disables setquota rpc */
+int disable_setquota=1;            /* Disables setquota rpc */
 int disable_daemon=0;              /* Disable daemon() call */
 
 static struct option options[]= {
 	{ "version", 0, NULL, 'V' },
 	{ "help", 0, NULL, 'h' },
 	{ "foreground", 0 , NULL, 'F' },
+#ifdef RPC_SETQUOTA
 	{ "no-setquota", 0 , NULL, 's' },
+	{ "setquota", 0, NULL, 'S' },
+#endif
 	{ NULL, 0, NULL , 0 }
 };
 
 static void show_help(void)
 {
+#ifdef RPC_SETQUOTA
 	errstr(_("Usage: %s [options]\nOptions are:\n\
  -h --help         shows this text\n\
  -V --version      shows version information\n\
  -F --foreground   starts the quota service in foreground\n\
- -s --no-setquota  disables remote calls to setquota\n"), progname);
+ -s --no-setquota  disables remote calls to setquota (default)\n\
+ -S --setquota     enables remote calls to setquota\n"), progname);
+#else
+	errstr(_("Usage: %s [options]\nOptions are:\n\
+ -h --help         shows this text\n\
+ -V --version      shows version information\n\
+ -F --foreground   starts the quota service in foreground\n"), progname);
+#endif
 }
 
 static void parse_options(int argc, char **argv)
@@ -87,7 +98,10 @@ static void parse_options(int argc, char **argv)
 			case 'V': version(); exit(0);
 			case 'h': show_help(); exit(0);
 			case 'F': disable_daemon = 1; break;
+#ifdef RPC_SETQUOTA
 			case 's': disable_setquota = 1; break;
+			case 'S': disable_setquota = 0; break;
+#endif
 			default:
 				errstr(_("Unknown option '%c'.\n"), opt);
 				show_help();

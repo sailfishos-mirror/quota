@@ -90,9 +90,9 @@ AC_ARG_ENABLE(rpc,
 	,
 	enable_rpc="yes")
 AC_ARG_ENABLE(rpcsetquota,
-	[  --enable-rpcsetquota=[yes/no]   Use RPC for setting quotas [default=yes].],
+	[  --enable-rpcsetquota=[yes/no]   Use RPC for setting quotas [default=no].],
 	,
-	enable_rpcsetquota="yes")
+	enable_rpcsetquota="no")
 AC_ARG_ENABLE(bsd_behaviour,
 	[  --enable-bsd_behaviour=[yes/no]   Mimic BSD behaviour [default=yes].],
 	,
