@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.8 2002/02/22 14:58:32 jkar8572 Exp $
+ * Version: $Id: warnquota.c,v 1.9 2002/02/25 11:26:16 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -468,7 +468,7 @@ static void parse_options(int argcnt, char **argstr)
 {
 	int ret;
 
-	while ((ret = getopt(argcnt, argstr, "VF:hc:q:"))) {
+	while ((ret = getopt(argcnt, argstr, "VF:hc:q:")) != -1) {
 		switch (ret) {
 		  case '?':
 		  case 'h':

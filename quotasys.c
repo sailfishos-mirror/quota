@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/vfs.h>
 
 #include "pot.h"
 #include "bylabel.h"
@@ -619,6 +620,7 @@ static int cache_mnt_table(void)
 	FILE *mntf;
 	struct mntent *mnt;
 	struct stat st;
+	struct statfs fsstat;
 	int allocated = 0, i = 0, flags;
 	dev_t dev = 0;
 	char mntpointbuf[PATH_MAX];
@@ -651,6 +653,17 @@ static int cache_mnt_table(void)
 			free((char *)devname);
 			continue;
 		}
+		if (statfs(mntpointbuf, &fsstat) != 0) {
+			errstr(_("Can't statfs() %s: %s\n"), mntpointbuf, strerror(errno));
+			free((char *)devname);
+			continue;
+		}
+		/* Do not scan quotas on "magic" automount points */
+		if (fsstat.f_blocks == 0 && fsstat.f_bfree == 0 && fsstat.f_bavail == 0) {
+			free((char *)devname);
+			continue;
+		}
+			 
 		flags = 0;
 		if (strcmp(mnt->mnt_type, MNTTYPE_NFS)) {
 			if (stat(devname, &st) < 0) {	/* Can't stat mounted device? */

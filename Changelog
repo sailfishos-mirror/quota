@@ -5,6 +5,8 @@ Changes in quota-tools from 3.03 to 3.04
 * make install now creates man directories (Jan Kara)
 * added -q <quotatab> and -c <configfile> options to warnquota(8) (Jan Kara)
 * added some notes about quotatab to warnquota manpage (Jan Kara) 
+* fixed bug in options parsing of warnquota(8) (Michael Meskes)
+* Ignore automount mountpoints (Philippe Troin)
 
 Changes in quota-tools from 3.02 to 3.03
 
