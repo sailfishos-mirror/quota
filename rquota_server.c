@@ -9,7 +9,7 @@
  *
  *          This part does the lookup of the info.
  *
- * Version: $Id: rquota_server.c,v 1.6 2001/08/15 20:13:42 jkar8572 Exp $
+ * Version: $Id: rquota_server.c,v 1.7 2001/08/21 15:34:31 jkar8572 Exp $
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
@@ -19,18 +19,11 @@
  *          2 of the License, or (at your option) any later version.
  */
 #include <rpc/rpc.h>
-#include <sys/file.h>
-#include <sys/stat.h>
-#include <sys/mount.h>
 #include <arpa/inet.h>
 #include <paths.h>
 #include <stdio.h>
 #include <syslog.h>
 #include <time.h>
-#include <netdb.h>
-#ifdef HOSTS_ACCESS
-#include <tcpd.h>
-#endif
 
 #include "mntopt.h"
 #include "quotaops.h"
@@ -52,10 +45,6 @@
 #endif
 
 #define NETTYPE AF_INET
-
-#ifdef HOSTS_ACCESS
-#define good_client(a,b) hosts_ctl("rpc.rquotad", b, inet_ntoa(a->sin_addr), "")
-#endif
 
 int allow_severity = LOG_INFO;
 int deny_severity = LOG_WARNING;
@@ -133,20 +122,6 @@ setquota_rslt *setquotainfo(int flags, caddr_t * argp, struct svc_req *rqstp)
 	char *pathname;
 	int id, qcmd, type;
 	struct quota_handle *handles[2] = { NULL, NULL };
-
-#ifdef HOSTS_ACCESS
-	struct hostent *hp;
-	struct sockaddr_in *addr;
-
-	addr = (svc_getcaller(rqstp->rq_xprt));
-	hp = gethostbyaddr((char *)&(addr->sin_addr), sizeof(addr->sin_addr), AF_INET);
-
-	if (!good_client(svc_getcaller(rqstp->rq_xprt), hp->h_name)) {
-		result.status = Q_EPERM;
-		return (&result);
-	}
-
-#endif
 
 	/*
 	 * First check authentication.
@@ -231,18 +206,6 @@ getquota_rslt *getquotainfo(int flags, caddr_t * argp, struct svc_req * rqstp)
 	char *pathname;
 	int id, type;
 	struct quota_handle *handles[2] = { NULL, NULL };
-
-#ifdef HOSTS_ACCESS
-	struct hostent *hp;
-	struct sockaddr_in *addr;
-
-	addr = (svc_getcaller(rqstp->rq_xprt));
-	hp = gethostbyaddr((char *)&(addr->sin_addr), sizeof(addr->sin_addr), AF_INET);
-
-	if (!good_client(svc_getcaller(rqstp->rq_xprt), hp->h_name)) {
-		return (FALSE);
-	}
-#endif
 
 	/*
 	 * First check authentication.

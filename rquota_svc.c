@@ -10,7 +10,7 @@
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: rquota_svc.c,v 1.3 2001/08/15 20:13:42 jkar8572 Exp $
+ * Version: $Id: rquota_svc.c,v 1.4 2001/08/21 15:34:32 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -27,6 +27,10 @@
 #include <string.h>		/* strcmp */
 #include <memory.h>
 #include <unistd.h>
+#ifdef HOSTS_ACCESS
+#include <tcpd.h>
+#include <netdb.h>
+#endif
 
 #ifdef __STDC__
 #define SIG_PF void(*)(int)
@@ -46,6 +50,41 @@ struct authunix_parms *unix_cred;
 
 char **argvargs;
 int argcargs;
+
+#ifdef HOSTS_ACCESS
+int good_client(struct sockaddr_in *addr)
+{
+	struct hostent *h;
+	char *name, **ad;
+	
+	/* Check IP address */
+	if (hosts_ctl("rquotad", "", inet_ntoa(addr->sin_addr), ""))
+		return 1;
+	/* Get address */
+	if (!(h = gethostbyaddr(&(addr->sin_addr), sizeof(addr->sin_addr), AF_INET)))
+		return 0;
+	if (!(name = alloca(strlen(h->h_name)+1)))
+		return 0;
+	strcpy(name, h->h_name);
+	/* Try to resolve it back */
+	if (!(h = gethostbyname(name)))
+		return 0;
+	for (ad = h->h_addr_list; *ad; ad++)
+		if (!memcmp(*ad, &(addr->sin_addr), h->h_length))
+			break;
+	if (!*ad)	/* Our address not found? */
+		return 0;	
+	/* Check host name */
+	if (hosts_ctl("rquotad", "", h->h_name, ""))
+		return 1;
+	/* Check aliases */
+	for (ad = h->h_aliases; *ad; ad++)
+		if (hosts_ctl("rquotad", "", *ad, ""))
+			return 1;
+	return 0;
+}
+#endif
+
 static void rquotaprog_1(struct svc_req *rqstp, register SVCXPRT * transp)
 {
 	union {
@@ -58,6 +97,15 @@ static void rquotaprog_1(struct svc_req *rqstp, register SVCXPRT * transp)
 	xdrproc_t xdr_argument, xdr_result;
 	char *(*local) (char *, struct svc_req *);
 
+#ifdef HOSTS_ACCESS
+	/*
+	 *  Authenticate host
+	 */
+	if (!good_client(svc_getcaller(rqstp->rq_xprt))) {
+		svcerr_auth (transp, AUTH_FAILED);
+		return;
+	}
+#endif
 	/*
 	 * Don't bother authentication for NULLPROC.
 	 */
@@ -136,6 +184,15 @@ static void rquotaprog_2(struct svc_req *rqstp, register SVCXPRT * transp)
 	xdrproc_t xdr_argument, xdr_result;
 	char *(*local) (char *, struct svc_req *);
 
+#ifdef HOSTS_ACCESS
+	/*
+	 *  Authenticate host
+	 */
+	if (!good_client(svc_getcaller(rqstp->rq_xprt))) {
+		svcerr_auth (transp, AUTH_FAILED);
+		return;
+	}
+#endif
 	/*
 	 * Don't bother authentication for NULLPROC.
 	 */
