@@ -1,3 +1,9 @@
+Changes in quota-tools from 3.02 to 3.03
+
+* fixed mountpoint scanning initialization (solved rpc.rquotad SEGFAULT) (Jan Kara)
+* rpc.rquotad now doesn't need mountpoint for quota operations (Jan Kara)
+* fixed compilation on sparc (Michael Meskes, Jan Kara)
+
 Changes in quota-tools from 3.01 to 3.02
 
 * added -n option (don't resolve names) to repquota (Jan Kara)
