@@ -7,6 +7,16 @@ AC_HEADER_STDC
 AC_PROG_INSTALL
 
 dnl Checks for libraries.
+AC_ARG_WITH(ldapmail, [  --with-ldapmail=[yes/no/try]       Enable ldap mail address lookups [default=no].],
+	,
+	with_ldapmail="no")
+if test "x$with_ldapmail" != "xno"; then
+	LDAPLIBS="-L/usr/lib -lldap -llber -lssl -lresolv"
+	CFLAGS="$CFLAGS -DUSE_LDAP_MAIL_LOOKUP"
+fi
+AC_SUBST(LDAPLIBS)
+
+	
 AC_ARG_WITH(ext2direct,
 	[  --with-ext2direct=[yes/no/try]     Enable alternative format used by edquota [default=try].],
 	,

@@ -4,6 +4,10 @@ Changes in quota-tools form 3.10 to 3.11
 * added #include <paths.h> in quotasys.c to avoid compile problems on some systems (Jan Kara)
 * changed detection of filesystem to be able to parse comma separated list (Jan Kara)
 * fixed bug in quotacheck(8) which counted wrongly files larger than 2GB (Posta Zoltan)
+* fixed compile problem with quotacheck and new kernels (Michael Meskes, Jan Kara)
+* fixed typo in quotacheck manpage (Noel Koethe)
+* warnquota(8) can get mail addresses via LDAP (James Bourne)
+* warnquota(8) can avoid sending e-mail when user is over quota on mail partition (James Bourne)
 
 Changes in quota-tools from 3.09 to 3.10
 * alternative port can be specified to rpc.rquotad by -p option (Jan Kara)

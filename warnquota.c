@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.15 2003/10/12 11:42:37 jkar8572 Exp $
+ * Version: $Id: warnquota.c,v 1.16 2004/01/05 09:34:42 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -29,6 +29,10 @@
 #include <grp.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <time.h>
+#ifdef USE_LDAP_MAIL_LOOKUP
+#include <ldap.h>
+#endif
 
 #include "mntopt.h"
 #include "pot.h"
@@ -85,6 +89,10 @@ struct usage {
 	struct usage *next;
 };
 
+#ifdef USE_LDAP_MAIL_LOOKUP
+LDAP *ldapconn = NULL;
+#endif
+
 struct configparams {
 	char mail_cmd[CNF_BUFFER];
 	char from[CNF_BUFFER];
@@ -96,6 +104,18 @@ struct configparams {
 	char *user_signature;
 	char *group_message;
 	char *group_signature;
+	int use_ldap_mail; /* 0 */
+#ifdef USE_LDAP_MAIL_LOOKUP
+	int ldap_is_setup; /* 0 */
+	char ldap_host[CNF_BUFFER];
+	int ldap_port;
+	char ldap_binddn[CNF_BUFFER];
+	char ldap_bindpw[CNF_BUFFER];
+	char ldap_basedn[CNF_BUFFER];
+	char ldap_search_attr[CNF_BUFFER];
+	char ldap_mail_attr[CNF_BUFFER];
+	char default_domain[CNF_BUFFER];
+#endif /* USE_LDAP_MAIL_LOOKUP */
 };
 
 struct offenderlist {
@@ -117,6 +137,7 @@ struct adminstable {
 };
 
 int qtab_i = 0, fmt = -1, flags;
+char mailserv[CNF_BUFFER];
 char *configfile = WARNQUOTA_CONF, *quotatabfile = QUOTATAB, *adminsfile = ADMINSFILE;
 char *progname;
 quotatable_t *quotatable;
@@ -127,6 +148,39 @@ struct adminstable *adminstable;
  * Global pointers to list.
  */
 static struct offenderlist *offenders = (struct offenderlist *)0;
+
+/*
+ * add any cleanup functions here
+ */
+static void wc_exit(int ex_stat)
+{
+#ifdef USE_LDAP_MAIL_LOOKUP
+	if(ldapconn != NULL)
+		ldap_unbind(ldapconn);
+#endif
+	exit(ex_stat);
+}
+
+#ifdef USE_LDAP_MAIL_LOOKUP
+static int setup_ldap(struct configparams *config)
+{
+	int ret;
+
+	ldapconn = ldap_init(config->ldap_host, config->ldap_port);
+	if(ldapconn == NULL) {
+		ldap_perror(ldapconn, "ldap_init");
+		return(-1);
+	}
+
+	ret = ldap_bind_s(ldapconn, config->ldap_binddn, config->ldap_bindpw, LDAP_AUTH_SIMPLE);
+	if(ret < 0) {
+		ldap_perror(ldapconn, "ldap_bind");
+		return(-1);
+	}
+	return(0);
+}
+		
+#endif
 
 struct offenderlist *add_offender(int type, int id, char *name)
 {
@@ -174,11 +228,32 @@ void add_offence(struct dquot *dquot, char *name)
 	lptr->usage = usage;
 }
 
+int deliverable(struct dquot *dquot)
+{
+	time_t now;
+	
+	if((strlen(mailserv) == 0) || (strcasecmp(mailserv, "false") == 0))
+		return(1);
+
+	time(&now);
+	
+	if (((dquot->dq_dqb.dqb_bhardlimit && toqb(dquot->dq_dqb.dqb_curspace) >= dquot->dq_dqb.dqb_bhardlimit)
+		 || ((dquot->dq_dqb.dqb_bsoftlimit && toqb(dquot->dq_dqb.dqb_curspace) >= dquot->dq_dqb.dqb_bsoftlimit)
+	 		&& (dquot->dq_dqb.dqb_btime && dquot->dq_dqb.dqb_btime <= now)))
+	 		&& ((strcasecmp(mailserv, "true") == 0)
+	 		|| (strcasecmp(mailserv, dquot->dq_h->qh_quotadev) == 0)))
+	  return(0);
+	
+	return(1);
+}
+
 int check_offence(struct dquot *dquot, char *name)
 {
 	if ((dquot->dq_dqb.dqb_bsoftlimit && toqb(dquot->dq_dqb.dqb_curspace) >= dquot->dq_dqb.dqb_bsoftlimit)
-	    || (dquot->dq_dqb.dqb_isoftlimit && dquot->dq_dqb.dqb_curinodes >= dquot->dq_dqb.dqb_isoftlimit))
-		add_offence(dquot, name);
+	    || (dquot->dq_dqb.dqb_isoftlimit && dquot->dq_dqb.dqb_curinodes >= dquot->dq_dqb.dqb_isoftlimit)) {
+		if(deliverable(dquot))
+			add_offence(dquot, name);
+	}
 	return 0;
 }
 
@@ -200,11 +275,11 @@ FILE *run_mailer(char *command)
 			close(pipefd[1]);
 			if (dup2(pipefd[0], 0) < 0) {
 				errstr(_("Can't duplicate descriptor: %s\n"), strerror(errno));
-				exit(1);
+				wc_exit(1);
 			}			
 			execl(SHELL, SHELL, "-c", command, NULL);
 			errstr(_("Can't execute '%s': %s\n"), command, strerror(errno));
-			exit(1);
+			wc_exit(1);
 		default:
 			close(pipefd[0]);
 			if (!(f = fdopen(pipefd[1], "w")))
@@ -226,27 +301,111 @@ int mail_user(struct offenderlist *offender, struct configparams *config)
 	char timebuf[MAXTIMELEN];
 	char numbuf[3][MAXNUMLEN];
 	struct util_dqblk *dqb;
-	char *to;
+	char *to = NULL, searchbuf[256];
+#ifdef USE_LDAP_MAIL_LOOKUP
+	LDAPMessage *result, *entry;
+	BerElement     *ber = NULL;
+	struct berval  **bvals = NULL;
+	int ret;
+	char *a;
+#endif
 
-	if (offender->offender_type == USRQUOTA)
-		to = offender->offender_name;
-	else {
+	if (offender->offender_type == USRQUOTA) {
+#ifdef USE_LDAP_MAIL_LOOKUP
+		if(config->use_ldap_mail != 0) {
+			if((ldapconn == NULL) && (config->ldap_is_setup == 0)) {
+				/* need init */
+				if(setup_ldap(config)) {
+					errstr(_("Could not setup ldap connection, returning.\n"));
+					return -1;
+				}
+				config->ldap_is_setup = 1;
+			}
+
+			if(ldapconn == NULL) {
+				/* ldap was never setup correctly so just use the offender_name */
+				to = sstrdup(offender->offender_name);
+			} else {
+				/* search for the offender_name in ldap */
+				snprintf(searchbuf, 256, "(%s=%s)", config->ldap_search_attr, 
+					offender->offender_name);
+				ret = ldap_search_s(ldapconn, config->ldap_basedn, 
+					LDAP_SCOPE_SUBTREE, searchbuf,
+					NULL, 0, &result);
+				if(ret < 0) {
+					errstr(_("Error with %s.\n"), offender->offender_name);
+					ldap_perror(ldapconn, "ldap_search");
+					return 0;
+				}
+					
+				cnt = ldap_count_entries(ldapconn, result);
+
+				if(cnt > 1) {
+					errstr(_("Multiple entries found for client %s, %d not sending mail.\n"), 
+						offender->offender_name, cnt);
+					return 0;
+				} else if(cnt == 0) {
+					errstr(_("Entry not found for client %s, %d not sending mail.\n"), 
+						offender->offender_name, cnt);
+					return 0;
+				} else {
+					/* get the attr */
+					entry = ldap_first_entry(ldapconn, result);
+					for(a = ldap_first_attribute(ldapconn, entry, &ber); a != NULL;
+						a = ldap_next_attribute( ldapconn, entry, ber)) {
+						if(strcasecmp(a, config->ldap_mail_attr) == 0) {
+							bvals = ldap_get_values_len(ldapconn, entry, a);
+							if(bvals == NULL) {
+								errstr(_("Could not get values for %s.\n"), 
+									offender->offender_name);
+								return 0;
+							}
+							to = sstrdup(bvals[0]->bv_val);
+							break;
+						} 
+					} 
+
+					ber_bvecfree(bvals);
+					if(to == NULL) {
+						/* 
+						 * use just the name and default domain as we didn't find the
+						 * attribute we wanted in this entry
+						 */
+						to = malloc(strlen(offender->offender_name)+
+							strlen(config->default_domain)+1);
+						sprintf(to, "%s@%s", offender->offender_name,
+							config->default_domain);
+					}
+				}
+			}
+		} else {
+			to = sstrdup(offender->offender_name);
+		}
+#else
+		to = sstrdup(offender->offender_name);
+#endif
+	} else {
 		struct adminstable *admin;
 
 		if (!(admin = bsearch(offender->offender_name, adminstable, adminscnt, sizeof(struct adminstable), admin_name_cmp))) {
 			errstr(_("Administrator for a group %s not found. Cancelling mail.\n"), offender->offender_name);
 			return -1;
 		}
-		to = admin->adminname;
+		to = sstrdup(admin->adminname);
 	}
-	if (!(fp = run_mailer(config->mail_cmd)))
+	if (!(fp = run_mailer(config->mail_cmd))) {
+		if(to)
+			free(to);
 		return -1;
+	}
 	fprintf(fp, "From: %s\n", config->from);
 	fprintf(fp, "Reply-To: %s\n", config->support);
 	fprintf(fp, "Subject: %s\n", config->subject);
 	fprintf(fp, "To: %s\n", to);
 	fprintf(fp, "Cc: %s\n", config->cc_to);
 	fprintf(fp, "\n");
+	free(to);
+
 	if (offender->offender_type == USRQUOTA)
 		if (config->user_message)
 			fputs(config->user_message, fp);
@@ -431,7 +590,13 @@ int readconfigfile(const char *filename, struct configparams *config)
 	sstrncpy(config->cc_to, CC_TO, CNF_BUFFER);
 	sstrncpy(config->support, SUPPORT, CNF_BUFFER);
 	sstrncpy(config->phone, PHONE, CNF_BUFFER);
+	sstrncpy(mailserv, "false", CNF_BUFFER);
 	config->user_signature = config->user_message = config->group_signature = config->group_message = NULL;
+	config->use_ldap_mail = 0;
+
+#ifdef USE_LDAP_MAIL_LOOKUP
+	config->ldap_port = config->ldap_is_setup = 0;
+#endif
 
 	if (!(fp = fopen(filename, "r"))) {
 		errstr(_("Can't open %s: %s\n"), filename, strerror(errno));
@@ -487,7 +652,10 @@ int readconfigfile(const char *filename, struct configparams *config)
 				sstrncpy(config->support, value, CNF_BUFFER);
 			else if (!strcmp(var, "PHONE"))
 				sstrncpy(config->phone, value, CNF_BUFFER);
-			else if (!strcmp(var, "MESSAGE")) {
+			else if (!strcmp(var, "MAILSERV")) {
+				/* set the global */
+				sstrncpy(mailserv, value, CNF_BUFFER);
+			} else if (!strcmp(var, "MESSAGE")) {
 				config->user_message = sstrdup(value);
 				create_eoln(config->user_message);
 			}
@@ -503,6 +671,30 @@ int readconfigfile(const char *filename, struct configparams *config)
 				config->group_signature = sstrdup(value);
 				create_eoln(config->group_signature);
 			}
+			else if (!strcmp(var, "LDAP_MAIL")) {
+				if(strcasecmp(value, "true") == 0) 
+					config->use_ldap_mail = 1;
+				else
+					config->use_ldap_mail = 0;
+			}
+#ifdef USE_LDAP_MAIL_LOOKUP
+			else if (!strcmp(var, "LDAP_HOST"))
+				sstrncpy(config->ldap_host, value, CNF_BUFFER);
+			else if (!strcmp(var, "LDAP_PORT"))
+				config->ldap_port = (int)strtol(value, NULL, 10);
+			else if(!strcmp(var, "LDAP_BINDDN"))
+				sstrncpy(config->ldap_binddn, value, CNF_BUFFER);
+			else if(!strcmp(var, "LDAP_BINDPW"))
+				sstrncpy(config->ldap_bindpw, value, CNF_BUFFER);
+			else if(!strcmp(var, "LDAP_BASEDN"))
+				sstrncpy(config->ldap_basedn, value, CNF_BUFFER);
+			else if(!strcmp(var, "LDAP_SEARCH_ATTRIBUTE"))
+				sstrncpy(config->ldap_search_attr, value, CNF_BUFFER);
+			else if(!strcmp(var, "LDAP_MAIL_ATTRIBUTE"))
+				sstrncpy(config->ldap_mail_attr, value, CNF_BUFFER);
+			else if(!strcmp(var, "LDAP_DEFAULT_MAIL_DOMAIN"))
+				sstrncpy(config->default_domain, value, CNF_BUFFER);
+#endif
 			else	/* not matched at all */
 				errstr(_("Error in config file (line %d), ignoring\n"), line);
 		}
@@ -585,9 +777,9 @@ void warn_quota(void)
 	int i;
 
 	if (readconfigfile(configfile, &config) < 0)
-		exit(1);
+		wc_exit(1);
 	if (get_quotatable() < 0)
-		exit(1);
+		wc_exit(1);
 
 	if (flags & FL_USER) {
 		handles = create_handle_list(0, NULL, USRQUOTA, -1, IOI_LOCALONLY | IOI_READONLY | IOI_OPENFILE, (flags & FL_NOAUTOFS ? MS_NO_AUTOFS : 0));
@@ -597,14 +789,14 @@ void warn_quota(void)
 	}
 	if (flags & FL_GROUP) {
 		if (get_groupadmins() < 0)
-			exit(1);
+			wc_exit(1);
 		handles = create_handle_list(0, NULL, GRPQUOTA, -1, IOI_LOCALONLY | IOI_READONLY | IOI_OPENFILE, (flags & FL_NOAUTOFS ? MS_NO_AUTOFS : 0));
 		for (i = 0; handles[i]; i++)
 			handles[i]->qh_ops->scan_dquots(handles[i], check_offence);
 		dispose_handle_list(handles);
 	}
 	if (mail_to_offenders(&config) < 0)
-		exit(1);
+		wc_exit(1);
 }
 
 /* Print usage information */
@@ -612,7 +804,7 @@ static void usage(void)
 {
 	errstr(_("Usage:\n  warnquota [-ugsid] [-F quotaformat] [-c configfile] [-q quotatabfile]\n"));
 	fprintf(stderr, _("Bugs to %s\n"), MY_EMAIL);
-	exit(1);
+	wc_exit(1);
 }
  
 static void parse_options(int argcnt, char **argstr)
@@ -629,7 +821,7 @@ static void parse_options(int argcnt, char **argstr)
 			break;
 		  case 'F':
 			if ((fmt = name2fmt(optarg)) == QF_ERROR)
-				exit(1);
+				wc_exit(1);
 			break;
 		  case 'c':
 			configfile = optarg;
@@ -670,5 +862,5 @@ int main(int argc, char **argv)
 	init_kernel_interface();
 	warn_quota();
 
-	return 0;
+	wc_exit(0);
 }

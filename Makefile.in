@@ -6,6 +6,7 @@ EXT2LIBS      = @EXT2LIBS@
 RPCSRC        = rquota.h rquota_xdr.c rquota_clnt.c
 LIBS          = @LIBS@
 LDFLAGS       = @LDFLAGS@
+LDAPLIBS      = @LDAPLIBS@
 
 # Add lines to /etc/hosts.allow and /etc/hosts.deny
 # like: "rquotad: ALL@ALL except my.host.i.want.com" in hosts.deny means
@@ -112,6 +113,7 @@ quot: quot.o $(LIBOBJS)
 repquota: repquota.o $(LIBOBJS)
 
 warnquota: warnquota.o $(LIBOBJS)
+	$(CC) $(LDFLAGS) -o $@ $^ $(LDAPLIBS)
 
 quotastats: quotastats.o common.o pot.o
 
