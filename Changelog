@@ -1,3 +1,7 @@
+Changes in quota-tools form 3.10 to 3.11
+* added -T flag to quot(8) to avoid truncation of names (Andre Nathan)
+* added -q flag to quot(8) to avoid sorting of names (Andre Nathan)
+
 Changes in quota-tools from 3.09 to 3.10
 * alternative port can be specified to rpc.rquotad by -p option (Jan Kara)
 * Fixed processing of device-backed loop mounts (Jari Ruusu)

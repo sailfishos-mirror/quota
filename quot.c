@@ -68,6 +68,8 @@ static int gflag;
 static int uflag;
 static int vflag;
 static int iflag;
+static int qflag;
+static int Tflag;
 static time_t now;
 char *progname;
 
@@ -78,7 +80,7 @@ static void creport(const char *, char *);
 
 static void usage(void)
 {
-	errstr(_("Usage: %s [-acfugvVi] [filesystem...]\n"), progname);
+	errstr(_("Usage: %s [-acfugvViTq] [filesystem...]\n"), progname);
 	exit(1);
 }
 
@@ -89,7 +91,7 @@ int main(int argc, char **argv)
 	now = time(0);
 	progname = basename(argv[0]);
 
-	while ((c = getopt(argc, argv, "acfguvV")) != -1) {
+	while ((c = getopt(argc, argv, "acfguvVTq")) != -1) {
 		switch (c) {
 		  case 'a':
 			  aflag++;
@@ -111,6 +113,12 @@ int main(int argc, char **argv)
 			  break;
 		  case 'i':
 			  iflag++;
+			  break;
+		  case 'q':
+			  qflag++;
+			  break;
+		  case 'T':
+			  Tflag++;
 			  break;
 		  case 'V':
 			  version();
@@ -187,7 +195,8 @@ static void report(const char *file, char *fsdir, int type)
 	du_t *dp;
 
 	printf(_("%s (%s) %s:\n"), file, fsdir, type? "groups" : "users");
-	qsort(du[type], ndu[type], sizeof(du[type][0]), (int (*)(const void *, const void *))qcmp);
+	if (!qflag)
+		qsort(du[type], ndu[type], sizeof(du[type][0]), (int (*)(const void *, const void *))qcmp);
 	for (dp = du[type]; dp < &du[type][ndu[type]]; dp++) {
 		char *cp;
 
@@ -196,9 +205,12 @@ static void report(const char *file, char *fsdir, int type)
 		printf(_("%8llu    "), (unsigned long long) dp->blocks);
 		if (fflag)
 			printf(_("%8llu    "), (unsigned long long) dp->nfiles);
-		if ((cp = idname(dp->id, type)) != NULL)
-			printf(_("%-8.8s"), cp);
-		else
+		if ((cp = idname(dp->id, type)) != NULL) {
+			if (Tflag)
+				printf(_("%s"), cp);
+			else
+				printf(_("%-8.8s"), cp);
+		} else
 			printf(_("#%-7d"), dp->id);
 		if (vflag)
 			printf(_("    %8llu    %8llu    %8llu"),
