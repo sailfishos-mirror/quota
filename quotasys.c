@@ -17,6 +17,7 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <ctype.h>
+#include <paths.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/vfs.h>
