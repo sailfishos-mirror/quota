@@ -5,6 +5,8 @@ Changes in quota-tools from 3.11 to 3.12
 * fixed compiler warning in quotacheck.c (Peter Breitenlohner)
 * added config option for putting some important binaries to /sbin regardless
   $(prefix) (Jan Kara)
+* added config option to warnquota(8) for CCing admin only specified amount of
+  time before grace time runs out (Jan Kara)
 
 Changes in quota-tools from 3.10 to 3.11
 * quota-tools should again use old RPC protocol when needed (Jan Kara)

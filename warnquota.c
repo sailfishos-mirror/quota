@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.19 2004/01/09 11:27:45 jkar8572 Exp $
+ * Version: $Id: warnquota.c,v 1.20 2004/03/12 18:08:52 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -105,6 +105,7 @@ struct configparams {
 	char *group_message;
 	char *group_signature;
 	int use_ldap_mail; /* 0 */
+	time_t cc_before;
 #ifdef USE_LDAP_MAIL_LOOKUP
 	int ldap_is_setup; /* 0 */
 	char ldap_host[CNF_BUFFER];
@@ -304,6 +305,25 @@ int admin_name_cmp(const void *key, const void *mem)
 	return strcmp(key, ((struct adminstable *)mem)->grpname);
 }
 
+int should_cc(struct offenderlist *offender, struct configparams *config)
+{
+	struct usage *lptr;
+	struct util_dqblk *dqb;
+	time_t atime;
+
+	if (config->cc_before == -1)
+		return 1;
+	time(&atime);
+	for (lptr = offender->usage; lptr; lptr = lptr->next) {
+		dqb = &lptr->dq_dqb;
+		if (dqb->dqb_bsoftlimit && dqb->dqb_bsoftlimit <= toqb(dqb->dqb_curspace) && dqb->dqb_btime-config->cc_before <= atime)
+			return 1;
+		if (dqb->dqb_isoftlimit && dqb->dqb_isoftlimit <= dqb->dqb_curinodes && dqb->dqb_itime-config->cc_before <= atime)
+			return 1;
+	}
+	return 0;
+}
+
 int mail_user(struct offenderlist *offender, struct configparams *config)
 {
 	struct usage *lptr;
@@ -414,7 +434,8 @@ int mail_user(struct offenderlist *offender, struct configparams *config)
 	fprintf(fp, "Reply-To: %s\n", config->support);
 	fprintf(fp, "Subject: %s\n", config->subject);
 	fprintf(fp, "To: %s\n", to);
-	fprintf(fp, "Cc: %s\n", config->cc_to);
+	if (should_cc(offender, config))
+		fprintf(fp, "Cc: %s\n", config->cc_to);
 	fprintf(fp, "\n");
 	free(to);
 
@@ -605,6 +626,7 @@ int readconfigfile(const char *filename, struct configparams *config)
 	maildev[0] = 0;
 	config->user_signature = config->user_message = config->group_signature = config->group_message = NULL;
 	config->use_ldap_mail = 0;
+	config->cc_before = -1;
 
 #ifdef USE_LDAP_MAIL_LOOKUP
 	config->ldap_port = config->ldap_is_setup = 0;
@@ -688,6 +710,17 @@ int readconfigfile(const char *filename, struct configparams *config)
 					config->use_ldap_mail = 1;
 				else
 					config->use_ldap_mail = 0;
+			}
+			else if (!strcmp(var, "CC_BEFORE")) {
+				int num;
+				char unit[10];
+
+				if (sscanf(value, "%d%s", &num, unit) != 2)
+					goto cc_parse_err;
+				if (str2timeunits(num, unit, &config->cc_before) < 0) {
+cc_parse_err:
+					errstr(_("Cannot parse time at CC_BEFORE variable (line %d).\n"), line);
+				}
 			}
 #ifdef USE_LDAP_MAIL_LOOKUP
 			else if (!strcmp(var, "LDAP_HOST"))
