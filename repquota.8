@@ -7,6 +7,10 @@ repquota \- summarize quotas for a filesystem
 [
 .B \-vsug
 ] [
+.B \-c
+|
+.B \-C
+] [
 .B \-t
 |
 .B \-n
@@ -19,6 +23,10 @@ repquota \- summarize quotas for a filesystem
 .B /usr/sbin/repquota
 [
 .B \-avtsug
+] [
+.B \-c
+|
+.B \-C
 ] [
 .B \-t
 |
@@ -42,6 +50,22 @@ prints a summary of the disc usage and quotas for the specified file
 systems.  For each user the current number of files and amount of space
 (in kilobytes) is printed, along with any quotas created with
 .BR edquota (8).
+As
+.B repquota
+has to translate ids of all users/groups to names (unless option
+.B -n
+was specified) it may take a while to
+print all the information. To make translating as fast as possible
+.B repquota
+tries to detect (by reading
+.BR /etc/nsswitch.conf )
+whether entries are stored in standard plain text file or in database and either
+translates chunks of 1024 names or each name individually. You can override this
+autodetection by
+.B -c
+or
+.B -C
+options.
 .SH OPTIONS
 .TP
 .B \-a
@@ -52,6 +76,13 @@ to be read-write with quotas.
 .B \-v
 Report all quotas, even if there is no usage. Be also more verbose about quotafile
 information.
+.TP
+.B \-c
+Cache entries to report and translate uids/gids to names in big chunks by scanning
+all users (default). This is good (fast) behaviour when using /etc/passwd file.
+.TP
+.B \-C
+Translate individual entries. This is faster when you have users stored in database.
 .TP
 .B \-t
 Truncate user/group names longer than 9 characters. This results in nicer output when

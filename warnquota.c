@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.10 2002/03/27 16:21:26 jkar8572 Exp $
+ * Version: $Id: warnquota.c,v 1.11 2002/07/23 15:59:27 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -26,6 +26,7 @@
 #include <errno.h>
 #include <ctype.h>
 #include <signal.h>
+#include <grp.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -44,13 +45,23 @@
 #define SUPPORT  "support@localhost"
 #define PHONE    "(xxx) xxx-xxxx or (yyy) yyy-yyyy"
 
-#define DEF_MESSAGE	_("Hi,\n\nWe noticed that you are in violation with the quotasystem\n" \
+#define DEF_USER_MESSAGE	_("Hi,\n\nWe noticed that you are in violation with the quotasystem\n" \
                           "used on this system. We have found the following violations:\n\n")
-#define DEF_SIGNATURE	_("\nWe hope that you will cleanup before your grace period expires.\n" \
+#define DEF_USER_SIGNATURE	_("\nWe hope that you will cleanup before your grace period expires.\n" \
 	                  "\nBasically, this means that the system thinks you are using more disk space\n" \
 	                  "on the above partition(s) than you are allowed.  If you do not delete files\n" \
 	                  "and get below your quota before the grace period expires, the system will\n" \
 	                  "prevent you from creating new files.\n\n" \
+                          "For additional assistance, please contact us at %s\nor via " \
+                          "phone at %s.\n")
+#define DEF_GROUP_MESSAGE	_("Hi,\n\nWe noticed that the group %s you are member of violates the quotasystem\n" \
+                          "used on this system. We have found the following violations:\n\n")
+#define DEF_GROUP_SIGNATURE	_("\nPlease cleanup the group data before the grace period expires.\n" \
+	                  "\nBasically, this means that the system thinks group is using more disk space\n" \
+	                  "on the above partition(s) than it is allowed.  If you do not delete files\n" \
+	                  "and get below group quota before the grace period expires, the system will\n" \
+	                  "prevent you and other members of the group from creating new files owned by\n" \
+			  "the group.\n\n" \
                           "For additional assistance, please contact us at %s\nor via " \
                           "phone at %s.\n")
 
@@ -58,7 +69,12 @@
 #define QUOTATAB "/etc/quotatab"
 #define CNF_BUFFER 2048
 #define IOBUF_SIZE 16384		/* Size of buffer for line in config files */
+#define ADMIN_TAB_ALLOC 256		/* How many entries to admins table should we allocate at once? */
 #define WARNQUOTA_CONF "/etc/warnquota.conf"
+#define ADMINSFILE "/etc/quotagrpadmins"
+
+#define FL_USER 1
+#define FL_GROUP 2
 
 struct usage {
 	char *devicename;
@@ -73,11 +89,14 @@ struct configparams {
 	char cc_to[CNF_BUFFER];
 	char support[CNF_BUFFER];
 	char phone[CNF_BUFFER];
-	char *message;
-	char *signature;
+	char *user_message;
+	char *user_signature;
+	char *group_message;
+	char *group_signature;
 };
 
 struct offenderlist {
+	int offender_type;
 	int offender_id;
 	char *offender_name;
 	struct usage *usage;
@@ -89,29 +108,37 @@ typedef struct quotatable {
 	char *devdesc;
 } quotatable_t;
 
-int qtab_i = 0, fmt = -1;
-char *configfile = WARNQUOTA_CONF, *quotatabfile = QUOTATAB;
+struct adminstable {
+	char *grpname;
+	char *adminname;
+};
+
+int qtab_i = 0, fmt = -1, flags;
+char *configfile = WARNQUOTA_CONF, *quotatabfile = QUOTATAB, *adminsfile = ADMINSFILE;
 char *progname;
-quotatable_t *quotatable = (quotatable_t *) NULL;
+quotatable_t *quotatable;
+int adminscnt, adminsalloc;
+struct adminstable *adminstable;
 
 /*
  * Global pointers to list.
  */
 static struct offenderlist *offenders = (struct offenderlist *)0;
 
-struct offenderlist *add_offender(int id, char *name)
+struct offenderlist *add_offender(int type, int id, char *name)
 {
 	struct offenderlist *offender;
 	char namebuf[MAXNAMELEN];
 	
 	if (!name) {
-		if (id2name(id, USRQUOTA, namebuf)) {
-			errstr(_("Can't get name for uid %u.\n"), id);
+		if (id2name(id, type, namebuf)) {
+			errstr(_("Can't get name for uid/gid %u.\n"), id);
 			return NULL;
 		}
 		name = namebuf;
 	}
 	offender = (struct offenderlist *)smalloc(sizeof(struct offenderlist));
+	offender->offender_type = type;
 	offender->offender_id = id;
 	offender->offender_name = sstrdup(name);
 	offender->usage = (struct usage *)NULL;
@@ -126,11 +153,11 @@ void add_offence(struct dquot *dquot, char *name)
 	struct usage *usage;
 
 	for (lptr = offenders; lptr; lptr = lptr->next)
-		if (lptr->offender_id == dquot->dq_id)
+		if (dquot->dq_h->qh_type == lptr->offender_type && lptr->offender_id == dquot->dq_id)
 			break;
 
 	if (!lptr)
-		if (!(lptr = add_offender(dquot->dq_id, name)))
+		if (!(lptr = add_offender(dquot->dq_h->qh_type, dquot->dq_id, name)))
 			return;
 
 	usage = (struct usage *)smalloc(sizeof(struct usage));
@@ -183,6 +210,11 @@ FILE *run_mailer(char *command)
 	}
 }
 
+int admin_name_cmp(const void *key, const void *mem)
+{
+	return strcmp(key, ((struct adminstable *)mem)->grpname);
+}
+
 int mail_user(struct offenderlist *offender, struct configparams *config)
 {
 	struct usage *lptr;
@@ -190,19 +222,37 @@ int mail_user(struct offenderlist *offender, struct configparams *config)
 	int cnt, status;
 	char timebuf[MAXTIMELEN];
 	struct util_dqblk *dqb;
+	char *to;
 
+	if (offender->offender_type == USRQUOTA)
+		to = offender->offender_name;
+	else {
+		struct adminstable *admin;
+
+		if (!(admin = bsearch(offender->offender_name, adminstable, adminscnt, sizeof(struct adminstable), admin_name_cmp))) {
+			errstr(_("Administrator for a group %s not found. Cancelling mail.\n"), offender->offender_name);
+			return -1;
+		}
+		to = admin->adminname;
+	}
 	if (!(fp = run_mailer(config->mail_cmd)))
 		return -1;
 	fprintf(fp, "From: %s\n", config->from);
 	fprintf(fp, "Reply-To: %s\n", config->support);
 	fprintf(fp, "Subject: %s\n", config->subject);
-	fprintf(fp, "To: %s\n", offender->offender_name);
+	fprintf(fp, "To: %s\n", to);
 	fprintf(fp, "Cc: %s\n", config->cc_to);
 	fprintf(fp, "\n");
-	if (config->message)
-		fputs(config->message, fp);
+	if (offender->offender_type == USRQUOTA)
+		if (config->user_message)
+			fputs(config->user_message, fp);
+		else
+			fputs(DEF_USER_MESSAGE, fp);
 	else
-		fputs(DEF_MESSAGE, fp);
+		if (config->group_message)
+			fprintf(fp, config->group_message, offender->offender_name);
+		else
+			fprintf(fp, DEF_GROUP_MESSAGE, offender->offender_name);
 
 	for (lptr = offender->usage; lptr; lptr = lptr->next) {
 		dqb = &lptr->dq_dqb;
@@ -235,10 +285,16 @@ int mail_user(struct offenderlist *offender, struct configparams *config)
 		fprintf(fp, "  %6Lu%6Lu%6Lu%7s\n\n", (long long)dqb->dqb_curinodes,
 		        (long long)dqb->dqb_isoftlimit, (long long)dqb->dqb_ihardlimit, timebuf);
 	}
-	if (config->signature)
-		fputs(config->signature, fp);
+	if (offender->offender_type == USRQUOTA)
+		if (config->user_signature)
+			fputs(config->user_signature, fp);
+		else
+			fprintf(fp, DEF_USER_SIGNATURE, config->support, config->phone);
 	else
-		fprintf(fp, DEF_SIGNATURE, config->support, config->phone);
+		if (config->group_signature)
+			fputs(config->group_signature, fp);
+		else
+			fprintf(fp, DEF_GROUP_SIGNATURE, config->support, config->phone);
 	fclose(fp);
 	if (wait(&status) < 0)	/* Wait for mailer */
 		errstr(_("Can't wait for mailer: %s\n"), strerror(errno));
@@ -363,7 +419,7 @@ int readconfigfile(const char *filename, struct configparams *config)
 	sstrncpy(config->cc_to, CC_TO, CNF_BUFFER);
 	sstrncpy(config->support, SUPPORT, CNF_BUFFER);
 	sstrncpy(config->phone, PHONE, CNF_BUFFER);
-	config->signature = config->message = NULL;
+	config->user_signature = config->user_message = config->group_signature = config->group_message = NULL;
 
 	if (!(fp = fopen(filename, "r"))) {
 		errstr(_("Can't open %s: %s\n"), filename, strerror(errno));
@@ -420,12 +476,20 @@ int readconfigfile(const char *filename, struct configparams *config)
 			else if (!strcmp(var, "PHONE"))
 				sstrncpy(config->phone, value, CNF_BUFFER);
 			else if (!strcmp(var, "MESSAGE")) {
-				config->message = sstrdup(value);
-				create_eoln(config->message);
+				config->user_message = sstrdup(value);
+				create_eoln(config->user_message);
 			}
 			else if (!strcmp(var, "SIGNATURE")) {
-				config->signature = sstrdup(value);
-				create_eoln(config->signature);
+				config->user_signature = sstrdup(value);
+				create_eoln(config->user_signature);
+			}
+			else if (!strcmp(var, "GROUP_MESSAGE")) {
+				config->group_message = sstrdup(value);
+				create_eoln(config->group_message);
+			}
+			else if (!strcmp(var, "GROUP_SIGNATURE")) {
+				config->group_signature = sstrdup(value);
+				create_eoln(config->group_signature);
 			}
 			else	/* not matched at all */
 				errstr(_("Error in config file (line %d), ignoring\n"), line);
@@ -440,6 +504,68 @@ int readconfigfile(const char *filename, struct configparams *config)
 	return 0;
 }
 
+int admin_cmp(const void *a1, const void *a2)
+{
+	return strcmp(((struct adminstable *)a1)->grpname, ((struct adminstable *)a2)->grpname);
+}
+
+/* Get administrators of the groups */
+int get_groupadmins(void)
+{
+	FILE *f;
+	int line = 0;
+	char buffer[IOBUF_SIZE], *colpos, *grouppos, *endname, *adminpos;
+
+	if (!(f = fopen(adminsfile, "r"))) {
+		errstr(_("Can't open file with group administrators: %s\n"), strerror(errno));
+		return -1;
+	}
+	
+	while (fgets(buffer, IOBUF_SIZE, f)) {
+		line++;
+		if (buffer[0] == ';' || buffer[0] == '#')
+			continue;
+		/* Skip initial spaces */
+		for (colpos = buffer; isspace(*colpos); colpos++);
+		if (!*colpos)	/* Empty line? */
+			continue;
+		/* Find splitting colon */
+		for (grouppos = colpos; *colpos && *colpos != ':'; colpos++);
+		if (!*colpos || grouppos == colpos) {
+			errstr(_("Parse error at line %d. Can't find end of group name.\n"), line);
+			continue;
+		}
+		/* Cut trailing spaces */
+		for (endname = colpos-1; isspace(*endname); endname--);
+		*(++endname) = 0;
+		/* Skip initial spaces at admins name */
+		for (colpos++; isspace(*colpos); colpos++);
+		if (!*colpos) {
+			errstr(_("Parse error at line %d. Can't find administrators name.\n"), line);
+			continue;
+		}
+		/* Go through admins name */
+		for (adminpos = colpos; !isspace(*colpos); colpos++);
+		if (*colpos) {	/* Some characters after name? */
+			*colpos = 0;
+			/* Skip trailing spaces */
+			for (colpos++; isspace(*colpos); colpos++);
+			if (*colpos) {
+				errstr(_("Parse error at line %d. Trailing characters after administrators name.\n"), line);
+				continue;
+			}
+		}
+		if (adminscnt >= adminsalloc)
+			adminstable = srealloc(adminstable, sizeof(struct adminstable)*(adminsalloc+=ADMIN_TAB_ALLOC));
+		adminstable[adminscnt].grpname = sstrdup(grouppos);
+		adminstable[adminscnt++].adminname = sstrdup(adminpos);
+	}
+
+	fclose(f);
+	qsort(adminstable, adminscnt, sizeof(struct adminstable), admin_cmp);
+	return 0;
+}
+
 void warn_quota(void)
 {
 	struct quota_handle **handles;
@@ -451,9 +577,20 @@ void warn_quota(void)
 	if (get_quotatable() < 0)
 		exit(1);
 
-	handles = create_handle_list(0, NULL, USRQUOTA, -1, IOI_LOCALONLY | IOI_READONLY | IOI_OPENFILE);
-	for (i = 0; handles[i]; i++)
-		handles[i]->qh_ops->scan_dquots(handles[i], check_offence);
+	if (flags & FL_USER) {
+		handles = create_handle_list(0, NULL, USRQUOTA, -1, IOI_LOCALONLY | IOI_READONLY | IOI_OPENFILE);
+		for (i = 0; handles[i]; i++)
+			handles[i]->qh_ops->scan_dquots(handles[i], check_offence);
+		dispose_handle_list(handles);
+	}
+	if (flags & FL_GROUP) {
+		if (get_groupadmins() < 0)
+			exit(1);
+		handles = create_handle_list(0, NULL, GRPQUOTA, -1, IOI_LOCALONLY | IOI_READONLY | IOI_OPENFILE);
+		for (i = 0; handles[i]; i++)
+			handles[i]->qh_ops->scan_dquots(handles[i], check_offence);
+		dispose_handle_list(handles);
+	}
 	if (mail_to_offenders(&config) < 0)
 		exit(1);
 }
@@ -461,14 +598,14 @@ void warn_quota(void)
 /* Print usage information */
 static void usage(void)
 {
-	errstr(_("Usage:\n  warnquota [-F quotaformat] [-c configfile] [-q quotatabfile]\n"));
+	errstr(_("Usage:\n  warnquota [-ug] [-F quotaformat] [-c configfile] [-q quotatabfile]\n"));
 }
  
 static void parse_options(int argcnt, char **argstr)
 {
 	int ret;
  
-	while ((ret = getopt(argcnt, argstr, "VF:hc:q:")) != -1) {
+	while ((ret = getopt(argcnt, argstr, "ugVF:hc:q:a:")) != -1) {
 		switch (ret) {
 		  case '?':
 		  case 'h':
@@ -486,8 +623,19 @@ static void parse_options(int argcnt, char **argstr)
 		  case 'q':
 			quotatabfile = optarg;
 			break;
+		  case 'a':
+			adminsfile = optarg;
+			break;
+		  case 'u':
+			flags |= FL_USER;
+			break;
+		  case 'g':
+			flags |= FL_GROUP;
+			break;
 		}
 	}
+	if (!(flags & FL_USER) && !(flags & FL_GROUP))
+		flags |= FL_USER;
 }
  
 int main(int argc, char **argv)

@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.29 2002/05/03 07:05:46 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.30 2002/07/23 15:59:27 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -570,7 +570,7 @@ Please turn quotas off or use -f to force checking.\n"),
 	}
 
 	if (!(flags & FL_NEWFILE)) {	/* Need to buffer file? */
-		if (get_qf_name(mnt, type, (1 << cfmt), NF_EXIST, &qfname) < 0) {
+		if (get_qf_name(mnt, type, (1 << cfmt), 0, &qfname) < 0) {
 			errstr(_("Cannot get quotafile name for %s\n"), mnt->mnt_fsname);
 			return -1;
 		}

@@ -4,6 +4,8 @@ warnquota \- send mail to users over quota
 .SH SYNOPSIS
 .B warnquota
 [
+.B \-ug
+] [
 .B \-F
 .I quotaformat
 ] [
@@ -12,6 +14,9 @@ warnquota \- send mail to users over quota
 ] [
 .B \-c
 .I configfile
+] [
+.B \-a
+.I adminsfile
 ]
 .SH DESCRIPTION
 .B warnquota
@@ -32,19 +37,33 @@ Possible format names are:
 .B xfs
 (quota on XFS filesystem)
 .TP
-.B -q quotatab
+.B -q \f2quotatab\f1
 Use
 .I quotatab
 instead of
 .I /etc/quotatab
 as file with device description strings (see example file for syntax).
 .TP
-.B -c configfile
+.B -c \f2configfile\f1
 Use
 .I configfile
 instead of
 .I /etc/warnquota.conf
 as configuration file (see example file for syntax).
+.TP
+.B -a \f2adminsfile\f1
+Use
+.I adminsfile
+instead of
+.I /etc/quotagrpadmins
+as a file with administrators of the groups.
+.TP
+.B -u
+check whether users are not exceeding quotas (default).
+.TP
+.B -g
+check whether groups are not exceeding quotas. If group is exceeding quota
+a mail is sent to the user specified in /etc/quotagrpadmins.
 .SH FILES
 .PD 0
 .TP 20
@@ -59,6 +78,9 @@ configuration file
 .TP
 .B /etc/quotatab
 device description
+.TP
+.B /etc/quotagrpadmins
+administrators of the groups
 .TP
 .B /etc/mtab
 default filesystems

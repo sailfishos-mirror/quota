@@ -58,6 +58,12 @@ int gid2group(gid_t, char *);
 /* Convert id to user/group name */
 int id2name(int id, int qtype, char *buf);
 
+/* Possible default passwd handling */
+#define PASSWD_FILES 0
+#define PASSWD_DB 1
+/* Parse /etc/nsswitch.conf and return type of default passwd handling */
+int passwd_handling(void);
+
 /* Convert quota format name to number */
 int name2fmt(char *str);
 

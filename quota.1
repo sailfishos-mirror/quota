@@ -7,7 +7,7 @@ quota \- display disk usage and limits
 .B -F
 .I format-name
 ] [
-.BR -guvs \ |
+.BR -guvsl \ |
 .B q
 ]
 .br
@@ -16,7 +16,7 @@ quota \- display disk usage and limits
 .B -F
 .I format-name
 ] [
-.BR -uvs \ |
+.BR -uvsl \ |
 .B q
 ]
 .I user
@@ -26,7 +26,7 @@ quota \- display disk usage and limits
 .B -F
 .I format-name
 ] [
-.BR -gvs \ |
+.BR -gvsl \ |
 .B q
 ]
 .I group
@@ -67,9 +67,12 @@ will display quotas on filesystems
 where no storage is allocated.
 .TP
 .B \-s
-flag will make
+option will make
 .BR quota (1)
 try to choose units for showing limits, used space and used inodes.
+.TP
+.B \-l
+report quotas only on local filesystems (ie. ignore NFS mounted filesystems).
 .TP
 .B \-q
 Print a more terse message,

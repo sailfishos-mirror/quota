@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quota.c,v 1.11 2002/05/20 12:16:31 jkar8572 Exp $"
+#ident "$Id: quota.c,v 1.12 2002/07/23 15:59:27 jkar8572 Exp $"
 
 /*
  * Disk quota reporting program.
@@ -60,7 +60,15 @@
 #include "pot.h"
 #include "common.h"
 
-int qflag, vflag, sflag, fmt = -1;
+#define FL_QUIET 1
+#define FL_VERBOSE 2
+#define FL_USER 4
+#define FL_GROUP 8
+#define FL_SMARTSIZE 16
+#define FL_LOCALONLY 32
+#define FL_QUIETREFUSE 64
+
+int flags, fmt = -1;
 char *progname;
 
 void usage(void);
@@ -71,31 +79,37 @@ int main(int argc, char **argv)
 {
 	int ngroups;
 	gid_t gidset[NGROUPS];
-	int i, ret, gflag = 0, uflag = 0;
+	int i, ret;
 
 	gettexton();
 	progname = basename(argv[0]);
 
-	while ((ret = getopt(argc, argv, "guqvsVF:")) != -1) {
+	while ((ret = getopt(argc, argv, "guqvsVlQF:")) != -1) {
 		switch (ret) {
 		  case 'g':
-			  gflag++;
+			  flags |= FL_GROUP;
 			  break;
 		  case 'u':
-			  uflag++;
+			  flags |= FL_USER;
 			  break;
 		  case 'q':
-			  qflag++;
+			  flags |= FL_QUIET;
 			  break;
 		  case 'v':
-			  vflag++;
+			  flags |= FL_VERBOSE;
 			  break;
 		  case 'F':
 			  if ((fmt = name2fmt(optarg)) == QF_ERROR)	/* Error? */
 				  exit(1);
 			  break;
 		  case 's':
-			  sflag++;
+			  flags |= FL_SMARTSIZE;
+			  break;
+		  case 'l':
+			  flags |= FL_LOCALONLY;
+			  break;
+		  case 'Q':
+			  flags |= FL_QUIETREFUSE;
 			  break;
 		  case 'V':
 			  version();
@@ -107,15 +121,15 @@ int main(int argc, char **argv)
 	argc -= optind;
 	argv += optind;
 
-	if (!uflag && !gflag)
-		uflag++;
+	if (!(flags & FL_USER) && !(flags & FL_GROUP))
+		flags |= FL_USER;
 	init_kernel_interface();
 
 	ret = 0;
 	if (argc == 0) {
-		if (uflag)
+		if (flags & FL_USER)
 			ret |= showquotas(USRQUOTA, getuid());
-		if (gflag) {
+		if (flags & FL_GROUP) {
 			ngroups = getgroups(NGROUPS, gidset);
 			if (ngroups < 0)
 				die(1, _("quota: getgroups(): %s\n"), strerror(errno));
@@ -125,13 +139,13 @@ int main(int argc, char **argv)
 		exit(ret);
 	}
 
-	if (uflag && gflag)
+	if ((flags & FL_USER) && (flags & FL_GROUP))
 		usage();
 
-	if (uflag)
+	if (flags & FL_USER)
 		for (; argc > 0; argc--, argv++)
 			ret |= showquotas(USRQUOTA, user2uid(*argv));
-	else if (gflag)
+	else if (flags & FL_GROUP)
 		for (; argc > 0; argc--, argv++)
 			ret |= showquotas(GRPQUOTA, group2gid(*argv));
 	return ret;
@@ -140,9 +154,9 @@ int main(int argc, char **argv)
 void usage(void)
 {
 	errstr( "%s%s%s",
-		_("Usage: quota [-guqvs] [-F quotaformat]\n"),
-		_("\tquota [-qvs] [-F quotaformat] -u username ...\n"),
-		_("\tquota [-qvs] [-F quotaformat] -g groupname ...\n"));
+		_("Usage: quota [-guqvs] [-l | -Q] [-F quotaformat]\n"),
+		_("\tquota [-qvs] [-l | -Q] [-F quotaformat] -u username ...\n"),
+		_("\tquota [-qvs] [-l | -Q] [-F quotaformat] -g groupname ...\n"));
 	fprintf(stderr, _("Bugs to: %s\n"), MY_EMAIL);
 	exit(1);
 }
@@ -159,12 +173,12 @@ int showquotas(int type, qid_t id)
 
 	time(&now);
 	id2name(id, type, name);
-	handles = create_handle_list(0, NULL, type, fmt, IOI_READONLY);
-	qlist = getprivs(id, handles);
+	handles = create_handle_list(0, NULL, type, fmt, IOI_READONLY | ((flags & FL_LOCALONLY) ? IOI_LOCALONLY : 0));
+	qlist = getprivs(id, handles, !!(flags & FL_QUIETREFUSE));
 	over = 0;
 	for (q = qlist; q; q = q->dq_next) {
 		bover = iover = 0;
-		if (!vflag && !q->dq_dqb.dqb_isoftlimit && !q->dq_dqb.dqb_ihardlimit
+		if (!(flags & FL_VERBOSE) && !q->dq_dqb.dqb_isoftlimit && !q->dq_dqb.dqb_ihardlimit
 		    && !q->dq_dqb.dqb_bsoftlimit && !q->dq_dqb.dqb_bhardlimit)
 			continue;
 		msgi = NULL;
@@ -200,7 +214,7 @@ int showquotas(int type, qid_t id)
 			}
 		}
 		over |= bover | iover;
-		if (qflag) {
+		if (flags & FL_QUIET) {
 			if ((msgi || msgb) && !lines++)
 				heading(type, id, name, "");
 			if (msgi)
@@ -209,7 +223,7 @@ int showquotas(int type, qid_t id)
 				printf("\t%s %s\n", msgb, q->dq_h->qh_quotadev);
 			continue;
 		}
-		if (vflag || q->dq_dqb.dqb_curspace || q->dq_dqb.dqb_curinodes) {
+		if ((flags & FL_VERBOSE) || q->dq_dqb.dqb_curspace || q->dq_dqb.dqb_curinodes) {
 			char numbuf[3][MAXNUMLEN];
 
 			if (!lines++)
@@ -220,22 +234,22 @@ int showquotas(int type, qid_t id)
 				printf("%15s", q->dq_h->qh_quotadev);
 			if (bover)
 				difftime2str(q->dq_dqb.dqb_btime, timebuf);
-			space2str(toqb(q->dq_dqb.dqb_curspace), numbuf[0], sflag);
-			space2str(q->dq_dqb.dqb_bsoftlimit, numbuf[1], sflag);
-			space2str(q->dq_dqb.dqb_bhardlimit, numbuf[2], sflag);
+			space2str(toqb(q->dq_dqb.dqb_curspace), numbuf[0], !!(flags & FL_SMARTSIZE));
+			space2str(q->dq_dqb.dqb_bsoftlimit, numbuf[1], !!(flags & FL_SMARTSIZE));
+			space2str(q->dq_dqb.dqb_bhardlimit, numbuf[2], !!(flags & FL_SMARTSIZE));
 			printf(" %7s%c %6s %7s %7s", numbuf[0], bover ? '*' : ' ', numbuf[1],
 			       numbuf[2], bover > 1 ? timebuf : "");
 			if (iover)
 				difftime2str(q->dq_dqb.dqb_itime, timebuf);
-			number2str(q->dq_dqb.dqb_curinodes, numbuf[0], sflag);
-			number2str(q->dq_dqb.dqb_isoftlimit, numbuf[1], sflag);
-			number2str(q->dq_dqb.dqb_ihardlimit, numbuf[2], sflag);
+			number2str(q->dq_dqb.dqb_curinodes, numbuf[0], !!(flags & FL_SMARTSIZE));
+			number2str(q->dq_dqb.dqb_isoftlimit, numbuf[1], !!(flags & FL_SMARTSIZE));
+			number2str(q->dq_dqb.dqb_ihardlimit, numbuf[2], !!(flags & FL_SMARTSIZE));
 			printf(" %7s%c %6s %7s %7s\n", numbuf[0], iover ? '*' : ' ', numbuf[1],
 			       numbuf[2], iover > 1 ? timebuf : "");
 			continue;
 		}
 	}
-	if (!qflag && !lines)
+	if (!(flags & FL_QUIET) && !lines)
 		heading(type, id, name, _("none"));
 	freeprivs(qlist);
 	dispose_handle_list(handles);
@@ -246,7 +260,7 @@ void heading(int type, qid_t id, char *name, char *tag)
 {
 	printf(_("Disk quotas for %s %s (%cid %d): %s\n"), type2name(type),
 	       name, *type2name(type), id, tag);
-	if (!qflag && !tag[0]) {
+	if (!(flags & FL_QUIET) && !tag[0]) {
 		printf("%15s%8s %7s%8s%8s%8s %7s%8s%8s\n", _("Filesystem"),
 		       _("blocks"), _("quota"), _("limit"), _("grace"),
 		       _("files"), _("quota"), _("limit"), _("grace"));

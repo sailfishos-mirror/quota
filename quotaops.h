@@ -3,7 +3,7 @@
 
 #include "quotaio.h"
 
-struct dquot *getprivs(qid_t id, struct quota_handle ** handles);
+struct dquot *getprivs(qid_t id, struct quota_handle ** handles, int quiet);
 int putprivs(struct dquot * qlist);
 int editprivs(char *tmpfile);
 int writeprivs(struct dquot * qlist, int outfd, char *name, int quotatype);

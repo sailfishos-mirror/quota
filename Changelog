@@ -5,6 +5,14 @@ Changes in quota-tools from 3.06 to 3.07
 * rised maximal number of mountpoint to 256 (Jan Kara)
 * small fix in configure (Nathan Scott)
 * small fix in quotacheck(8) docs (Jan Kara)
+* fixed quotacheck(8) to continue when old quota files were not found (Jan Kara)
+* quota(1) now doesn't report failure to connect to rpc.rquotad server when -Q specified (Jan Kara)
+* add quota(1) option -l (report only local filesystems) (Jan Kara)
+* warnquota(8) now also mails specified member of the group about violation of the group quotas
+  when -g option is specified (Jan Kara)
+* added options by which user can specify whether repquota(8) should translate names in
+  big chunks by scanning all users or individually. Added automagic detection using nsswitch.conf
+  which behaviour should lead to faster translating. (Jan Kara)
 
 Changes in quota-tools from 3.05 to 3.06
 * fixed caching of libwrap configure result (Jan Kara)

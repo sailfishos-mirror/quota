@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/vfs.h>
@@ -143,6 +144,33 @@ int id2name(int id, int qtype, char *buf)
 		return uid2user(id, buf);
 	else
 		return gid2group(id, buf);
+}
+
+/*
+ *	Parse /etc/nsswitch.conf and return type of default passwd handling
+ */
+int passwd_handling(void)
+{
+	FILE *f;
+	char buf[1024], *colpos, *spcpos;
+	int ret = PASSWD_FILES;
+
+	if (!(f = fopen("/etc/nsswitch.conf", "r")))
+		return PASSWD_FILES;	/* Can't open nsswitch.conf - fallback on compatible mode */
+	while (fgets(buf, sizeof(buf), f)) {
+		if (strncmp(buf, "passwd:", 7))	/* Not passwd entry? */
+			continue;
+		for (colpos = buf+7; isspace(*colpos); colpos++);
+		if (!*colpos)	/* Not found any type of handling? */
+			break;
+		for (spcpos = colpos; !isspace(*spcpos) && *spcpos; spcpos++);
+		*spcpos = 0;
+		if (!strcmp(colpos, "db") || !strcmp(colpos, "nis") || !strcmp(colpos, "nis+"))
+			ret = PASSWD_DB;
+		break;
+	}
+	fclose(f);
+	return ret;
 }
 
 /*

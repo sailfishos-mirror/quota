@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaops.c,v 1.7 2001/09/27 21:34:58 jkar8572 Exp $"
+#ident "$Id: quotaops.c,v 1.8 2002/07/23 15:59:27 jkar8572 Exp $"
 
 #include <rpc/rpc.h>
 #include <sys/types.h>
@@ -109,7 +109,7 @@ void update_grace_times(struct dquot *q)
 /*
  * Collect the requested quota information.
  */
-struct dquot *getprivs(qid_t id, struct quota_handle **handles)
+struct dquot *getprivs(qid_t id, struct quota_handle **handles, int quiet)
 {
 	struct dquot *q, *qtail = NULL, *qhead = NULL;
 	int i;
@@ -154,8 +154,10 @@ struct dquot *getprivs(qid_t id, struct quota_handle **handles)
 #endif
 
 		if (!(q = handles[i]->qh_ops->read_dquot(handles[i], id))) {
-			errstr(_("Error while getting quota from %s for %u: %s\n"),
-				handles[i]->qh_quotadev, id, strerror(errno));
+			/* If rpc.rquotad is not running filesystem might be just without quotas... */
+			if (errno != ECONNREFUSED || !quiet)
+				errstr(_("Error while getting quota from %s for %u: %s\n"),
+					handles[i]->qh_quotadev, id, strerror(errno));
 			continue;
 		}
 		if (qhead == NULL)

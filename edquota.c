@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: edquota.c,v 1.8 2002/03/27 16:21:26 jkar8572 Exp $"
+#ident "$Id: edquota.c,v 1.9 2002/07/23 15:59:27 jkar8572 Exp $"
 
 /*
  * Disk quota editor.
@@ -150,10 +150,10 @@ int main(int argc, char **argv)
 	}
 	if (pflag) {
 		protoid = name2id(protoname, quotatype);
-		protoprivs = getprivs(protoid, handles);
+		protoprivs = getprivs(protoid, handles, 0);
 		while (argc-- > 0) {
 			id = name2id(*argv++, quotatype);
-			curprivs = getprivs(id, handles);
+			curprivs = getprivs(id, handles, 0);
 
 			for (pprivs = protoprivs, cprivs = curprivs; pprivs && cprivs;
 			     pprivs = pprivs->dq_next, cprivs = cprivs->dq_next) {
@@ -206,7 +206,7 @@ int main(int argc, char **argv)
 	else {
 		for (; argc > 0; argc--, argv++) {
 			id = name2id(*argv, quotatype);
-			curprivs = getprivs(id, handles);
+			curprivs = getprivs(id, handles, 0);
 			if (writeprivs(curprivs, tmpfd, *argv, quotatype) < 0) {
 				errstr(_("Can't write quotas to file.\n"));
 				continue;

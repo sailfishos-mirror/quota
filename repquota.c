@@ -31,6 +31,7 @@
 #define FL_TRUNCNAMES 16
 #define FL_SHORTNUMS 32
 #define FL_NONAME 64
+#define FL_NOCACHE 128	/* Don't cache dquots before resolving */
 
 int flags, fmt = -1;
 char **mnt;
@@ -41,7 +42,7 @@ char *progname;
 
 static void usage(void)
 {
-	errstr(_("Utility for reporting quotas.\nUsage:\n%s [-vugs] [-t|n] [-F quotaformat] (-a | mntpoint)\n"), progname);
+	errstr(_("Utility for reporting quotas.\nUsage:\n%s [-vugs] [-c|C] [-t|n] [-F quotaformat] (-a | mntpoint)\n"), progname);
 	fprintf(stderr, _("Bugs to %s\n"), MY_EMAIL);
 	exit(1);
 }
@@ -49,8 +50,9 @@ static void usage(void)
 static void parse_options(int argcnt, char **argstr)
 {
 	int ret;
+	int cache_specified = 0;
 
-	while ((ret = getopt(argcnt, argstr, "VavughtsnF:")) != -1) {
+	while ((ret = getopt(argcnt, argstr, "VavughtsncCF:")) != -1) {
 		switch (ret) {
 			case '?':
 			case 'h':
@@ -75,6 +77,13 @@ static void parse_options(int argcnt, char **argstr)
 				break;
 			case 's':
 				flags |= FL_SHORTNUMS;
+				break;
+			case 'C':
+				flags |= FL_NOCACHE;
+				cache_specified = 1;
+				break;
+			case 'c':
+				cache_specified = 1;
 				break;
 			case 'F':
 				if ((fmt = name2fmt(optarg)) == QF_ERROR)
@@ -105,6 +114,8 @@ static void parse_options(int argcnt, char **argstr)
 		mnt = argstr + optind;
 		mntcnt = argcnt - optind;
 	}
+	if (!cache_specified && !(flags & FL_NONAME) && passwd_handling() == PASSWD_DB)
+		flags |= FL_NOCACHE;
 }
 
 static char overlim(uint usage, uint softlim, uint hardlim)
@@ -198,8 +209,15 @@ static int output(struct dquot *dquot, char *name)
 		sprintf(namebuf, "#%u", dquot->dq_id);
 		print(dquot, namebuf);
 	}
-	else if (name)
+	else if (name || flags & FL_NOCACHE) {
+		char namebuf[MAXNAMELEN];
+
+		if (!name) {
+			id2name(dquot->dq_id, dquot->dq_h->qh_type, namebuf);
+			name = namebuf;
+		}
 		print(dquot, name);
+	}
 	else {
 		memcpy(dquot_cache+cached_dquots++, dquot, sizeof(struct dquot));
 		if (cached_dquots >= MAX_CACHE_DQUOTS)

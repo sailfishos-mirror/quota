@@ -84,6 +84,8 @@ install: all inst_mo
 	$(ROOTDIR)$(sbindir)
 	-mkdir -p $(ROOTDIR)$(sysconfdir)
 	-$(INSTALL) -m $(DEF_CONF_MODE) warnquota.conf $(ROOTDIR)$(sysconfdir)
+	-$(INSTALL) -m $(DEF_CONF_MODE) quotatab $(ROOTDIR)$(sysconfdir)
+	-$(INSTALL) -m $(DEF_CONF_MODE) quotagrpadmins $(ROOTDIR)$(sysconfdir)
 	-mkdir -p $(ROOTDIR)$(mandir)/man1
 	-mkdir -p $(ROOTDIR)$(mandir)/man2
 	-mkdir -p $(ROOTDIR)$(mandir)/man3
