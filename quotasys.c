@@ -739,7 +739,7 @@ static int cache_mnt_table(void)
 	while ((mnt = getmntent(mntf))) {
 		const char *devname;
 
-		if (!CORRECT_FSTYPE(mnt->mnt_type))	/* Just basic filtering */
+		if (!hasquota(mnt, USRQUOTA) && !hasquota(mnt, GRPQUOTA))	/* Check FS type and mount options */
 			continue;
 		if (!(devname = get_device_name(mnt->mnt_fsname))) {
 			errstr(_("Can't get device name for %s\n"), mnt->mnt_fsname);
