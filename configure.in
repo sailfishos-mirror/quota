@@ -1,0 +1,73 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(quota.c)
+
+dnl Checks for programs.
+AC_PROG_CC
+AC_HEADER_STDC
+AC_PROG_INSTALL
+
+dnl Checks for libraries.
+AC_CHECK_LIB(com_err, com_err)
+AC_CHECK_LIB(ext2fs, ext2fs_initialize)
+EXT2LIBS=${LIBS}
+AC_SUBST(EXT2LIBS)
+LIBS=""
+
+AC_CHECK_LIB(nsl, main)
+AC_CHECK_LIB(wrap, main)
+
+if test ${ac_cv_lib_com_err_com_err} = yes &&
+   test ${ac_cv_lib_ext2fs_ext2fs_initialize} = yes; then
+	AC_CHECK_HEADER(ext2fs/ext2fs.h,, [
+		echo 'ERROR: could not find ext2fs/ext2fs.h - missing ext2 package'
+		exit 1
+	])
+	EXT2_DIRECT="-DEXT2_DIRECT"
+	AC_SUBST(EXT2_DIRECT)
+fi
+
+if test ${ac_cv_lib_wrap_main} = yes; then
+	AC_CHECK_HEADER(tcpd.h,, [
+		echo 'ERROR: could not find tcpd.h - missing TCP wrappers package'
+		exit 1
+	])
+	HOSTS_ACCESS="-DHOSTS_ACCESS"
+	AC_SUBST(HOSTS_ACCESS)
+fi
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_C_INLINE
+
+AC_ARG_ENABLE(altformat,
+	[  --enable-altformat=[yes/no]     Enable alternative format used by edquota [default=yes].],
+	,
+	enable_altformat="yes")
+AC_ARG_ENABLE(rpc,
+	[  --enable-rpc=[yes/no]           Enable RPC support [default=yes].],
+	,
+	enable_rpc="yes")
+AC_ARG_ENABLE(rpcsetquota,
+	[  --enable-rpcsetquota=[yes/no]   Use RPC for setting quotas [default=yes].],
+	,
+	enable_rpcsetquota="yes")
+AC_ARG_ENABLE(libefence,
+	[  --enable-libefence=[yes/no]     Use Electric Fence memory checks [default=no].],
+	,
+	enable_libefence="no")
+
+if test "$enable_altformat" = "yes" ; then
+	CFLAGS="-DALT_FORMAT $CFLAGS";
+fi
+if test "$enable_rpc" = "yes" ; then
+	CFLAGS="-DRPC $CFLAGS";
+fi
+if test "$enable_rpcsetquota" = "yes" ; then
+	CFLAGS="-DRPC_SETQUOTA $CFLAGS"
+fi
+if test "$enable_libefence" = "yes" ; then
+	LIBMALLOC="/usr/lib/libefence.a"
+fi
+AC_SUBST(LIBMALLOC)
+
+AC_OUTPUT(Makefile)

@@ -1,0 +1,71 @@
+.TH REPQUOTA 8
+.UC 4
+.SH NAME
+repquota \- summarize quotas for a filesystem
+.SH SYNOPSIS
+.B /usr/etc/repquota
+[
+.B \-vug
+]
+.IR filesystem .\|.\|.
+.LP
+.B /usr/etc/repquota
+[
+.B \-avug
+]
+.SH DESCRIPTION
+.IX  "repquota command"  ""  "\fLrepquota\fP \(em summarize quotas"
+.IX  "user quotas"  "repquota command"  ""  "\fLrepquota\fP \(em summarize quotas"
+.IX  "disk quotas"  "repquota command"  ""  "\fLrepquota\fP \(em summarize quotas"
+.IX  "quotas"  "repquota command"  ""  "\fLrepquota\fP \(em summarize quotas"
+.IX  "filesystem"  "repquota command"  ""  "\fLrepquota\fP \(em summarize quotas"
+.IX  "summarize filesystem quotas repquota"  ""  "summarize filesystem quotas \(em \fLrepquota\fP"
+.IX  "report filesystem quotas repquota"  ""  "report filesystem quotas \(em \fLrepquota\fP"
+.IX  display "filesystem quotas \(em \fLrepquota\fP"
+.LP
+.B repquota
+prints a summary of the disc usage and quotas for the specified file
+systems.  For each user the current number of files and amount of space
+(in kilobytes) is printed, along with any quotas created with
+.BR edquota (8).
+.SH OPTIONS
+.TP
+.B \-a
+Report on all filesystems indicated in
+.B /etc/mtab
+to be read-write with quotas.
+.TP
+.B \-v
+Report all quotas, even if there is no usage.
+.TP
+.B \-g
+Report quotas for groups.
+.TP
+.B \-u
+Report quotas for users. This is the default.
+.LP
+Only the super-user may view quotas which are not their own.
+.SH FILES
+.PD 0
+.TP 20
+.B aquota.user or aquota.group
+quota file at the filesystem root (version 2 quota, non-XFS filesystems)
+.TP
+.B quota.user or quota.group
+quota file at the filesystem root (version 1 quota, non-XFS filesystems)
+.TP
+.B /etc/mtab
+default filesystems
+.TP
+.B /etc/passwd
+default set of users
+.TP
+.B /etc/passwd
+default set of groups
+.PD
+.SH SEE ALSO
+.BR quota (1),
+.BR quotactl (2),
+.BR edquota (8),
+.BR quotacheck (8),
+.BR quotaon (8)

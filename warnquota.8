@@ -1,0 +1,37 @@
+.TH WARNQUOTA 8
+.SH NAME
+warnquota \- send mail to users over quota
+.SH SYNOPSIS
+.B warnquota
+.SH DESCRIPTION
+.B warnquota
+checks the disk quota for each filesystem and mails a warning
+message to those users who have reached their limit.
+It is typically run via
+.BR cron (8).
+.SH FILES
+.PD 0
+.TP 20
+.B aquota.user
+quota file at the filesystem root (version 2 quota, non-XFS filesystems)
+.TP
+.B quota.user
+quota file at the filesystem root (version 1 quota, non-XFS filesystems)
+.TP
+.B /etc/warnquota.conf
+configuration file
+.TP
+.B /etc/mtab
+default filesystems
+.TP
+.B /etc/passwd
+default set of users
+.PD
+.SH "SEE ALSO"
+.BR quota (1),
+.BR cron (8),
+.BR edquota (8).
+.SH AUTHORS
+.BR warnquota (8)
+was written by Marco van Wieringen <mvw@planets.elm.net>.
+This reference page written by Heiko Schlittermann <heiko@lotte.sax.de>.

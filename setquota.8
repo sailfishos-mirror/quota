@@ -1,0 +1,88 @@
+.TH SETQUOTA 8
+.SH NAME
+setquota \- set disk quotas
+.SH SYNOPSIS
+.B /usr/sbin/setquota
+[
+.B \-nr
+]
+[
+.B \-u
+|
+.B \-g
+]
+.I name
+.I filesystem
+.I block-softlimit
+.I block-hardlimit
+.I inode-softlimit
+.I inode-hardlimit
+.LP
+.B /usr/sbin/setquota
+[
+.B \-nr
+]
+[
+.B \-u
+|
+.B \-g
+]
+[
+.B \-p protoname 
+]
+.I name
+.I filesystem
+.SH DESCRIPTION
+.IX  "setquota command"  ""  "\fLsetquota\fP \(em set disk quotas"
+.IX  set "disk quotas \(em \fLsetquota\fP"
+.IX  "disk quotas"  "setquota command"  ""  "\fLsetquota\fP \(em set disk quotas"
+.IX  "disk quotas"  "setquota command"  ""  "\fLsetquota\fP \(em set disk quotas"
+.IX  "quotas"  "setquota command"  ""  "\fLsetquota\fP \(em set disk quotas"
+.IX  "filesystem"  "setquota command"  ""  "\fLsetquota\fP \(em set disk quotas"
+.B setquota
+is a command line quota editor.
+The filesystem, user/group name and new quotas for this
+filesystem can be specified on the command line.
+.TP
+.B -n
+Consider
+.I name
+to be a numeric ID (don't lookup user/group names).
+.TP
+.B -r
+Edit also remote quota use rpc.rquotad on remote server to set quota.
+.TP
+.B -u
+Set user quotas for named user. This is the default.
+.TP
+.B -g
+Set group quotas for named group.
+.TP
+.B -p \f2protoname\f1
+Use quota settings of user or group
+.I protoname
+to set the quota for the named user or group.
+.PP
+To disable a quota, set the coresponding parameter to 0. To change quotas
+for several filesystems, invoke once for each filesystem.
+.PP
+Only the super-user may edit quotas.
+.SH FILES
+.PD 0
+.TP 20
+.B aquota.user or aquota.group
+quota file at the filesystem root (version 2 quota, non-XFS filesystems)
+.TP
+.B quota.user or quota.group
+quota file at the filesystem root (version 1 quota, non-XFS filesystems)
+.TP
+.B /etc/mtab
+mounted filesystems
+.PD
+.SH SEE ALSO
+.BR edquota (8),
+.BR quota (1),
+.BR quotactl (2),
+.BR quotacheck (8),
+.BR quotaon (8),
+.BR repquota (8)

@@ -1,0 +1,92 @@
+<HTML>
+<HEAD>
+<TITLE>quota(1) manualpage</TITLE>
+<!-- OWNER_NAME="Marco van Wieringen, OpenWorld System Management" -->
+<!-- OWNER_INFO="The OpenWorld Foundation, The Netherlands" -->
+<LINK REV=MADE HREF="mailto:mvw@planets.elm.net">
+</HEAD>
+<BODY>
+<H1>NAME</H1>
+quota - display disk usage and limits
+<H1>SYNOPSIS</H1>
+quota [
+<B>-guv | q</B>
+]
+<BR>
+quota [
+<B>-uv | q</B>
+] user
+<BR>
+quota [
+<B>-gv | q</B>
+] group
+<H1>DESCRIPTION</H1>
+<B>Quota</B>
+displays users' disk usage and limits.
+By default only the user quotas are printed.
+<UL>
+<LI>
+<B>-g</B>
+<BR>
+Print group quotas for the group of which the user is a member.  The optional
+<LI>
+<B>-u</B>
+<BR>
+flag is equivalent to the default.
+<LI>
+<B>-v</B>
+<BR>
+will display quotas on filesystems where no storage is allocated.
+<LI>
+<B>-q</B>
+<BR>
+Print a more terse message, containing only information
+on filesystems where usage is over quota.
+</UL>
+Specifying both
+<B>-g</B>
+and
+<B>-u</B>
+displays both the user quotas and the group quotas (for the user).
+<P>
+Only the super-user may use the
+<B>-u</B>
+flag and the optional
+<B>user</B>
+argument to view the limits of other users.  Non-super-users can use the the
+<B>-g</B>
+flag and optional
+<B>group</B>
+argument to view only the limits of groups of which they are members.
+<P>
+The
+<B>-q</B>
+flag takes precedence over the
+<B>-v</B>
+flag.
+<P>
+<B>Quota</B>
+reports the quotas of all the filesystems listed in
+<B>/etc/fstab.</B>
+For filesystems that are NFS-mounted a call to the rpc.rquotad on
+the server machine is performed to get the information. If
+<B>quota</B>
+exits with a non-zero status, one or more filesystems are over quota.
+<H1>FILES</H1>
+<B>quota.user</B>
+ : located at the filesystem root with user quotas
+<BR>
+<B>quota.group</B>
+ : located at the filesystem root with group quotas
+<BR>
+<B>/etc/fstab</B>
+ : to find filesystem names and locations
+<H1>SEE ALSO</H1>
+<A HREF="quotactl(2).html">quotactl (2)</A>,
+<A HREF="fstab(5).html">fstab (5)</A>,
+<A HREF="edquota(8).html">edquota (8)</A>,
+<A HREF="quotacheck(8).html">quotacheck (8)</A>,
+<A HREF="quotaon(8).html">quotaon (8)</A>,
+<A HREF="repquota(8).html">repquota (8)</A>
+</BODY>
+</HTML>

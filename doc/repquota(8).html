@@ -1,0 +1,68 @@
+<HTML>
+<HEAD>
+<TITLE>repquota(8) manualpage</TITLE>
+<!-- OWNER_NAME="Marco van Wieringen, OpenWorld System Management" -->
+<!-- OWNER_INFO="The OpenWorld Foundation, The Netherlands" -->
+<LINK REV=MADE HREF="mailto:mvw@planets.elm.net">
+</HEAD>
+<BODY>
+<H1>NAME</H1>
+repquota - summarize quotas for a file system
+<H1>SYNOPSIS</H1>
+<B>repquota</B>
+[
+<B>-vug</B>
+]
+<B>filesystem</B>
+<BR>
+<B>repquota</B>
+[
+<B>-avug</B>
+]
+<H1>DESCRIPTION</H1>
+<B>Repquota</B>
+prints a summary of the disc usage and quotas for the specified file
+systems.  For each user the current number of files and amount of space
+(in kilobytes) is printed, along with any quotas created with
+<A HREF="edquota(8).html">edquota (8)</A>
+.
+<H1>OPTIONS</H1>
+<UL>
+<LI>
+<B>-a</B>
+<BR>
+Report on all file systems indicated in
+<B>/etc/fstab</B>
+to be read-write with quotas.
+<LI>
+<B>-v</B>
+<BR>
+Report all quotas, even if there is no usage.
+<LI>
+<B>-g</B>
+<BR>
+Report quotas for groups.
+<LI>
+<B>-u</B>
+<BR>
+Report quotas for users. This is the default.
+</UL>
+<P>
+Only the super-user may view quotas which are not their own.
+<H1>FILES</H1>
+<B>quota.user</B>
+ : located at the filesystem root with user quotas
+<BR>
+<B>quota.group</B>
+ : located at the filesystem root with group quotas
+<BR>
+<B>/etc/fstab</B>
+ : to find filesystem names and locations
+<H1>SEE ALSO</H1>
+<A HREF="quotactl(2).html">quotactl (2)</A>,
+<A HREF="fstab(5).html">fstab (5)</A>,
+<A HREF="edquota(8).html">edquota (8)</A>,
+<A HREF="quotacheck(8).html">quotacheck (8)</A>,
+<A HREF="quotaon(8).html">quotaon (8)</A>
+</BODY>
+</HTML>

@@ -1,0 +1,288 @@
+<HTML>
+<HEAD>
+<TITLE>Linux DiskQuota system</TITLE>
+<!-- OWNER_NAME="Marco van Wieringen, OpenWorld System Management" -->
+<!-- OWNER_INFO="The OpenWorld Foundation, The Netherlands" -->
+<LINK REV=MADE HREF="mailto:mvw@planets.elm.net">
+</HEAD>
+<BODY>
+<H1>General</H1>
+<P>
+In most computing environments, disc space is not infinite. The
+diskquota system  provides a mechanism to control usage of disc space,
+on an individual basis. Quotas may be set for each individual user, on
+any, or all filesystems. The quota system will warn users when they
+exceed their allotted limit, but allow some extra space for current work.
+Repeatedly remaining over quota at logout, will cause a fatal over quota
+condition eventually. The quota system is an optional part of LINUX that
+may be included when the system is configured. This document will describe
+from what view the 
+<A HREF="#USERVIEW">Users</A>
+will see the quota-system and the way the quota-system can be configured
+by the 
+<A HREF="#ADMINISTERING">System Administator</A>
+.
+<P>
+<A NAME="USERVIEW"><H1>Users' view of diskquotas</H1></A>
+<H2>General</H2>
+To most users, diskquotas will either be of no concern, or a fact of life
+that cannot be avoided. The
+<A HREF="quota(1).html">quota(1)</A>
+command will provide information on
+any disc quotas that may have been imposed upon a user.
+<P>
+There are two individual possible quotas that may be imposed, usually if
+one is, both will be. A limit can be set on the amount of space a user can
+occupy, and there may be a limit on the number of files (inodes) he can own.
+Quota provides information on the quotas that have been set by the system
+administrators, in each of these areas, and current usage. The inode limit and
+block limit are impossed both on uid and on gid. So if there are group quotas
+you can be limited because the group can't allocate any more space even if you 
+as user still can allocate the space.
+<P>
+There are four numbers for each limit, the current usage, soft limit (quota),
+hard limit, and time remaining bfore the softlimit is intepretted as a hard
+limit. The soft limit is the number of 1K blocks (or files) that the user is
+expected to remain below. Each time the user's usage goes past this limit, he
+will be warned. The hard limit cannot be exceeded. If a user's usage  reaches
+this number, further requests for space (or attempts to create a file) will
+fail with an EDQUOT error, and the first time this occurs, a message will
+be written to the user's terminal. Only one message will be output, until space
+occupied is reduced below the limit, and reaches it again, in order to avoid
+continual noise from those programs that ignore write errors.
+<P>
+When a use exeeds his softlimit a timer is set that normaly expires wuthin
+7 days (1 week). The user can remove files in this period to make sure he is
+under the softlimit again before the timer expires. When the timer expires the
+particular limit that has been exceeded will be treated as if the hard limit
+has been reached, and no more resources will be allocated to the user. The only
+way to reset this condition is to reduce usage below the softlimit.
+<P>
+<H2>Surviving when quota limit is reached</H2>
+In most cases, the only way to recover from over quota conditions, is to abort
+whatever activity was in progress on the filesystem that has reached its limit,
+remove sufficient files to bring the limit back below quota, and retry the
+failed program.
+<P>
+However, if you are in the editor and a write fails because of an over quota
+situation, that is not a suitable course of action, as it is most likely that
+initially attempting to write the file will have truncated its previous
+contents, so should the editor be aborted without correctly writing the file
+not only will the recent changes be lost, but possibly much, or even all, of
+the data that previously existed.
+<P>
+There are several possible safe exits for a user caught in this situation.
+He may use the editor ! shell escape command to examine his file space, and
+remove surplus files. Alternatively, using csh, he may suspend the editor,
+remove some files, then resume it. A third possibility, is to write the file
+to some other filesystem (perhaps to a file on /tmp) where the user's quota
+has not been exceeded. Then after rectifying the quota situation, the file
+can be moved back to the filesystem it belongs on.
+<A NAME="ADMINISTERING"><H1>Administering the quota system</H1></A>
+To set up and establish the diskquota system, there are several steps necessary 
+to be performed by the system administrator. The following steps must be taken:
+<UL>
+<LI>
+<A HREF="#KERNEL">Kernel configuration</A>
+<LI>
+<A HREF="#ELECTING">Electing filesystems</A>
+<LI>
+<A HREF="#ENABLING">Enabling quotas</A>
+<LI>
+<A HREF="#CHECKING">Checking a filesystem for quotas</A>
+<LI>
+<A HREF="#SPECIFYING">Specifing a quota for a user or group</A>
+<LI>
+<A HREF="#CHECKING">Checking quotas for a user or group</A>
+<LI>
+<A HREF="#DISABLING">Disabling quota for a user or group</A>
+<LI>
+<A HREF="#NFS">Quotas on NFS-mounted disks</A>
+</UL>
+<A NAME="KERNEL"><H2>Kernel configuration</H2></A>
+Before you can use the quota-system you must compile a kernel
+with the quota-system enabled. This is done by answering yes
+to the Disk QUOTA support question when running <make config>. Then
+run <make> and install the new kernel images as the one that is booted
+at boottime.
+<A NAME="ELECTING"><H2>Electing filesystems</H2></A>
+When you have a kernel that supports quota you need to make a decision as to what
+filesystems need to have quotas applied. Usually, only filesystems that house
+users' home directories, or other user files, will need to be subjected to the
+quota system, though it may also prove useful to also include /usr if its writable
+by normal users.
+<P>
+To enable quotas on a certain filesystem one should edit the /etc/fstab
+file and add entries for usrquota and grpquota. Mine looks like :
+<PRE>
+# device		directory	type	options				
+/dev/hda1		/		ext2	defaults			
+/dev/hda2		none		swap	sw
+/dev/hda3 		/usr		ext2	defaults
+/dev/hdb1 		/usr/users	ext2	defaults,usrquota,grpquota	
+/dev/hdb2 		/usr/src	ext2	defaults,usrquota		
+none			/proc		proc	defaults
+</PRE>
+The keyword "usrquota" in the options field of each fstab-entry turns on
+userquota for this device. The keyword "grpquota" in the options field turns
+on groupquota for the device. When you use the usrquota and grpquota options
+without the "=" option you quotafiles are located in the rootdir of each 
+filesystem. A file called "quota.user" is used for userquota and a file called
+"quota.group" is used for groupquota.
+<P>
+You can also define your quotafile yourself. Something like
+"usrquota=/usr/adm/quotasrc.user" puts the quotafile in /usr/adm with the
+name quotasrc.user. Please be aware of the maximum lenght a line can have
+in your fstab, see
+<B>mntent.h</B>
+for a definition.
+<P>
+<A NAME="ENABLING"><H2>Enabling quotas</H2></A>
+Periodically (certainly after each unclean reboot, and when quotas are first
+enabled for a filesystem), the records retained in the quota file should be
+checked for consistency with the actual number of blocks and files allocated
+to the user. The
+<A HREF="quotacheck(8).html">quotacheck(8)</A>
+command can be used to accomplish this. It is
+not necessary to dismount the filesystem, or disable the quota system to run
+this command, though on active filesystems inaccurate results may occur. This
+does no real harm in most cases, another run of quotacheck when the
+filesystem is idle will certainly correct any inaccuracy.
+<P>
+To check the filesystem for the actual number of blocks used by a user run
+<KBD>quotacheck -avug</KBD>
+to install or update all the quotafiles.
+<P>
+The quotacheck program takes some time on large filesystems, but whith the
+new version it is quite acceptable on my machine. But when you are hacking
+the kernel, I recommend not to use it because it takes some time every time
+you have to reboot your machine. You also can also put it in you rc script
+and run it like you run fsck on your filesystems only when the fastreboot
+flag is not set. There is no support for parallel checking of filesystems.
+<P>
+Ok now one should have all the quotafiles one needs.
+Now you can add a line like:
+<KBD>/usr/etc/quotaon -avug</KBD>
+<P>
+to your /etc/rc. This is to turn the quotas on when you boot your machine.
+This is they way to go and not turn it on yourself any time when you boot
+your machine.
+<A NAME="CHECKING"><H2>Checking a filesystem for quotas</H2></A>
+The super-user may use the
+<A HREF="quota(1).html">quota (1)</A>
+command to examine the usage and quotas
+of any user, and the
+<A HREF="repquota(8).html">repquota (8)</A>
+command may be used to check the usages and
+limits for all users on a filesystem. Just run
+<KBD>quotacheck -avug</KBD>
+and the quotafiles are updated automagicaly and also the tables that are
+currently used by the kernel. Watch for the "updating in core quotas" message
+of the
+<A HREF="quotacheck(8).html">quotacheck (8)</A>
+program this says if it updates the in core quotas in the kernel.
+<P>
+I cannot state this enough the quotafile is build as (uid || gid *
+sizeof(struct dquot)) so when you have nobody as uid 65535 and nobody owns a
+file you get big quota files, lets say of about 2 Mb all filed with zero's
+for users that don't have quota. So please be aware of that and don't mail
+me about that. It isn't much of a problem because the file isn't that big
+really all 0 blocks are not allocated on the disk.
+<A NAME="SPECIFYING"><H2>Specifing a quota for a user or group</H2></A>
+To edit the quotas for various users we use the
+<A HREF="edquota(8).html">edquota (8)</A> program. Now use
+<KBD>edquota -u <username | uid></KBD>
+to edit user quotas and
+<KBD>edquota -g <groupname | gid></KBD>
+to edit group quotas.
+<P>
+Edit only the numbers behind the soft and hard keywords. There are two lines
+for each filesystem that has quota turned on. Soft means the softlimit, if
+people or groups go over there softlimit they have some grace period to make
+sure they go under there softlimit.
+<P>
+The graceperiod can be changed with
+<KBD>edquota -t</KBD>
+and enter the number of days there. If they don't remove it within there graceperiod
+it is counted as a hardlimit. The hardlimit is the absolute maximum they can allocate,
+if they want more the files are truncated.
+<P>
+The one line that says blocks is the number of blocks one can allocate,
+the line that says inodes is the number of inodes
+(files/named pipes/devices/etc.) one can allocate.
+<P>
+Most of the time you have groups of users with the same quota. A quick way of editing
+the quota for all those users is change to the dir where there homedirs reside. Do a
+edquota for one of the users and change the quotas to the approriate values. This user
+becomes the so called prototype user or group for all the others. Then execute
+<KBD>edquota -p prototypeusername *</KBD>
+this should do the trick, all users now have the quota they need, now
+you could edit the ones that still need other values.
+<A NAME="CHECKING"><H2>Checking quotas for a user or group</H2></A>
+Run the quota program. The syntax for this program is :
+<PRE>
+quota [-guqv]
+quota [-qv] -u username ...
+quota [-qv] -g groupname ...
+</PRE>
+Use -v to see the quotas on
+<UL>
+<LI>
+filesystems you don't have quotas on
+<LI>
+filesystems on which you do have quota but haven't allocated any blocks yet
+</UL>
+Use -q to only see filesystems on which you are over your softlimit or
+have reached your hardlimit.
+<P>
+The -g flags give you all quotas for the groups you are in (also
+additional groups).
+<A NAME="DISABLING"><H2>Disabling quota for a user or group</H2></A>
+When you want to disable quotas for a certain user use the quota editor
+edquota. Type 
+<KBD>edquota username | uid</KBD>
+or
+<KBD>edquota -g groupname | gid</KBD>
+and set block softlimit and hardlimit, and the inode soft- and hardlimit to 0.
+This should disable the quota for that user an the user can allocate as many
+blocks and inodes as he/she wants.
+<A NAME="NFS"><H2>Quotas on NFS-mounted disks</H2></A>
+To have quotas on NFS filesystems, you need to install quotas on the
+fileserver and not on the client. Clients can obtain quota information
+with the quota command which does a query to the
+<A HREF="rquotad(8).html">rquotad (8)</A>
+running on the fileserver from which you mount your NFS disks. So don't put any
+usrquota or grpquota flags in the flags for mounting NFS disks. Instead install
+quotas on your fileserver. And start the rpc.rquotad from your network rc-file.
+<H1>Some implementation details</H2>
+Diskquota usage and information is stored in a file on the filesystem that the
+quotas are to be applied to.  Conventionally, this file is quota.user or quota.group
+in the root of the filesystem.
+<P>
+The data in the file comprises an array of structures, indexed by uid or gid, one
+structure for each user or group on the system (whether the user or group has a
+quota on this filesystem or  not). If the uid or gid space is sparse, then the
+file may have holes in it, which would be lost by copying, so it is best to avoid
+this.
+<P>
+The system is informed of the existence of the quota file by the
+<A HREF="quotactl(2).html">quotactl (2)</A>
+system call. It then reads the quota entries for each user or group currently
+active, then for any files open owned by users who are not currently active.
+Each subsequent open of a file on the filesystem, will be accompanied by a
+pairing with its quota information. In most cases this information will be
+retained in core, either because the user who owns the file is running some
+process, because  other  files  are  open  owned by the same user, or because
+some file (perhaps this one) was recently  accessed. In  memory, the quota
+information is kept hashed by uid or group and filesystem, and retained in
+an LRU chain so recently released data can be easily reclaimed. Information
+about those users whose last process has recently terminated is also retained
+in this way.
+<P>
+Each time a block is accessed or released, and each time an inode is allocated
+or freed, the quota system gets told about it, and in the case of allocations,
+gets the opportunity to object. Measurements have shown that the quota code
+uses a very small percentage of the system cpu time consumed in writing a new
+block to disk.
+</BODY>
+</HTML>
