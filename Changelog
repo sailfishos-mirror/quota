@@ -1,4 +1,5 @@
 Changes in quota-tools form 3.10 to 3.11
+* quota-tools should again use old RPC protocol when needed (Jan Kara)
 * add FIOQSIZE for x84_64 architecture (Jan Kara)
 * quotacheck(8) does not count quota files to usage (Jan Kara)
 * tools now honor journalled quota mount options (Jan Kara)

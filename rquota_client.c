@@ -9,7 +9,7 @@
  *
  *          This part does the rpc-communication with the rquotad.
  *
- * Version: $Id: rquota_client.c,v 1.7 2003/10/18 17:32:49 jkar8572 Exp $
+ * Version: $Id: rquota_client.c,v 1.8 2004/02/12 09:45:14 jkar8572 Exp $
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
@@ -125,7 +125,7 @@ int rquota_err(int stat)
 int rpc_rquota_get(struct dquot *dquot)
 {
 	CLIENT *clnt;
-	getquota_rslt *result = NULL;
+	getquota_rslt *result;
 	union {
 		getquota_args arg;
 		ext_getquota_args ext_arg;
@@ -181,13 +181,17 @@ int rpc_rquota_get(struct dquot *dquot)
 		result = rquotaproc_getquota_2(&args.ext_arg, clnt);
 		if (result != NULL && result->status == Q_OK)
 			clinet2utildqblk(&dquot->dq_dqb, &result->getquota_rslt_u.gqr_rquota);
+
 		/*
 		 * Destroy unix authentication and RPC client structure.
 		 */
 		auth_destroy(clnt->cl_auth);
 		clnt_destroy(clnt);
 	}
-	else {
+	else
+		result = NULL;
+
+	if (result == NULL || !result->status) {
 		if (dquot->dq_h->qh_type == USRQUOTA) {
 			/*
 			 * Try RQUOTAPROG because server doesn't seem to understand EXT_RQUOTAPROG. (NON-LINUX servers.)
@@ -226,7 +230,7 @@ int rpc_rquota_get(struct dquot *dquot)
 		}
 	}
 	free(fsname_tmp);
-	return rquota_err(result?result->status:-ENOENT);
+	return rquota_err(result?result->status:-1);
 }
 
 /*
@@ -293,7 +297,10 @@ int rpc_rquota_set(int qcmd, struct dquot *dquot)
 		auth_destroy(clnt->cl_auth);
 		clnt_destroy(clnt);
 	}
-	else {
+	else
+		result = NULL;
+
+	if (result == NULL || !result->status) {
 		if (dquot->dq_h->qh_type == USRQUOTA) {
 			/*
 			 * Try RQUOTAPROG because server doesn't seem to understand EXT_RQUOTAPROG. (NON-LINUX servers.)
@@ -334,7 +341,7 @@ int rpc_rquota_set(int qcmd, struct dquot *dquot)
 		}
 	}
 	free(fsname_tmp);
-	return rquota_err(result?result->status:-ENOENT);
+	return rquota_err(result?result->status:-1);
 #endif
 	return -1;
 }
