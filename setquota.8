@@ -108,7 +108,8 @@ setquota \- set disk quotas
 .B setquota
 is a command line quota editor.
 The filesystem, user/group name and new quotas for this
-filesystem can be specified on the command line.
+filesystem can be specified on the command line. Note that if a number is
+given in the place of a user/group name it is threated as an UID/GID.
 .TP
 .B -r
 Edit also remote quota use rpc.rquotad on remote server to set quota. This

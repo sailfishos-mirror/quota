@@ -56,7 +56,8 @@ edquota \- edit user quotas
 .IX  "filesystem"  "edquota command"  ""  "\fLedquota\fP \(em edit user quotas"
 .B edquota
 is a quota editor.  One or more users or groups may be specified on the command
-line.  For each user or group a temporary file is created with an
+line. If a number is given in the place of user/group name it is threated as
+an UID/GID. For each user or group a temporary file is created with an
 .SM ASCII
 representation of the current disk quotas for that user or group and an editor
 is then invoked on the file.  The quotas may then be modified, new
