@@ -30,7 +30,6 @@ bindir        = $(prefix)/bin
 sbindir       = $(prefix)/sbin
 mandir        = @mandir@
 includedir    = $(prefix)/include
-root_sbindir  = /sbin
 locale_dir    = $(prefix)/share/locale
 sysconfdir    = @sysconfdir@
 
@@ -76,9 +75,11 @@ inst_mo: mo
 	done
 
 install: all inst_mo
+	-mkdir -p $(ROOTDIR)$(sbindir)
+	-mkdir -p $(ROOTDIR)$(bindir)
 	-$(INSTALL) -m $(DEF_SBIN_MODE) \
-	quotacheck quotaon convertquota $(ROOTDIR)$(root_sbindir)
-	$(LN) quotaon $(ROOTDIR)$(root_sbindir)/quotaoff
+	quotacheck quotaon convertquota $(ROOTDIR)$(sbindir)
+	$(LN) quotaon $(ROOTDIR)$(sbindir)/quotaoff
 	-$(INSTALL) -m $(DEF_SBIN_MODE) \
 	edquota repquota warnquota quotastats setquota quot xqmstats \
 	$(ROOTDIR)$(sbindir)
