@@ -73,6 +73,8 @@ static int svc_socket (u_long number, int type, int protocol, int port, int reus
 				port = servp->s_port;
 		}
 	}
+	else
+		port = htons(port);
 
 	if (port) {
 		addr.sin_port = port;

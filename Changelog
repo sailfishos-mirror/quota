@@ -1,4 +1,6 @@
 Changes in quota-tools from 3.11 to 3.12
+* added reference to setquota(8) to manpages of other tools (Jan Kara)
+* fixed bug in --port option of rquotad (Max Kalika)
 * updated quota documentation (Jan Kara)
 * disabling nls via configure (Jan Kara)
 * fixed warning when gettext not used (Peter Breitenlohner)
