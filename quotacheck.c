@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.43 2005/03/10 16:20:45 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.44 2005/03/17 11:14:34 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -59,6 +59,7 @@ struct dirs {
 };
 
 #define BITS_SIZE 4		/* sizeof(bits) == 5 */
+#define BLIT_RATIO 10		/* Blit in just 1/10 of blit() calls */
 
 dev_t cur_dev;			/* Device we are working on */
 int files_done, dirs_done;
@@ -269,18 +270,22 @@ static loff_t getqsize(char *fname, struct stat *st)
  */
 static inline void blit(char *msg)
 {
-	static short bitc = 0;
+	static int bitc = 0;
 	static const char bits[] = "|/-\\";
+	static int slow_down;
 
 	if (flags & FL_VERYVERBOSE && msg) {
 		putchar('\r');
 		printf("%-70s ", msg);
 	}
-	putchar(bits[bitc]);
-	putchar('\b');
-	fflush(stdout);
-	bitc++;
-	bitc %= BITS_SIZE;
+	if (flags & FL_VERYVERBOSE || ++slow_down >= BLIT_RATIO) {
+		putchar(bits[bitc]);
+		putchar('\b');
+		fflush(stdout);
+		bitc++;
+		bitc %= BITS_SIZE;
+		slow_down = 0;
+	}
 }
 
 static void usage(void)

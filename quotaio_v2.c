@@ -748,6 +748,12 @@ static int report_block(struct dquot *dquot, uint blk, char *bitmap,
 	return entries;
 }
 
+static void check_reference(struct quota_handle *h, uint blk)
+{
+	if (blk >= h->qh_info.u.v2_mdqi.dqi_blocks)
+		die(2, _("Illegal reference in %s quota file on %s. Quota file is probably corrupted.\nPlease run quotacheck(8) and try again.\n"), type2name(h->qh_type), h->qh_quotadev);
+}
+
 static int report_tree(struct dquot *dquot, uint blk, int depth, char *bitmap,
 		       int (*process_dquot) (struct dquot *, char *))
 {
@@ -759,17 +765,18 @@ static int report_tree(struct dquot *dquot, uint blk, int depth, char *bitmap,
 	if (depth == V2_DQTREEDEPTH - 1) {
 		for (i = 0; i < V2_DQBLKSIZE >> 2; i++) {
 			blk = __le32_to_cpu(ref[i]);
-			if (blk >= dquot->dq_h->qh_info.u.v2_mdqi.dqi_blocks)
-				die(2, _("Illegal reference in %s quota file on %s. Quota file is probably corrupted.\nPlease run quotacheck(8) and try again.\n"), type2name(dquot->dq_h->qh_type), dquot->dq_h->qh_quotadev);
+			check_reference(dquot->dq_h, blk);
 			if (blk && !get_bit(bitmap, blk))
 				entries += report_block(dquot, blk, bitmap, process_dquot);
 		}
 	}
 	else {
 		for (i = 0; i < V2_DQBLKSIZE >> 2; i++)
-			if ((blk = __le32_to_cpu(ref[i])))
+			if ((blk = __le32_to_cpu(ref[i]))) {
+				check_reference(dquot->dq_h, blk);
 				entries +=
 					report_tree(dquot, blk, depth + 1, bitmap, process_dquot);
+			}
 	}
 	freedqbuf(buf);
 	return entries;

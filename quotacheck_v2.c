@@ -224,8 +224,10 @@ static void check_read_blk(int fd, uint blk, dqbuf_t buf)
 static int check_tree_ref(uint blk, uint ref, uint blocks, int check_use, uint * corrupted,
 			  uint * lblk)
 {
-	if (check_blkref(ref, blocks) < 0)
+	if (check_blkref(ref, blocks) < 0) {
 		blk_corrupted(corrupted, lblk, blk, _("Reference to illegal block %u"), ref);
+		return -1;
+	}
 	if (!ref)
 		return 0;
 	if (!check_use || !GET_BLK(ref))
