@@ -133,7 +133,7 @@ static void print(struct dquot *dquot, char *name)
 	sstrncpy(pname, name, sizeof(pname));
 	if (flags & FL_TRUNCNAMES)
 		pname[PRINTNAMELEN] = 0;
-	if (entry->dqb_bsoftlimit && toqb(entry->dqb_curspace) >= entry->dqb_bsoftlimit)
+	if (entry->dqb_bsoftlimit && toqb(entry->dqb_curspace) > entry->dqb_bsoftlimit)
 		difftime2str(entry->dqb_btime, time);
 	else
 		time[0] = 0;
@@ -144,7 +144,7 @@ static void print(struct dquot *dquot, char *name)
 	       overlim(qb2kb(toqb(entry->dqb_curspace)), qb2kb(entry->dqb_bsoftlimit), qb2kb(entry->dqb_bhardlimit)),
 	       overlim(entry->dqb_curinodes, entry->dqb_isoftlimit, entry->dqb_ihardlimit),
 	       numbuf[0], numbuf[1], numbuf[2], time);
-	if (entry->dqb_isoftlimit && entry->dqb_curinodes >= entry->dqb_isoftlimit)
+	if (entry->dqb_isoftlimit && entry->dqb_curinodes > entry->dqb_isoftlimit)
 		difftime2str(entry->dqb_itime, time);
 	else
 		time[0] = 0;

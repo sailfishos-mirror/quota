@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaon.c,v 1.12 2002/02/22 14:58:32 jkar8572 Exp $"
+#ident "$Id: quotaon.c,v 1.13 2002/02/27 21:23:55 jkar8572 Exp $"
 
 /*
  * Turn quota on/off for a filesystem.
@@ -173,6 +173,10 @@ int main(int argc, char **argv)
 	}
 
 	kqf = kern_quota_format();
+	if (kqf == QF_TOONEW) {
+		errstr(_("WARNING - Kernel quota newer than supported! Quota need not work properly.\n"));
+		kqf = 1 << QF_VFSV0;
+	}
 
 	if (init_mounts_scan(aflag ? 0 : argc, argv) < 0)
 		return 1;
