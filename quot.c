@@ -87,7 +87,7 @@ int main(int argc, char **argv)
 	now = time(0);
 	progname = basename(argv[0]);
 
-	while ((c = getopt(argc, argv, "acfguvV")) != EOF) {
+	while ((c = getopt(argc, argv, "acfguvV")) != -1) {
 		switch (c) {
 		  case 'a':
 			  aflag++;

@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.6 2001/04/25 14:16:44 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.7 2001/04/26 09:36:08 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -281,7 +281,7 @@ static void parse_options(int argcnt, char **argstr)
 	else
 		slash = argstr[0];
 
-	while ((ret = getopt(argcnt, argstr, "VhcvugidnfF:mMRa")) != EOF) {
+	while ((ret = getopt(argcnt, argstr, "VhcvugidnfF:mMRa")) != -1) {
 		switch (ret) {
 		  case 'g':
 			  gwant = 1;

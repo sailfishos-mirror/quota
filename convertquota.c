@@ -35,7 +35,7 @@ void parse_options(int argcnt, char **argstr)
 	else
 		slash++;
 	sstrncpy(cmdname, slash, sizeof(cmdname));
-	while ((ret = getopt(argcnt, argstr, "Vugh:")) != EOF) {
+	while ((ret = getopt(argcnt, argstr, "Vugh:")) != -1) {
 		switch (ret) {
 			case '?':
 			case 'h':

@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: edquota.c,v 1.2 2001/04/11 10:12:36 jkar8572 Exp $"
+#ident "$Id: edquota.c,v 1.3 2001/04/26 09:36:08 jkar8572 Exp $"
 
 /*
  * Disk quota editor.
@@ -93,9 +93,9 @@ int main(int argc, char **argv)
 
 	quotatype = USRQUOTA;
 #if defined(RPC_SETQUOTA)
-	while ((ret = getopt(argc, argv, "ugrntVp:F:")) != EOF) {
+	while ((ret = getopt(argc, argv, "ugrntVp:F:")) != -1) {
 #else
-	while ((ret = getopt(argc, argv, "ugtVp:F:")) != EOF) {
+	while ((ret = getopt(argc, argv, "ugtVp:F:")) != -1) {
 #endif
 		switch (ret) {
 		  case 'p':

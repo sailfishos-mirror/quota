@@ -38,7 +38,7 @@ static void parse_options(int argcnt, char **argstr)
 	else
 		slash++;
 
-	while ((ret = getopt(argcnt, argstr, "VavughF:")) != EOF) {
+	while ((ret = getopt(argcnt, argstr, "VavughF:")) != -1) {
 		switch (ret) {
 		  case '?':
 		  case 'h':
@@ -124,7 +124,7 @@ static void report_it(struct quota_handle *h, int type)
 	time2str(h->qh_info.dqi_igrace, igbuf, TF_ROUND);
 	printf(_("Block grace time: %s; Inode grace time: %s\n"), bgbuf, igbuf);
 	printf(_("                        Block limits                File limits\n"));
-	printf(_("%-10s       used    soft    hard  grace    used  soft  hard  grace\n"), (type == USRQUOTA)?_("User"):_("Group"));
+	printf(_("%-9s       used    soft    hard  grace    used  soft  hard  grace\n"), (type == USRQUOTA)?_("User"):_("Group"));
 	printf("----------------------------------------------------------------------\n");
 
 	if (h->qh_ops->scan_dquots(h, print) < 0)

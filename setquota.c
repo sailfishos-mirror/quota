@@ -92,7 +92,7 @@ static void parse_options(int argcnt, char **argstr)
 	flags |= FL_RPC;
 #endif
 
-	while ((ret = getopt(argcnt, argstr, opts)) != EOF) {
+	while ((ret = getopt(argcnt, argstr, opts)) != -1) {
 		switch (ret) {
 		  case '?':
 		  case 'h':

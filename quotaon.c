@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaon.c,v 1.2 2001/04/11 10:12:36 jkar8572 Exp $"
+#ident "$Id: quotaon.c,v 1.3 2001/04/26 09:36:08 jkar8572 Exp $"
 
 /*
  * Turn quota on/off for a filesystem.
@@ -123,7 +123,7 @@ int main(int argc, char **argv)
 	else if (strcmp(whoami, "quotaon") != 0)
 		die(1, _("Name must be quotaon or quotaoff not %s\n"), whoami);
 
-	while ((c = getopt(argc, argv, "afvugx:V")) != EOF) {
+	while ((c = getopt(argc, argv, "afvugx:V")) != -1) {
 		switch (c) {
 		  case 'a':
 			  aflag++;
