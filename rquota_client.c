@@ -9,7 +9,7 @@
  *
  *          This part does the rpc-communication with the rquotad.
  *
- * Version: $Id: rquota_client.c,v 1.2 2001/06/07 17:51:43 jkar8572 Exp $
+ * Version: $Id: rquota_client.c,v 1.3 2001/07/17 21:02:55 jkar8572 Exp $
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
@@ -50,7 +50,7 @@ static inline void clinet2utildqblk(struct util_dqblk *u, struct rquota *n)
 	u->dqb_ihardlimit = n->rq_fhardlimit;
 	u->dqb_isoftlimit = n->rq_fsoftlimit;
 	u->dqb_curinodes = n->rq_curfiles;
-	u->dqb_curspace = n->rq_curblocks * n->rq_bsize;
+	u->dqb_curspace = ((qsize_t)n->rq_curblocks) * n->rq_bsize;
 	time(&now);
 	if (n->rq_btimeleft)
 		u->dqb_btime = n->rq_btimeleft + now;

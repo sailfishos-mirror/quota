@@ -50,7 +50,7 @@ static inline void xfs_kern2utildqblk(struct util_dqblk *u, struct xfs_kern_dqbl
 	u->dqb_bhardlimit = k->d_blk_hardlimit >> 1;
 	u->dqb_bsoftlimit = k->d_blk_softlimit >> 1;
 	u->dqb_curinodes = k->d_icount;
-	u->dqb_curspace = k->d_bcount << 9;
+	u->dqb_curspace = ((qsize_t)k->d_bcount) << 9;
 	u->dqb_itime = k->d_itimer;
 	u->dqb_btime = k->d_btimer;
 }

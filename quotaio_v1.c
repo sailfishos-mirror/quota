@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaio_v1.c,v 1.5 2001/05/04 08:43:25 jkar8572 Exp $"
+#ident "$Id: quotaio_v1.c,v 1.6 2001/07/17 21:02:55 jkar8572 Exp $"
 
 #include <unistd.h>
 #include <errno.h>
@@ -74,7 +74,7 @@ static inline void v1_disk2memdqblk(struct util_dqblk *m, struct v1_disk_dqblk *
 	m->dqb_bhardlimit = d->dqb_bhardlimit;
 	m->dqb_bsoftlimit = d->dqb_bsoftlimit;
 	m->dqb_curinodes = d->dqb_curinodes;
-	m->dqb_curspace = d->dqb_curblocks * V1_DQBLK_SIZE;
+	m->dqb_curspace = ((qsize_t)d->dqb_curblocks) * V1_DQBLK_SIZE;
 	m->dqb_itime = d->dqb_itime;
 	m->dqb_btime = d->dqb_btime;
 }
@@ -102,7 +102,7 @@ static inline void v1_kern2utildqblk(struct util_dqblk *u, struct v1_kern_dqblk 
 	u->dqb_bhardlimit = k->dqb_bhardlimit;
 	u->dqb_bsoftlimit = k->dqb_bsoftlimit;
 	u->dqb_curinodes = k->dqb_curinodes;
-	u->dqb_curspace = k->dqb_curblocks << V1_DQBLK_SIZE_BITS;
+	u->dqb_curspace = ((qsize_t)k->dqb_curblocks) << V1_DQBLK_SIZE_BITS;
 	u->dqb_itime = k->dqb_itime;
 	u->dqb_btime = k->dqb_btime;
 }
