@@ -42,7 +42,7 @@ report:	v2_report
 #define getdqbuf() smalloc(V2_DQBLKSIZE)
 #define freedqbuf(buf) free(buf)
 
-extern inline void mark_quotafile_metainfo_dirty(struct quota_handle *h)
+static inline void mark_quotafile_metainfo_dirty(struct quota_handle *h)
 {
 	h->qh_info.u.v2_mdqi.dqi_flags |= V2_IOFL_METAINFO_DIRTY;
 	mark_quotafile_info_dirty(h);

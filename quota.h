@@ -57,7 +57,7 @@ typedef u_int64_t qsize_t;	/* Type in which we store size limitations */
 		#define FIOQSIZE _IOR('f', 128, loff_t)
 	#elif defined(__arm__) || defined(__mc68000__) || defined(__s390__)
 		#define FIOQSIZE 0x545E
-        #elif defined(__i386__) || defined(__i486__) || defined(__i586__) || defined(__ia64__) || defined(__parisc__) || defined(__cris__)
+        #elif defined(__i386__) || defined(__i486__) || defined(__i586__) || defined(__ia64__) || defined(__parisc__) || defined(__cris__) || defined(__hppa__)
 		#define FIOQSIZE 0x5460
 	#elif defined(__mips__) || defined(__mips64__)
 		#define FIOQSIZE 0x6667
