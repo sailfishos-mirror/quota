@@ -74,7 +74,7 @@ inst_mo: mo
 
 install: all inst_mo
 	-$(INSTALL) -m $(DEF_SBIN_MODE) \
-	quotacheck quotaon $(ROOTDIR)$(root_sbindir)
+	quotacheck quotaon convertquota $(ROOTDIR)$(root_sbindir)
 	$(LN) quotaon $(ROOTDIR)$(root_sbindir)/quotaoff
 	chown -h $(BIN_OWNER):$(BIN_GROUP) $(ROOTDIR)$(root_sbindir)/quotaoff
 	-$(INSTALL) -m $(DEF_SBIN_MODE) \
