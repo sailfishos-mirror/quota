@@ -1,5 +1,5 @@
 PROGS         = quotacheck quotaon quota quot repquota warnquota quotastats xqmstats edquota setquota convertquota rpc.rquotad 
-SOURCES       = bylabel.c common.c convertquota.c edquota.c pot.c quot.c quota.c quotacheck.c quotacheck_v1.c quotacheck_v2.c quotaio.c quotaio_rpc.c quotaio_v1.c quotaio_v2.c quotaio_xfs.c quotaio_generic.c quotaon.c quotaon_xfs.c quotaops.c quotastats.c quotasys.c repquota.c rquota_client.c rquota_server.c rquota_svc.c setquota.c warnquota.c xqmstats.c
+SOURCES       = bylabel.c common.c convertquota.c edquota.c pot.c quot.c quota.c quotacheck.c quotacheck_v1.c quotacheck_v2.c quotaio.c quotaio_rpc.c quotaio_v1.c quotaio_v2.c quotaio_xfs.c quotaio_generic.c quotaon.c quotaon_xfs.c quotaops.c quotastats.c quotasys.c repquota.c rquota_client.c rquota_server.c rquota_svc.c setquota.c warnquota.c xqmstats.c svc_socket.c
 VERSIONDEF    = -DQUOTA_VERSION=\"3.07\"
 CFLAGS        = @CFLAGS@ @EXT2_DIRECT@ -D_GNU_SOURCE -Wall -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 $(VERSIONDEF)
 EXT2LIBS      = @EXT2LIBS@
@@ -36,6 +36,7 @@ sysconfdir    = @sysconfdir@
 RPCCLNTOBJS = rquota_xdr.o rquota_client.o rquota_clnt.o
 IOOBJS = quotaio.o quotaio_v1.o quotaio_v2.o quotaio_rpc.o quotaio_xfs.o quotaio_generic.o
 IOOBJS += $(RPCCLNTOBJS)
+IOOBJS += svc_socket.o
 LIBOBJS = bylabel.o common.o quotasys.o pot.o $(IOOBJS)
 LIBOBJS += @LIBMALLOC@
 

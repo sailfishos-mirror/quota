@@ -12,7 +12,7 @@
  *          changes for new utilities by Jan Kara <jack@suse.cz>
  *          patches by Jani Jaakkola <jjaakkol@cs.helsinki.fi>
  *
- * Version: $Id: rquota_svc.c,v 1.11 2002/06/27 08:14:09 jkar8572 Exp $
+ * Version: $Id: rquota_svc.c,v 1.12 2002/11/21 21:15:26 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -31,6 +31,7 @@
 #include <memory.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <signal.h>
 #ifdef HOSTS_ACCESS
 #include <tcpd.h>
 #include <netdb.h>
@@ -39,6 +40,9 @@
 #ifdef __STDC__
 #define SIG_PF void(*)(int)
 #endif
+
+extern int svctcp_socket (u_long __number, int __reuse);
+extern int svcudp_socket (u_long __number, int __reuse);
 
 #include "pot.h"
 #include "common.h"
@@ -350,9 +354,17 @@ static void rquotaprog_2(struct svc_req *rqstp, register SVCXPRT * transp)
 	return;
 }
 
+static void
+unregister (int sig)
+{
+	(void)pmap_unset(RQUOTAPROG, RQUOTAVERS);
+	(void)pmap_unset(RQUOTAPROG, EXT_RQUOTAVERS);
+}
+
 int main(int argc, char **argv)
 {
 	register SVCXPRT *transp;
+	struct sigaction sa;
 
 	gettexton();
 	progname = basename(argv[0]);
@@ -362,7 +374,17 @@ int main(int argc, char **argv)
 	(void)pmap_unset(RQUOTAPROG, RQUOTAVERS);
 	(void)pmap_unset(RQUOTAPROG, EXT_RQUOTAVERS);
 
-	transp = svcudp_create(RPC_ANYSOCK);
+	sa.sa_handler = SIG_IGN;
+	sa.sa_flags = 0;
+	sigemptyset(&sa.sa_mask);
+	sigaction(SIGCHLD, &sa, NULL);
+
+	sa.sa_handler = unregister;
+	sigaction(SIGHUP, &sa, NULL);
+	sigaction(SIGINT, &sa, NULL);
+	sigaction(SIGTERM, &sa, NULL);
+
+	transp = svcudp_create(svcudp_socket (RQUOTAPROG, 1));
 	if (transp == NULL) {
 		errstr(_("cannot create udp service.\n"));
 		exit(1);
@@ -376,7 +398,7 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	transp = svctcp_create(RPC_ANYSOCK, 0, 0);
+	transp = svctcp_create(svctcp_socket (RQUOTAPROG, 1), 0, 0);
 	if (transp == NULL) {
 		errstr(_("cannot create tcp service.\n"));
 		exit(1);

@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: edquota.c,v 1.10 2002/11/21 18:37:58 jkar8572 Exp $"
+#ident "$Id: edquota.c,v 1.11 2002/11/21 21:15:26 jkar8572 Exp $"
 
 /*
  * Disk quota editor.
@@ -176,7 +176,7 @@ int main(int argc, char **argv)
 					update_grace_times(cprivs);
 				}
 			}
-			putprivs(curprivs);
+			putprivs(curprivs, COMMIT_LIMITS);
 			freeprivs(curprivs);
 		}
 		dispose_handle_list(handles);
@@ -244,7 +244,7 @@ int main(int argc, char **argv)
 				errstr(_("Can't read quotas from file.\n"));
 				continue;
 			}
-			putprivs(curprivs);
+			putprivs(curprivs, COMMIT_LIMITS);
 			freeprivs(curprivs);
 		}
 	}
