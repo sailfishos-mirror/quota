@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.11 2001/05/14 16:20:21 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.12 2001/05/26 19:46:40 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -813,7 +813,7 @@ static void check_all(void)
 	struct mntent *mnt;
 	const char *mnt_fslabel;
 	char *devlist[MAXMNTPOINTS];
-	int gotmnt = 0, i;
+	int gotmnt = 0, i, checked = 0;
 
 	if (!(mntf = setmntent(MOUNTED, "r")))
 		die(2, _("Cannot open %s: %s\n"), MOUNTED, strerror(errno));
@@ -824,8 +824,10 @@ static void check_all(void)
 			continue;
 		for (i = 0; i < gotmnt && !devcmp(devlist[i], devlist[gotmnt]); i++);
 		/* We already have this mountpoint? */
-		if (i < gotmnt)
+		if (i < gotmnt) {
+			free(devlist[gotmnt]);
 			continue;
+		}
 		gotmnt++;
 		if ((mnt_fslabel = strchr(mnt->mnt_fsname, '=')))
 			mnt_fslabel++;
@@ -857,12 +859,13 @@ static void check_all(void)
 				}
 				debug(FL_DEBUG | FL_VERBOSE, _("Detected quota format %s\n"), fmt2name(cfmt));
 			}
+			checked++;
 			check_dir(devlist[gotmnt - 1], mnt);
 		}
 	}
 	endmntent(mntf);
-	if (!(flags & FL_ALL) && !gotmnt)
-		die(1, _("Cannot find mountpoint %s.\n"), mntpoint);
+	if (!checked)
+		errstr(_("Can't find filesystem to check or filesystem not mounted with quota option.\n"));
 	for (i = 0; i < gotmnt; i++)
 		free(devlist[i]);
 }
