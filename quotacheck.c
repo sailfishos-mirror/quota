@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.18 2001/09/04 16:21:58 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.19 2001/09/21 12:45:22 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -360,7 +360,7 @@ static void parse_options(int argcnt, char **argstr)
 #if defined(EXT2_DIRECT)
 static int ext2_direct_scan(char *device)
 {
-	ino_t i_num;
+	ext2_ino_t i_num;
 	ext2_filsys fs;
 	errcode_t error;
 	ext2_inode_scan scan;

@@ -9,8 +9,10 @@
  *          Rquota service handlers.
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
+ *          changes for new utilities by Jan Kara <jack@suse.cz>
+ *          patches by Jani Jaakkola <jjaakkol@cs.helsinki.fi>
  *
- * Version: $Id: rquota_svc.c,v 1.7 2001/09/17 15:02:51 jkar8572 Exp $
+ * Version: $Id: rquota_svc.c,v 1.8 2001/09/21 12:45:22 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -21,6 +23,7 @@
 #include <rpc/rpc.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <rpc/pmap_clnt.h>	/* for pmap_unset */
 #include <stdio.h>
 #include <stdlib.h>		/* getenv, exit */
@@ -31,7 +34,6 @@
 #ifdef HOSTS_ACCESS
 #include <tcpd.h>
 #include <netdb.h>
-#include <arpa/inet.h>
 #endif
 
 #ifdef __STDC__
@@ -61,13 +63,13 @@ static struct option options[]= {
 	{ NULL, 0, NULL , 0 }
 };
 
-static void show_help() {
-	printf("Usage: %s [options]\n",progname);
-	printf("Options are:\n");
-	printf(" -h --help         shows this text\n");
-	printf(" -V --version      show version information\n");
-	printf(" -F --foreground   starts the quota service in foreground\n");
-	printf(" -s --no-setquota  disables remote calls to setquota\n");
+static void show_help(void)
+{
+	errstr(_("Usage: %s [options]\nOptions are:\n\
+ -h --help         shows this text\n\
+ -V --version      shows version information\n\
+ -F --foreground   starts the quota service in foreground\n\
+ -s --no-setquota  disables remote calls to setquota\n"), progname);
 }
 
 static void parse_options(int argc, char **argv)
@@ -75,20 +77,21 @@ static void parse_options(int argc, char **argv)
 	char ostr[128]="";
 	int i,opt;
 	int j=0;
-	for(i=0;options[i].name;i++) {
-		ostr[j++]=options[i].val;
-		if (options[i].has_arg) ostr[j++]=':';
+
+	for(i=0; options[i].name; i++) {
+		ostr[j++] = options[i].val;
+		if (options[i].has_arg) ostr[j++] = ':';
 	}
-	while( (opt=getopt_long(argc, argv, ostr, options, NULL))>=0 ) {
+	while ((opt=getopt_long(argc, argv, ostr, options, NULL))>=0) {
 		switch(opt) {
-		case 'V': version(); exit(0);
-		case 'h': show_help(); exit(0);
-		case 'F': disable_daemon=1; break;
-		case 's': disable_setquota=1; break;
-		default:
-			fprintf(stderr,"Unknown option '%c'.\n",opt);
-			show_help();
-			exit(1);
+			case 'V': version(); exit(0);
+			case 'h': show_help(); exit(0);
+			case 'F': disable_daemon = 1; break;
+			case 's': disable_setquota = 1; break;
+			default:
+				errstr(_("Unknown option '%c'.\n"), opt);
+				show_help();
+				exit(1);
 		}
 	}
 }
@@ -104,13 +107,21 @@ int good_client(struct sockaddr_in *addr, rpcproc_t rq_proc)
 	struct hostent *h;
 	char *name, **ad;
 #endif
+	const char *remote=inet_ntoa(addr->sin_addr);
 
-	if ( rq_proc==RQUOTAPROC_SETQUOTA ||
+	if (rq_proc==RQUOTAPROC_SETQUOTA ||
 	     rq_proc==RQUOTAPROC_SETACTIVEQUOTA) {
 		/* If setquota is disabled, fail always */
-		if (disable_setquota) return 0;
+		if (disable_setquota) {
+			errstr(_("host %s attempted to call setquota when disabled\n"),
+			       remote);
+
+			return 0;
+		}
 		/* Require that SETQUOTA calls originate from port < 1024 */
 		if (ntohs(addr->sin_port)>=1024) {
+			errstr(_("host %s attempted to call setquota from port >= 1024\n"),
+			       remote);
 			return 0;
 		}
 		/* Setquota OK */
@@ -121,22 +132,22 @@ int good_client(struct sockaddr_in *addr, rpcproc_t rq_proc)
 	 * allow only some hosts to call setquota. */
 
 	/* Check IP address */
-	if (hosts_ctl("rquotad", "", inet_ntoa(addr->sin_addr), ""))
+	if (hosts_ctl("rquotad", "", remote, ""))
 		return 1;
 	/* Get address */
 	if (!(h = gethostbyaddr((const char *)&(addr->sin_addr), sizeof(addr->sin_addr), AF_INET)))
-		return 0;
+		goto denied;
 	if (!(name = alloca(strlen(h->h_name)+1)))
-		return 0;
+		goto denied;
 	strcpy(name, h->h_name);
 	/* Try to resolve it back */
 	if (!(h = gethostbyname(name)))
-		return 0;
+		goto denied;
 	for (ad = h->h_addr_list; *ad; ad++)
 		if (!memcmp(*ad, &(addr->sin_addr), h->h_length))
 			break;
 	if (!*ad)	/* Our address not found? */
-		return 0;	
+		goto denied;	
 	/* Check host name */
 	if (hosts_ctl("rquotad", "", h->h_name, ""))
 		return 1;
@@ -144,6 +155,8 @@ int good_client(struct sockaddr_in *addr, rpcproc_t rq_proc)
 	for (ad = h->h_aliases; *ad; ad++)
 		if (hosts_ctl("rquotad", "", *ad, ""))
 			return 1;
+denied:
+	errstr(_("Denied access to host %s\n"), remote);
 	return 0;
 #else
 	/* If no access checking is available, OK always */
@@ -364,8 +377,10 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	if (!disable_daemon)
+	if (!disable_daemon) {
+		use_syslog();
 		daemon(0, 0);
+	}
 	svc_run();
 	errstr(_("svc_run returned\n"));
 	exit(1);

@@ -18,6 +18,10 @@ void die(int, char *, ...);
 /* Print an error */
 void errstr(char *, ...);
 
+/* If use_syslog is called, all error reports using errstr() and die() are
+ * written to syslog instead of stderr */
+void use_syslog();
+
 /* malloc() with error check */
 void *smalloc(size_t);
 

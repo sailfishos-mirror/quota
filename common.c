@@ -3,26 +3,57 @@
  *	Common things for all utilities
  *
  *	Jan Kara <jack@suse.cz> - sponsored by SuSE CR
+ *
+ *      Jani Jaakkola <jjaakkol@cs.helsinki.fi> - syslog support
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-
+#include <syslog.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
 #include "pot.h"
 #include "common.h"
 
+static int enable_syslog=0;
+
+void use_syslog(void)
+{
+	openlog(progname,0,LOG_DAEMON);
+	enable_syslog=1;
+}
+
+static void do_syslog(int level, const char *format, va_list args)
+{
+	char buf[1024];
+	int i, j;
+	
+	vsnprintf(buf,sizeof(buf),format,args);
+	/* This while removes newlines from the log, so that
+	 * syslog() will be called once for every line */
+	for (i = 0; buf[i]; i = j) {
+		for (j = i; buf[j] && buf[j] != '\n'; j++);
+		if (buf[j] == '\n')
+			buf[j++] = '\0';
+		syslog(level, "%s", buf + i);
+	}
+}
+
 void die(int ret, char *fmtstr, ...)
 {
 	va_list args;
 
-	fprintf(stderr, "%s: ", progname);
 	va_start(args, fmtstr);
-	vfprintf(stderr, fmtstr, args);
+	if (enable_syslog) {
+		do_syslog(LOG_CRIT, fmtstr, args);
+		syslog(LOG_CRIT, "Exiting with status %d", ret);
+	} else {
+		fprintf(stderr, "%s: ", progname);
+		vfprintf(stderr, fmtstr, args);
+	}
 	va_end(args);
 	exit(ret);
 }
@@ -31,9 +62,13 @@ void errstr(char *fmtstr, ...)
 {
 	va_list args;
 
-	fprintf(stderr, "%s: ", progname);
 	va_start(args, fmtstr);
-	vfprintf(stderr, fmtstr, args);
+	if (enable_syslog)
+		do_syslog(LOG_ERR, fmtstr, args);
+	else {
+		fprintf(stderr, "%s: ", progname);
+		vfprintf(stderr, fmtstr, args);
+	}
 	va_end(args);
 }
 
