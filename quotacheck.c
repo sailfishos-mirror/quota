@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.14 2001/08/07 12:10:59 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.15 2001/08/10 11:23:14 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -177,7 +177,7 @@ struct dquot *add_dquot(qid_t id, int type)
 /*
  * Add a number of blocks and inodes to a quota.
  */
-static void add_to_quota(int type, ino_t i_num, uid_t i_uid, gid_t i_gid, umode_t i_mode,
+static void add_to_quota(int type, ino_t i_num, uid_t i_uid, gid_t i_gid, mode_t i_mode,
 			 nlink_t i_nlink, loff_t i_space)
 {
 	qid_t wanted;
