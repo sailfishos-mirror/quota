@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaops.c,v 1.9 2002/11/21 18:37:58 jkar8572 Exp $"
+#ident "$Id: quotaops.c,v 1.10 2003/10/18 17:32:49 jkar8572 Exp $"
 
 #include <rpc/rpc.h>
 #include <sys/types.h>
@@ -135,7 +135,7 @@ struct dquot *getprivs(qid_t id, struct quota_handle **handles, int quiet)
 
 		if (!(q = handles[i]->qh_ops->read_dquot(handles[i], id))) {
 			/* If rpc.rquotad is not running filesystem might be just without quotas... */
-			if (errno != ECONNREFUSED || !quiet)
+			if (errno != ENOENT && (errno != ECONNREFUSED || !quiet))
 				errstr(_("Error while getting quota from %s for %u: %s\n"),
 					handles[i]->qh_quotadev, id, strerror(errno));
 			continue;

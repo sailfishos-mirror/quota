@@ -9,7 +9,7 @@
  *
  *          This part does the rpc-communication with the rquotad.
  *
- * Version: $Id: rquota_client.c,v 1.6 2002/06/27 08:14:09 jkar8572 Exp $
+ * Version: $Id: rquota_client.c,v 1.7 2003/10/18 17:32:49 jkar8572 Exp $
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
@@ -109,6 +109,7 @@ int rquota_err(int stat)
 		case 0:
 			return -ENOSYS;
 		case Q_NOQUOTA:
+			return -ENOENT;
 		case Q_OK:
 			return 0;
 		case Q_EPERM:
@@ -124,7 +125,7 @@ int rquota_err(int stat)
 int rpc_rquota_get(struct dquot *dquot)
 {
 	CLIENT *clnt;
-	getquota_rslt *result;
+	getquota_rslt *result = NULL;
 	union {
 		getquota_args arg;
 		ext_getquota_args ext_arg;
@@ -180,17 +181,13 @@ int rpc_rquota_get(struct dquot *dquot)
 		result = rquotaproc_getquota_2(&args.ext_arg, clnt);
 		if (result != NULL && result->status == Q_OK)
 			clinet2utildqblk(&dquot->dq_dqb, &result->getquota_rslt_u.gqr_rquota);
-
 		/*
 		 * Destroy unix authentication and RPC client structure.
 		 */
 		auth_destroy(clnt->cl_auth);
 		clnt_destroy(clnt);
 	}
-	else
-		result = NULL;
-
-	if (result == NULL || !result->status) {
+	else {
 		if (dquot->dq_h->qh_type == USRQUOTA) {
 			/*
 			 * Try RQUOTAPROG because server doesn't seem to understand EXT_RQUOTAPROG. (NON-LINUX servers.)
@@ -229,7 +226,7 @@ int rpc_rquota_get(struct dquot *dquot)
 		}
 	}
 	free(fsname_tmp);
-	return rquota_err(result?result->status:-1);
+	return rquota_err(result?result->status:-ENOENT);
 }
 
 /*
@@ -296,10 +293,7 @@ int rpc_rquota_set(int qcmd, struct dquot *dquot)
 		auth_destroy(clnt->cl_auth);
 		clnt_destroy(clnt);
 	}
-	else
-		result = NULL;
-
-	if (result == NULL || !result->status) {
+	else {
 		if (dquot->dq_h->qh_type == USRQUOTA) {
 			/*
 			 * Try RQUOTAPROG because server doesn't seem to understand EXT_RQUOTAPROG. (NON-LINUX servers.)
@@ -340,7 +334,7 @@ int rpc_rquota_set(int qcmd, struct dquot *dquot)
 		}
 	}
 	free(fsname_tmp);
-	return rquota_err(result?result->status:-1);
+	return rquota_err(result?result->status:-ENOENT);
 #endif
 	return -1;
 }

@@ -124,6 +124,7 @@ int kern_quota_on(const char *dev, int type, int fmt);
 /* Flags for init_mounts_scan() */
 #define MS_NO_MNTPOINT 0x01	/* Specified directory needn't be mountpoint */
 #define MS_NO_AUTOFS 0x02	/* Ignore autofs mountpoints */
+#define MS_QUIET 0x04		/* Be quiet with error reporting */
 /* Initialize mountpoints scan */
 int init_mounts_scan(int dcnt, char **dirs, int flags);
 

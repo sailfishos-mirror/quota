@@ -923,7 +923,8 @@ static int process_dirs(int dcnt, char **dirs, int flags)
 
 				/* Return st of mountpoint of dir in st.. */
 				if (flags & MS_NO_MNTPOINT && !(realmnt = find_dir_mntpoint(&st))) {
-					errstr(_("Can't find filesystem mountpoint for directory %s\n"), dirs[i]);
+					if (!(flags & MS_QUIET))
+						errstr(_("Can't find filesystem mountpoint for directory %s\n"), dirs[i]);
 					continue;
 				}
 				check_dirs[check_dirs_cnt].sd_dev = st.st_dev;
@@ -939,7 +940,8 @@ static int process_dirs(int dcnt, char **dirs, int flags)
 				check_dirs[check_dirs_cnt].sd_dev = st.st_rdev;
 				for (mentry = 0; mentry < mnt_entries_cnt && mnt_entries[mentry].me_dev != st.st_rdev; mentry++);
 				if (mentry == mnt_entries_cnt) {
-					errstr(_("Can't find mountpoint for device %s\n"), dirs[i]);
+					if (!(flags & MS_QUIET))
+						errstr(_("Can't find mountpoint for device %s\n"), dirs[i]);
 					continue;
 				}
 				sstrncpy(mntpointbuf, mnt_entries[mentry].me_dir, PATH_MAX-1);
@@ -952,7 +954,8 @@ static int process_dirs(int dcnt, char **dirs, int flags)
 			check_dirs_cnt++;
 		}
 		if (!check_dirs_cnt) {
-			errstr(_("No correct mountpoint specified.\n"));
+			if (!(flags & MS_QUIET))
+				errstr(_("No correct mountpoint specified.\n"));
 			free(check_dirs);
 			return -1;
 		}

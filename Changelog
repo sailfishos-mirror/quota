@@ -1,4 +1,7 @@
 Changes in quota-tools from 3.09 to 3.10
+* Fixed fake error messages from rpc.rquotad (Jan Kara)
+* quota(1) now does not print info for NFS filesystems without quotas (Jan Kara)
+* XFS roothack option disabled by default (Nathan Scott)
 * added option to warnquota(8) to supress details of report (Marco van Wieringen)
 * fixed problems with multiple lines values in warnquota(8) (F. Depke)
 * changed detection of kernel interface so that it works even without /proc (Jan Kara, Johan Ekenberg)
