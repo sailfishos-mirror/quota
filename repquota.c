@@ -27,10 +27,10 @@
 #define FL_USER 1
 #define FL_GROUP 2
 #define FL_VERBOSE 4
-#define FL_ALL 8
-#define FL_TRUNCNAMES 16
-#define FL_SHORTNUMS 32
-#define FL_NONAME 64
+#define FL_ALL 8		/* Dump quota files on all filesystems */
+#define FL_TRUNCNAMES 16	/* Truncate names to fit into the screen */
+#define FL_SHORTNUMS 32	/* Try to print space in appropriate units */
+#define FL_NONAME 64	/* Don't translate ids to names */
 #define FL_NOCACHE 128	/* Don't cache dquots before resolving */
 
 int flags, fmt = -1;
@@ -118,6 +118,7 @@ static void parse_options(int argcnt, char **argstr)
 		flags |= FL_NOCACHE;
 }
 
+/* Are we over soft or hard limit? */
 static char overlim(uint usage, uint softlim, uint hardlim)
 {
 	if ((usage > softlim && softlim) || (usage > hardlim && hardlim))
@@ -125,6 +126,7 @@ static char overlim(uint usage, uint softlim, uint hardlim)
 	return '-';
 }
 
+/* Print one quota entry */
 static void print(struct dquot *dquot, char *name)
 {
 	char pname[MAXNAMELEN];
@@ -173,7 +175,7 @@ static void dump_cached_dquots(int type)
 		setpwent();
 		while ((pwent = getpwent())) {
 			for (i = 0; i < cached_dquots && pwent->pw_uid != dquot_cache[i].dq_id; i++);
-			if (i < cached_dquots) {
+			if (i < cached_dquots && !(dquot_cache[i].dq_flags & DQ_PRINTED)) {
 				print(dquot_cache+i, pwent->pw_name);
 				dquot_cache[i].dq_flags |= DQ_PRINTED;
 			}
@@ -186,7 +188,7 @@ static void dump_cached_dquots(int type)
 		setgrent();
 		while ((grent = getgrent())) {
 			for (i = 0; i < cached_dquots && grent->gr_gid != dquot_cache[i].dq_id; i++);
-			if (i < cached_dquots) {
+			if (i < cached_dquots && !(dquot_cache[i].dq_flags & DQ_PRINTED)) {
 				print(dquot_cache+i, grent->gr_name);
 				dquot_cache[i].dq_flags |= DQ_PRINTED;
 			}
@@ -201,15 +203,16 @@ static void dump_cached_dquots(int type)
 	cached_dquots = 0;
 }
 
+/* Callback routine called by scan_dquots on each dquot */
 static int output(struct dquot *dquot, char *name)
 {
-	if (flags & FL_NONAME) {
+	if (flags & FL_NONAME) {	/* We should translate names? */
 		char namebuf[MAXNAMELEN];
 
 		sprintf(namebuf, "#%u", dquot->dq_id);
 		print(dquot, namebuf);
 	}
-	else if (name || flags & FL_NOCACHE) {
+	else if (name || flags & FL_NOCACHE) {	/* We shouldn't do batched id->name translations? */
 		char namebuf[MAXNAMELEN];
 
 		if (!name) {
@@ -218,7 +221,7 @@ static int output(struct dquot *dquot, char *name)
 		}
 		print(dquot, name);
 	}
-	else {
+	else {	/* Lets cache the dquot for later printing */
 		memcpy(dquot_cache+cached_dquots++, dquot, sizeof(struct dquot));
 		if (cached_dquots >= MAX_CACHE_DQUOTS)
 			dump_cached_dquots(dquot->dq_h->qh_type);
@@ -226,6 +229,7 @@ static int output(struct dquot *dquot, char *name)
 	return 0;
 }
 
+/* Dump information stored in one quota file */
 static void report_it(struct quota_handle *h, int type)
 {
 	char bgbuf[MAXTIMELEN], igbuf[MAXTIMELEN];
