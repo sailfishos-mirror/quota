@@ -12,7 +12,7 @@
  *          changes for new utilities by Jan Kara <jack@suse.cz>
  *          patches by Jani Jaakkola <jjaakkol@cs.helsinki.fi>
  *
- * Version: $Id: rquota_svc.c,v 1.12 2002/11/21 21:15:26 jkar8572 Exp $
+ * Version: $Id: rquota_svc.c,v 1.13 2002/11/28 22:02:04 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -365,6 +365,7 @@ int main(int argc, char **argv)
 {
 	register SVCXPRT *transp;
 	struct sigaction sa;
+	int sock;
 
 	gettexton();
 	progname = basename(argv[0]);
@@ -384,7 +385,8 @@ int main(int argc, char **argv)
 	sigaction(SIGINT, &sa, NULL);
 	sigaction(SIGTERM, &sa, NULL);
 
-	transp = svcudp_create(svcudp_socket (RQUOTAPROG, 1));
+	sock = svcudp_socket(RQUOTAPROG, 1);
+	transp = svcudp_create(sock == -1 ? RPC_ANYSOCK : sock);
 	if (transp == NULL) {
 		errstr(_("cannot create udp service.\n"));
 		exit(1);
@@ -398,7 +400,8 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	transp = svctcp_create(svctcp_socket (RQUOTAPROG, 1), 0, 0);
+	sock = svctcp_socket(RQUOTAPROG, 1);
+	transp = svctcp_create(sock == -1 ? RPC_ANYSOCK : sock, 0, 0);
 	if (transp == NULL) {
 		errstr(_("cannot create tcp service.\n"));
 		exit(1);

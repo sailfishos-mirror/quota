@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.32 2002/08/27 18:13:41 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.33 2002/11/28 22:02:04 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -400,9 +400,9 @@ static int ext2_direct_scan(char *device)
 		return -1;
 	}
 
-	while (i_num) {
+	while ((long)i_num) {
 		if (inode.i_links_count) {
-			debug(FL_DEBUG, _("Found i_num %ld\n"), i_num);
+			debug(FL_DEBUG, _("Found i_num %ld\n"), (long)i_num);
 			if (flags & FL_VERBOSE)
 				blit();
 			uid = inode.i_uid | (inode.i_uid_high << 16);

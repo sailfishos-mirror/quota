@@ -1,4 +1,5 @@
 Changes in quota-tools from 3.07 to 3.08
+* Fixed infinite loop in quotacheck under RH7.1 (?)
 * Made quota tools aware of /etc/services (H. J. Lu)
 * Updated edquota(8) and setquota(8) to allow setting of individual grace time (Jan Kara)
 * Fixed bug in convertquota(8) when quota was turned on during converting (Jan Kara)
