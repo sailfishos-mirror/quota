@@ -34,6 +34,11 @@ static void load_dquots(char *filename, int fd, int type)
 				(uint) id);
 			break;
 		}
+		if (ddqblk.dqb_bhardlimit == 0
+			&& ddqblk.dqb_bsoftlimit == 0
+			&& ddqblk.dqb_ihardlimit == 0
+			&& ddqblk.dqb_isoftlimit == 0)
+			continue;
 		dquot = add_dquot(id, type);
 		udq = &dquot->dq_dqb;
 		udq->dqb_bhardlimit = ddqblk.dqb_bhardlimit;

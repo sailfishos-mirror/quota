@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.33 2002/11/28 22:02:04 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.34 2003/04/08 13:11:06 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -182,7 +182,7 @@ struct dquot *add_dquot(qid_t id, int type)
  * Add a number of blocks and inodes to a quota.
  */
 static void add_to_quota(int type, ino_t i_num, uid_t i_uid, gid_t i_gid, mode_t i_mode,
-			 nlink_t i_nlink, loff_t i_space)
+			 nlink_t i_nlink, loff_t i_space, int need_remember)
 {
 	qid_t wanted;
 	struct dquot *lptr;
@@ -195,7 +195,7 @@ static void add_to_quota(int type, ino_t i_num, uid_t i_uid, gid_t i_gid, mode_t
 	if ((lptr = lookup_dquot(wanted, type)) == NODQUOT)
 		lptr = add_dquot(wanted, type);
 
-	if (i_nlink != 1)
+	if (i_nlink != 1 && need_remember)
 		if (store_dlinks(type, i_num))	/* Did we already count this inode? */
 			return;
 	lptr->dq_dqb.dqb_curinodes++;
@@ -402,19 +402,21 @@ static int ext2_direct_scan(char *device)
 
 	while ((long)i_num) {
 		if (inode.i_links_count) {
-			debug(FL_DEBUG, _("Found i_num %ld\n"), (long)i_num);
+			debug(FL_DEBUG, _("Found i_num %ld, %ld\n"), (long)i_num, (long)inode.i_blocks);
 			if (flags & FL_VERBOSE)
 				blit();
 			uid = inode.i_uid | (inode.i_uid_high << 16);
 			gid = inode.i_gid | (inode.i_gid_high << 16);
+			if (inode.i_uid_high | inode.i_gid_high)
+				debug(FL_DEBUG, _("High uid detected.\n"));
 			if (ucheck)
 				add_to_quota(USRQUOTA, i_num, uid, gid,
 					     inode.i_mode, inode.i_links_count,
-					     inode.i_blocks << 9);
+					     inode.i_blocks << 9, 0);
 			if (gcheck)
 				add_to_quota(GRPQUOTA, i_num, uid, gid,
 					     inode.i_mode, inode.i_links_count,
-					     inode.i_blocks << 9);
+					     inode.i_blocks << 9, 0);
 			if (S_ISDIR(inode.i_mode))
 				dirs_done++;
 			else
@@ -445,6 +447,18 @@ static int scan_dir(char *pathname)
 	DIR *dp;
 	int ret;
 
+	if (lstat(pathname, &st) == -1) {
+		errstr(_("Cannot stat root directory %s: %s\n"), pathname, strerror(errno));
+		goto out;
+	}
+	qspace = getqsize(pathname, &st);
+	if (ucheck)
+		add_to_quota(USRQUOTA, st.st_ino, st.st_uid, st.st_gid, st.st_mode,
+			     st.st_nlink, qspace, 0);
+	if (gcheck)
+		add_to_quota(GRPQUOTA, st.st_ino, st.st_uid, st.st_gid, st.st_mode,
+			     st.st_nlink, qspace, 0);
+
 	if ((dp = opendir(pathname)) == (DIR *) NULL)
 		die(2, _("\nCan open directory %s: %s\n"), pathname, strerror(errno));
 
@@ -464,10 +478,10 @@ static int scan_dir(char *pathname)
 		qspace = getqsize(de->d_name, &st);
 		if (ucheck)
 			add_to_quota(USRQUOTA, st.st_ino, st.st_uid, st.st_gid, st.st_mode,
-				     st.st_nlink, qspace);
+				     st.st_nlink, qspace, !S_ISDIR(st.st_mode));
 		if (gcheck)
 			add_to_quota(GRPQUOTA, st.st_ino, st.st_uid, st.st_gid, st.st_mode,
-				     st.st_nlink, qspace);
+				     st.st_nlink, qspace, !S_ISDIR(st.st_mode));
 
 		if (S_ISDIR(st.st_mode)) {
 			if (st.st_dev != cur_dev)
@@ -746,20 +760,12 @@ static void check_dir(struct mntent *mnt)
 	qspace = getqsize(mnt->mnt_dir, &st);
 	cur_dev = st.st_dev;
 	files_done = dirs_done = 0;
-	if (ucheck) {
-		if (process_file(mnt, USRQUOTA) >= 0)
-			add_to_quota(USRQUOTA, st.st_ino, st.st_uid, st.st_gid, st.st_mode,
-				     st.st_nlink, qspace);
-		else
+	if (ucheck)
+		if (process_file(mnt, USRQUOTA) < 0)
 			ucheck = 0;
-	}
-	if (gcheck) {
-		if (process_file(mnt, GRPQUOTA) >= 0)
-			add_to_quota(GRPQUOTA, st.st_ino, st.st_uid, st.st_gid, st.st_mode,
-				     st.st_nlink, qspace);
-		else
+	if (gcheck)
+		if (process_file(mnt, GRPQUOTA) < 0)
 			gcheck = 0;
-	}
 	if (!ucheck && !gcheck)	/* Nothing to check? */
 		return;
 	if (!(flags & FL_NOREMOUNT)) {
