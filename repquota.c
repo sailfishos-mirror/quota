@@ -2,6 +2,8 @@
  *
  *	Utility for reporting quotas
  *
+ *	Based on old repquota.
+ *	Jan Kara <jack@suse.cz> - Sponsored by SuSE CZ
  */
 
 #include <stdio.h>
@@ -41,10 +43,7 @@ static void parse_options(int argcnt, char **argstr)
 		  case '?':
 		  case 'h':
 			usage:
-			  fprintf(stderr,
-				  _
-				  ("Utility for reporting quotas.\nUsage:\n%s [-vug] [-F quotaformat] (-a | mntpoint)\n"),
-				  slash);
+			  fprintf(stderr, _("Utility for reporting quotas.\nUsage:\n%s [-vug] [-F quotaformat] (-a | mntpoint)\n"), slash);
 			  fprintf(stderr, _("Bugs to %s\n"), MY_EMAIL);
 			  exit(1);
 		  case 'V':
@@ -124,13 +123,17 @@ static void report_it(struct quota_handle *h, int type)
 	time2str(h->qh_info.dqi_bgrace, bgbuf, TF_ROUND);
 	time2str(h->qh_info.dqi_igrace, igbuf, TF_ROUND);
 	printf("Block grace time: %s Inode grace time: %s\n", bgbuf, igbuf);
-	printf("                        Block limits               File limits\n");
+	printf("                        Block limits                File limits\n");
 	printf("User            used    soft    hard  grace    used  soft  hard  grace\n");
+	printf("----------------------------------------------------------------------\n");
 
 	if (h->qh_ops->scan_dquots(h, print) < 0)
 		return;
-	if (h->qh_ops->report)
+	if (h->qh_ops->report) {
+		putchar('\n');
 		h->qh_ops->report(h, flags & FL_VERBOSE);
+		putchar('\n');
+	}
 }
 
 static void report(int type)

@@ -2,6 +2,7 @@
  *
  *	Utility for converting quota file from old to new format
  *
+ *	Sponsored by SuSE CR
  */
 
 #include <stdio.h>
@@ -39,7 +40,7 @@ void parse_options(int argcnt, char **argstr)
 			case '?':
 			case 'h':
 usage:
-				printf(_("Utility for converting quota files.\nUsage:\n%s [-u] [-g] mountpoint\n"), cmdname);
+				printf(_("Utility for converting quota files.\nUsage:\n\t%s [-u] [-g] mountpoint\n"), cmdname);
 				printf(_("Bugs to %s\n"), MY_EMAIL);
 				exit(1);
 			case 'V':

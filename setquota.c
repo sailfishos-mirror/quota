@@ -1,7 +1,8 @@
 /*
  *
- * Set disk quota from command line 
+ *	Set disk quota from command line 
  *
+ *	Jan Kara <jack@suse.cz> - sponsored by SuSE CR
  */
 #include <rpc/rpc.h>
 #include <sys/types.h>

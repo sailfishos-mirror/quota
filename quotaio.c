@@ -2,6 +2,7 @@
  *
  *	Generic IO operations on quotafiles
  *
+ *	Jan Kara <jack@suse.cz> - sponsored by SuSE CR
  */
 
 #include <stdio.h>

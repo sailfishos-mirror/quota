@@ -2,6 +2,7 @@
  *
  *	Common things for all utilities
  *
+ *	Jan Kara <jack@suse.cz> - sponsored by SuSE CR
  */
 
 #include <stdio.h>
@@ -71,4 +72,5 @@ void version(void)
 	puts(_("EXT2_DIRECT"));
 #endif /* defined RPC && EXT2_DIRECT */
 #endif /* defined RPC || EXT2_DIRECT */
+	printf(_("Bugs to %s\n"), MY_EMAIL);
 }

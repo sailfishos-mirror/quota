@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quota.c,v 1.1 2001/03/23 12:03:26 jkar8572 Exp $"
+#ident "$Id: quota.c,v 1.2 2001/04/04 10:42:12 jkar8572 Exp $"
 
 /*
  * Disk quota reporting program.
@@ -111,7 +111,7 @@ int main(int argc, char **argv)
 		if (gflag) {
 			ngroups = getgroups(NGROUPS, gidset);
 			if (ngroups < 0)
-				die(1, "quota: getgroups(): %s\n", strerror(errno));
+				die(1, _("quota: getgroups(): %s\n"), strerror(errno));
 			for (i = 0; i < ngroups; i++)
 				showquotas(GRPQUOTA, gidset[i]);
 		}

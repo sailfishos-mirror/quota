@@ -23,7 +23,7 @@ int main(int argc, char **argv)
 	memset(values, 0, sizeof(unsigned) * 8);
 
 	if ((stats = fopen(STATFILE, "r")) == NULL || (xqm = fopen(XQMFILE, "r")) == NULL) {
-		fprintf(stderr, "The running kernel does not support XFS\n");
+		fprintf(stderr, _("The running kernel does not support XFS\n"));
 		return 1;
 	}
 	while (!feof(stats)) {

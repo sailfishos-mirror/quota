@@ -1,5 +1,7 @@
 /*
  *	Implementation of new quotafile format
+ *
+ *	Jan Kara <jack@suse.cz> - sponsored by SuSE CR
  */
 
 #include <sys/types.h>
@@ -223,7 +225,7 @@ static void read_blk(struct quota_handle *h, uint blk, dqbuf_t buf)
 	lseek(h->qh_fd, blk << V2_DQBLKSIZE_BITS, SEEK_SET);
 	err = read(h->qh_fd, buf, V2_DQBLKSIZE);
 	if (err < 0)
-		die(2, "Can't read block %u: %s\n", blk, strerror(errno));
+		die(2, _("Can't read block %u: %s\n"), blk, strerror(errno));
 	else if (err != V2_DQBLKSIZE)
 		memset(buf + err, 0, V2_DQBLKSIZE - err);
 }
@@ -236,7 +238,7 @@ static int write_blk(struct quota_handle *h, uint blk, dqbuf_t buf)
 	lseek(h->qh_fd, blk << V2_DQBLKSIZE_BITS, SEEK_SET);
 	err = write(h->qh_fd, buf, V2_DQBLKSIZE);
 	if (err < 0 && errno != ENOSPC)
-		die(2, "Can't write block (%u): %s\n", blk, strerror(errno));
+		die(2, _("Can't write block (%u): %s\n"), blk, strerror(errno));
 	if (err != V2_DQBLKSIZE)
 		return -ENOSPC;
 	return 0;
@@ -365,7 +367,7 @@ static uint find_free_dqentry(struct quota_handle *h, struct dquot *dquot, int *
 	/* Find free structure in block */
 	for (i = 0; i < V2_DQSTRINBLK && !empty_dquot(ddquot + i); i++);
 	if (i == V2_DQSTRINBLK)
-		die(2, "find_free_dqentry(): Data block full but it shouldn't.\n");
+		die(2, _("find_free_dqentry(): Data block full but it shouldn't.\n"));
 	write_blk(h, blk, buf);
 	dquot->dq_dqb.u.v2_mdqb.dqb_off =
 		(blk << V2_DQBLKSIZE_BITS) + sizeof(struct v2_disk_dqdbheader) +
@@ -401,7 +403,7 @@ static int do_insert_tree(struct quota_handle *h, struct dquot *dquot, uint * tr
 		newson = 1;
 	if (depth == V2_DQTREEDEPTH - 1) {
 		if (newblk)
-			die(2, "Inserting already present quota entry (block %u).\n",
+			die(2, _("Inserting already present quota entry (block %u).\n"),
 			    ref[V2_GETIDINDEX(dquot->dq_id, depth)]);
 		newblk = find_free_dqentry(h, dquot, &ret);
 	}
@@ -424,7 +426,7 @@ static inline void dq_insert_tree(struct quota_handle *h, struct dquot *dquot)
 	int tmp = V2_DQTREEOFF;
 
 	if (do_insert_tree(h, dquot, &tmp, 0) < 0)
-		die(2, "Can't write quota (id %u): %s\n", (uint) dquot->dq_id, strerror(errno));
+		die(2, _("Can't write quota (id %u): %s\n"), (uint) dquot->dq_id, strerror(errno));
 }
 
 /* Write dquot to file */
@@ -442,7 +444,7 @@ static void v2_write_dquot(struct dquot *dquot)
 	if (ret != sizeof(struct v2_disk_dqblk)) {
 		if (ret > 0)
 			errno = ENOSPC;
-		die(2, "Quota write failed (id %u): %s\n", (uint) dquot->dq_id, strerror(errno));
+		die(2, _("Quota write failed (id %u): %s\n"), (uint) dquot->dq_id, strerror(errno));
 	}
 }
 
@@ -453,7 +455,7 @@ static void free_dqentry(struct quota_handle *h, struct dquot *dquot, uint blk)
 	dqbuf_t buf = getdqbuf();
 
 	if (dquot->dq_dqb.u.v2_mdqb.dqb_off >> V2_DQBLKSIZE_BITS != blk)
-		die(2, "Quota structure has offset to other block (%u) than it should (%u).\n", blk,
+		die(2, _("Quota structure has offset to other block (%u) than it should (%u).\n"), blk,
 		    (uint) (dquot->dq_dqb.u.v2_mdqb.dqb_off >> V2_DQBLKSIZE_BITS));
 	read_blk(h, blk, buf);
 	dh = (struct v2_disk_dqdbheader *)buf;
@@ -532,7 +534,7 @@ static loff_t find_block_dqentry(struct quota_handle *h, struct dquot *dquot, ui
 				break;
 	}
 	if (i == V2_DQSTRINBLK)
-		die(2, "Quota for id %u referenced but not present.\n", dquot->dq_id);
+		die(2, _("Quota for id %u referenced but not present.\n"), dquot->dq_id);
 	freedqbuf(buf);
 	return (blk << V2_DQBLKSIZE_BITS) + sizeof(struct v2_disk_dqdbheader) +
 
@@ -601,7 +603,7 @@ static struct dquot *v2_read_dquot(struct quota_handle *h, qid_t id)
 		if (ret != sizeof(struct v2_disk_dqblk)) {
 			if (ret > 0)
 				errno = EIO;
-			die(2, "Can't read quota structure for id %u: %s\n", dquot->dq_id,
+			die(2, _("Can't read quota structure for id %u: %s\n"), dquot->dq_id,
 			    strerror(errno));
 		}
 		v2_disk2memdqblk(&dquot->dq_dqb, &ddquot);

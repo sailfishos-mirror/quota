@@ -2,6 +2,7 @@
  *
  *	Interactions of quota with system - filenames, fstab and so on...
  *
+ *	Jan Kara <jack@suse.cz> - sponsored by SuSE CR
  */
 
 #include <stdio.h>
@@ -37,6 +38,7 @@
 
 static char extensions[MAXQUOTAS + 2][20] = INITQFNAMES;
 static char *basenames[] = INITQFBASENAMES;
+static char *fmtnames[] = INITQFMTNAMES;
 
 /*
  *	Convert type of quota to written representation
@@ -137,17 +139,28 @@ void id2name(int id, int qtype, char *buf)
  */
 int name2fmt(char *str)
 {
-	if (!strcmp(str, _("vfsold")))	/* Old quota format */
-		return QF_VFSOLD;
-	if (!strcmp(str, _("vfsv0")))	/* New quota format */
-		return QF_VFSV0;
-	if (!strcmp(str, _("rpc")))	/* RPC quota calls */
-		return QF_RPC;
+	int fmt;
+
+	for (fmt = 0; fmt < QUOTAFORMATS; fmt++)
+		if (!strcmp(str, fmtnames[fmt]))
+			return fmt;
 	fprintf(stderr, _("Unknown quota format: %s\nSupported formats are:\n\
   vfsold - original quota format\n\
   vfsv0 - new quota format\n\
-  rpc - use RPC calls\n"), str);
+  rpc - use RPC calls\n\
+  xfs - XFS quota format\n"), str);
 	return QF_ERROR;
+}
+
+/*
+ *	Convert quota format number to name
+ */
+char *fmt2name(int fmt)
+{
+
+	if (fmt < 0)
+		return _("Unknown format");
+	return fmtnames[fmt];
 }
 
 /*
@@ -259,7 +272,7 @@ static int check_fmtfile_exists(struct mntent *mnt, int type, int fmt, char *nam
 	if (!stat(namebuf, &buf))
 		return 1;
 	if (errno != ENOENT) {
-		fprintf(stderr, "Can't stat quotafile %s: %s\n", namebuf, strerror(errno));
+		fprintf(stderr, _("Can't stat quotafile %s: %s\n"), namebuf, strerror(errno));
 		return -1;
 	}
 	return 0;
@@ -405,7 +418,7 @@ int kern_quota_format(void)
 			return QF_ERROR;
 		if (errno == EINVAL || errno == EFAULT || errno == EPERM)	/* Old quota compiled? */
 			return ret | (1 << QF_VFSOLD);
-		die(4, "Error while detecting kernel quota version: %s\n", strerror(errno));
+		die(4, _("Error while detecting kernel quota version: %s\n"), strerror(errno));
 	}
 	/* We might do some more generic checks in future but this should be enough for now */
 	if (stats.version > KERN_KNOWN_QUOTA_VERSION)	/* Newer kernel than we know? */

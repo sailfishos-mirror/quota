@@ -32,6 +32,13 @@
 	""\
 }
 
+#define INITQFMTNAMES {\
+	"vfsold",\
+	"vfsv0",\
+	"rpc",\
+	"xfs"\
+}
+
 /* Values for format handling */
 #define QF_TOONEW -2		/* Quota format is too new to handle */
 #define QF_ERROR -1		/* There was error while detecting format (maybe unknown format...) */

@@ -44,6 +44,9 @@ void id2name(int id, int qtype, char *buf);
 /* Convert quota format name to number */
 int name2fmt(char *str);
 
+/* Convert quota format number to name */
+char *fmt2name(int fmt);
+
 /* Convert time difference between given time and current time to printable form */
 void difftime2str(time_t, char *);
 

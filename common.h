@@ -7,7 +7,7 @@
 #ifndef _COMMON_H
 #define _COMMON_H
 
-#define MY_EMAIL "mvw@planets.elm.net, jack@atrey.karlin.mff.cuni.cz"
+#define MY_EMAIL "mvw@planets.elm.net, jack@suse.cz"
 
 /* Finish programs being */
 void die(int, char *, ...);

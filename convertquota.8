@@ -18,27 +18,27 @@ to files
 .BR aquota.user
 and
 .BR aquota.group
-in new format currently used by kernels 2.4.0-ac? and newer on
+in new format currently used by 2.4.0-ac? and newer or by Red Hat Linux 2.4 kernels on
 .IR filesystem .
 .PP
 New file format allows using quotas for 32-bit uids / gids, setting quotas for root,
 accounting used space in bytes (and so allowing use of quotas in ReiserFS) and it
-is also architecture independent. This format introduces radix trie (a simple form of tree
+is also architecture independent. This format introduces Radix Tree (a simple form of tree
 structure) to quota file.
 .SH OPTIONS
 .TP
 .B -u
-convert user quota file. This is default.
+convert user quota file. This is the default.
 .TP
 .B -g
 convert group quota file.
 .SH FILES
 .TP 20
 .B aquota.user
-user quota file
+new user quota file
 .TP
 .B aquota.group
-group quota file
+new group quota file
 .SH "SEE ALSO"
 .BR quota (1),
 .BR setquota (8),
@@ -47,5 +47,5 @@ group quota file
 .BR quotaon (8),
 .BR repquota (8)
 .SH AUTHOR
-Jan Kara \<jack@atrey.karlin.mff.cuni.cz\>
+Jan Kara \<jack@suse.cz\>
 

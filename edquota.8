@@ -5,11 +5,11 @@ edquota \- edit user quotas
 .B edquota
 [
 .B \-p
-.I proto-user
+.I proto-username
 ] [
 .B \-ug
 ]
-.IR name .\|.\|.
+.IR username .\|.\|.
 .LP
 .B edquota
 [
@@ -32,7 +32,17 @@ line.  For each user or group a temporary file is created with an
 .SM ASCII
 representation of the current disk quotas for that user or group and an editor
 is then invoked on the file.  The quotas may then be modified, new
-quotas added, etc.  Upon leaving the editor,
+quotas added, etc.
+Setting a quota to zero indicates that no quota should be imposed.
+.PP
+Users are permitted to exceed their soft limits for a grace period that
+may be specified per filesystem.  Once the grace period has expired, the
+soft limit is enforced as a hard limit.
+.PP
+The current usage information in the file is for imformational purposes;
+only the hard and soft limits can be changed.
+.PP
+Upon leaving the editor,
 .B edquota
 reads the temporary file and modifies the binary quota files to reflect
 the changes made.
@@ -84,7 +94,7 @@ quota file at the filesystem root (version 2 quota, non-XFS filesystems)
 quota file at the filesystem root (version 1 quota, non-XFS filesystems)
 .TP
 .B /etc/mtab
-mounted filesystems
+mounted filesystems table
 .PD
 .SH SEE ALSO
 .BR quota (1),
