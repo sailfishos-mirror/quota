@@ -42,7 +42,18 @@ void *smalloc(size_t size)
 	void *ret = malloc(size);
 
 	if (!ret) {
-		puts("Not enough memory.\n");
+		fputs("Not enough memory.\n", stderr);
+		exit(3);
+	}
+	return ret;
+}
+
+void *srealloc(void *ptr, size_t size)
+{
+	void *ret = realloc(ptr, size);
+
+	if (!ret) {
+		fputs("Not enough memory.\n", stderr);
 		exit(3);
 	}
 	return ret;
@@ -69,34 +80,6 @@ char *sstrdup(const char *s)
 		exit(3);
 	}
 	return r;
-}
-
-int devcmp(const char *mtab_dev, char *user_dev)
-{
-	struct stat mtab_stat, user_stat;
-
-	if (stat(mtab_dev, &mtab_stat) < 0 || stat(user_dev, &user_stat) < 0)
-		return (strcmp(mtab_dev, user_dev) == 0);
-	if (!S_ISBLK(mtab_stat.st_mode) || !S_ISBLK(user_stat.st_mode))
-		return 0;
-	if (mtab_stat.st_rdev != user_stat.st_rdev)
-		return 0;
-	return 1;
-}
-
-int dircmp(char *mtab_dir, char *user_dir)
-{
-	struct stat mtab_stat, user_stat;
-
-	if (stat(mtab_dir, &mtab_stat) < 0 || stat(user_dir, &user_stat) < 0)
-		return (strcmp(mtab_dir, user_dir) == 0);
-	if (!S_ISDIR(mtab_stat.st_mode) || !S_ISDIR(user_stat.st_mode))
-		return 0;
-	if (mtab_stat.st_dev != user_stat.st_dev)
-		return 0;
-	if (mtab_stat.st_ino != user_stat.st_ino)
-		return 0;
-	return 1;
 }
 
 void version(void)

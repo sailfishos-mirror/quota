@@ -150,7 +150,7 @@ static int xfs_delete(char *dev, int type, int flags, int rootfs, int *xopts)
 		return (check < 0);
 
 	if (quotactl(QCMD(qcmd, type), dev, 0, (void *)xopts) < 0) {
-		errstr(_("Failed to delete quota: %s"),
+		errstr(_("Failed to delete quota: %s\n"),
 			strerror(errno));
 		return 1;
 	}

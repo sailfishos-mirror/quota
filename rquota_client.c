@@ -9,7 +9,7 @@
  *
  *          This part does the rpc-communication with the rquotad.
  *
- * Version: $Id: rquota_client.c,v 1.3 2001/07/17 21:02:55 jkar8572 Exp $
+ * Version: $Id: rquota_client.c,v 1.4 2001/08/15 20:13:42 jkar8572 Exp $
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
@@ -168,11 +168,12 @@ void rpc_rquota_get(struct dquot *dquot)
 		 */
 		auth_destroy(clnt->cl_auth);
 		clnt_destroy(clnt);
+		puts("get2");
 	}
 	else {
 		result = NULL;
 	}
-
+	printf("result: %p, status: %d\n", result, result?result->status:0);
 	if (result == NULL || !result->status) {
 		if (dquot->dq_h->qh_type == USRQUOTA) {
 			/*

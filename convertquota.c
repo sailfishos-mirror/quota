@@ -95,35 +95,19 @@ int convert_dquot(struct dquot *dquot, char *name)
 	return 0;
 }
 
-void convert_file(int type)
+void convert_file(int type, struct mntent *mnt)
 {
 	struct quota_handle *qo;
 	char *qfname, namebuf[PATH_MAX];
-	FILE *mntf;
-	struct mntent *mnt;
-	const char *dev;
 
-	if (!(mntf = setmntent(MOUNTED, "r")))
-		die(2, _("Can't open %s: %s\n"), MOUNTED, strerror(errno));
-	while ((mnt = getmntent(mntf))) {
-		if (!(dev = get_device_name(mnt->mnt_fsname)))
-			continue;
-		if (devcmp(dev, mntpoint) || dircmp(mnt->mnt_dir, mntpoint)) {
-			free((void *)dev);
-			break;
-		}
-		free((void *)dev);
-	}
-	if (!mnt)
-		die(1, _("Can't find given mountpoint %s\n"), mntpoint);
 	if (!(qo = init_io(mnt, type, QF_VFSOLD, 1))) {
 		errstr(_("Can't open old format file for %ss on %s\n"),
-			type2name(type), mntpoint);
+			type2name(type), mnt->mnt_dir);
 		return;
 	}
 	if (!(qn = new_io(mnt, type, QF_VFSV0))) {
 		errstr(_("Can't create file for %ss for new format on %s: %s\n"),
-			type2name(type), mntpoint, strerror(errno));
+			type2name(type), mnt->mnt_dir, strerror(errno));
 		end_io(qo);
 		return;
 	}
@@ -136,23 +120,29 @@ void convert_file(int type)
 				namebuf, qfname, strerror(errno));
 		free(qfname);
 	}
-	endmntent(mntf);
 	end_io(qo);
 	end_io(qn);
 }
 
 int main(int argc, char **argv)
 {
+	struct mntent *mnt;
+
 	gettexton();
 	progname = basename(argv[0]);
 
 	parse_options(argc, argv);
-
+	if (init_mounts_scan(1, &mntpoint) < 0)
+		return 1;
+	if (!(mnt = get_next_mount())) {
+		end_mounts_scan();
+		return 1;
+	}
 	if (ucv)
-		convert_file(USRQUOTA);
-
+		convert_file(USRQUOTA, mnt);
 	if (gcv)
-		convert_file(GRPQUOTA);
+		convert_file(GRPQUOTA, mnt);
+	end_mounts_scan();
 
 	return 0;
 }

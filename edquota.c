@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: edquota.c,v 1.5 2001/07/16 03:24:49 jkar8572 Exp $"
+#ident "$Id: edquota.c,v 1.6 2001/08/15 20:13:42 jkar8572 Exp $"
 
 /*
  * Disk quota editor.
@@ -73,7 +73,7 @@ void usage(void)
 		_("\tedquota -g [-F formatname] [-p groupname] groupname ...\n"),
 		_("\tedquota [-u] [-F formatname] -t\n"), _("\tedquota -g [-F formatname] -t\n"));
 #endif
-	errstr(_("Bugs to: %s\n"), MY_EMAIL);
+	fprintf(stderr, _("Bugs to: %s\n"), MY_EMAIL);
 	exit(1);
 }
 

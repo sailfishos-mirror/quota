@@ -5,7 +5,7 @@ repquota \- summarize quotas for a filesystem
 .SH SYNOPSIS
 .B /usr/sbin/repquota
 [
-.B \-vtug
+.B \-vtsug
 ] [
 .B \-F
 .I format-name
@@ -14,7 +14,7 @@ repquota \- summarize quotas for a filesystem
 .LP
 .B /usr/sbin/repquota
 [
-.B \-avtug
+.B \-avtsug
 ] [
 .B \-F
 .I format-name
@@ -48,6 +48,10 @@ information.
 .B \-t
 Truncate user/group names longer than 9 characters. This results in nicer output when
 there are such names.
+.TP
+.B \-s
+Try to report used space, number of used inodes and limits in more appropriate units
+than default ones.
 .TP
 .B \-F \f2format-name\f1
 Report quota for specified format (ie. don't perform format autodetection).

@@ -126,13 +126,12 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 		/* Check file format */
 		h->qh_fmt = detect_qf_format(fd, type);
 		if (h->qh_fmt == -2) {
-			errstr(_("Quotafile format too new in %s\n"),
-				qfname);
+			errstr(_("Quotafile format too new in %s\n"), qfname);
 			goto out_lock;
 		}
 		if (fmt != -1 && h->qh_fmt != fmt) {
 			errstr(_("Quotafile format detected differs from the specified one (or the one kernel uses on the file).\n"));
-			goto out_handle;
+			goto out_lock;
 		}
 	}
 	else {
@@ -151,10 +150,10 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 		goto out_lock;
 	}
 	return h;
-      out_lock:
+out_lock:
 	if (fd != -1)
 		flock(fd, LOCK_UN);
-      out_handle:
+out_handle:
 	if (qfname)
 		free(qfname);
 	free(h);

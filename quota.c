@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quota.c,v 1.6 2001/07/17 21:10:57 jkar8572 Exp $"
+#ident "$Id: quota.c,v 1.7 2001/08/15 20:13:42 jkar8572 Exp $"
 
 /*
  * Disk quota reporting program.
@@ -60,7 +60,7 @@
 #include "pot.h"
 #include "common.h"
 
-int qflag, vflag, fmt = -1;
+int qflag, vflag, sflag, fmt = -1;
 char *progname;
 
 void usage(void);
@@ -76,7 +76,7 @@ int main(int argc, char **argv)
 	gettexton();
 	progname = basename(argv[0]);
 
-	while ((ret = getopt(argc, argv, "guqvVF:")) != -1) {
+	while ((ret = getopt(argc, argv, "guqvsVF:")) != -1) {
 		switch (ret) {
 		  case 'g':
 			  gflag++;
@@ -93,6 +93,9 @@ int main(int argc, char **argv)
 		  case 'F':
 			  if ((fmt = name2fmt(optarg)) == QF_ERROR)	/* Error? */
 				  exit(1);
+			  break;
+		  case 's':
+			  sflag++;
 			  break;
 		  case 'V':
 			  version();
@@ -137,10 +140,10 @@ int main(int argc, char **argv)
 void usage(void)
 {
 	errstr( "%s%s%s",
-		_("Usage: quota [-guqv] [-F quotaformat]\n"),
-		_("\tquota [-qv] [-F quotaformat] -u username ...\n"),
-		_("\tquota [-qv] [-F quotaformat] -g groupname ...\n"));
-	errstr(_("Bugs to: %s\n"), MY_EMAIL);
+		_("Usage: quota [-guqvs] [-F quotaformat]\n"),
+		_("\tquota [-qvs] [-F quotaformat] -u username ...\n"),
+		_("\tquota [-qvs] [-F quotaformat] -g groupname ...\n"));
+	fprintf(stderr, _("Bugs to: %s\n"), MY_EMAIL);
 	exit(1);
 }
 
@@ -197,6 +200,8 @@ int showquotas(int type, qid_t id)
 			continue;
 		}
 		if (vflag || q->dq_dqb.dqb_curspace || q->dq_dqb.dqb_curinodes) {
+			char numbuf[3][MAXNUMLEN];
+
 			if (!lines++)
 				heading(type, id, name, "");
 			if (strlen(q->dq_h->qh_quotadev) > 15)
@@ -205,14 +210,18 @@ int showquotas(int type, qid_t id)
 				printf("%15s", q->dq_h->qh_quotadev);
 			if (msgb)
 				difftime2str(q->dq_dqb.dqb_btime, timebuf);
-			printf(" %7Lu%c %6Lu %7Lu %7s", (long long)toqb(q->dq_dqb.dqb_curspace),
-			       msgb ? '*' : ' ', (long long)q->dq_dqb.dqb_bsoftlimit,
-			       (long long)q->dq_dqb.dqb_bhardlimit, msgb ? timebuf : "");
+			space2str(toqb(q->dq_dqb.dqb_curspace), numbuf[0], sflag);
+			space2str(q->dq_dqb.dqb_bsoftlimit, numbuf[1], sflag);
+			space2str(q->dq_dqb.dqb_bhardlimit, numbuf[2], sflag);
+			printf(" %7s%c %6s %7s %7s", numbuf[0], msgb ? '*' : ' ', numbuf[1],
+			       numbuf[2], msgb ? timebuf : "");
 			if (msgi)
 				difftime2str(q->dq_dqb.dqb_itime, timebuf);
-			printf(" %7Lu%c %6Lu %7Lu %7s\n", (long long)q->dq_dqb.dqb_curinodes,
-			       msgi ? '*' : ' ', (long long)q->dq_dqb.dqb_isoftlimit,
-			       (long long)q->dq_dqb.dqb_ihardlimit, msgi ? timebuf : "");
+			number2str(q->dq_dqb.dqb_curinodes, numbuf[0], sflag);
+			number2str(q->dq_dqb.dqb_isoftlimit, numbuf[1], sflag);
+			number2str(q->dq_dqb.dqb_ihardlimit, numbuf[2], sflag);
+			printf(" %7s%c %6s %7s %7s\n", numbuf[0], msgi ? '*' : ' ', numbuf[1],
+			       numbuf[2], msgi ? timebuf : "");
 			continue;
 		}
 	}

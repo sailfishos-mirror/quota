@@ -55,6 +55,7 @@
 #include "common.h"
 #include "mntopt.h"
 #include "bylabel.h"
+#include "quotasys.h"
 
 #define	TSIZE	500
 __uint64_t sizes[TSIZE];
@@ -69,7 +70,7 @@ static int vflag;
 static time_t now;
 char *progname;
 
-static void mounttable(char *);
+static void mounttable(void);
 static char *idname(__uint32_t, int);
 static void report(const char *, char *, int);
 static void creport(const char *, char *);
@@ -118,55 +119,32 @@ int main(int argc, char **argv)
 		usage();
 	if (!uflag && !gflag)
 		uflag++;
-	if (aflag)
-		mounttable(NULL);
-	else {
-		while (optind < argc)
-			mounttable(argv[optind++]);
-	}
+	if (init_mounts_scan(aflag ? 0 : argc - optind, argv + optind) < 0)
+		return 1;
+	mounttable();
+	end_mounts_scan();
 	return 0;
 }
 
-static void mounttable(char *entry)
+static void mounttable(void)
 {
+	int doit = 0;
 	struct mntent *mntp;
-	const char *dev;
-	FILE *mtab;
-	int doit;
 
-	if ((mtab = setmntent(MOUNTED, "r")) == NULL) {
-		errstr(_("no " MOUNTED " file\n"));
-		exit(1);
-	}
-	while ((mntp = getmntent(mtab)) != NULL) {
-		doit = 0;
-		dev = get_device_name(mntp->mnt_fsname);
-		if (entry && !dircmp(mntp->mnt_dir, entry) && !devcmp(dev, entry)) {
-			free((char *)dev);
-			continue;
-		}
-
+	while ((mntp = get_next_mount())) {
 		/* Currently, only XFS is implemented... */
 		if (strcmp(mntp->mnt_type, MNTTYPE_XFS) == 0) {
-			checkXFS(dev, mntp->mnt_dir);
+			checkXFS(mntp->mnt_fsname, mntp->mnt_dir);
 			doit = 1;
 		}
 		/* ...additional filesystems types here. */
 
 		if (doit) {
-			if (cflag) creport(dev, mntp->mnt_dir);
-			if (!cflag && uflag) report(dev, mntp->mnt_dir, 0);
-			if (!cflag && gflag) report(dev, mntp->mnt_dir, 1);
-		}
-		free((char *)dev);
-		if (entry != NULL) {
-			entry = NULL;	/* found, bail out */
-			break;
+			if (cflag) creport(mntp->mnt_fsname, mntp->mnt_dir);
+			if (!cflag && uflag) report(mntp->mnt_fsname, mntp->mnt_dir, 0);
+			if (!cflag && gflag) report(mntp->mnt_fsname, mntp->mnt_dir, 1);
 		}
 	}
-	if (entry != NULL)
-		errstr(_("cannot locate block device for %s\n"), entry);
-	endmntent(mtab);
 }
 
 static int qcmp(du_t * p1, du_t * p2)

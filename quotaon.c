@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaon.c,v 1.5 2001/05/15 09:28:49 jkar8572 Exp $"
+#ident "$Id: quotaon.c,v 1.6 2001/08/15 20:13:42 jkar8572 Exp $"
 
 /*
  * Turn quota on/off for a filesystem.
@@ -58,19 +58,6 @@ static void usage(void)
 {
 	errstr(_("Usage:\n\t%s [-guv] [-x state] -a\n\t%s [-guv] [-x state] filesys ...\n"), progname, progname);
 	exit(1);
-}
-
-/*
- *	Check to see if target appears in list of size cnt.
- */
-static int oneof(char *dir, char *dev, char *list[], int cnt)
-{
-	int i;
-
-	for (i = 0; i < cnt; i++)
-		if (devcmp(dev, list[i]) || dircmp(dir, list[i]))
-			return (i);
-	return (-1);
 }
 
 /*
@@ -110,9 +97,7 @@ static int newstate(struct mntent *mnt, int offmode, int type, char *extra)
 
 int main(int argc, char **argv)
 {
-	FILE *fp;
 	struct mntent *mnt;
-	long argnum, done = 0;
 	char *xarg = NULL;
 	int c, offmode = 0, errs = 0;
 
@@ -163,20 +148,12 @@ int main(int argc, char **argv)
 
 	kqf = kern_quota_format();
 
-	fp = setmntent(MNTTAB, "r");
-	while ((mnt = getmntent(fp))) {
-		if (aflag) {
-			if (hasmntopt(mnt, MNTOPT_NOAUTO) || !strcmp(mnt->mnt_type, MNTTYPE_NFS))
-				continue;
-		}
-		else {
-			if ((argnum = oneof(mnt->mnt_dir, mnt->mnt_fsname, argv, argc)) >= 0)
-				done |= 1 << argnum;
-			else
-				continue;
-		}
+	if (init_mounts_scan(aflag ? 0 : argc, argv) < 0)
+		return 1;
+	while ((mnt = get_next_mount())) {
 		if (!strcmp(mnt->mnt_type, MNTTYPE_NFS)) {
-			fprintf(stderr, "%s: Quota can't be turned on on NFS filesystem\n", mnt->mnt_fsname);
+			if (!aflag)
+				fprintf(stderr, "%s: Quota can't be turned on on NFS filesystem\n", mnt->mnt_fsname);
 			continue;
 		}
 
@@ -185,11 +162,8 @@ int main(int argc, char **argv)
 		if (uflag)
 			errs += newstate(mnt, offmode, USRQUOTA, xarg);
 	}
-	endmntent(fp);
+	end_mounts_scan();
 
-	for (c = 0; c < argc; c++)
-		if ((done & (1 << c)) == 0)
-			errstr(_("%s not found in fstab\n"), argv[c]);
 	return errs;
 }
 

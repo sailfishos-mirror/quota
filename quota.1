@@ -6,21 +6,21 @@ quota [
 .B -F
 .I format-name
 ] [
-.B -guv | q
+.B -guvs | q
 ]
 .br
 quota [
 .B -F
 .I format-name
 ] [
-.B -uv | q
+.B -uvs | q
 ] user
 .br
 quota [
 .B -F
 .I format-name
 ] [
-.B -gv | q
+.B -gvs | q
 ] group
 .SH DESCRIPTION
 .B Quota
@@ -58,7 +58,12 @@ flag is equivalent to the default.
 will display quotas on filesystems
 where no storage is allocated.
 .TP
-.B -q
+.B \-s
+flag will make
+.BR quota(1)
+try to choose units for showing limits, used space and used inodes.
+.TP
+.B \-q
 Print a more terse message,
 containing only information
 on filesystems where usage is over quota.

@@ -26,6 +26,7 @@
 #define FL_VERBOSE 4
 #define FL_ALL 8
 #define FL_TRUNCNAMES 16
+#define FL_SHORTNUMS 32
 
 int flags, fmt = -1;
 char **mnt;
@@ -34,8 +35,8 @@ char *progname;
 
 static void usage(void)
 {
-	errstr(_("Utility for reporting quotas.\nUsage:\n%s [-vugt] [-F quotaformat] (-a | mntpoint)\n"), progname);
-	errstr(_("Bugs to %s\n"), MY_EMAIL);
+	errstr(_("Utility for reporting quotas.\nUsage:\n%s [-vugts] [-F quotaformat] (-a | mntpoint)\n"), progname);
+	fprintf(stderr, _("Bugs to %s\n"), MY_EMAIL);
 	exit(1);
 }
 
@@ -49,7 +50,7 @@ static void parse_options(int argcnt, char **argstr)
 	else
 		slash++;
 
-	while ((ret = getopt(argcnt, argstr, "VavughtF:")) != -1) {
+	while ((ret = getopt(argcnt, argstr, "VavughtsF:")) != -1) {
 		switch (ret) {
 			case '?':
 			case 'h':
@@ -71,6 +72,9 @@ static void parse_options(int argcnt, char **argstr)
 				break;
 			case 't':
 				flags |= FL_TRUNCNAMES;
+				break;
+			case 's':
+				flags |= FL_SHORTNUMS;
 				break;
 			case 'F':
 				if ((fmt = name2fmt(optarg)) == QF_ERROR)
@@ -107,6 +111,8 @@ static int print(struct dquot *dquot, char *name)
 {
 	char pname[MAXNAMELEN];
 	char time[MAXTIMELEN];
+	char numbuf[3][MAXNUMLEN];
+	
 	struct util_dqblk *entry = &dquot->dq_dqb;
 
 	if (!entry->dqb_curspace && !entry->dqb_curinodes && !(flags & FL_VERBOSE))
@@ -115,16 +121,18 @@ static int print(struct dquot *dquot, char *name)
 	if (flags & FL_TRUNCNAMES)
 		pname[PRINTNAMELEN] = 0;
 	difftime2str(entry->dqb_btime, time);
-	printf("%-*s %c%c%8Lu%8Lu%8Lu%7s", PRINTNAMELEN, pname,
-	       overlim(qb2kb(toqb(entry->dqb_curspace)), qb2kb(entry->dqb_bsoftlimit),
-		       qb2kb(entry->dqb_bhardlimit)), overlim(entry->dqb_curinodes,
-							      entry->dqb_isoftlimit,
-							      entry->dqb_ihardlimit),
-	       (long long)qb2kb(toqb(entry->dqb_curspace)), (long long)qb2kb(entry->dqb_bsoftlimit),
-	       (long long)qb2kb(entry->dqb_bhardlimit), time);
+	space2str(toqb(entry->dqb_curspace), numbuf[0], flags & FL_SHORTNUMS);
+	space2str(entry->dqb_bsoftlimit, numbuf[1], flags & FL_SHORTNUMS);
+	space2str(entry->dqb_bhardlimit, numbuf[2], flags & FL_SHORTNUMS);
+	printf("%-*s %c%c %7s %7s %7s %6s", PRINTNAMELEN, pname,
+	       overlim(qb2kb(toqb(entry->dqb_curspace)), qb2kb(entry->dqb_bsoftlimit), qb2kb(entry->dqb_bhardlimit)),
+	       overlim(entry->dqb_curinodes, entry->dqb_isoftlimit, entry->dqb_ihardlimit),
+	       numbuf[0], numbuf[1], numbuf[2], time);
 	difftime2str(entry->dqb_itime, time);
-	printf("%8Lu%6Lu%6Lu%7s\n", (long long)entry->dqb_curinodes,
-	       (long long)entry->dqb_isoftlimit, (long long)entry->dqb_ihardlimit, time);
+	number2str(entry->dqb_curinodes, numbuf[0], flags & FL_SHORTNUMS);
+	number2str(entry->dqb_isoftlimit, numbuf[1], flags & FL_SHORTNUMS);
+	number2str(entry->dqb_ihardlimit, numbuf[2], flags & FL_SHORTNUMS);
+	printf(" %7s %5s %5s %6s\n", numbuf[0], numbuf[1], numbuf[2], time);
 	return 0;
 }
 

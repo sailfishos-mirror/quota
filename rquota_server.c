@@ -9,7 +9,7 @@
  *
  *          This part does the lookup of the info.
  *
- * Version: $Id: rquota_server.c,v 1.5 2001/07/17 21:02:55 jkar8572 Exp $
+ * Version: $Id: rquota_server.c,v 1.6 2001/08/15 20:13:42 jkar8572 Exp $
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
@@ -127,9 +127,6 @@ setquota_rslt *setquotainfo(int flags, caddr_t * argp, struct svc_req *rqstp)
 		setquota_args *args;
 		ext_setquota_args *ext_args;
 	} arguments;
-	struct stat st;
-	dev_t device;
-	FILE *mntf;
 	struct util_dqblk dqblk;
 	struct dquot *dquot;
 	struct mntent *mnt;
@@ -184,25 +181,19 @@ setquota_rslt *setquotainfo(int flags, caddr_t * argp, struct svc_req *rqstp)
 	}
 
 	result.status = Q_NOQUOTA;
-	if (stat(pathname, &st) == -1)
-		return (&result);
-
-	device = st.st_dev;
 	result.setquota_rslt_u.sqr_rquota.rq_bsize = RPC_DQBLK_SIZE;
 
-	mntf = setmntent(_PATH_MOUNTED, "r");
-	while ((mnt = getmntent(mntf))) {
-		if (stat(mnt->mnt_dir, &st) == -1)
-			continue;
-		if (st.st_dev != device)
-			continue;
-		if (!(handles[0] = init_io(mnt, type, -1, 0)))
-			continue;
-		break;
-	}
-	endmntent(mntf);
-	if (!handles[0])
+	if (init_mounts_scan(1, &pathname) < 0)
 		goto out;
+	if (!(mnt = get_next_mount())) {
+		end_mounts_scan();
+		goto out;
+	}
+	if (!(handles[0] = init_io(mnt, type, -1, 0))) {
+		end_mounts_scan();
+		goto out;
+	}
+	end_mounts_scan();
 	if (!(dquot = handles[0]->qh_ops->read_dquot(handles[0], id)))
 		goto out;
 	if (qcmd == QCMD(Q_RPC_SETQLIM, type) || qcmd == QCMD(Q_RPC_SETQUOTA, type)) {
@@ -220,7 +211,7 @@ setquota_rslt *setquotainfo(int flags, caddr_t * argp, struct svc_req *rqstp)
 	if (handles[0]->qh_ops->commit_dquot(dquot) == -1)
 		goto out;
 	result.status = Q_OK;
-      out:
+out:
 	dispose_handle_list(handles);
 #else
 	result.status = Q_EPERM;
@@ -235,9 +226,6 @@ getquota_rslt *getquotainfo(int flags, caddr_t * argp, struct svc_req * rqstp)
 		getquota_args *args;
 		ext_getquota_args *ext_args;
 	} arguments;
-	struct stat st;
-	dev_t device;
-	FILE *mntf;
 	struct dquot *dquot = NULL;
 	struct mntent *mnt;
 	char *pathname;
@@ -289,26 +277,21 @@ getquota_rslt *getquotainfo(int flags, caddr_t * argp, struct svc_req * rqstp)
 	}
 
 	result.status = Q_NOQUOTA;
-
-	if (stat(pathname, &st) == -1)
-		return (&result);
-
-	device = st.st_dev;
 	result.getquota_rslt_u.gqr_rquota.rq_bsize = RPC_DQBLK_SIZE;
 
-	mntf = setmntent(_PATH_MOUNTED, "r");
-	while ((mnt = getmntent(mntf))) {
-		if (stat(mnt->mnt_dir, &st) == -1)
-			continue;
-		if (st.st_dev != device)
-			continue;
-		if (!(handles[0] = init_io(mnt, type, -1, IOI_READONLY)))
-			continue;
-		break;
-	}
-	endmntent(mntf);
-	if (!handles[0])
+	if (init_mounts_scan(1, &pathname) < 0)
 		goto out;
+	if (!(mnt = get_next_mount())) {
+		end_mounts_scan();
+		goto out;
+	}
+	printf("dev: %s dir: %s\n", mnt->mnt_fsname, mnt->mnt_dir);
+	if (!(handles[0] = init_io(mnt, type, -1, IOI_READONLY))) {
+		end_mounts_scan();
+		goto out;
+	}
+	printf("Returned: %p\n", handles[0]);
+	end_mounts_scan();
 	if (!(flags & ACTIVE) || QIO_ENABLED(handles[0]))
 		dquot = handles[0]->qh_ops->read_dquot(handles[0], id);
 	if (dquot) {
@@ -319,6 +302,7 @@ getquota_rslt *getquotainfo(int flags, caddr_t * argp, struct svc_req * rqstp)
 	}
 out:
 	dispose_handle_list(handles);
+	printf("state: %d\n", result.status);
 	return (&result);
 }
 

@@ -9,10 +9,12 @@
 
 #include <sys/types.h>
 #include "mntopt.h"
+#include "quota.h"
 
 #define MAXNAMELEN 64		/* Maximal length of user/group name */
 #define MAXTIMELEN 40		/* Maximal length of time string */
-#define MAXMNTPOINTS 128	/* Maximal number of processed mountpoints per one run */
+#define MAXNUMLEN 32		/* Maximal length of number */
+#define MAXMNTPOINTS 128	/* Maximal number of mountpoints with quota */
 
 /* Flags for formatting time */
 #define TF_ROUND 0x1		/* Should be printed time rounded? */
@@ -58,6 +60,12 @@ void difftime2str(time_t, char *);
 /* Convert time to printable form */
 void time2str(time_t, char *, int);
 
+/* Convert number in quota blocks to short printable form */
+void space2str(qsize_t, char *, int);
+
+/* Convert number to short printable form */
+void number2str(unsigned long long, char *, int);
+
 /* Check to see if particular quota is to be enabled */
 int hasquota(struct mntent *mnt, int type);
 
@@ -84,5 +92,14 @@ int kern_quota_format(void);
 
 /* Check whether is quota turned on on given device for given type */
 int kern_quota_on(const char *dev, int type, int fmt);
+
+/* Initialize mountpoints scan */
+int init_mounts_scan(int dcnt, char **dirs);
+
+/* Return next mountpoint for scan */
+struct mntent *get_next_mount(void);
+
+/* Free all structures associated with mountpoints scan */
+void end_mounts_scan(void);
 
 #endif /* _QUOTASYS_H */

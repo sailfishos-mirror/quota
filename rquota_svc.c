@@ -10,7 +10,7 @@
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: rquota_svc.c,v 1.2 2001/05/02 09:32:22 jkar8572 Exp $
+ * Version: $Id: rquota_svc.c,v 1.3 2001/08/15 20:13:42 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -118,7 +118,7 @@ static void rquotaprog_1(struct svc_req *rqstp, register SVCXPRT * transp)
 		svcerr_systemerr(transp);
 	}
 	if (!svc_freeargs(transp, xdr_argument, (caddr_t) & argument)) {
-		errstr(_("unable to free arguments"));
+		errstr(_("unable to free arguments\n"));
 		exit(1);
 	}
 	return;
@@ -196,7 +196,7 @@ static void rquotaprog_2(struct svc_req *rqstp, register SVCXPRT * transp)
 		svcerr_systemerr(transp);
 	}
 	if (!svc_freeargs(transp, xdr_argument, (caddr_t) & argument)) {
-		errstr(_("unable to free arguments"));
+		errstr(_("unable to free arguments\n"));
 		exit(1);
 	}
 	return;
@@ -219,35 +219,35 @@ int main(int argc, char **argv)
 
 	transp = svcudp_create(RPC_ANYSOCK);
 	if (transp == NULL) {
-		errstr(_("cannot create udp service."));
+		errstr(_("cannot create udp service.\n"));
 		exit(1);
 	}
 	if (!svc_register(transp, RQUOTAPROG, RQUOTAVERS, rquotaprog_1, IPPROTO_UDP)) {
-		errstr(_("unable to register (RQUOTAPROG, RQUOTAVERS, udp)."));
+		errstr(_("unable to register (RQUOTAPROG, RQUOTAVERS, udp).\n"));
 		exit(1);
 	}
 	if (!svc_register(transp, RQUOTAPROG, EXT_RQUOTAVERS, rquotaprog_2, IPPROTO_UDP)) {
-		errstr(_("unable to register (RQUOTAPROG, EXT_RQUOTAVERS, udp)."));
+		errstr(_("unable to register (RQUOTAPROG, EXT_RQUOTAVERS, udp).\n"));
 		exit(1);
 	}
 
 	transp = svctcp_create(RPC_ANYSOCK, 0, 0);
 	if (transp == NULL) {
-		errstr(_("cannot create tcp service."));
+		errstr(_("cannot create tcp service.\n"));
 		exit(1);
 	}
 	if (!svc_register(transp, RQUOTAPROG, RQUOTAVERS, rquotaprog_1, IPPROTO_TCP)) {
-		errstr(_("unable to register (RQUOTAPROG, RQUOTAVERS, tcp)."));
+		errstr(_("unable to register (RQUOTAPROG, RQUOTAVERS, tcp).\n"));
 		exit(1);
 	}
 	if (!svc_register(transp, RQUOTAPROG, EXT_RQUOTAVERS, rquotaprog_2, IPPROTO_TCP)) {
-		errstr(_("unable to register (RQUOTAPROG, EXT_RQUOTAVERS, tcp)."));
+		errstr(_("unable to register (RQUOTAPROG, EXT_RQUOTAVERS, tcp).\n"));
 		exit(1);
 	}
 
 	daemon(1, 1);
 	svc_run();
-	errstr(_("svc_run returned"));
+	errstr(_("svc_run returned\n"));
 	exit(1);
 	/* NOTREACHED */
 }

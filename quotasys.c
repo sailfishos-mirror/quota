@@ -211,6 +211,42 @@ void time2str(time_t seconds, char *buf, int flags)
 }
 
 /*
+ * Convert number in quota blocks to some nice short form for printing
+ */
+void space2str(qsize_t space, char *buf, int format)
+{
+	int i;
+	char suffix[8] = " MGT";
+
+	space = qb2kb(space);
+	if (format)
+		for (i = 3; i > 0; i--)
+			if (space >= (1LL << (QUOTABLOCK_BITS*i))*100) {
+				sprintf(buf, "%Lu%c", (space+(1 << (QUOTABLOCK_BITS*i))-1) >> (QUOTABLOCK_BITS*i), suffix[i]);
+				return;
+			}
+	sprintf(buf, "%Lu", space);
+}
+
+/*
+ *  Convert number to some nice short form for printing
+ */
+void number2str(unsigned long long num, char *buf, int format)
+{
+	int i;
+	unsigned long long div;
+	char suffix[8] = " kmgt";
+
+	if (format)
+		for (i = 4, div = 1000000000000LL; i > 0; i--, div /= 1000)
+			if (num >= 100*div) {
+				sprintf(buf, "%Lu%c", (num+div-1) / div, suffix[i]);
+				return;
+			}
+	sprintf(buf, "%Lu", num);
+}
+
+/*
  *	Check for XFS filesystem with quota accounting enabled
  */
 static int hasxfsquota(struct mntent *mnt, int type)
@@ -341,48 +377,31 @@ char *get_qf_name(struct mntent *mnt, int type, int fmt)
 struct quota_handle **create_handle_list(int count, char **mntpoints, int type, int fmt,
 					 int flags)
 {
-	FILE *mntf;
 	struct mntent *mnt;
-	int i, gotmnt = 0;
+	int gotmnt = 0;
 	static struct quota_handle *hlist[MAXMNTPOINTS];
-	const char *dev;
 
-	if (!(mntf = setmntent(MOUNTED, "r")))
-		die(2, _("Can't open %s: %s\n"), MOUNTED, strerror(errno));
-	while ((mnt = getmntent(mntf))) {
-		if (!(dev = get_device_name(mnt->mnt_fsname)))
-			continue;
-		/* Do we already have this device? (filesystem may be mounted multiple times) */
-		for (i = 0; i < gotmnt && !devcmp_handle(dev, hlist[i]); i++);
-		if (i < gotmnt)
-			continue;
-		for (i = 0; i < count; i++)
-			/* Is this the filesystem we want? */
-			if (devcmp(dev, mntpoints[i]) || dircmp(mnt->mnt_dir, mntpoints[i]))
-				break;
-		free((char *)dev);
-		if (!count || i < count) {
-			if (strcmp(mnt->mnt_type, MNTTYPE_NFS)) {	/* No NFS? */
-				if (gotmnt == MAXMNTPOINTS)
-					die(3, _("Too many mountpoints. Please report to: %s\n"),
-					    MY_EMAIL);
-				if (!(hlist[gotmnt] = init_io(mnt, type, fmt, flags)))
-					continue;
-				gotmnt++;
-			}
-			else if (!(flags & IOI_LOCALONLY) && (fmt == -1 || fmt == QF_RPC)) {	/* Use NFS? */
+	if (init_mounts_scan(count, mntpoints) < 0)
+		die(2, _("Can't initialize mountpoint scan.\n"));
+	while ((mnt = get_next_mount())) {
+		if (strcmp(mnt->mnt_type, MNTTYPE_NFS)) {	/* No NFS? */
+			if (gotmnt+1 == MAXMNTPOINTS)
+				die(2, _("Too many mountpoints with quota. Contact %s\n"), MY_EMAIL);
+			if (!(hlist[gotmnt] = init_io(mnt, type, fmt, flags)))
+				continue;
+			gotmnt++;
+		}
+		else if (!(flags & IOI_LOCALONLY) && (fmt == -1 || fmt == QF_RPC)) {	/* Use NFS? */
 #ifdef RPC
-				if (gotmnt == MAXMNTPOINTS)
-					die(3, _("Too many mountpoints. Please report to: %s\n"),
-					    MY_EMAIL);
-				if (!(hlist[gotmnt] = init_io(mnt, type, fmt, flags)))
-					continue;
-				gotmnt++;
+			if (gotmnt+1 == MAXMNTPOINTS)
+				die(2, _("Too many mountpoints with quota. Contact %s\n"), MY_EMAIL);
+			if (!(hlist[gotmnt] = init_io(mnt, type, fmt, flags)))
+				continue;
+			gotmnt++;
 #endif
-			}
 		}
 	}
-	endmntent(mntf);
+	end_mounts_scan();
 	hlist[gotmnt] = NULL;
 	if (count && gotmnt != count)
 		die(1, _("Not all specified mountpoints are using quota.\n"));
@@ -517,4 +536,252 @@ int kern_quota_on(const char *dev, int type, int fmt)
 	if ((fmt & (1 << QF_VFSOLD)) && v1_kern_quota_on(dev, type))	/* Old quota format */
 		return QF_VFSOLD;
 	return -1;
+}
+
+/*
+ *
+ *	mtab/fstab handling routines
+ *
+ */
+
+struct mount_entry {
+	char *me_type;		/* Type of filesystem for given entry */
+	char *me_opts;		/* Options of filesystem */
+	dev_t me_dev;		/* Device filesystem is mounted on */
+	ino_t me_ino;		/* Inode number of root of filesystem */
+	const char *me_devname;	/* Name of device (after pass through get_device_name()) */
+	const char *me_dir;	/* One of mountpoints of filesystem */
+};
+
+struct searched_dir {
+	int sd_dir;		/* Is searched dir mountpoint or in fact device? */
+	dev_t sd_dev;		/* Device mountpoint lies on */
+	ino_t sd_ino;		/* Inode number of mountpoint */
+	const char *sd_name;	/* Name of given dir/device */
+};
+
+#define ALLOC_ENTRIES_NUM 16	/* Allocate entries by this number */
+
+static int mnt_entries_cnt;	/* Number of cached mountpoint entries */
+static struct mount_entry *mnt_entries;	/* Cached mounted filesystems */
+static int check_dirs_cnt, act_checked;	/* Number of dirs to check; Actual checked dir/(mountpoint in case of -a) */
+static struct searched_dir *check_dirs;	/* Directories to check */
+
+/* Cache mtab/fstab */
+static int cache_mnt_table(void)
+{
+	FILE *mntf;
+	struct mntent *mnt;
+	struct stat st;
+	int allocated = 0, i;
+	dev_t dev;
+	char mntpointbuf[PATH_MAX];
+
+	if (!(mntf = setmntent(_PATH_MOUNTED, "r"))) {
+		if (errno != ENOENT) {
+			errstr(_("Can't open %s: %s\n"), _PATH_MOUNTED, strerror(errno));
+			return -1;
+		}
+		else	/* Fallback on fstab when mtab not available */
+			if (!(mntf = setmntent(_PATH_MNTTAB, "r"))) {
+				errstr(_("Can't open %s: %s\n"), _PATH_MNTTAB, strerror(errno));
+				return -1;
+			}
+	}
+	mnt_entries = smalloc(sizeof(struct mount_entry) * ALLOC_ENTRIES_NUM);
+	allocated += ALLOC_ENTRIES_NUM;
+	while ((mnt = getmntent(mntf))) {
+		const char *devname;
+
+		if (!CORRECT_FSTYPE(mnt->mnt_type))	/* Just basic filtering */
+			continue;
+		if (!(devname = get_device_name(mnt->mnt_fsname))) {
+			errstr(_("Can't get device name for %s\n"), mnt->mnt_fsname);
+			continue;
+		}
+		if (!realpath(mnt->mnt_dir, mntpointbuf)) {
+			errstr(_("Can't resolve mountpoint path %s: %s\n"), mnt->mnt_dir, strerror(errno));
+			free((char *)devname);
+			continue;
+		}
+		if (strcmp(mnt->mnt_type, MNTTYPE_NFS)) {
+			if (stat(devname, &st) < 0) {	/* Can't stat mounted device? */
+				errstr(_("Can't stat() mounted device %s: %s\n"), devname, strerror(errno));
+				free((char *)devname);
+				continue;
+			}
+			if (!S_ISBLK(st.st_mode) && !S_ISCHR(st.st_mode))
+				errstr(_("Warning: Device %s is not block nor character device.\n"), devname);
+			dev = st.st_rdev;
+			for (i = 0; i < mnt_entries_cnt && mnt_entries[i].me_dev != dev; i++);
+		}
+		else {	/* Cope with network filesystems */
+			dev = 0;
+			for (i = 0; i < mnt_entries_cnt && strcmp(mnt_entries[i].me_devname, devname); i++);
+		}
+		if (i == mnt_entries_cnt) {	/* New mounted device? */
+			if (stat(mnt->mnt_dir, &st) < 0) {	/* Can't stat mountpoint? We have better ignore it... */
+				errstr(_("Can't stat() mountpoint %s: %s\n"), mnt->mnt_dir, strerror(errno));
+				free((char *)devname);
+				continue;
+			}
+			if (allocated == mnt_entries_cnt) {
+				allocated += ALLOC_ENTRIES_NUM;
+				mnt_entries = srealloc(mnt_entries, allocated * sizeof(struct mount_entry));
+			}
+			mnt_entries[i].me_type = sstrdup(mnt->mnt_type);
+			mnt_entries[i].me_opts = sstrdup(mnt->mnt_opts);
+			mnt_entries[i].me_dev = dev;
+			mnt_entries[i].me_ino = st.st_ino;
+			mnt_entries[i].me_devname = devname;
+			mnt_entries[i].me_dir = sstrdup(mntpointbuf);
+			mnt_entries_cnt++;
+		}
+		else 
+			free((char *)devname);	/* We don't need it any more */
+	}
+	endmntent(mntf);
+	return 0;
+}
+
+/* Process and store given paths */
+static int process_dirs(int dcnt, char **dirs)
+{
+	struct stat st;
+	int i;
+	char mntpointbuf[PATH_MAX];
+
+	check_dirs_cnt = 0;
+	act_checked = -1;
+	if (dcnt) {
+		check_dirs = smalloc(sizeof(struct searched_dir) * dcnt);
+		for (i = 0; i < dcnt; i++) {
+			if (stat(dirs[i], &st) < 0) {
+				errstr(_("Can't stat() given mountpoint %s: %s\n"), dirs[i], strerror(errno));
+				continue;
+			}
+			check_dirs[check_dirs_cnt].sd_dir = S_ISDIR(st.st_mode);
+			if (S_ISDIR(st.st_mode)) {
+				check_dirs[check_dirs_cnt].sd_dev = st.st_dev;
+				check_dirs[check_dirs_cnt].sd_ino = st.st_ino;
+			}
+			else if (S_ISBLK(st.st_mode) || S_ISCHR(st.st_mode))
+				check_dirs[check_dirs_cnt].sd_dev = st.st_rdev;
+			else {
+				errstr(_("Specified path %s is not directory nor device.\n"), dirs[i]);
+				continue;
+			}
+			if (!realpath(dirs[i], mntpointbuf)) {
+				errstr(_("Can't resolve path %s: %s\n"), dirs[i], strerror(errno));
+				continue;
+			}
+			check_dirs[check_dirs_cnt].sd_name = sstrdup(mntpointbuf);
+			check_dirs_cnt++;
+		}
+	}
+	return 0;
+}
+
+/*
+ *	Initialize mountpoint scan
+ */ 
+int init_mounts_scan(int dcnt, char **dirs)
+{
+	if (cache_mnt_table() < 0)
+		return -1;
+	return process_dirs(dcnt, dirs);
+}
+
+/* Find next usable mountpoint when scanning all mountpoints */
+static int find_next_entry_all(int *pos)
+{
+	struct mntent mnt;
+
+restart:
+	if (++act_checked == mnt_entries_cnt)
+		return 0;
+	mnt.mnt_fsname = (char *)mnt_entries[act_checked].me_devname;
+	mnt.mnt_type = mnt_entries[act_checked].me_type;
+	mnt.mnt_opts = mnt_entries[act_checked].me_opts;
+	mnt.mnt_dir = (char *)mnt_entries[act_checked].me_dir;
+	if (hasmntopt(&mnt, MNTOPT_NOAUTO))
+		goto restart;
+	*pos = act_checked;
+	return 1;
+}
+
+/* Find next usable mountpoint when scanning selected mountpoints */
+static int find_next_entry_sel(int *pos)
+{
+	int i;
+	struct searched_dir *sd;
+
+restart:
+	if (++act_checked == check_dirs_cnt)
+		return 0;
+	sd = check_dirs + act_checked;
+	for (i = 0; i < mnt_entries_cnt; i++) {
+		if (sd->sd_dir) {
+			if (sd->sd_dev == mnt_entries[i].me_dev && sd->sd_ino == mnt_entries[i].me_ino)
+				break;
+		}
+		else
+			if (sd->sd_dev == mnt_entries[i].me_dev)
+				break;
+	}
+	if (i == mnt_entries_cnt) {
+		errstr(_("Mountpoint (or device) %s not found.\n"), sd->sd_name);
+		goto restart;
+	}
+	*pos = i;
+	return 1;
+}
+
+/*
+ *	Return next directory from the list
+ */
+struct mntent *get_next_mount(void)
+{
+	static struct mntent mnt;
+	int mntpos;
+
+	if (!check_dirs_cnt) {	/* Scan all mountpoints? */
+		if (!find_next_entry_all(&mntpos))
+			return NULL;
+		mnt.mnt_dir = (char *)mnt_entries[mntpos].me_dir;
+	}
+	else {
+		if (!find_next_entry_sel(&mntpos))
+			return NULL;
+		mnt.mnt_dir = (char *)check_dirs[act_checked].sd_name;
+	}
+	mnt.mnt_fsname = (char *)mnt_entries[mntpos].me_devname;
+	mnt.mnt_type = mnt_entries[mntpos].me_type;
+	mnt.mnt_opts = mnt_entries[mntpos].me_opts;
+	return &mnt;
+}
+
+/*
+ *	Free all structures allocated for mountpoint scan
+ */
+void end_mounts_scan(void)
+{
+	int i;
+
+	for (i = 0; i < mnt_entries_cnt; i++) {
+		free(mnt_entries[i].me_type);
+		free(mnt_entries[i].me_opts);
+		free((char *)mnt_entries[i].me_devname);
+		free((char *)mnt_entries[i].me_dir);
+	}
+	free(mnt_entries);
+	mnt_entries = NULL;
+	mnt_entries_cnt = 0;
+	if (check_dirs_cnt) {
+		for (i = 0; i < check_dirs_cnt; i++)
+			free((char *)check_dirs[i].sd_name);
+		free(check_dirs);
+	}
+	check_dirs = NULL;
+	check_dirs_cnt = 0;
 }

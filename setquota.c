@@ -50,7 +50,7 @@ static void usage(void)
 			  "  setquota [-u|-g] [-F quotaformat] <-p protouser|protogroup> <user|group> -a|<filesystem>...\n"
 			  "  setquota [-u|-g] [-F quotaformat] -t <blockgrace> <inodegrace> -a|<filesystem>...\n"));
 #endif
-	errstr(_("Bugs to: %s\n"), MY_EMAIL);
+	fprintf(stderr, _("Bugs to: %s\n"), MY_EMAIL);
 	exit(1);
 }
 

@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaio_v1.c,v 1.6 2001/07/17 21:02:55 jkar8572 Exp $"
+#ident "$Id: quotaio_v1.c,v 1.7 2001/08/15 20:13:42 jkar8572 Exp $"
 
 #include <unistd.h>
 #include <errno.h>
@@ -282,11 +282,13 @@ static int v1_commit_dquot(struct dquot *dquot)
 /*
  *	Scan all dquots in file and call callback on each
  */
+#define SCANBUFSIZE 256
+
 static int v1_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct dquot *, char *))
 {
-	int rd;
-	char name[MAXNAMELEN];
-	struct v1_disk_dqblk ddqblk;
+	int rd, scanbufpos = 0, scanbufsize = 0;
+	char name[MAXNAMELEN], scanbuf[sizeof(struct v1_disk_dqblk)*SCANBUFSIZE];
+	struct v1_disk_dqblk *ddqblk;
 	struct dquot *dquot = get_empty_dquot();
 	qid_t id = 0;
 
@@ -297,13 +299,23 @@ static int v1_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct d
 	memset(dquot, 0, sizeof(*dquot));
 	dquot->dq_h = h;
 	lseek(h->qh_fd, 0, SEEK_SET);
-	for(id = 0; (rd = read(h->qh_fd, &ddqblk, sizeof(ddqblk))) == sizeof(ddqblk); id++) {
-		if ((ddqblk.dqb_ihardlimit | ddqblk.dqb_isoftlimit |
-		     ddqblk.dqb_bhardlimit | ddqblk.dqb_bsoftlimit |
-		     ddqblk.dqb_curblocks | ddqblk.dqb_curinodes |
-		     ddqblk.dqb_itime | ddqblk.dqb_btime) == 0)
+	for(id = 0; ; id++, scanbufpos++) {
+		if (scanbufpos >= scanbufsize) {
+			rd = read(h->qh_fd, scanbuf, sizeof(scanbuf));
+			if (rd < 0 || rd % sizeof(struct v1_disk_dqblk))
+				goto out_err;
+			if (!rd)
+				break;
+			scanbufpos = 0;
+			scanbufsize = rd / sizeof(struct v1_disk_dqblk);
+		}
+		ddqblk = ((struct v1_disk_dqblk *)scanbuf) + scanbufpos;
+		if ((ddqblk->dqb_ihardlimit | ddqblk->dqb_isoftlimit |
+		     ddqblk->dqb_bhardlimit | ddqblk->dqb_bsoftlimit |
+		     ddqblk->dqb_curblocks | ddqblk->dqb_curinodes |
+		     ddqblk->dqb_itime | ddqblk->dqb_btime) == 0)
 			continue;
-		v1_disk2memdqblk(&dquot->dq_dqb, &ddqblk);
+		v1_disk2memdqblk(&dquot->dq_dqb, ddqblk);
 		dquot->dq_id = id;
 		id2name(dquot->dq_id, h->qh_type, name);
 		if ((rd = process_dquot(dquot, name)) < 0) {
@@ -313,5 +325,6 @@ static int v1_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct d
 	}
 	if (!rd)		/* EOF? */
 		return 0;
+out_err:
 	return -1;		/* Some read errstr... */
 }
