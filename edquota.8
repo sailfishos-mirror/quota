@@ -7,21 +7,29 @@ edquota \- edit user quotas
 .B \-p
 .I protoname
 ] [
-.B \-ug
+.BR \-u \ |
+.B \-g
 ] [
 .B \-r
 ] [
 .B \-F
 .I format-name
+] [
+.B \-f
+.I filesystem
 ]
 .IR username .\|.\|.
 .LP
 .B edquota
 [
-.B \-ug
+.BR \-u \ |
+.B \-g
 ] [
 .B \-F
 .I format-name
+] [
+.B \-f
+.I filesystem
 ]
 .B \-t
 .SH DESCRIPTION
@@ -91,6 +99,10 @@ Possible format names are:
 (quota over NFS),
 .B xfs
 (quota on XFS filesystem)
+.TP
+.B \-f \f2filesystem\f1
+Perform specified operations only for given filesystem (default is to perform
+operations for all filesystems with quota).
 .TP
 .B \-t
 Edit the soft time limits for each filesystem.

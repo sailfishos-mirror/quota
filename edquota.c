@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: edquota.c,v 1.6 2001/08/15 20:13:42 jkar8572 Exp $"
+#ident "$Id: edquota.c,v 1.7 2001/12/14 08:17:02 jkar8572 Exp $"
 
 /*
  * Disk quota editor.
@@ -59,19 +59,20 @@
 #include "common.h"
 
 char *progname;
+char *dirname;
 
 void usage(void)
 {
 #if defined(RPC_SETQUOTA)
-	errstr("%s%s%s%s",
-		_("Usage:\tedquota [-r] [-u] [-F formatname] [-p username] username ...\n"),
-		_("\tedquota [-r] -g [-F formatname] [-p groupname] groupname ...\n"),
-		_("\tedquota [-r] [-u] [-F formatname] -t\n"), _("\tedquota [-r] -g [-F formatname] -t\n"));
+	errstr("%s%s%s",
+		_("Usage:\tedquota [-r] [-u] [-F formatname] [-p username] [-f filesystem] username ...\n"),
+		_("\tedquota [-r] -g [-F formatname] [-p groupname] [-f filesystem] groupname ...\n"),
+		_("\tedquota [-r] [-u|g] [-F formatname] [-f filesystem] -t\n"));
 #else
-	errstr("%s%s%s%s",
-		_("Usage:\tedquota [-u] [-F formatname] [-p username] username ...\n"),
-		_("\tedquota -g [-F formatname] [-p groupname] groupname ...\n"),
-		_("\tedquota [-u] [-F formatname] -t\n"), _("\tedquota -g [-F formatname] -t\n"));
+	errstr("%s%s%s",
+		_("Usage:\tedquota [-u] [-F formatname] [-p username] [-f filesystem] username ...\n"),
+		_("\tedquota -g [-F formatname] [-p groupname] [-f filesystem] groupname ...\n"),
+		_("\tedquota [-u|g] [-F formatname] [-f filesystem] -t\n"));
 #endif
 	fprintf(stderr, _("Bugs to: %s\n"), MY_EMAIL);
 	exit(1);
@@ -93,11 +94,12 @@ int main(int argc, char **argv)
 	if (argc < 2)
 		usage();
 
+	dirname = NULL;
 	quotatype = USRQUOTA;
 #if defined(RPC_SETQUOTA)
-	while ((ret = getopt(argc, argv, "ugrntVp:F:")) != -1) {
+	while ((ret = getopt(argc, argv, "ugrntVp:F:f:")) != -1) {
 #else
-	while ((ret = getopt(argc, argv, "ugtVp:F:")) != -1) {
+	while ((ret = getopt(argc, argv, "ugtVp:F:f:")) != -1) {
 #endif
 		switch (ret) {
 		  case 'p':
@@ -123,6 +125,9 @@ int main(int argc, char **argv)
 			  if ((fmt = name2fmt(optarg)) == QF_ERROR)	/* Error? */
 				  exit(1);
 			  break;
+		  case 'f':
+			  dirname = optarg;
+			  break;
 		  case 'V':
 			  version();
 			  exit(0);
@@ -136,7 +141,7 @@ int main(int argc, char **argv)
 	if (tflag && argc != 0)
 		usage();
 
-	handles = create_handle_list(0, NULL, quotatype, fmt, rflag ? 0 : IOI_LOCALONLY);
+	handles = create_handle_list(0, dirname ? &dirname : NULL, quotatype, fmt, rflag ? 0 : IOI_LOCALONLY);
 	if (!handles[0]) {
 		dispose_handle_list(handles);
 		fputs(_("No filesystems with quota detected.\n"), stderr);

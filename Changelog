@@ -1,5 +1,6 @@
 Changes in quota-tools from 3.02 to 3.03
 
+* added -f <filesystem> option (perform operation only for given filesystem) for edquota (Jan Kara)
 * quotacheck now skips quota file scanning when file not found (Jan Kara)
 * repquota shouldn't show grace times when softlimit is not exceeded (Jan Kara)
 * removed bogus error message in mountpoint scanning (Jan Kara)
