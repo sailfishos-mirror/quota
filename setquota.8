@@ -47,6 +47,24 @@ setquota \- set disk quotas
 .I filesystem...
 .LP
 .B setquota
+.B \-b
+[
+.B \-r
+]
+[
+.B \-u
+|
+.B \-g
+]
+[
+.B \-F
+.I quotaformat
+]
+.B \-a
+|
+.I filesystem...
+.LP
+.B setquota
 .B \-t
 [
 .B \-u
@@ -117,6 +135,11 @@ Set group quotas for named group.
 Use quota settings of user or group
 .I protoname
 to set the quota for the named user or group.
+.TP
+.B -b
+Read information to set from stdin (input format is
+.I name block-softlimit block-hardlimit inode-softlimit inode-hardlimit
+).
 .TP
 .B -t
 Set grace times for users/groups. Times

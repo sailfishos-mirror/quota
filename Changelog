@@ -1,4 +1,5 @@
 Changes in quota-tools from 3.11 to 3.12
+* added batch mode to the setquota(8) (Jan Kara)
 * added reference to setquota(8) to manpages of other tools (Jan Kara)
 * fixed bug in --port option of rquotad (Max Kalika)
 * updated quota documentation (Jan Kara)

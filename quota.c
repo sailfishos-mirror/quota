@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quota.c,v 1.13 2003/02/14 18:50:17 jkar8572 Exp $"
+#ident "$Id: quota.c,v 1.14 2004/04/14 16:03:14 jkar8572 Exp $"
 
 /*
  * Disk quota reporting program.
@@ -148,10 +148,10 @@ int main(int argc, char **argv)
 
 	if (flags & FL_USER)
 		for (; argc > 0; argc--, argv++)
-			ret |= showquotas(USRQUOTA, user2uid(*argv));
+			ret |= showquotas(USRQUOTA, user2uid(*argv, NULL));
 	else if (flags & FL_GROUP)
 		for (; argc > 0; argc--, argv++)
-			ret |= showquotas(GRPQUOTA, group2gid(*argv));
+			ret |= showquotas(GRPQUOTA, group2gid(*argv, NULL));
 	return ret;
 }
 

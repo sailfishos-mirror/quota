@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaops.c,v 1.11 2004/01/07 15:15:31 jkar8572 Exp $"
+#ident "$Id: quotaops.c,v 1.12 2004/04/14 16:03:14 jkar8572 Exp $"
 
 #include <rpc/rpc.h>
 #include <sys/types.h>
@@ -240,7 +240,7 @@ int writeprivs(struct dquot *qlist, int outfd, char *name, int quotatype)
 
 #if defined(ALT_FORMAT)
 	fprintf(fd, _("Disk quotas for %s %s (%cid %d):\n"),
-		type2name(quotatype), name, *type2name(quotatype), name2id(name, quotatype));
+		type2name(quotatype), name, *type2name(quotatype), name2id(name, quotatype, NULL));
 
 	fprintf(fd,
 		_("  Filesystem                   blocks       soft       hard     inodes     soft     hard\n"));
@@ -424,7 +424,7 @@ int writeindividualtimes(struct dquot *qlist, int outfd, char *name, int quotaty
 		die(1, _("Can't duplicate descriptor of file to write to: %s\n"), strerror(errno));
 
 	fprintf(fd, _("Times to enforce softlimit for %s %s (%cid %d):\n"),
-		type2name(quotatype), name, *type2name(quotatype), name2id(name, quotatype));
+		type2name(quotatype), name, *type2name(quotatype), name2id(name, quotatype, NULL));
 	fprintf(fd, _("Time units may be: days, hours, minutes, or seconds\n"));
 	fprintf(fd,
 		_("  Filesystem                         block grace               inode grace\n"));

@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: edquota.c,v 1.13 2003/07/29 20:11:36 jkar8572 Exp $"
+#ident "$Id: edquota.c,v 1.14 2004/04/14 16:03:14 jkar8572 Exp $"
 
 /*
  * Disk quota editor.
@@ -155,10 +155,10 @@ int main(int argc, char **argv)
 		return 0;
 	}
 	if (pflag) {
-		protoid = name2id(protoname, quotatype);
+		protoid = name2id(protoname, quotatype, NULL);
 		protoprivs = getprivs(protoid, handles, 0);
 		while (argc-- > 0) {
-			id = name2id(*argv++, quotatype);
+			id = name2id(*argv++, quotatype, NULL);
 			curprivs = getprivs(id, handles, 0);
 
 			for (pprivs = protoprivs, cprivs = curprivs; pprivs && cprivs;
@@ -211,7 +211,7 @@ int main(int argc, char **argv)
 	}
 	else if (Tflag) {
 		for (; argc > 0; argc--, argv++) {
-			id = name2id(*argv, quotatype);
+			id = name2id(*argv, quotatype, NULL);
 			curprivs = getprivs(id, handles, 0);
 			if (writeindividualtimes(curprivs, tmpfd, *argv, quotatype) < 0) {
 				errstr(_("Can't write individual grace times to file.\n"));
@@ -231,7 +231,7 @@ int main(int argc, char **argv)
 	}
 	else {
 		for (; argc > 0; argc--, argv++) {
-			id = name2id(*argv, quotatype);
+			id = name2id(*argv, quotatype, NULL);
 			curprivs = getprivs(id, handles, 0);
 			if (writeprivs(curprivs, tmpfd, *argv, quotatype) < 0) {
 				errstr(_("Can't write quotas to file.\n"));

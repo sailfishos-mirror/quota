@@ -41,13 +41,13 @@ extern int kernel_formats, kernel_iface;
 char *type2name(int);
 
 /* Convert username to uid */
-uid_t user2uid(char *);
+uid_t user2uid(char *, int *err);
 
 /* Convert groupname to gid */
-gid_t group2gid(char *);
+gid_t group2gid(char *, int *err);
 
 /* Convert user/groupname to id */
-int name2id(char *name, int qtype);
+int name2id(char *name, int qtype, int *err);
 
 /* Convert uid to username */
 int uid2user(uid_t, char *);
