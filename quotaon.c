@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaon.c,v 1.10 2002/01/07 22:24:20 jkar8572 Exp $"
+#ident "$Id: quotaon.c,v 1.11 2002/02/22 13:54:54 jkar8572 Exp $"
 
 /*
  * Turn quota on/off for a filesystem.
@@ -99,7 +99,7 @@ static int newstate(struct mntent *mnt, int offmode, int type, char *extra)
 }
 
 /* Print state of quota (on/off) */
-static void print_state(struct mntent *mnt, int type)
+static int print_state(struct mntent *mnt, int type)
 {
 	int on = 0;
 
@@ -114,6 +114,8 @@ static void print_state(struct mntent *mnt, int type)
 
 	printf("%s quota on %s (%s) is %s\n", type2name(type), mnt->mnt_dir, mnt->mnt_fsname,
 	  on ? "on" : "off");
+	
+	return on;
 }
 
 int main(int argc, char **argv)
@@ -189,9 +191,9 @@ int main(int argc, char **argv)
 		}
 		else {
 			if (gflag)
-				print_state(mnt, GRPQUOTA);
+				errs += print_state(mnt, GRPQUOTA);
 			if (uflag)
-				print_state(mnt, USRQUOTA);
+				errs += print_state(mnt, USRQUOTA);
 		}
 	}
 	end_mounts_scan();

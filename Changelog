@@ -1,6 +1,6 @@
 Changes in quota-tools from 3.03 to 3.04
 * added -D_FILE_OFFSET_BITS=64 to Makefile - fixes problems with large files with some libcs (Michael Meskes)
-* added -p (print state) to quotaon
+* added -p (print state) to quotaon (Vladimir Linek, Jan Kara)
 
 Changes in quota-tools from 3.02 to 3.03
 
