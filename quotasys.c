@@ -403,7 +403,7 @@ int get_qf_name(struct mntent *mnt, int type, int fmt, int flags, char **filenam
 
 	if (has_quota_file_definition) {
 		if ((option = strchr(++pathname, ',')))
-			sstrncpy(qfullname, pathname, min((option - pathname), sizeof(qfullname)));
+			sstrncpy(qfullname, pathname, min((option - pathname + 1), sizeof(qfullname)));
 		else
 			sstrncpy(qfullname, pathname, sizeof(qfullname));
 	}
@@ -510,38 +510,18 @@ int devcmp_handles(struct quota_handle *a, struct quota_handle *b)
  *	Check kernel quota version
  */
 
-int kernel_formats, kernel_iface;	/* Formats supported by kernel */
+int kernel_iface, kernel_formats;	/* Formats supported by kernel */
 
 void init_kernel_interface(void)
 {
-	FILE *f;
-	char buf[1024], *c;
-	int actfmt, version = -1;
 	struct stat st;
-
+	
 	kernel_formats = 0;
 	if (!stat("/proc/fs/xfs/stat", &st))
 		kernel_formats |= (1 << QF_XFS);
-	if ((f = fopen(QSTAT_FILE, "r"))) {
-		/* Parse statistics file */
-		fgets(buf, sizeof(buf), f);
-		sscanf(buf, "Version %u", &version);
-		if (version >= 6*10000+5*100+1) {
-			fgets(buf, sizeof(buf), f);
-			c = buf;
-			while ((c = strchr(c, ' '))) {
-				c++;
-				actfmt = kern2utilfmt(strtol(c, NULL, 10));
-				if (actfmt >= 0)	/* Known format? */
-					kernel_formats |= 1 << actfmt;
-			}
-			kernel_iface = IFACE_GENERIC;
-		}
-		else {
-			kernel_formats = 1 << QF_VFSV0;
-			kernel_iface = IFACE_VFSV0;
-		}
-		fclose(f);
+	if (!stat("/proc/sys/fs/quota", &st)) {
+		kernel_iface = IFACE_GENERIC;
+		kernel_formats |= (1 << QF_VFSOLD) | (1 << QF_VFSV0);
 	}
 	else {
 		struct v2_dqstats v2_stats;
@@ -556,10 +536,8 @@ void init_kernel_interface(void)
 		if (sigaction(SIGSEGV, &sig, &oldsig) < 0)
 			die(2, _("Can't set signal handler: %s\n"), strerror(errno));
 		if (quotactl(QCMD(Q_V2_GETSTATS, 0), NULL, 0, (void *)&v2_stats) >= 0) {
-			version = v2_stats.version;
 			kernel_formats |= (1 << QF_VFSV0);
 			kernel_iface = IFACE_VFSV0;
-			version = 6*10000+5*100+0;
 		}
 		else if (errno != ENOSYS && errno != ENOTSUP) {
 			/* RedHat 7.1 (2.4.2-2) newquota check 
@@ -580,20 +558,15 @@ void init_kernel_interface(void)
 			if (err_stat == 0 && err_quota == EINVAL) {
 				kernel_formats |= (1 << QF_VFSV0);
 				kernel_iface = IFACE_VFSV0;
-				version = 6*10000+5*100+0;
 			}
 			else {
 				kernel_formats |= (1 << QF_VFSOLD);
 				kernel_iface = IFACE_VFSOLD;
-				version = 6*10000+4*100+0;
 			}
 		}
 		if (sigaction(SIGSEGV, &oldsig, NULL) < 0)
 			die(2, _("Can't reset signal handler: %s\n"), strerror(errno));
 	}
-
-	if (version > KERN_KNOWN_QUOTA_VERSION)
-		errstr(_("WARNING - Kernel quota is newer than supported. Quota utilities need not work properly.\n"));
 }
 
 /* Check whether old quota is turned on on given device */

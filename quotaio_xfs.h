@@ -32,7 +32,7 @@
 #ifndef _QUOTAIO_XFS_H
 #define _QUOTAIO_XFS_H
 
-#include <linux/types.h>
+#include <asm/types.h>
 
 #define XQM_CMD(cmd)	( ('X'<<8)+(cmd) )
 #define IS_XQM_CMD(cmd)	( ((int)(cmd)>>8) == 'X' )

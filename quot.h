@@ -61,7 +61,7 @@ static int ndu[2];
 /*
  *	=== Start XFS specific types and definitions ===
  */
-#include <linux/types.h>
+#include <asm/types.h>
 
 /* Structures returned from ioctl XFS_IOC_FSBULKSTAT */
 typedef struct xfs_bstime {

@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaon.c,v 1.15 2002/05/03 07:05:46 jkar8572 Exp $"
+#ident "$Id: quotaon.c,v 1.16 2002/06/16 19:00:46 jkar8572 Exp $"
 
 /*
  * Turn quota on/off for a filesystem.
@@ -218,6 +218,8 @@ static int quotaonoff(char *quotadev, char *quotadir, char *quotafile, int type,
 			errstr(_("using %s on %s [%s]: %s\n"), quotafile, quotadev, quotadir, strerror(errno));
 		if (errno == EINVAL)
 			errstr(_("Maybe create new quota files with quotacheck(8)?\n"));
+		else if (errno == ESRCH)
+			errstr(_("Quota format not supported in kernel.\n"));
 		return 1;
 	}
 	if (flags & STATEFLAG_VERBOSE)

@@ -1,6 +1,6 @@
 PROGS         = quotacheck quotaon quota quot repquota warnquota quotastats xqmstats edquota setquota convertquota rpc.rquotad 
 SOURCES       = bylabel.c common.c convertquota.c edquota.c pot.c quot.c quota.c quotacheck.c quotacheck_v1.c quotacheck_v2.c quotaio.c quotaio_rpc.c quotaio_v1.c quotaio_v2.c quotaio_xfs.c quotaio_generic.c quotaon.c quotaon_xfs.c quotaops.c quotastats.c quotasys.c repquota.c rquota_client.c rquota_server.c rquota_svc.c setquota.c warnquota.c xqmstats.c
-VERSIONDEF    = -DQUOTA_VERSION=\"3.05\"
+VERSIONDEF    = -DQUOTA_VERSION=\"3.06\"
 CFLAGS        = @CFLAGS@ @EXT2_DIRECT@ -D_GNU_SOURCE -Wall -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 $(VERSIONDEF)
 EXT2LIBS      = @EXT2LIBS@
 RPCSRC        = rquota.h rquota_xdr.c rquota_clnt.c
@@ -22,6 +22,7 @@ DEF_SUID_MODE = 4511
 DEF_BIN_MODE = 555
 DEF_SBIN_MODE = 555
 DEF_MAN_MODE  = 444
+DEF_CONF_MODE = 644
 RPCGEN        = rpcgen
 
 prefix        = @prefix@
@@ -31,6 +32,7 @@ mandir        = @mandir@
 includedir    = $(prefix)/include
 root_sbindir  = /sbin
 locale_dir    = $(prefix)/share/locale
+sysconfdir    = @sysconfdir@
 
 RPCCLNTOBJS = rquota_xdr.o rquota_client.o rquota_clnt.o
 IOOBJS = quotaio.o quotaio_v1.o quotaio_v2.o quotaio_rpc.o quotaio_xfs.o quotaio_generic.o
@@ -80,6 +82,8 @@ install: all inst_mo
 	-$(INSTALL) -m $(DEF_SBIN_MODE) \
 	edquota repquota warnquota quotastats setquota quot xqmstats \
 	$(ROOTDIR)$(sbindir)
+	-mkdir -p $(ROOTDIR)$(sysconfdir)
+	-$(INSTALL) -m $(DEF_CONF_MODE) warnquota.conf $(ROOTDIR)$(sysconfdir)
 	-mkdir -p $(ROOTDIR)$(mandir)/man1
 	-mkdir -p $(ROOTDIR)$(mandir)/man2
 	-mkdir -p $(ROOTDIR)$(mandir)/man3

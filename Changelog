@@ -1,4 +1,8 @@
 Changes in quota-tools from 3.05 to 3.06
+* fixed caching of libwrap configure result (Jan Kara)
+* fixed copying of quotafile name from mtab (?)
+* warnquota.conf is now installed in config dir (Jan Kara)
+* updated format detection to reflect changes in kernel interface in 2.5.18 (Jan Kara)
 * fixed scanning of non-mountpoint directories (Jan Kara)
 * fixed detection of XFS format (Jan Kara)
 * fixed printing of 'over softlimit sign' in quota(1) (Jan Kara)

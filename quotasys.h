@@ -24,7 +24,6 @@
 #define IOI_READONLY	0x2	/* Only readonly access */
 #define IOI_OPENFILE	0x4	/* Open file even if kernel has quotas turned on */
 
-#define QSTAT_FILE "/proc/fs/quota"	/* File with quotastats */
 #define KERN_KNOWN_QUOTA_VERSION (6*10000 + 5*100 + 1)
 
 /* Interface versions */

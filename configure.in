@@ -63,7 +63,7 @@ AC_CACHE_VAL(ac_cv_lib_wrap_main,
 	#include <tcpd.h>
 	struct request_info request;
 	int deny_severity, allow_severity;],[hosts_access(&request);],
-	[ac_cv_lib_wrap_main=yes],[ac_cv_lib_wrap_main=no,LIBS="$saved_LIBS="])
+	[ac_cv_lib_wrap_main=yes],[ac_cv_lib_wrap_main=no,LIBS="$saved_LIBS"])
 	])
 
 if test ${ac_cv_lib_wrap_main} = yes; then
@@ -71,6 +71,8 @@ if test ${ac_cv_lib_wrap_main} = yes; then
 		echo 'ERROR: could not find tcpd.h - missing TCP wrappers package'
 		exit 1
 	])
+	dnl Do this in case value was cached...
+	LIBS="$LIBS -lwrap"
 	HOSTS_ACCESS="-DHOSTS_ACCESS"
 	AC_SUBST(HOSTS_ACCESS)
 fi
