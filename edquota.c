@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: edquota.c,v 1.12 2003/02/14 18:50:16 jkar8572 Exp $"
+#ident "$Id: edquota.c,v 1.13 2003/07/29 20:11:36 jkar8572 Exp $"
 
 /*
  * Disk quota editor.
@@ -148,7 +148,7 @@ int main(int argc, char **argv)
 		usage();
 
 	init_kernel_interface();
-	handles = create_handle_list(0, dirname ? &dirname : NULL, quotatype, fmt, rflag ? 0 : IOI_LOCALONLY, 0);
+	handles = create_handle_list(dirname ? 1 : 0, dirname ? &dirname : NULL, quotatype, fmt, rflag ? 0 : IOI_LOCALONLY, 0);
 	if (!handles[0]) {
 		dispose_handle_list(handles);
 		fputs(_("No filesystems with quota detected.\n"), stderr);

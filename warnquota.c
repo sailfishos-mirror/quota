@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.12 2003/02/14 18:50:17 jkar8572 Exp $
+ * Version: $Id: warnquota.c,v 1.13 2003/07/29 20:11:36 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -76,6 +76,7 @@
 #define FL_USER 1
 #define FL_GROUP 2
 #define FL_NOAUTOFS 4
+#define FL_SHORTNUMS 8
 
 struct usage {
 	char *devicename;
@@ -222,6 +223,7 @@ int mail_user(struct offenderlist *offender, struct configparams *config)
 	FILE *fp;
 	int cnt, status;
 	char timebuf[MAXTIMELEN];
+	char numbuf[3][MAXNUMLEN];
 	struct util_dqblk *dqb;
 	char *to;
 
@@ -274,17 +276,21 @@ int mail_user(struct offenderlist *offender, struct configparams *config)
 			difftime2str(dqb->dqb_btime, timebuf);
 		else
 			timebuf[0] = '\0';
-		fprintf(fp, "%c%c%8Lu%8Lu%8Lu%7s",
+		space2str(toqb(dqb->dqb_curspace), numbuf[0], flags & FL_SHORTNUMS);
+		space2str(dqb->dqb_bsoftlimit, numbuf[1], flags & FL_SHORTNUMS);
+		space2str(dqb->dqb_bhardlimit, numbuf[2], flags & FL_SHORTNUMS);
+		fprintf(fp, "%c%c %7s %7s %7s %6s",
 		        dqb->dqb_bsoftlimit && toqb(dqb->dqb_curspace) >= dqb->dqb_bsoftlimit ? '+' : '-',
 			dqb->dqb_isoftlimit && dqb->dqb_curinodes >= dqb->dqb_isoftlimit ? '+' : '-',
-			(long long)toqb(dqb->dqb_curspace), (long long)dqb->dqb_bsoftlimit,
-			(long long)dqb->dqb_bhardlimit, timebuf);
+			numbuf[0], numbuf[1], numbuf[2], timebuf);
 		if (dqb->dqb_isoftlimit && dqb->dqb_isoftlimit <= dqb->dqb_curinodes)
 			difftime2str(dqb->dqb_itime, timebuf);
 		else
 			timebuf[0] = '\0';
-		fprintf(fp, "  %6Lu%6Lu%6Lu%7s\n\n", (long long)dqb->dqb_curinodes,
-		        (long long)dqb->dqb_isoftlimit, (long long)dqb->dqb_ihardlimit, timebuf);
+		number2str(dqb->dqb_curinodes, numbuf[0], flags & FL_SHORTNUMS);
+		number2str(dqb->dqb_isoftlimit, numbuf[1], flags & FL_SHORTNUMS);
+		number2str(dqb->dqb_ihardlimit, numbuf[2], flags & FL_SHORTNUMS);
+		fprintf(fp, " %7s %5s %5s %6s\n\n", numbuf[0], numbuf[1], numbuf[2], timebuf);
 	}
 	if (offender->offender_type == USRQUOTA)
 		if (config->user_signature)
@@ -599,14 +605,16 @@ void warn_quota(void)
 /* Print usage information */
 static void usage(void)
 {
-	errstr(_("Usage:\n  warnquota [-ugi] [-F quotaformat] [-c configfile] [-q quotatabfile]\n"));
+	errstr(_("Usage:\n  warnquota [-ugsi] [-F quotaformat] [-c configfile] [-q quotatabfile]\n"));
+	fprintf(stderr, _("Bugs to %s\n"), MY_EMAIL);
+	exit(1);
 }
  
 static void parse_options(int argcnt, char **argstr)
 {
 	int ret;
  
-	while ((ret = getopt(argcnt, argstr, "ugVF:hc:q:a:i")) != -1) {
+	while ((ret = getopt(argcnt, argstr, "ugVF:hc:q:a:is")) != -1) {
 		switch (ret) {
 		  case '?':
 		  case 'h':
@@ -635,6 +643,9 @@ static void parse_options(int argcnt, char **argstr)
 			break;
 		  case 'i':
 			flags |= FL_NOAUTOFS;
+			break;
+		  case 's':
+			flags |= FL_SHORTNUMS;
 			break;
 		}
 	}

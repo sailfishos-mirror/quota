@@ -1,3 +1,9 @@
+Changes in quota-tools from 3.09 to 3.10
+* updated quotactl(2) manpage (Jan Kara)
+* fixed bug in -f option of edquota(8) (Jan Kara)
+* fixed formatting bug in warnquota(8) (Jan Kara)
+* added option -s (choice of more appropriate units) to warnquota(8) (Jan Kara)
+
 Changes in quota-tools from 3.08 to 3.09
 * minor update of quota(1) manpage (Jan Kara)
 * quotacheck(8) now remembers only hardlinked files and not all inodes with

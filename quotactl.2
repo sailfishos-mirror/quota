@@ -5,6 +5,8 @@ quotactl \- manipulate disk quotas
 .nf
 .B #include <linux/quota.h>
 .B #include <xfs/xqm.h>
+.B #include <linux/dqblk_v1.h>
+.B #include <linux/dqblk_v2.h>
 .LP
 .B long quotactl(int cmd, char \(**special, qid_t id, caddr_t addr)
 .fi
@@ -38,7 +40,15 @@ is given with each command below.
 .TP 15
 .SB Q_QUOTAON
 Turn on quotas for a filesystem.
-.I addr
+.I id
+is the identification number of the quota format to be used. Format numbers
+are defined in the header file of appropriate format. Currently there are
+two supported quota formats whose numbers are defined by constants
+.IR QFMT_VFS_OLD
+(original quota format) and
+.IR QFMT_VFS_V0
+(new VFS v0 quota format).
+.IR addr
 points to the path name of file containing the quotas for the filesystem.
 The quota file must exist; it is normally created with the
 .BR quotacheck (8)
@@ -56,41 +66,79 @@ This call is restricted to the super-user.
 Get disk quota limits and current usage for user or group
 .IR id .
 .I addr
-is a pointer to a
-.B mem_dqblk
+is a pointer to an
+.B if_dqblk
 structure (defined in
 .BR <linux/quota.h> ).
-Only the super-user may get the quotas of a user other than himself.
+The field
+.I dqb_valid
+defines the entries in the structure which are set correctly. On
+.B Q_GETQUOTA
+call all entries are valid. Only the super-user may get the quotas
+of a user other than himself.
 .TP
 .SB Q_SETQUOTA
-Set disk quota limits and current usage for user or group
+Set current quota information for user or group
 .IR id .
 .I addr
-is a pointer to a
-.B mem_dqblk
+is a pointer to an
+.B if_dqblk
 structure (defined in
 .BR <linux/quota.h> ).
-This call is restricted to the super-user.
+The field
+.I dqb_valid
+defines which entries in the quota structure are valid and should be set. The constants for
+.I dqb_valid
+field are defined in the
+.B <linux/quota.h>
+header file. This call obsoletes calls
+.B Q_SETQLIM
+and
+.B Q_SETUSE
+in the previous quota interfaces. This call is restricted to the super-user.
 .TP
-.SB Q_SETQLIM
-Set disk quota limits for user or group
-.IR id .
+.SB Q_GETINFO
+Get information (like grace times) about quotafile.
 .I addr
-is a pointer to a
-.B mem_dqblk
+should be a pointer to an
+.B if_dqinfo
 structure (defined in
-.BR <linux/quota.h> ).
-This call is restricted to the super-user.
+.IR <linux/quota.h> ).
+The
+.I dqi_valid
+field in the structure defines entries in it
+which are valid. On
+.B Q_GETINFO
+call all entries are valid.
+Parameter
+.I id
+is ignored. 
 .TP
-.SB Q_SETUSE
-Set current usage for user or group
-.IR id .
+.SB Q_SETINFO
+Set information about quotafile.
 .I addr
-is a pointer to a
-.B mem_dqblk
+should be a pointer to
+.B if_dqinfo
 structure (defined in
-.BR <linux/quota.h> ).
-This call is restricted to the super-user.
+.IR <linux/quota.h> ).
+The field
+.I dqi_valid
+defines which entries in the quota info structure are valid and should be set. The constants for
+.I dqi_valid
+field are defined in the
+.B <linux/quota.h>
+header file. This call obsoletes calls
+.B Q_SETGRACE
+and
+.B Q_SETFLAGS
+in the previous quota interfaces. Parameter
+.I id
+is ignored. This operation is restricted to super-user.
+.TP
+.SB Q_GETFMT
+Get quota format used on the specified filesystem.
+.I addr
+should be a pointer to a memory (4 bytes) where the format number will be stored.
 .TP
 .SB Q_SYNC
 Update the on-disk copy of quota usages for a filesystem.
@@ -114,47 +162,6 @@ in which data should be stored.
 and
 .I id
 are ignored.
-.PP
-New quota format also allows following additional calls:
-.TP 15
-.SB Q_GETINFO
-Get information (like grace times) about quotafile.
-.I addr
-should be a pointer to
-.B mem_dqinfo
-structure (defined in
-.IR <linux/quota.h> ).
-.I id
-is ignored.
-.TP
-.SB Q_SETINFO
-Set information about quotafile.
-.I addr should be a pointer to
-.B mem_dqinfo
-structure (defined in
-.IR <linux/quota.h> ).
-.I id
-is ignored. This operation is restricted to super-user.
-.TP
-.SB Q_SETGRACE
-Set grace times in information about quotafile.
-.I addr should be a pointer to
-.B mem_dqinfo
-structure (defined in
-.IR <linux/quota.h> ).
-.I id
-is ignored. This operation is restricted to super-user.
-.TP
-.SB Q_SETFLAGS
-Set flags in information about quotafile. These flags are defined in
-.IR <linux/quota.h> .
-Note that there are currently no defined flags.
-.I addr should be a pointer to
-.B mem_dqinfo
-structure (defined in
-.IR <linux/quota.h> ).
-.I id
-is ignored. This operation is restricted to super-user.
 .TP
 For XFS filesystems making use of the XFS Quota Manager (XQM), the above commands are bypassed and the following commands are used:
 .TP 15
@@ -234,12 +241,16 @@ or
 .I special
 are invalid.
 .TP
-.SM EINVAL
+.SM ENOSYS
 The kernel has not been compiled with the
 .SB QUOTA
 option.
+.TP
+.SM EINVAL
 .IP
 .I cmd
+or
+.I type
 is invalid.
 .TP
 .SM ENOENT
@@ -260,9 +271,6 @@ The call is privileged and the caller was not the super-user.
 No disc quota is found for the indicated user.
 .IP
 Quotas have not been turned on for this filesystem.
-.TP
-.SM EUSERS
-The quota table is full.
 .LP
 If
 .I cmd
@@ -281,6 +289,12 @@ The quota file pointed to by
 exists but is not on the
 filesystem pointed to by
 .IR special .
+.TP
+.SM EINVAL
+The quota file is corrupted.
+.TP
+.SM ESRCH
+Specified quota format was not found.
 .TP
 .SM EBUSY
 .SB Q_QUOTAON

@@ -4,7 +4,7 @@ warnquota \- send mail to users over quota
 .SH SYNOPSIS
 .B warnquota
 [
-.B \-ugi
+.B \-ugsi
 ] [
 .B \-F
 .I quotaformat
@@ -64,6 +64,10 @@ check whether users are not exceeding quotas (default).
 .B -g
 check whether groups are not exceeding quotas. If group is exceeding quota
 a mail is sent to the user specified in /etc/quotagrpadmins.
+.TP
+.B -s
+Try to report used space, number of used inodes and limits in more appropriate units
+than the default ones.
 .TP
 .B \-i
 ignore mountpoints mounted by automounter.
