@@ -9,6 +9,7 @@ Changes in quota-tools from 3.03 to 3.04
 * ignore automount mountpoints (Philippe Troin)
 * fixed minor bug in printing grace times (Jan Kara)
 * fixed quotaon(8) behaviour when it sees newer kernel then it's able to handle (Jan Kara)
+* minor formatting change in quotactl(2) manpage (Nathan Scott)
 
 Changes in quota-tools from 3.02 to 3.03
 

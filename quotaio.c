@@ -108,11 +108,19 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 		return h;
 	}
 	kernfmt = kern_quota_format();	/* Check kernel quota format */
-	if (kernfmt > 0 && (fmt == -1 || (1 << fmt) & kernfmt) &&	/* Quota compiled and desired format available? */
-	    /* Quota turned on? */
-	    (kernfmt = kern_quota_on(h->qh_quotadev, type, fmt == -1 ? kernfmt : (1 << fmt))) != -1) {
-		h->qh_io_flags |= IOFL_QUOTAON;
-		fmt = kernfmt;	/* Default is kernel used format */
+	if (kernfmt == QF_TOONEW || kernfmt > 0) {
+		/* Try whether some quota isn't turned on */
+		if (fmt != -1) {
+			if (kern_quota_on(h->qh_quotadev, type, 1 << fmt) != -1)
+				h->qh_io_flags |= IOFL_QUOTAON;
+		}
+		else if (kernfmt == QF_TOONEW) {
+			if ((fmt = kern_quota_on(h->qh_quotadev, type, (1 << QF_VFSOLD) | (1 << QF_VFSV0))) != -1)
+				h->qh_io_flags |= IOFL_QUOTAON;
+		}
+		else
+			if ((fmt = kern_quota_on(h->qh_quotadev, type, kernfmt)) != -1)
+				h->qh_io_flags |= IOFL_QUOTAON;
 	}
 	if (!(qfname = get_qf_name(mnt, type, fmt))) {
 		errstr(_("Can't get quotafile name.\n"));
