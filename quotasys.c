@@ -34,7 +34,8 @@
 (!strcmp(type, MNTTYPE_UFS)) || \
 (!strcmp(type, MNTTYPE_UDF)) || \
 (!strcmp(type, MNTTYPE_REISER)) || \
-(!strcmp(type, MNTTYPE_XFS)))
+(!strcmp(type, MNTTYPE_XFS)) || \
+(!strcmp(type, MNTTYPE_NFS)))
 
 static char extensions[MAXQUOTAS + 2][20] = INITQFNAMES;
 static char *basenames[] = INITQFBASENAMES;
@@ -253,6 +254,8 @@ int hasquota(struct mntent *mnt, int type)
 	
 	if (!strcmp(mnt->mnt_type, MNTTYPE_XFS))
 		return hasxfsquota(mnt, type);
+	if (!strcmp(mnt->mnt_type, MNTTYPE_NFS))	/* NFS always has quota or better there is no good way how to detect it */
+		return 1;
 
 	if ((type == USRQUOTA) && (option = hasmntopt(mnt, MNTOPT_USRQUOTA)))
 		return 1;
@@ -366,12 +369,12 @@ struct quota_handle **create_handle_list(int count, char **mntpoints, int type, 
 					continue;
 				gotmnt++;
 			}
-			else if (!local_only) {	/* Use NFS? */
+			else if (!local_only && (fmt == -1 || fmt == QF_RPC)) {	/* Use NFS? */
 #ifdef RPC
 				if (gotmnt == MAXMNTPOINTS)
 					die(3, _("Too many mountpoints. Please report to: %s\n"),
 					    MY_EMAIL);
-				if (!(hlist[gotmnt] = init_io(mnt, type, 0)))
+				if (!(hlist[gotmnt] = init_io(mnt, type, fmt)))
 					continue;
 				gotmnt++;
 #endif

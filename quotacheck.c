@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.2 2001/04/04 10:42:12 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.3 2001/04/05 08:26:56 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -538,8 +538,8 @@ int ask_yn(char *q, int def)
 /* Do checks and buffer quota file into memory */
 static int process_file(char *mnt_fsname, struct mntent *mnt, int type)
 {
-	char *qfname;
-	int fd, ret;
+	char *qfname = NULL;
+	int fd = -1, ret;
 
 	debug(FL_DEBUG | FL_VERBOSE, _("Going to check %s quota file of %s\n"), type2name(type),
 	      mnt->mnt_dir);
@@ -547,9 +547,7 @@ static int process_file(char *mnt_fsname, struct mntent *mnt, int type)
 	if (kern_quota_on(mnt_fsname, type, (1 << cfmt)) > 0) {	/* Is quota enabled? */
 		if (!(flags & FL_FORCE)) {
 			if (flags & FL_INTERACTIVE) {
-				printf(_
-				       ("Quota for %ss is enabled on mountpoint %s so quotacheck might damage the file.\n"),
-type2name(type), mnt->mnt_dir);
+				printf(_("Quota for %ss is enabled on mountpoint %s so quotacheck might damage the file.\n"), type2name(type), mnt->mnt_dir);
 				if (!ask_yn(_("Should I continue"), 0)) {
 					printf(_("As you wish... Canceling check of this file.\n"));
 					return -1;
@@ -567,33 +565,37 @@ Please turn quotas off or use -f to force checking.\n"),
 			die(4, _("Error while syncing quotas: %s\n"), strerror(errno));
 	}
 
-	qfname = get_qf_name(mnt, type, cfmt);
-	if (!qfname) {
-		fprintf(stderr, _("Cannot get quotafile name for %s\n"), mnt_fsname);
-		return -1;
-	}
-	if ((fd = open(qfname, O_RDONLY)) < 0) {
-		fprintf(stderr, _("Cannot open quotafile %s: %s\n"), qfname, strerror(errno));
-		free(qfname);
-		return -1;
+	if (!(flags & FL_NEWFILE)) {	/* Need to really buffer file? */
+		qfname = get_qf_name(mnt, type, cfmt);
+		if (!qfname) {
+			fprintf(stderr, _("Cannot get quotafile name for %s\n"), mnt_fsname);
+			return -1;
+		}
+		if ((fd = open(qfname, O_RDONLY)) < 0) {
+			fprintf(stderr, _("Cannot open quotafile %s: %s\n"), qfname, strerror(errno));
+			free(qfname);
+			return -1;
+		}
 	}
 
-	memset(old_info + type, 0, sizeof(old_info[type]));
 	ret = 0;
+	memset(old_info + type, 0, sizeof(old_info[type]));
 	switch (cfmt) {
-	  case QF_TOONEW:
-		  fprintf(stderr, _("Too new quotafile format on %s\n"), mnt_fsname);
-		  ret = -1;
-		  break;
-	  case QF_VFSOLD:
-		  ret = v1_buffer_file(qfname, fd, type);
-		  break;
-	  case QF_VFSV0:
-		  ret = v2_buffer_file(qfname, fd, type);
-		  break;
+		case QF_TOONEW:
+			fprintf(stderr, _("Too new quotafile format on %s\n"), mnt_fsname);
+			ret = -1;
+			break;
+		case QF_VFSOLD:
+			ret = v1_buffer_file(qfname, fd, type);
+			break;
+		case QF_VFSV0:
+			ret = v2_buffer_file(qfname, fd, type);
+			break;
 	}
-	free(qfname);
-	close(fd);
+	if (!(flags & FL_NEWFILE)) {
+		free(qfname);
+		close(fd);
+	}
 	return ret;
 }
 

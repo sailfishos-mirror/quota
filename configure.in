@@ -7,24 +7,44 @@ AC_HEADER_STDC
 AC_PROG_INSTALL
 
 dnl Checks for libraries.
-AC_CHECK_LIB(com_err, com_err)
-AC_CHECK_LIB(ext2fs, ext2fs_initialize)
+AC_ARG_WITH(ext2direct,
+	[  --with-ext2direct=[yes/no/try]     Enable alternative format used by edquota [default=try].],
+	,
+	with_ext2direct="try")
+if test "x$with_ext2direct" != "xno"; then
+	AC_CHECK_LIB(com_err, com_err)
+	AC_CHECK_LIB(ext2fs, ext2fs_initialize)
+	if test "${ac_cv_lib_com_err_com_err}" != "yes" -o "${ac_cv_lib_ext2fs_ext2fs_initialize}" != "yes"; then
+		if test "x$with_ext2direct" = "xyes"; then
+			AC_MSG_ERROR([Ext2 direct support required but libraries not found.])
+		else
+			AC_MSG_WARN([Ext2 direct support won't be compiled. Libraries not found.])
+		fi
+		with_ext2direct="no"
+	else
+		AC_CHECK_HEADER(ext2fs/ext2fs.h,ext2fshead="yes")
+		if test "x$ext2fshead" != "xyes"; then
+			if test "x$with_ext2direct" = "xyes"; then
+				AC_MSG_ERROR([Ext2 direct support required but header files not found.])
+			else
+				AC_MSG_WARN([Ext2 direct support won't be compiled. Header files not found.])
+			fi
+			with_ext2direct="no"
+		else
+			with_ext2direct="yes"
+		fi
+	fi
+	if test "x$with_ext2direct" = "xyes"; then
+		EXT2_DIRECT="-DEXT2_DIRECT"
+		AC_SUBST(EXT2_DIRECT)
+	fi
+fi
 EXT2LIBS=${LIBS}
 AC_SUBST(EXT2LIBS)
 LIBS=""
 
 AC_CHECK_LIB(nsl, main)
 AC_CHECK_LIB(wrap, main)
-
-if test ${ac_cv_lib_com_err_com_err} = yes &&
-   test ${ac_cv_lib_ext2fs_ext2fs_initialize} = yes; then
-	AC_CHECK_HEADER(ext2fs/ext2fs.h,, [
-		echo 'ERROR: could not find ext2fs/ext2fs.h - missing ext2 package'
-		exit 1
-	])
-	EXT2_DIRECT="-DEXT2_DIRECT"
-	AC_SUBST(EXT2_DIRECT)
-fi
 
 if test ${ac_cv_lib_wrap_main} = yes; then
 	AC_CHECK_HEADER(tcpd.h,, [

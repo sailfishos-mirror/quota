@@ -85,7 +85,11 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt)
 #endif
 	}
 
-	if (!strcmp(mnt->mnt_type, MNTTYPE_XFS)) {
+	if (!strcmp(mnt->mnt_type, MNTTYPE_XFS)) {	/* XFS filesystem? */
+		if (fmt != -1 && fmt != QF_XFS) {	/* User wanted some other format? */
+			fprintf(stderr, _("Only XFS quota format is allowed on XFS filesystem.\n"));
+			goto out_handle;
+		}
 		h->qh_fd = -1;
 		h->qh_fmt = QF_XFS;
 		h->qh_ops = &quotafile_ops_xfs;
@@ -122,9 +126,7 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt)
 			goto out_lock;
 		}
 		if (fmt != -1 && h->qh_fmt != fmt) {
-			fprintf(stderr,
-				_
-				("Quotafile format detected differs from the specified one (or the one kernel uses on the file).\n"));
+			fprintf(stderr, _("Quotafile format detected differs from the specified one (or the one kernel uses on the file).\n"));
 			goto out_handle;
 		}
 	}
