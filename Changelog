@@ -4,6 +4,7 @@ Changes in quota-tools from 3.06 to 3.07
 * setquota using RPC is disabled by default in configure (Jan Kara)
 * rised maximal number of mountpoint to 256 (Jan Kara)
 * small fix in configure (Nathan Scott)
+* small fix in quotacheck(8) docs (Jan Kara)
 
 Changes in quota-tools from 3.05 to 3.06
 * fixed caching of libwrap configure result (Jan Kara)

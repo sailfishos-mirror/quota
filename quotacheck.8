@@ -100,8 +100,8 @@ Don't read existing quota files. Just perform a new scan and save it to disk.
 also skips scanning of old quota files when they are not found.
 .TP
 .B \-f
-Forces checking of filesystems with quotas enabled. This is not
-recommended as the created quota files may be out of sync.
+Forces checking and writing of new quota files on filesystems with quotas
+enabled. This is not recommended as the created quota files may be out of sync.
 .TP
 .B \-M
 This flag forces checking of filesystem in read-write mode if a remount
@@ -127,7 +127,7 @@ exits or asks user for input. When this option is set, the first entry found
 is always used (this option works in interactive mode too).
 .TP
 .B \-F \f2format-name\f1
-Check quota for specified format (ie. don't perform format
+Check and fix quota files of specified format (ie. don't perform format
 auto-detection). This is recommended as detection might not work well on
 corrupted quota files.  Possible format names are:
 .B vfsold
