@@ -36,6 +36,9 @@ extern int kernel_formats, kernel_iface;
 /*
  *	Exported functions
  */
+/* Check whether type is one of the NFS filesystems */
+int nfs_fstype(char *);
+
 /* Convert quota type to written form */
 char *type2name(int);
 

@@ -39,6 +39,14 @@ static char *basenames[] = INITQFBASENAMES;
 static char *fmtnames[] = INITQFMTNAMES;
 
 /*
+ *	Check for various kinds of NFS filesystem
+ */
+int nfs_fstype(char *type)
+{
+	return !strcmp(type, MNTTYPE_NFS) || !strcmp(type, MNTTYPE_NFS4);
+}
+
+/*
  *	Check whether give filesystem type is supported
  */
 
@@ -439,7 +447,7 @@ int hasquota(struct mntent *mnt, int type)
 	
 	if (!strcmp(mnt->mnt_type, MNTTYPE_XFS))
 		return hasxfsquota(mnt, type);
-	if (!strcmp(mnt->mnt_type, MNTTYPE_NFS))	/* NFS always has quota or better there is no good way how to detect it */
+	if (nfs_fstype(mnt->mnt_type))	/* NFS always has quota or better there is no good way how to detect it */
 		return 1;
 
 	if ((type == USRQUOTA) && (hasmntopt(mnt, MNTOPT_USRQUOTA) || hasmntoptarg(mnt, MNTOPT_USRJQUOTA)))
@@ -565,7 +573,7 @@ struct quota_handle **create_handle_list(int count, char **mntpoints, int type, 
 	if (init_mounts_scan(count, mntpoints, mntflags) < 0)
 		die(2, _("Can't initialize mountpoint scan.\n"));
 	while ((mnt = get_next_mount())) {
-		if (strcmp(mnt->mnt_type, MNTTYPE_NFS)) {	/* No NFS? */
+		if (!nfs_fstype(mnt->mnt_type)) {	/* No NFS? */
 add_entry:
 			if (gotmnt+1 >= hlist_allocated) {
 				hlist_allocated += START_MNT_POINTS;
@@ -878,7 +886,7 @@ static int cache_mnt_table(int flags)
 			continue;
 		}
 
-		if (strcmp(mnt->mnt_type, MNTTYPE_NFS)) {
+		if (!nfs_fstype(mnt->mnt_type)) {
 			if (stat(devname, &st) < 0) {	/* Can't stat mounted device? */
 				errstr(_("Can't stat() mounted device %s: %s\n"), devname, strerror(errno));
 				free((char *)devname);
@@ -931,13 +939,13 @@ static int cache_mnt_table(int flags)
 			for (i = 0; i < mnt_entries_cnt && mnt_entries[i].me_dev != dev; i++);
 		}
 		/* Cope with network filesystems or new mountpoint */
-		if (!strcmp(mnt->mnt_type, MNTTYPE_NFS) || i == mnt_entries_cnt) {
+		if (nfs_fstype(mnt->mnt_type) || i == mnt_entries_cnt) {
 			if (stat(mnt->mnt_dir, &st) < 0) {	/* Can't stat mountpoint? We have better ignore it... */
 				errstr(_("Can't stat() mountpoint %s: %s\n"), mnt->mnt_dir, strerror(errno));
 				free((char *)devname);
 				continue;
 			}
-			if (!strcmp(mnt->mnt_type, MNTTYPE_NFS)) {
+			if (nfs_fstype(mnt->mnt_type)) {
 				/* For network filesystems we must get device from root */
 				dev = st.st_dev;
 				for (i = 0; i < mnt_entries_cnt && mnt_entries[i].me_dev != dev; i++);
