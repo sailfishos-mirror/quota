@@ -222,7 +222,7 @@ static void setlimits(struct quota_handle **handles)
 	curprivs = getprivs(id, handles, 0);
 	if (flags & FL_PROTO) {
 		protoprivs = getprivs(protoid, handles, 0);
-		for (q = curprivs, protoq = protoprivs; q; q = q->dq_next, protoq = protoq->dq_next) {
+		for (q = curprivs, protoq = protoprivs; q && protoq; q = q->dq_next, protoq = protoq->dq_next) {
 			q->dq_dqb.dqb_bsoftlimit = protoq->dq_dqb.dqb_bsoftlimit;
 			q->dq_dqb.dqb_bhardlimit = protoq->dq_dqb.dqb_bhardlimit;
 			q->dq_dqb.dqb_isoftlimit = protoq->dq_dqb.dqb_isoftlimit;
