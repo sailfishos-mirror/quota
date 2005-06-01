@@ -30,6 +30,9 @@
 #define IFACE_VFSV0 2
 #define IFACE_GENERIC 3
 
+/* Path to export table of NFS daemon */
+#define NFSD_XTAB_PATH "/var/lib/nfs/etab"
+
 /* Kernel quota format and supported interface */
 extern int kernel_formats, kernel_iface;
 

@@ -12,7 +12,7 @@
  *          changes for new utilities by Jan Kara <jack@suse.cz>
  *          patches by Jani Jaakkola <jjaakkol@cs.helsinki.fi>
  *
- * Version: $Id: rquota_svc.c,v 1.16 2003/12/02 13:04:20 jkar8572 Exp $
+ * Version: $Id: rquota_svc.c,v 1.17 2005/06/01 07:20:50 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -32,6 +32,7 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <signal.h>
+#include <errno.h>
 #ifdef HOSTS_ACCESS
 #include <tcpd.h>
 #include <netdb.h>
@@ -60,8 +61,10 @@ struct authunix_parms *unix_cred;
 #define FL_NODAEMON 2	/* Disable daemon() call */
 #define FL_AUTOFS   4	/* Don't ignore autofs mountpoints */
 
-int flags;			/* Options specified on command line */ 
-int port;			/* Port to use (0 for default one) */
+int flags;				/* Options specified on command line */ 
+static int port;			/* Port to use (0 for default one) */
+static char xtab_path[PATH_MAX];	/* Path to NFSD export table */
+char nfs_pseudoroot[PATH_MAX];		/* Root of the virtual NFS filesystem ('/' for NFSv3) */
 
 static struct option options[]= {
 	{ "version", 0, NULL, 'V' },
@@ -73,6 +76,7 @@ static struct option options[]= {
 #endif
 	{ "autofs", 0, NULL, 'I'},
 	{ "port", 1, NULL, 'p' },
+	{ "xtab", 1, NULL, 'x' },
 	{ NULL, 0, NULL , 0 }
 };
 
@@ -83,10 +87,11 @@ static void show_help(void)
  -h --help         shows this text\n\
  -V --version      shows version information\n\
  -F --foreground   starts the quota service in foreground\n\
+ -I --autofs       do not ignore mountpoints mounted by automounter\n\
+ -p --port <port>  listen on given port\n\
  -s --no-setquota  disables remote calls to setquota (default)\n\
  -S --setquota     enables remote calls to setquota\n\
- -I --autofs       do not ignore mountpoints mounted by automounter\n\
- -p --port <port>  listen on given port\n"), progname);
+ -x --xtab <path>  set an alternative file with NFSD export table\n"), progname);
 
 #else
 	errstr(_("Usage: %s [options]\nOptions are:\n\
@@ -94,7 +99,8 @@ static void show_help(void)
  -V --version      shows version information\n\
  -F --foreground   starts the quota service in foreground\n\
  -I --autofs       do not ignore mountpoints mounted by automounter\n\
- -p --port <port>  listen on given port\n"), progname);
+ -p --port <port>  listen on given port\n\
+ -x --xtab <path>  set an alternative file with NFSD export table\n"), progname);
 #endif
 }
 
@@ -104,9 +110,11 @@ static void parse_options(int argc, char **argv)
 	int i,opt;
 	int j=0;
 
+	sstrncpy(xtab_path, NFSD_XTAB_PATH, PATH_MAX);
 	for(i=0; options[i].name; i++) {
 		ostr[j++] = options[i].val;
-		if (options[i].has_arg) ostr[j++] = ':';
+		if (options[i].has_arg)
+			ostr[j++] = ':';
 	}
 	while ((opt=getopt_long(argc, argv, ostr, options, NULL))>=0) {
 		switch(opt) {
@@ -137,6 +145,14 @@ static void parse_options(int argc, char **argv)
 					show_help();
 					exit(1);
 				}
+				break;
+			case 'x':
+				if (access(optarg, R_OK) < 0) {
+					errstr(_("Cannot access the specified xtab file %s: %s\n"), optarg, strerror(errno));
+					show_help();
+					exit(1);
+				}
+				sstrncpy(xtab_path, optarg, PATH_MAX);
 				break;
 			default:
 				errstr(_("Unknown option '%c'.\n"), opt);
@@ -394,6 +410,39 @@ unregister (int sig)
 	exit(0);
 }
 
+/* Parse NFSD export table and find a filesystem pseudoroot if it is there */
+static void get_pseudoroot(void)
+{
+	FILE *f;
+	char exp_line[1024];
+	char *c;
+
+	strcpy(nfs_pseudoroot, "/");
+	if (!(f = fopen(xtab_path, "r"))) {
+		errstr(_("Warning: Cannot open export table %s: %s\nUsing '/' as a pseudofilesystem root.\n"), xtab_path, strerror(errno));
+		return;
+	}
+	while (fgets(exp_line, sizeof(exp_line), f)) {
+		if (exp_line[0] == '#' || exp_line[0] == '\n')	/* Comment, empty line? */
+			continue;
+		c = strchr(exp_line, '\t');
+		if (!c)	/* Huh, line we don't understand... */
+			continue;
+		*c = 0;
+		/* Find the beginning of export options */
+		c = strchr(c+1, '(');
+		if (!c)
+			continue;
+		c = strstr(c, "fsid=0");
+		if (c) {
+			sstrncpy(nfs_pseudoroot, exp_line, PATH_MAX);
+			sstrncat(nfs_pseudoroot, "/", PATH_MAX);
+			break;
+		}
+	}
+	fclose(f);
+}
+
 int main(int argc, char **argv)
 {
 	register SVCXPRT *transp;
@@ -405,8 +454,9 @@ int main(int argc, char **argv)
 	parse_options(argc, argv);
 
 	init_kernel_interface();
-	(void)pmap_unset(RQUOTAPROG, RQUOTAVERS);
-	(void)pmap_unset(RQUOTAPROG, EXT_RQUOTAVERS);
+	get_pseudoroot();
+	pmap_unset(RQUOTAPROG, RQUOTAVERS);
+	pmap_unset(RQUOTAPROG, EXT_RQUOTAVERS);
 
 	sa.sa_handler = SIG_IGN;
 	sa.sa_flags = 0;

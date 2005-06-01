@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaon.c,v 1.19 2005/03/18 11:21:57 jkar8572 Exp $"
+#ident "$Id: quotaon.c,v 1.20 2005/06/01 07:20:50 jkar8572 Exp $"
 
 /*
  * Turn quota on/off for a filesystem.
@@ -318,6 +318,8 @@ int main(int argc, char **argv)
 	init_kernel_interface();
 	if (fmt != -1 && !(kernel_formats & (1 << fmt)))
 		die(1, _("Required format %s not supported by kernel.\n"), fmt2name(fmt));
+	else if (!kernel_formats)
+		errstr(_("Warning: No quota format detected in the kernel.\n"));
 
 	if (init_mounts_scan(mntcnt, mntpoints, 0) < 0)
 		return 1;

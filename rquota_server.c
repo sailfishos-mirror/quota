@@ -9,7 +9,7 @@
  *
  *          This part does the lookup of the info.
  *
- * Version: $Id: rquota_server.c,v 1.15 2004/05/24 19:39:15 jkar8572 Exp $
+ * Version: $Id: rquota_server.c,v 1.16 2005/06/01 07:20:50 jkar8572 Exp $
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
@@ -32,6 +32,7 @@
 #include "quotaio.h"
 #include "quotasys.h"
 #include "dqblk_rpc.h"
+#include "common.h"
 
 #define STDIN_FILENO	0
 
@@ -46,12 +47,11 @@
 
 #define NETTYPE AF_INET
 
-int allow_severity = LOG_INFO;
-int deny_severity = LOG_WARNING;
-
 /* Options from rquota_svc.c */
 #define FL_AUTOFS 4
 extern int flags;
+
+extern char nfs_pseudoroot[PATH_MAX];
 
 /*
  * Global unix authentication credentials.
@@ -111,7 +111,7 @@ static inline void servutil2netdqblk(struct rquota *n, struct util_dqblk *u)
 		n->rq_ftimeleft = 0;
 }
 
-setquota_rslt *setquotainfo(int flags, caddr_t * argp, struct svc_req *rqstp)
+setquota_rslt *setquotainfo(int lflags, caddr_t * argp, struct svc_req *rqstp)
 {
 	static setquota_rslt result;
 
@@ -123,14 +123,16 @@ setquota_rslt *setquotainfo(int flags, caddr_t * argp, struct svc_req *rqstp)
 	struct util_dqblk dqblk;
 	struct dquot *dquot;
 	struct mntent *mnt;
-	char *pathname;
+	char pathname[PATH_MAX];
+	char *pathp = pathname;
 	int id, qcmd, type;
 	struct quota_handle *handles[2] = { NULL, NULL };
 
+	sstrncpy(pathname, nfs_pseudoroot, PATH_MAX);
 	/*
 	 * First check authentication.
 	 */
-	if (flags & TYPE_EXTENDED) {
+	if (lflags & TYPE_EXTENDED) {
 		arguments.ext_args = (ext_setquota_args *) argp;
 
 		id = arguments.ext_args->sqa_id;
@@ -141,7 +143,7 @@ setquota_rslt *setquotainfo(int flags, caddr_t * argp, struct svc_req *rqstp)
 
 		qcmd = arguments.ext_args->sqa_qcmd;
 		type = arguments.ext_args->sqa_type;
-		pathname = arguments.ext_args->sqa_pathp;
+		sstrncat(pathname, arguments.ext_args->sqa_pathp, PATH_MAX);
 		servnet2utildqblk(&dqblk, &arguments.ext_args->sqa_dqblk);
 	}
 	else {
@@ -155,14 +157,14 @@ setquota_rslt *setquotainfo(int flags, caddr_t * argp, struct svc_req *rqstp)
 
 		qcmd = arguments.args->sqa_qcmd;
 		type = USRQUOTA;
-		pathname = arguments.args->sqa_pathp;
+		sstrncat(pathname, arguments.args->sqa_pathp, PATH_MAX);
 		servnet2utildqblk(&dqblk, &arguments.args->sqa_dqblk);
 	}
 
 	result.status = Q_NOQUOTA;
 	result.setquota_rslt_u.sqr_rquota.rq_bsize = RPC_DQBLK_SIZE;
 
-	if (init_mounts_scan(1, &pathname, MS_QUIET | MS_NO_MNTPOINT | ((flags & FL_AUTOFS) ? 0 : MS_NO_AUTOFS)) < 0)
+	if (init_mounts_scan(1, &pathp, MS_QUIET | MS_NO_MNTPOINT | ((flags & FL_AUTOFS) ? 0 : MS_NO_AUTOFS)) < 0)
 		goto out;
 	if (!(mnt = get_next_mount())) {
 		end_mounts_scan();
@@ -201,7 +203,7 @@ out:
 	return (&result);
 }
 
-getquota_rslt *getquotainfo(int flags, caddr_t * argp, struct svc_req * rqstp)
+getquota_rslt *getquotainfo(int lflags, caddr_t * argp, struct svc_req * rqstp)
 {
 	static getquota_rslt result;
 	union {
@@ -210,18 +212,20 @@ getquota_rslt *getquotainfo(int flags, caddr_t * argp, struct svc_req * rqstp)
 	} arguments;
 	struct dquot *dquot = NULL;
 	struct mntent *mnt;
-	char *pathname;
+	char pathname[PATH_MAX];
+	char *pathp = pathname;
 	int id, type;
 	struct quota_handle *handles[2] = { NULL, NULL };
 
+	sstrncpy(pathname, nfs_pseudoroot, PATH_MAX);
 	/*
 	 * First check authentication.
 	 */
-	if (flags & TYPE_EXTENDED) {
+	if (lflags & TYPE_EXTENDED) {
 		arguments.ext_args = (ext_getquota_args *) argp;
 		id = arguments.ext_args->gqa_id;
 		type = arguments.ext_args->gqa_type;
-		pathname = arguments.ext_args->gqa_pathp;
+		sstrncat(pathname, arguments.ext_args->gqa_pathp, PATH_MAX);
 
 		if (type == USRQUOTA && unix_cred->aup_uid && unix_cred->aup_uid != id) {
 			result.status = Q_EPERM;
@@ -238,7 +242,7 @@ getquota_rslt *getquotainfo(int flags, caddr_t * argp, struct svc_req * rqstp)
 		arguments.args = (getquota_args *) argp;
 		id = arguments.args->gqa_uid;
 		type = USRQUOTA;
-		pathname = arguments.args->gqa_pathp;
+		sstrncat(pathname, arguments.args->gqa_pathp, PATH_MAX);
 
 		if (unix_cred->aup_uid && unix_cred->aup_uid != id) {
 			result.status = Q_EPERM;
@@ -249,7 +253,7 @@ getquota_rslt *getquotainfo(int flags, caddr_t * argp, struct svc_req * rqstp)
 	result.status = Q_NOQUOTA;
 	result.getquota_rslt_u.gqr_rquota.rq_bsize = RPC_DQBLK_SIZE;
 
-	if (init_mounts_scan(1, &pathname, MS_QUIET | MS_NO_MNTPOINT | ((flags & FL_AUTOFS) ? 0 : MS_NO_AUTOFS)) < 0)
+	if (init_mounts_scan(1, &pathp, MS_QUIET | MS_NO_MNTPOINT | ((flags & FL_AUTOFS) ? 0 : MS_NO_AUTOFS)) < 0)
 		goto out;
 	if (!(mnt = get_next_mount())) {
 		end_mounts_scan();
@@ -260,7 +264,7 @@ getquota_rslt *getquotainfo(int flags, caddr_t * argp, struct svc_req * rqstp)
 		goto out;
 	}
 	end_mounts_scan();
-	if (!(flags & ACTIVE) || QIO_ENABLED(handles[0]))
+	if (!(lflags & ACTIVE) || QIO_ENABLED(handles[0]))
 		dquot = handles[0]->qh_ops->read_dquot(handles[0], id);
 	if (dquot) {
 		result.status = Q_OK;

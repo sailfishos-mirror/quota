@@ -1,4 +1,5 @@
 Changes in quota-tools from 3.12 to 3.13
+* parse NFSD export table to find pseudofilesystem root for NFSv4 (Jan Kara)
 * handle better when quota file should become empty (Niu YaWei)
 * minor manpage and help-text fixes (Jan Kara)
 * fixed quotacheck(8) to check each block only once (Jan Kara)
