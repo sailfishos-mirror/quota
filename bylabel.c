@@ -54,6 +54,15 @@ struct xfs_super_block {
 	u_char s_fsname[12];
 };
 
+#define REISER_SUPER_MAGIC	"ReIsEr2Fs"
+struct reiserfs_super_block {
+	u_char s_dummy1[52];
+	u_char s_magic[10];
+	u_char s_dummy2[22];
+	u_char s_uuid[16];
+	u_char s_volume_name[16];
+};
+
 static inline unsigned short swapped(unsigned short a)
 {
 	return (a >> 8) | (a << 8);
@@ -65,11 +74,11 @@ static int get_label_uuid(const char *device, char **label, char *uuid)
 
 	/* start with ext2 and xfs tests, taken from mount_guess_fstype */
 	/* should merge these later */
-	int fd;
-	int rv = 1;
+	int fd, rv = 1;
 	size_t namesize;
 	struct ext2_super_block e2sb;
 	struct xfs_super_block xfsb;
+	struct reiserfs_super_block reisersb;
 
 	fd = open(device, O_RDONLY);
 	if (fd < 0)
@@ -94,7 +103,15 @@ static int get_label_uuid(const char *device, char **label, char *uuid)
 		sstrncpy(*label, xfsb.s_fsname, namesize);
 		rv = 0;
 	}
-
+	else if (lseek(fd, 65536, SEEK_SET) == 65536
+		&& read(fd, (char *)&reisersb, sizeof(reisersb)) == sizeof(reisersb)
+		&& !strncmp((char *)&reisersb.s_magic, REISER_SUPER_MAGIC, 9)) {
+		memcpy(uuid, reisersb.s_uuid, sizeof(reisersb.s_uuid));
+		namesize = sizeof(reisersb.s_volume_name);
+		*label = smalloc(namesize + 1);
+		sstrncpy(*label, reisersb.s_volume_name, namesize);
+		rv = 0;
+	}
 	close(fd);
 	return rv;
 }

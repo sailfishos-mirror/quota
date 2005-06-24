@@ -997,10 +997,25 @@ static int process_dirs(int dcnt, char **dirs, int flags)
 	if (dcnt) {
 		check_dirs = smalloc(sizeof(struct searched_dir) * dcnt);
 		for (i = 0; i < dcnt; i++) {
-			if (stat(dirs[i], &st) < 0) {
-				errstr(_("Can't stat() given mountpoint %s: %s\nSkipping...\n"), dirs[i], strerror(errno));
-				continue;
+			if (!strncmp(dirs[i], "UUID=", 5) || !strncmp(dirs[i], "LABEL=", 6)) {
+				char *devname = (char *)get_device_name(dirs[i]);
+
+				if (!devname) {
+					errstr(_("Can't find a device with %s.\nSkipping...\n"), dirs[i]);
+					continue;
+				}
+				if (stat(devname, &st) < 0) {
+					errstr(_("Can't stat() a mountpoint with %s: %s\nSkipping...\n"), dirs[i], strerror(errno));
+					free(devname);
+					continue;
+				}
+				free(devname);
 			}
+			else
+				if (stat(dirs[i], &st) < 0) {
+					errstr(_("Can't stat() given mountpoint %s: %s\nSkipping...\n"), dirs[i], strerror(errno));
+					continue;
+				}
 			check_dirs[check_dirs_cnt].sd_dir = S_ISDIR(st.st_mode);
 			if (S_ISDIR(st.st_mode)) {
 				const char *realmnt = dirs[i];
@@ -1008,7 +1023,7 @@ static int process_dirs(int dcnt, char **dirs, int flags)
 				/* Return st of mountpoint of dir in st.. */
 				if (flags & MS_NO_MNTPOINT && !(realmnt = find_dir_mntpoint(&st))) {
 					if (!(flags & MS_QUIET))
-						errstr(_("Can't find filesystem mountpoint for directory %s\n"), dirs[i]);
+						errstr(_("Can't find a filesystem mountpoint for directory %s\n"), dirs[i]);
 					continue;
 				}
 				check_dirs[check_dirs_cnt].sd_dev = st.st_dev;
