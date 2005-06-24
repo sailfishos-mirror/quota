@@ -7,16 +7,22 @@
 #ifndef _COMMON_H
 #define _COMMON_H
 
+#ifndef __attribute__
+# if !defined __GNUC__ || __GNUC__ < 2 || (__GNUC__ == 2 && __GNUC_MINOR__ < 8) || __STRICT_ANSI__
+#  define __attribute__(x)
+# endif
+#endif
+
 #define MY_EMAIL "mvw@planets.elm.net, jack@suse.cz"
 
 /* Name of current program for error reporting */
 extern char *progname;
 
 /* Finish programs being */
-void die(int, char *, ...);
+void die(int, char *, ...) __attribute__ ((__format__ (__printf__, 2, 3)));
 
 /* Print an error */
-void errstr(char *, ...);
+void errstr(char *, ...) __attribute__ ((__format__ (__printf__, 1, 2)));
 
 /* If use_syslog is called, all error reports using errstr() and die() are
  * written to syslog instead of stderr */

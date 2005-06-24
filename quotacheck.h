@@ -36,7 +36,7 @@ extern size_t free_mem = 0;
 #endif
 
 void *xmalloc(size_t size);
-void debug(int df, char *fmtstr, ...);
+void debug(int df, char *fmtstr, ...) __attribute__ ((__format__ (__printf__, 2, 3)));
 int ask_yn(char *q, int def);
 struct dquot *lookup_dquot(qid_t id, int type);
 struct dquot *add_dquot(qid_t id, int type);

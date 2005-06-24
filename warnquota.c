@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.21 2004/05/24 19:39:15 jkar8572 Exp $
+ * Version: $Id: warnquota.c,v 1.22 2005/06/24 14:04:23 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -653,7 +653,7 @@ int readconfigfile(const char *filename, struct configparams *config)
 		}
 		len = bufpos + strlen(buff+bufpos);
 		if (buff[len-1] != '\n')
-			errstr(_("Line %d too long. Truncating.\n"));
+			errstr(_("Line %d too long. Truncating.\n"), line);
 		else {
 			len--;
 			if (buff[len-1] == '\\') {	/* Should join with next line? */

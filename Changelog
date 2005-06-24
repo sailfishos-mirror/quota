@@ -1,4 +1,6 @@
 Changes in quota-tools from 3.12 to 3.13
+* fixed mistakes in several error messages, improved error reporting functions
+  (Dmitry V. Levin)
 * volume label and UUID support for reiserfs (Jan Kara)
 * support for LABEL= and UUID= on a command line (Jan Kara)
 * parse NFSD export table to find pseudofilesystem root for NFSv4 (Jan Kara)

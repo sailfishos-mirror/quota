@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.46 2005/03/31 11:48:02 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.47 2005/06/24 14:04:23 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -124,7 +124,7 @@ static int store_dlinks(int type, ino_t i_num)
 	struct dlinks *lptr;
 	uint hash = hash_ino(i_num);
 
-	debug(FL_DEBUG, _("Adding hardlink for ino %d\n"), i_num);
+	debug(FL_DEBUG, _("Adding hardlink for ino %llu\n"), (unsigned long long)i_num);
 
 	for (lptr = links_hash[type][hash]; lptr; lptr = lptr->next)
 		if (lptr->i_num == i_num)
@@ -838,9 +838,9 @@ static void check_dir(struct mntent *mnt)
 	int remounted = 0;
 
 	if (lstat(mnt->mnt_dir, &st) < 0)
-		die(2, _("Cannot stat mountpoint %s: %s\n"), mnt, strerror(errno));
+		die(2, _("Cannot stat mountpoint %s: %s\n"), mnt->mnt_dir, strerror(errno));
 	if (!S_ISDIR(st.st_mode))
-		die(2, _("Mountpoint %s isn't a directory?!\n"), mnt);
+		die(2, _("Mountpoint %s isn't a directory?!\n"), mnt->mnt_dir);
 	cur_dev = st.st_dev;
 	files_done = dirs_done = 0;
 	if (ucheck)
