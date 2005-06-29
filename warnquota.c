@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.22 2005/06/24 14:04:23 jkar8572 Exp $
+ * Version: $Id: warnquota.c,v 1.23 2005/06/29 08:47:44 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -27,9 +27,10 @@
 #include <ctype.h>
 #include <signal.h>
 #include <grp.h>
+#include <time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <time.h>
+#include <sys/utsname.h>
 #ifdef USE_LDAP_MAIL_LOOKUP
 #include <ldap.h>
 #endif
@@ -90,7 +91,7 @@ struct usage {
 };
 
 #ifdef USE_LDAP_MAIL_LOOKUP
-LDAP *ldapconn = NULL;
+static LDAP *ldapconn = NULL;
 #endif
 
 struct configparams {
@@ -137,14 +138,15 @@ struct adminstable {
 	char *adminname;
 };
 
-int qtab_i = 0, fmt = -1, flags;
-char maildev[CNF_BUFFER];
-struct quota_handle *maildev_handle;
-char *configfile = WARNQUOTA_CONF, *quotatabfile = QUOTATAB, *adminsfile = ADMINSFILE;
+static int qtab_i = 0, fmt = -1, flags;
+static char maildev[CNF_BUFFER];
+static struct quota_handle *maildev_handle;
+static char *configfile = WARNQUOTA_CONF, *quotatabfile = QUOTATAB, *adminsfile = ADMINSFILE;
 char *progname;
-quotatable_t *quotatable;
-int adminscnt, adminsalloc;
-struct adminstable *adminstable;
+static char *hostname, *domainname;
+static quotatable_t *quotatable;
+static int adminscnt, adminsalloc;
+static struct adminstable *adminstable;
 
 /*
  * Global pointers to list.
@@ -184,7 +186,7 @@ static int setup_ldap(struct configparams *config)
 		
 #endif
 
-struct offenderlist *add_offender(int type, int id, char *name)
+static struct offenderlist *add_offender(int type, int id, char *name)
 {
 	struct offenderlist *offender;
 	char namebuf[MAXNAMELEN];
@@ -206,7 +208,7 @@ struct offenderlist *add_offender(int type, int id, char *name)
 	return offender;
 }
 
-void add_offence(struct dquot *dquot, char *name)
+static void add_offence(struct dquot *dquot, char *name)
 {
 	struct offenderlist *lptr;
 	struct usage *usage;
@@ -230,7 +232,7 @@ void add_offence(struct dquot *dquot, char *name)
 	lptr->usage = usage;
 }
 
-int deliverable(struct dquot *dquot)
+static int deliverable(struct dquot *dquot)
 {
 	time_t now;
 	struct dquot *mdquot;
@@ -259,7 +261,7 @@ int deliverable(struct dquot *dquot)
 	return 1;
 }
 
-int check_offence(struct dquot *dquot, char *name)
+static int check_offence(struct dquot *dquot, char *name)
 {
 	if ((dquot->dq_dqb.dqb_bsoftlimit && toqb(dquot->dq_dqb.dqb_curspace) >= dquot->dq_dqb.dqb_bsoftlimit)
 	    || (dquot->dq_dqb.dqb_isoftlimit && dquot->dq_dqb.dqb_curinodes >= dquot->dq_dqb.dqb_isoftlimit)) {
@@ -269,7 +271,7 @@ int check_offence(struct dquot *dquot, char *name)
 	return 0;
 }
 
-FILE *run_mailer(char *command)
+static FILE *run_mailer(char *command)
 {
 	int pipefd[2];
 	FILE *f;
@@ -300,12 +302,12 @@ FILE *run_mailer(char *command)
 	}
 }
 
-int admin_name_cmp(const void *key, const void *mem)
+static int admin_name_cmp(const void *key, const void *mem)
 {
 	return strcmp(key, ((struct adminstable *)mem)->grpname);
 }
 
-int should_cc(struct offenderlist *offender, struct configparams *config)
+static int should_cc(struct offenderlist *offender, struct configparams *config)
 {
 	struct usage *lptr;
 	struct util_dqblk *dqb;
@@ -324,7 +326,35 @@ int should_cc(struct offenderlist *offender, struct configparams *config)
 	return 0;
 }
 
-int mail_user(struct offenderlist *offender, struct configparams *config)
+/* Substitute %s and %i for 'name' and %h for hostname */
+static void format_print(FILE *fp, char *fmt, char *name)
+{
+	char *ch, *lastch = fmt;
+
+	for (ch = strchr(fmt, '%'); ch; lastch = ch+2, ch = strchr(ch+2, '%')) {
+		*ch = 0;
+		fputs(lastch, fp);
+		*ch = '%';
+		switch (*(ch+1)) {
+			case 's':
+			case 'i':
+				fputs(name, fp);
+				break;
+			case 'h':
+				fputs(hostname, fp);
+				break;
+			case 'd':
+				fputs(domainname, fp);
+				break;
+			case '%':
+				fputc('%', fp);
+				break;
+		}
+	}
+	fputs(lastch, fp);
+}
+
+static int mail_user(struct offenderlist *offender, struct configparams *config)
 {
 	struct usage *lptr;
 	FILE *fp;
@@ -441,12 +471,12 @@ int mail_user(struct offenderlist *offender, struct configparams *config)
 
 	if (offender->offender_type == USRQUOTA)
 		if (config->user_message)
-			fputs(config->user_message, fp);
+			format_print(fp, config->user_message, offender->offender_name);
 		else
 			fputs(DEF_USER_MESSAGE, fp);
 	else
 		if (config->group_message)
-			fprintf(fp, config->group_message, offender->offender_name);
+			format_print(fp, config->group_message, offender->offender_name);
 		else
 			fprintf(fp, DEF_GROUP_MESSAGE, offender->offender_name);
 
@@ -491,12 +521,12 @@ int mail_user(struct offenderlist *offender, struct configparams *config)
 
 	if (offender->offender_type == USRQUOTA)
 		if (config->user_signature)
-			fputs(config->user_signature, fp);
+			format_print(fp, config->user_signature, offender->offender_name);
 		else
 			fprintf(fp, DEF_USER_SIGNATURE, config->support, config->phone);
 	else
 		if (config->group_signature)
-			fputs(config->group_signature, fp);
+			format_print(fp, config->group_signature, offender->offender_name);
 		else
 			fprintf(fp, DEF_GROUP_SIGNATURE, config->support, config->phone);
 	fclose(fp);
@@ -508,7 +538,7 @@ int mail_user(struct offenderlist *offender, struct configparams *config)
 	return 0;
 }
 
-int mail_to_offenders(struct configparams *config)
+static int mail_to_offenders(struct configparams *config)
 {
 	struct offenderlist *lptr;
 	int ret = 0;
@@ -524,7 +554,7 @@ int mail_to_offenders(struct configparams *config)
 /*
  * Wipe spaces, tabs, quotes and newlines from beginning and end of string
  */
-void stripstring(char **buff)
+static void stripstring(char **buff)
 {
 	int i;
 
@@ -541,7 +571,7 @@ void stripstring(char **buff)
 /*
  * Substitute '|' with end of lines
  */
-void create_eoln(char *buf)
+static void create_eoln(char *buf)
 {
 	char *colpos = buf;
 
@@ -552,7 +582,7 @@ void create_eoln(char *buf)
 /*
  * Read /etc/quotatab (description of devices for users)
  */
-int get_quotatable(void)
+static int get_quotatable(void)
 {
 	FILE *fp;
 	char buffer[IOBUF_SIZE], *colpos, *devname, *devdesc;
@@ -603,11 +633,31 @@ int get_quotatable(void)
 	return 0;
 }
 
+/* Check correctness of the given format */
+static void verify_format(char *fmt, char *varname)
+{
+	char *ch;
+
+	for (ch = strchr(fmt, '%'); ch; ch = strchr(ch+2, '%')) {
+		switch (*(ch+1)) {
+			case 's':
+			case 'i':
+			case 'h':
+			case 'd':
+			case '%':
+				continue;
+			default:
+				die(1, _("Incorrect format string for variable %s.\n\
+Unrecognized expression %%%c.\n"), varname, *(ch+1));
+		}
+	}
+}
+
 /*
  * Reads config parameters from configfile
  * uses default values if errstr occurs
  */
-int readconfigfile(const char *filename, struct configparams *config)
+static int readconfigfile(const char *filename, struct configparams *config)
 {
 	FILE *fp;
 	char buff[IOBUF_SIZE];
@@ -692,18 +742,22 @@ int readconfigfile(const char *filename, struct configparams *config)
 			} else if (!strcmp(var, "MESSAGE")) {
 				config->user_message = sstrdup(value);
 				create_eoln(config->user_message);
+				verify_format(config->user_message, "MESSAGE");
 			}
 			else if (!strcmp(var, "SIGNATURE")) {
 				config->user_signature = sstrdup(value);
 				create_eoln(config->user_signature);
+				verify_format(config->user_signature, "SIGNATURE");
 			}
 			else if (!strcmp(var, "GROUP_MESSAGE")) {
 				config->group_message = sstrdup(value);
 				create_eoln(config->group_message);
+				verify_format(config->group_message, "GROUP_MESSAGE");
 			}
 			else if (!strcmp(var, "GROUP_SIGNATURE")) {
 				config->group_signature = sstrdup(value);
 				create_eoln(config->group_signature);
+				verify_format(config->group_signature, "GROUP_SIGNATURE");
 			}
 			else if (!strcmp(var, "LDAP_MAIL")) {
 				if(strcasecmp(value, "true") == 0) 
@@ -753,13 +807,13 @@ cc_parse_err:
 	return 0;
 }
 
-int admin_cmp(const void *a1, const void *a2)
+static int admin_cmp(const void *a1, const void *a2)
 {
 	return strcmp(((struct adminstable *)a1)->grpname, ((struct adminstable *)a2)->grpname);
 }
 
 /* Get administrators of the groups */
-int get_groupadmins(void)
+static int get_groupadmins(void)
 {
 	FILE *f;
 	int line = 0;
@@ -815,7 +869,7 @@ int get_groupadmins(void)
 	return 0;
 }
 
-struct quota_handle *find_handle_dev(char *dev, struct quota_handle **handles)
+static struct quota_handle *find_handle_dev(char *dev, struct quota_handle **handles)
 {
 	int i;
 
@@ -823,7 +877,7 @@ struct quota_handle *find_handle_dev(char *dev, struct quota_handle **handles)
 	return handles[i];
 }
 
-void warn_quota(void)
+static void warn_quota(void)
 {
 	struct quota_handle **handles;
 	struct configparams config;
@@ -914,10 +968,21 @@ static void parse_options(int argcnt, char **argstr)
 		flags |= FL_USER;
 }
  
+static void get_host_name(void)
+{
+	struct utsname uts;
+
+	if (uname(&uts))
+		die(1, _("Cannot get host name: %s\n"), strerror(errno));
+	hostname = uts.nodename;
+	domainname = uts.domainname;
+}
+
 int main(int argc, char **argv)
 {
 	gettexton();
 	progname = basename(argv[0]);
+	get_host_name();
 
 	parse_options(argc, argv);
 	init_kernel_interface();
