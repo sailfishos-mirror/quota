@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quota.c,v 1.15 2004/04/20 19:33:05 jkar8572 Exp $"
+#ident "$Id: quota.c,v 1.16 2005/07/19 15:09:07 jkar8572 Exp $"
 
 /*
  * Disk quota reporting program.
@@ -68,6 +68,7 @@
 #define FL_LOCALONLY 32
 #define FL_QUIETREFUSE 64
 #define FL_NOAUTOFS 128
+#define FL_NOWRAP 256
 
 int flags, fmt = -1;
 char *progname;
@@ -85,7 +86,7 @@ int main(int argc, char **argv)
 	gettexton();
 	progname = basename(argv[0]);
 
-	while ((ret = getopt(argc, argv, "guqvsVliQF:")) != -1) {
+	while ((ret = getopt(argc, argv, "guqvsVliQF:w")) != -1) {
 		switch (ret) {
 		  case 'g':
 			  flags |= FL_GROUP;
@@ -114,6 +115,9 @@ int main(int argc, char **argv)
 			  break;
 		  case 'i':
 			  flags |= FL_NOAUTOFS;
+			  break;
+		  case 'w':
+			  flags |= FL_NOWRAP;
 			  break;
 		  case 'V':
 			  version();
@@ -166,9 +170,9 @@ int main(int argc, char **argv)
 void usage(void)
 {
 	errstr( "%s%s%s",
-		_("Usage: quota [-guqvs] [-l | -Q] [-i] [-F quotaformat]\n"),
-		_("\tquota [-qvs] [-l | -Q] [-i] [-F quotaformat] -u username ...\n"),
-		_("\tquota [-qvs] [-l | -Q] [-i] [-F quotaformat] -g groupname ...\n"));
+		_("Usage: quota [-guqvsw] [-l | -Q] [-i] [-F quotaformat]\n"),
+		_("\tquota [-qvsw] [-l | -Q] [-i] [-F quotaformat] -u username ...\n"),
+		_("\tquota [-qvsw] [-l | -Q] [-i] [-F quotaformat] -g groupname ...\n"));
 	fprintf(stderr, _("Bugs to: %s\n"), MY_EMAIL);
 	exit(1);
 }
@@ -240,7 +244,7 @@ int showquotas(int type, qid_t id)
 
 			if (!lines++)
 				heading(type, id, name, "");
-			if (strlen(q->dq_h->qh_quotadev) > 15)
+			if (strlen(q->dq_h->qh_quotadev) > 15 && !(flags & FL_NOWRAP))
 				printf("%s\n%15s", q->dq_h->qh_quotadev, "");
 			else
 				printf("%15s", q->dq_h->qh_quotadev);
@@ -250,14 +254,14 @@ int showquotas(int type, qid_t id)
 			space2str(q->dq_dqb.dqb_bsoftlimit, numbuf[1], !!(flags & FL_SMARTSIZE));
 			space2str(q->dq_dqb.dqb_bhardlimit, numbuf[2], !!(flags & FL_SMARTSIZE));
 			printf(" %7s%c %6s %7s %7s", numbuf[0], bover ? '*' : ' ', numbuf[1],
-			       numbuf[2], bover > 1 ? timebuf : "");
+			       numbuf[2], bover ? timebuf : "");
 			if (iover)
 				difftime2str(q->dq_dqb.dqb_itime, timebuf);
 			number2str(q->dq_dqb.dqb_curinodes, numbuf[0], !!(flags & FL_SMARTSIZE));
 			number2str(q->dq_dqb.dqb_isoftlimit, numbuf[1], !!(flags & FL_SMARTSIZE));
 			number2str(q->dq_dqb.dqb_ihardlimit, numbuf[2], !!(flags & FL_SMARTSIZE));
 			printf(" %7s%c %6s %7s %7s\n", numbuf[0], iover ? '*' : ' ', numbuf[1],
-			       numbuf[2], iover > 1 ? timebuf : "");
+			       numbuf[2], iover ? timebuf : "");
 			continue;
 		}
 	}

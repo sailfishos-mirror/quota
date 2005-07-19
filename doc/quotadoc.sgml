@@ -67,10 +67,9 @@ file with quota information) and <tt/filename/ must specify a file in the root
 directory of a filesystem. When any of <tt/jquota/ options is specified
 additional option <tt/jqfmt=format/ must be also specified where <tt/format/ is
 a format of quota files. As journaled quota is currently supported only for
-<tt/vfsv0/ format the value of format must be <tt/vfsv0/. Note also that
-journaled quota is currently (as of March 2004) supported only for Ext3
-filesystem and you need to have a kernel patched with a special patch
-(contained for example in -mm series of a kernel).
+<tt/vfsv0/ format the value of format must be <tt/vfsv0/. Journaled quota
+is currently (as of July 2005) supported for Ext3 and Reiserfs filesystems
+and you need to have at least 2.6.11 kernel.
 <p>
 For each filesystem with quotas you have to have files with quota data. The
 name of these quota files depends on <ref id="quota_formats" name="quota

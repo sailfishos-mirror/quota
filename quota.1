@@ -7,7 +7,7 @@ quota \- display disk usage and limits
 .B -F
 .I format-name
 ] [
-.BR -guvsil \ |
+.BR -guvsilw \ |
 .B q
 ]
 .br
@@ -16,7 +16,7 @@ quota \- display disk usage and limits
 .B -F
 .I format-name
 ] [
-.BR -uvsil \ |
+.BR -uvsilw \ |
 .B q
 ]
 .IR user ...
@@ -26,7 +26,7 @@ quota \- display disk usage and limits
 .B -F
 .I format-name
 ] [
-.BR -gvsil \ |
+.BR -gvsilw \ |
 .B q
 ]
 .IR group ...
@@ -87,6 +87,12 @@ on filesystems where usage is over quota.
 .B \-Q
 Do not print error message if connection to rpc.rquotad is refused (usually this happens
 when rpc.rquotad is not running on the server).
+.TP
+.B \-w
+Do not wrap the line if the device name is too long. This can be useful when parsing
+the output of
+.BR quota (1)
+by a script.
 .LP
 Specifying both
 .B \-g
