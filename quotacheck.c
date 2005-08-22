@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.47 2005/06/24 14:04:23 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.48 2005/08/22 12:51:09 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -275,8 +275,14 @@ static inline void blit(char *msg)
 	static int slow_down;
 
 	if (flags & FL_VERYVERBOSE && msg) {
+		int len = strlen(msg);
+		
 		putchar('\r');
-		printf("%-70s ", msg);
+		printf("%.70s", msg);
+		if (len > 70)
+			fputs("...", stdout);
+		else
+			printf("%*s",73-len, "");
 	}
 	if (flags & FL_VERYVERBOSE || ++slow_down >= BLIT_RATIO) {
 		putchar(bits[bitc]);
