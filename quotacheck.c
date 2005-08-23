@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.48 2005/08/22 12:51:09 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.49 2005/08/23 09:23:35 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -895,6 +895,8 @@ Please stop all programs writing to filesystem or use -m flag to force checking.
 			goto out;
 	}
 	dirs_done++;
+	if (flags & FL_VERBOSE || flags & FL_VERYVERBOSE)
+		fputs(_("done\n"), stdout);
 	if (ucheck) {
 		sub_quota_file(mnt, USRQUOTA, USRQUOTA);
 		sub_quota_file(mnt, USRQUOTA, GRPQUOTA);
@@ -903,8 +905,6 @@ Please stop all programs writing to filesystem or use -m flag to force checking.
 		sub_quota_file(mnt, GRPQUOTA, USRQUOTA);
 		sub_quota_file(mnt, GRPQUOTA, GRPQUOTA);
 	}
-	if (flags & FL_VERBOSE)
-		fputs(_("done\n"), stdout);
 	debug(FL_DEBUG | FL_VERBOSE, _("Checked %d directories and %d files\n"), dirs_done,
 	      files_done);
 	if (remounted) {
@@ -965,7 +965,7 @@ jquota_err:
 			space = option + strlen(option);
 		if (space-option > sizeof(fmtbuf))
 			goto jquota_err;
-		sstrncpy(fmtbuf, option+1, space-option+1);
+		sstrncpy(fmtbuf, option+1, space-option);
 		if ((fmt = name2fmt(fmtbuf)) == QF_ERROR)
 			goto jquota_err;
 		return fmt;
