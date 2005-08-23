@@ -1,5 +1,6 @@
 Changes in quota-tools from 3.13 to 3.14
 * fixed very verbose printing for quotacheck (Jan Kara)
+* fixed off-by-one bug in mount options parsing (Jan Kara)
 * implemented nicer message formatting for warnquota(8) (Jan Kara)
 * quota(1) has -w option to supress line wrapping for long device names (Jan Kara)
 * quota(1) prints grace time even if hard limit is reached (Jan Kara)
