@@ -97,7 +97,7 @@ uid_t user2uid(char *name, int *err)
 
 	if (err)
 		*err = 0;
-	ret = strtol(name, &errch, 0);
+	ret = strtoul(name, &errch, 0);
 	if (!*errch)		/* Is name number - we got directly uid? */
 		return ret;
 	if (!(entry = getpwnam(name))) {
@@ -124,7 +124,7 @@ gid_t group2gid(char *name, int *err)
 
 	if (err)
 		*err = 0;
-	ret = strtol(name, &errch, 0);
+	ret = strtoul(name, &errch, 0);
 	if (!*errch)		/* Is name number - we got directly gid? */
 		return ret;
 	if (!(entry = getgrnam(name))) {

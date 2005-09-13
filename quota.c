@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quota.c,v 1.16 2005/07/19 15:09:07 jkar8572 Exp $"
+#ident "$Id: quota.c,v 1.17 2005/09/13 15:54:01 jkar8572 Exp $"
 
 /*
  * Disk quota reporting program.
@@ -274,8 +274,8 @@ int showquotas(int type, qid_t id)
 
 void heading(int type, qid_t id, char *name, char *tag)
 {
-	printf(_("Disk quotas for %s %s (%cid %d): %s\n"), type2name(type),
-	       name, *type2name(type), id, tag);
+	printf(_("Disk quotas for %s %s (%cid %u): %s\n"), type2name(type),
+	       name, *type2name(type), (uint) id, tag);
 	if (!(flags & FL_QUIET) && !tag[0]) {
 		printf("%15s%8s %7s%8s%8s%8s %7s%8s%8s\n", _("Filesystem"),
 		       _("blocks"), _("quota"), _("limit"), _("grace"),

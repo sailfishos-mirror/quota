@@ -1,4 +1,5 @@
 Changes in quota-tools from 3.13 to 3.14
+* made UID/GID prints unsigned (Matthew Kent)
 * fixed very verbose printing for quotacheck (Jan Kara)
 * fixed off-by-one bug in mount options parsing (Jan Kara)
 * implemented nicer message formatting for warnquota(8) (Jan Kara)
