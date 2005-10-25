@@ -344,9 +344,9 @@ int main(int argc, char **argv)
 	init_kernel_interface();
 
 	if (flags & FL_ALL)
-		handles = create_handle_list(0, NULL, flag2type(flags), fmt, (flags & FL_RPC) ? 0 : IOI_LOCALONLY, 0);
+		handles = create_handle_list(0, NULL, flag2type(flags), fmt, 0, (flags & FL_RPC) ? 0 : MS_LOCALONLY);
 	else
-		handles = create_handle_list(mntcnt, mnt, flag2type(flags), fmt, (flags & FL_RPC) ? 0 : IOI_LOCALONLY, 0);
+		handles = create_handle_list(mntcnt, mnt, flag2type(flags), fmt, 0, (flags & FL_RPC) ? 0 : MS_LOCALONLY);
 
 	if (flags & FL_GRACE)
 		ret = setgraces(handles);

@@ -583,7 +583,7 @@ add_entry:
 				continue;
 			gotmnt++;
 		}
-		else if (!(ioflags & IOI_LOCALONLY) && (fmt == -1 || fmt == QF_RPC)) {	/* Use NFS? */
+		else if (fmt == -1 || fmt == QF_RPC) {	/* Use NFS? */
 #ifdef RPC
 			goto add_entry;
 #endif
@@ -862,6 +862,11 @@ static int cache_mnt_table(int flags)
 			continue;
 		}
 		
+		if (flags & MS_LOCALONLY && nfs_fstype(mnt->mnt_type)) {
+			free((char *)devname);
+			continue;
+		}
+
 		/* Further we are not interested in mountpoints without quotas and
 		   we don't want to touch them */
 		if (!hasquota(mnt, USRQUOTA) && !hasquota(mnt, GRPQUOTA)) {

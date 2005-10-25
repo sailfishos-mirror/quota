@@ -19,9 +19,8 @@
 #define TF_ROUND 0x1		/* Should be printed time rounded? */
 
 /* Flags for IO initialization */
-#define IOI_LOCALONLY	0x1	/* Operate only on local quota */
-#define IOI_READONLY	0x2	/* Only readonly access */
-#define IOI_OPENFILE	0x4	/* Open file even if kernel has quotas turned on */
+#define IOI_READONLY	0x1	/* Only readonly access */
+#define IOI_OPENFILE	0x2	/* Open file even if kernel has quotas turned on */
 
 #define KERN_KNOWN_QUOTA_VERSION (6*10000 + 5*100 + 1)
 
@@ -130,6 +129,7 @@ int kern_quota_on(const char *dev, int type, int fmt);
 #define MS_NO_MNTPOINT 0x01	/* Specified directory needn't be mountpoint */
 #define MS_NO_AUTOFS 0x02	/* Ignore autofs mountpoints */
 #define MS_QUIET 0x04		/* Be quiet with error reporting */
+#define MS_LOCALONLY 0x08	/* Ignore nfs mountpoints */
 /* Initialize mountpoints scan */
 int init_mounts_scan(int dcnt, char **dirs, int flags);
 

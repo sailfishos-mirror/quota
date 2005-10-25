@@ -1,4 +1,5 @@
 Changes in quota-tools from 3.13 to 3.14
+* we cannot even stat NFS mounts in local mode as server may be unreachable (Jan Kara)
 * fixed error messages in getprivs() (Jan Kara, Brian Morris)
 * made UID/GID prints unsigned (Matthew Kent)
 * fixed very verbose printing for quotacheck (Jan Kara)

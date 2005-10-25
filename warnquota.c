@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.23 2005/06/29 08:47:44 jkar8572 Exp $
+ * Version: $Id: warnquota.c,v 1.24 2005/10/25 13:01:14 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -889,7 +889,7 @@ static void warn_quota(void)
 		wc_exit(1);
 
 	if (flags & FL_USER) {
-		handles = create_handle_list(0, NULL, USRQUOTA, -1, IOI_LOCALONLY | IOI_READONLY | IOI_OPENFILE, (flags & FL_NOAUTOFS ? MS_NO_AUTOFS : 0));
+		handles = create_handle_list(0, NULL, USRQUOTA, -1, IOI_READONLY | IOI_OPENFILE, MS_LOCALONLY | (flags & FL_NOAUTOFS ? MS_NO_AUTOFS : 0));
 		if (!maildev[0] || !strcasecmp(maildev, "any"))
 			maildev_handle = NULL;
 		else
@@ -901,7 +901,7 @@ static void warn_quota(void)
 	if (flags & FL_GROUP) {
 		if (get_groupadmins() < 0)
 			wc_exit(1);
-		handles = create_handle_list(0, NULL, GRPQUOTA, -1, IOI_LOCALONLY | IOI_READONLY | IOI_OPENFILE, (flags & FL_NOAUTOFS ? MS_NO_AUTOFS : 0));
+		handles = create_handle_list(0, NULL, GRPQUOTA, -1, IOI_READONLY | IOI_OPENFILE, MS_LOCALONLY | (flags & FL_NOAUTOFS ? MS_NO_AUTOFS : 0));
 		if (!maildev[0] || !strcasecmp(maildev, "any"))
 			maildev_handle = NULL;
 		else

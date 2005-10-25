@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quota.c,v 1.17 2005/09/13 15:54:01 jkar8572 Exp $"
+#ident "$Id: quota.c,v 1.18 2005/10/25 13:01:14 jkar8572 Exp $"
 
 /*
  * Disk quota reporting program.
@@ -189,7 +189,7 @@ int showquotas(int type, qid_t id)
 
 	time(&now);
 	id2name(id, type, name);
-	handles = create_handle_list(0, NULL, type, fmt, IOI_READONLY | ((flags & FL_LOCALONLY) ? IOI_LOCALONLY : 0), ((flags & FL_NOAUTOFS) ? MS_NO_AUTOFS : 0));
+	handles = create_handle_list(0, NULL, type, fmt, IOI_READONLY, ((flags & FL_NOAUTOFS) ? MS_NO_AUTOFS : 0) | ((flags & FL_LOCALONLY) ? MS_LOCALONLY : 0));
 	qlist = getprivs(id, handles, !!(flags & FL_QUIETREFUSE));
 	over = 0;
 	for (q = qlist; q; q = q->dq_next) {

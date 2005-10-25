@@ -266,7 +266,7 @@ static int convert_format(int type, struct mntent *mnt)
 	struct quota_handle *qo;
 	int ret = 0;
 	
-	if (!(qo = init_io(mnt, type, QF_VFSOLD, IOI_LOCALONLY | IOI_OPENFILE))) {
+	if (!(qo = init_io(mnt, type, QF_VFSOLD, IOI_OPENFILE))) {
 		errstr(_("Can't open old format file for %ss on %s\n"),
 			type2name(type), mnt->mnt_dir);
 		return -1;
