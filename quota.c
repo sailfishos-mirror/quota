@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quota.c,v 1.18 2005/10/25 13:01:14 jkar8572 Exp $"
+#ident "$Id: quota.c,v 1.19 2005/11/21 22:30:23 jkar8572 Exp $"
 
 /*
  * Disk quota reporting program.
@@ -69,115 +69,34 @@
 #define FL_QUIETREFUSE 64
 #define FL_NOAUTOFS 128
 #define FL_NOWRAP 256
+#define FL_FSLIST 512
 
 int flags, fmt = -1;
 char *progname;
 
-void usage(void);
-int showquotas(int type, qid_t id);
-void heading(int type, qid_t id, char *name, char *tag);
-
-int main(int argc, char **argv)
-{
-	int ngroups;
-	gid_t gidset[NGROUPS], *gidsetp;
-	int i, ret;
-
-	gettexton();
-	progname = basename(argv[0]);
-
-	while ((ret = getopt(argc, argv, "guqvsVliQF:w")) != -1) {
-		switch (ret) {
-		  case 'g':
-			  flags |= FL_GROUP;
-			  break;
-		  case 'u':
-			  flags |= FL_USER;
-			  break;
-		  case 'q':
-			  flags |= FL_QUIET;
-			  break;
-		  case 'v':
-			  flags |= FL_VERBOSE;
-			  break;
-		  case 'F':
-			  if ((fmt = name2fmt(optarg)) == QF_ERROR)	/* Error? */
-				  exit(1);
-			  break;
-		  case 's':
-			  flags |= FL_SMARTSIZE;
-			  break;
-		  case 'l':
-			  flags |= FL_LOCALONLY;
-			  break;
-		  case 'Q':
-			  flags |= FL_QUIETREFUSE;
-			  break;
-		  case 'i':
-			  flags |= FL_NOAUTOFS;
-			  break;
-		  case 'w':
-			  flags |= FL_NOWRAP;
-			  break;
-		  case 'V':
-			  version();
-			  exit(0);
-		  default:
-			  usage();
-		}
-	}
-	argc -= optind;
-	argv += optind;
-
-	if (!(flags & FL_USER) && !(flags & FL_GROUP))
-		flags |= FL_USER;
-	init_kernel_interface();
-
-	ret = 0;
-	if (argc == 0) {
-		if (flags & FL_USER)
-			ret |= showquotas(USRQUOTA, getuid());
-		if (flags & FL_GROUP) {
-			ngroups = sysconf(_SC_NGROUPS_MAX);
-			if (ngroups > NGROUPS) {
-				gidsetp = malloc(ngroups * sizeof(gid_t));
-				if (!gidsetp)
-					die(1, _("quota: gid set allocation (%d): %s\n"), ngroups, strerror(errno));
-			} else {
-				gidsetp = &gidset[0];
-			}
-			ngroups = getgroups(ngroups, gidsetp);
-			if (ngroups < 0)
-				die(1, _("quota: getgroups(): %s\n"), strerror(errno));
-			for (i = 0; i < ngroups; i++)
-				ret |= showquotas(GRPQUOTA, gidsetp[i]);
-		}
-		exit(ret);
-	}
-
-	if ((flags & FL_USER) && (flags & FL_GROUP))
-		usage();
-
-	if (flags & FL_USER)
-		for (; argc > 0; argc--, argv++)
-			ret |= showquotas(USRQUOTA, user2uid(*argv, NULL));
-	else if (flags & FL_GROUP)
-		for (; argc > 0; argc--, argv++)
-			ret |= showquotas(GRPQUOTA, group2gid(*argv, NULL));
-	return ret;
-}
-
 void usage(void)
 {
-	errstr( "%s%s%s",
+	errstr( "%s%s%s%s",
 		_("Usage: quota [-guqvsw] [-l | -Q] [-i] [-F quotaformat]\n"),
 		_("\tquota [-qvsw] [-l | -Q] [-i] [-F quotaformat] -u username ...\n"),
-		_("\tquota [-qvsw] [-l | -Q] [-i] [-F quotaformat] -g groupname ...\n"));
+		_("\tquota [-qvsw] [-l | -Q] [-i] [-F quotaformat] -g groupname ...\n"),
+		_("\tquota [-qvswugQ] [-F quotaformat] -f filesystem ...\n"));
 	fprintf(stderr, _("Bugs to: %s\n"), MY_EMAIL);
 	exit(1);
 }
 
-int showquotas(int type, qid_t id)
+void heading(int type, qid_t id, char *name, char *tag)
+{
+	printf(_("Disk quotas for %s %s (%cid %u): %s\n"), type2name(type),
+	       name, *type2name(type), (uint) id, tag);
+	if (!(flags & FL_QUIET) && !tag[0]) {
+		printf("%15s%8s %7s%8s%8s%8s %7s%8s%8s\n", _("Filesystem"),
+		       _("blocks"), _("quota"), _("limit"), _("grace"),
+		       _("files"), _("quota"), _("limit"), _("grace"));
+	}
+}
+
+int showquotas(int type, qid_t id, int mntcnt, char **mnt)
 {
 	struct dquot *qlist, *q;
 	char *msgi, *msgb;
@@ -189,7 +108,7 @@ int showquotas(int type, qid_t id)
 
 	time(&now);
 	id2name(id, type, name);
-	handles = create_handle_list(0, NULL, type, fmt, IOI_READONLY, ((flags & FL_NOAUTOFS) ? MS_NO_AUTOFS : 0) | ((flags & FL_LOCALONLY) ? MS_LOCALONLY : 0));
+	handles = create_handle_list(mntcnt, mnt, type, fmt, IOI_READONLY, ((flags & FL_NOAUTOFS) ? MS_NO_AUTOFS : 0) | ((flags & FL_LOCALONLY) ? MS_LOCALONLY : 0));
 	qlist = getprivs(id, handles, !!(flags & FL_QUIETREFUSE));
 	over = 0;
 	for (q = qlist; q; q = q->dq_next) {
@@ -272,13 +191,100 @@ int showquotas(int type, qid_t id)
 	return over > 0 ? 1 : 0;
 }
 
-void heading(int type, qid_t id, char *name, char *tag)
+int main(int argc, char **argv)
 {
-	printf(_("Disk quotas for %s %s (%cid %u): %s\n"), type2name(type),
-	       name, *type2name(type), (uint) id, tag);
-	if (!(flags & FL_QUIET) && !tag[0]) {
-		printf("%15s%8s %7s%8s%8s%8s %7s%8s%8s\n", _("Filesystem"),
-		       _("blocks"), _("quota"), _("limit"), _("grace"),
-		       _("files"), _("quota"), _("limit"), _("grace"));
+	int ngroups;
+	gid_t gidset[NGROUPS], *gidsetp;
+	int i, ret;
+
+	gettexton();
+	progname = basename(argv[0]);
+
+	while ((ret = getopt(argc, argv, "guqvsVliQF:wf")) != -1) {
+		switch (ret) {
+		  case 'g':
+			  flags |= FL_GROUP;
+			  break;
+		  case 'u':
+			  flags |= FL_USER;
+			  break;
+		  case 'q':
+			  flags |= FL_QUIET;
+			  break;
+		  case 'v':
+			  flags |= FL_VERBOSE;
+			  break;
+		  case 'F':
+			  if ((fmt = name2fmt(optarg)) == QF_ERROR)	/* Error? */
+				  exit(1);
+			  break;
+		  case 's':
+			  flags |= FL_SMARTSIZE;
+			  break;
+		  case 'l':
+			  flags |= FL_LOCALONLY;
+			  break;
+		  case 'Q':
+			  flags |= FL_QUIETREFUSE;
+			  break;
+		  case 'i':
+			  flags |= FL_NOAUTOFS;
+			  break;
+		  case 'w':
+			  flags |= FL_NOWRAP;
+			  break;
+		  case 'f':
+			  flags |= FL_FSLIST;
+			  break;
+		  case 'V':
+			  version();
+			  exit(0);
+		  default:
+			  usage();
+		}
 	}
+	argc -= optind;
+	argv += optind;
+
+	if (!(flags & FL_USER) && !(flags & FL_GROUP))
+		flags |= FL_USER;
+	if (flags & FL_FSLIST && flags & (FL_LOCALONLY | FL_NOAUTOFS))
+		errstr(_("Warning: Ignoring -%c when filesystem list specified.\n"), flags & FL_LOCALONLY ? 'l' : 'i');
+
+	init_kernel_interface();
+
+	ret = 0;
+	if (argc == 0 || flags & FL_FSLIST) {
+		if (flags & FL_FSLIST && argc == 0)
+			die(1, _("No filesystem specified.\n"));
+		if (flags & FL_USER)
+			ret |= showquotas(USRQUOTA, getuid(), argc, argv);
+		if (flags & FL_GROUP) {
+			ngroups = sysconf(_SC_NGROUPS_MAX);
+			if (ngroups > NGROUPS) {
+				gidsetp = malloc(ngroups * sizeof(gid_t));
+				if (!gidsetp)
+					die(1, _("Gid set allocation (%d): %s\n"), ngroups, strerror(errno));
+			} else {
+				gidsetp = &gidset[0];
+			}
+			ngroups = getgroups(ngroups, gidsetp);
+			if (ngroups < 0)
+				die(1, _("getgroups(): %s\n"), strerror(errno));
+			for (i = 0; i < ngroups; i++)
+				ret |= showquotas(GRPQUOTA, gidsetp[i], argc, argv);
+		}
+		exit(ret);
+	}
+
+	if ((flags & FL_USER) && (flags & FL_GROUP))
+		usage();
+
+	if (flags & FL_USER)
+		for (; argc > 0; argc--, argv++)
+			ret |= showquotas(USRQUOTA, user2uid(*argv, NULL), 0, NULL);
+	else if (flags & FL_GROUP)
+		for (; argc > 0; argc--, argv++)
+			ret |= showquotas(GRPQUOTA, group2gid(*argv, NULL), 0, NULL);
+	return ret;
 }

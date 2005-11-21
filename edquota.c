@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: edquota.c,v 1.17 2005/10/25 13:01:14 jkar8572 Exp $"
+#ident "$Id: edquota.c,v 1.18 2005/11/21 22:30:23 jkar8572 Exp $"
 
 /*
  * Disk quota editor.
@@ -201,7 +201,7 @@ int main(int argc, char **argv)
 	ret = 0;
 	if (tflag) {
 		if (writetimes(handles, tmpfd) < 0) {
-			errstr(_("Can't write grace times to file.\n"));
+			errstr(_("Cannot write grace times to file.\n"));
 			ret = -1;
 		}
 		if (editprivs(tmpfil) < 0) {
@@ -218,7 +218,7 @@ int main(int argc, char **argv)
 			id = name2id(*argv, quotatype, NULL);
 			curprivs = getprivs(id, handles, 0);
 			if (writeindividualtimes(curprivs, tmpfd, *argv, quotatype) < 0) {
-				errstr(_("Can't write individual grace times to file.\n"));
+				errstr(_("Cannot write individual grace times to file.\n"));
 				ret = -1;
 				continue;
 			}
@@ -228,7 +228,7 @@ int main(int argc, char **argv)
 				continue;
 			}
 			if (readindividualtimes(curprivs, tmpfd) < 0) {
-				errstr(_("Can't read individual grace times from file.\n"));
+				errstr(_("Cannot read individual grace times from file.\n"));
 				ret = -1;
 				continue;
 			}
@@ -242,7 +242,7 @@ int main(int argc, char **argv)
 			id = name2id(*argv, quotatype, NULL);
 			curprivs = getprivs(id, handles, 0);
 			if (writeprivs(curprivs, tmpfd, *argv, quotatype) < 0) {
-				errstr(_("Can't write quotas to file.\n"));
+				errstr(_("Cannot write quotas to file.\n"));
 				ret = -1;
 				continue;
 			}
@@ -253,9 +253,9 @@ int main(int argc, char **argv)
 			}
 			close(tmpfd);
 			if ((tmpfd = open(tmpfil, O_RDONLY)) < 0)
-				die(1, _("Can't reopen!"));
+				die(1, _("Cannot reopen!"));
 			if (readprivs(curprivs, tmpfd) < 0) {
-				errstr(_("Can't read quotas from file.\n"));
+				errstr(_("Cannot read quotas from file.\n"));
 				ret = -1;
 				continue;
 			}

@@ -105,7 +105,7 @@ static void parse_options(int argcnt, char **argstr)
 		usage();
 	}
 	if (fmt == QF_RPC) {
-		fputs(_("Repquota can't report through RPC calls.\n"), stderr);
+		fputs(_("Repquota cannot report through RPC calls.\n"), stderr);
 		exit(1);
 	}
 	if (flags & FL_NONAME && flags & FL_TRUNCNAMES) {

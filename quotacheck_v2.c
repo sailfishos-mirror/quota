@@ -53,12 +53,12 @@ static int check_info(char *filename, int fd, int type)
 	err = read(fd, &dinfo, sizeof(struct v2_disk_dqinfo));
 
 	if (err < 0) {
-		errstr(_("Can't read info from quota file %s: %s\n"),
+		errstr(_("Cannot read info from quota file %s: %s\n"),
 			filename, strerror(errno));
 		return -1;
 	}
 	if (err != sizeof(struct v2_disk_dqinfo)) {
-		errstr(_("WARNING - Quota file %s was probably truncated. Can't save quota settings...\n"),
+		errstr(_("WARNING - Quota file %s was probably truncated. Cannot save quota settings...\n"),
 			filename);
 		return -1;
 	}
@@ -216,7 +216,7 @@ static void check_read_blk(int fd, uint blk, dqbuf_t buf)
 	lseek(fd, blk << V2_DQBLKSIZE_BITS, SEEK_SET);
 	rd = read(fd, buf, V2_DQBLKSIZE);
 	if (rd < 0)
-		die(2, _("Can't read block %u: %s\n"), blk, strerror(errno));
+		die(2, _("Cannot read block %u: %s\n"), blk, strerror(errno));
 	if (rd != V2_DQBLKSIZE) {
 		debug(FL_VERBOSE | FL_DEBUG, _("Block %u is truncated.\n"), blk);
 		memset(buf + rd, 0, V2_DQBLKSIZE - rd);
@@ -302,9 +302,9 @@ static int check_header(char *filename, int fd, int type)
 	lseek(fd, 0, SEEK_SET);
 	err = read(fd, &head, sizeof(head));
 	if (err < 0)
-		die(1, _("Can't read header from quotafile %s: %s\n"), filename, strerror(errno));
+		die(1, _("Cannot read header from quotafile %s: %s\n"), filename, strerror(errno));
 	if (err != sizeof(head)) {
-		errstr(_("WARNING -  Quotafile %s was probably truncated. Can't save quota settings...\n"),
+		errstr(_("WARNING -  Quotafile %s was probably truncated. Cannot save quota settings...\n"),
 			filename);
 		return -1;
 	}
@@ -337,7 +337,7 @@ int v2_buffer_file(char *filename, int fd, int type)
 	if (check_tree_ref(0, V2_DQTREEOFF, blocks, 1, &corrupted, &lastblk) >= 0)
 		ret = check_tree_blk(fd, V2_DQTREEOFF, 0, type, blocks, &corrupted, &lastblk);
 	else
-		errstr(_("Can't gather quota data. Tree root node corrupted.\n"));
+		errstr(_("Cannot gather quota data. Tree root node corrupted.\n"));
 #ifdef DEBUG_MALLOC
 	free_mem += (blocks + 7) >> 3;
 #endif

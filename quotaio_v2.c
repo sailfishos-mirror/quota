@@ -273,7 +273,7 @@ static void read_blk(struct quota_handle *h, uint blk, dqbuf_t buf)
 	lseek(h->qh_fd, blk << V2_DQBLKSIZE_BITS, SEEK_SET);
 	err = read(h->qh_fd, buf, V2_DQBLKSIZE);
 	if (err < 0)
-		die(2, _("Can't read block %u: %s\n"), blk, strerror(errno));
+		die(2, _("Cannot read block %u: %s\n"), blk, strerror(errno));
 	else if (err != V2_DQBLKSIZE)
 		memset(buf + err, 0, V2_DQBLKSIZE - err);
 }
@@ -286,7 +286,7 @@ static int write_blk(struct quota_handle *h, uint blk, dqbuf_t buf)
 	lseek(h->qh_fd, blk << V2_DQBLKSIZE_BITS, SEEK_SET);
 	err = write(h->qh_fd, buf, V2_DQBLKSIZE);
 	if (err < 0 && errno != ENOSPC)
-		die(2, _("Can't write block (%u): %s\n"), blk, strerror(errno));
+		die(2, _("Cannot write block (%u): %s\n"), blk, strerror(errno));
 	if (err != V2_DQBLKSIZE)
 		return -ENOSPC;
 	return 0;
@@ -309,7 +309,7 @@ static int get_free_dqblk(struct quota_handle *h)
 		memset(buf, 0, V2_DQBLKSIZE);
 		if (write_blk(h, info->dqi_blocks, buf) < 0) {	/* Assure block allocation... */
 			freedqbuf(buf);
-			errstr(_("Can't allocate new quota block (out of disk space).\n"));
+			errstr(_("Cannot allocate new quota block (out of disk space).\n"));
 			return -ENOSPC;
 		}
 		blk = info->dqi_blocks++;
@@ -474,7 +474,7 @@ static inline void dq_insert_tree(struct quota_handle *h, struct dquot *dquot)
 	int tmp = V2_DQTREEOFF;
 
 	if (do_insert_tree(h, dquot, &tmp, 0) < 0)
-		die(2, _("Can't write quota (id %u): %s\n"), (uint) dquot->dq_id, strerror(errno));
+		die(2, _("Cannot write quota (id %u): %s\n"), (uint) dquot->dq_id, strerror(errno));
 }
 
 /* Write dquot to file */
@@ -659,7 +659,7 @@ static struct dquot *v2_read_dquot(struct quota_handle *h, qid_t id)
 		if (ret != sizeof(struct v2_disk_dqblk)) {
 			if (ret > 0)
 				errno = EIO;
-			die(2, _("Can't read quota structure for id %u: %s\n"), dquot->dq_id,
+			die(2, _("Cannot read quota structure for id %u: %s\n"), dquot->dq_id,
 			    strerror(errno));
 		}
 		v2_disk2memdqblk(&dquot->dq_dqb, &ddquot);
@@ -803,7 +803,7 @@ static int v2_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct d
 	if (QIO_ENABLED(h))	/* Kernel uses same file? */
 		if (quotactl(QCMD((kernel_iface == IFACE_GENERIC) ? Q_SYNC : Q_6_5_SYNC, h->qh_type),
 			     h->qh_quotadev, 0, NULL) < 0)
-			die(4, _("Can't sync quotas on device %s: %s\n"), h->qh_quotadev,
+			die(4, _("Cannot sync quotas on device %s: %s\n"), h->qh_quotadev,
 			    strerror(errno));
 	lseek(h->qh_fd, V2_DQINFOOFF, SEEK_SET);
 	if (read(h->qh_fd, &ddqinfo, sizeof(ddqinfo)) != sizeof(ddqinfo)) {

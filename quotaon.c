@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaon.c,v 1.20 2005/06/01 07:20:50 jkar8572 Exp $"
+#ident "$Id: quotaon.c,v 1.21 2005/11/21 22:30:23 jkar8572 Exp $"
 
 /*
  * Turn quota on/off for a filesystem.
@@ -111,7 +111,7 @@ static void parse_options(int argcnt, char **argstr)
 		usage();
 	}
 	if (fmt == QF_RPC) {
-		fputs(_("Can't turn on/off quotas via RPC.\n"), stderr);
+		fputs(_("Cannot turn on/off quotas via RPC.\n"), stderr);
 		exit(1);
 	}
 	if (!(flags & (FL_USER | FL_GROUP)))
@@ -139,7 +139,7 @@ static int newstate(struct mntent *mnt, int type, char *extra)
 
 	if (!strcmp(mnt->mnt_type, MNTTYPE_XFS)) {	/* XFS filesystem has special handling... */
 		if (!(kernel_formats & (1 << QF_XFS))) {
-			errstr(_("Can't change state of XFS quota. It's not compiled in kernel.\n"));
+			errstr(_("Cannot change state of XFS quota. It's not compiled in kernel.\n"));
 			return 1;
 		}
 		if (kernel_formats & (1 << QF_XFS) &&
@@ -216,7 +216,7 @@ static int quotaonoff(char *quotadev, char *quotadir, char *quotafile, int type,
 	}
 	if (quotactl(qcmd, quotadev, kqf, (void *)quotafile) < 0) {
 		if (errno == ENOENT)
-			errstr(_("can't find %s on %s [%s]\n"), quotafile, quotadev, quotadir);
+			errstr(_("cannot find %s on %s [%s]\n"), quotafile, quotadev, quotadir);
 		else
 			errstr(_("using %s on %s [%s]: %s\n"), quotafile, quotadev, quotadir, strerror(errno));
 		if (errno == EINVAL)
@@ -326,7 +326,7 @@ int main(int argc, char **argv)
 	while ((mnt = get_next_mount())) {
 		if (nfs_fstype(mnt->mnt_type)) {
 			if (!(flags & FL_ALL))
-				fprintf(stderr, "%s: Quota can't be turned on on NFS filesystem\n", mnt->mnt_fsname);
+				fprintf(stderr, "%s: Quota cannot be turned on on NFS filesystem\n", mnt->mnt_fsname);
 			continue;
 		}
 

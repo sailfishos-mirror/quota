@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaio_v1.c,v 1.14 2004/05/24 19:39:15 jkar8572 Exp $"
+#ident "$Id: quotaio_v1.c,v 1.15 2005/11/21 22:30:23 jkar8572 Exp $"
 
 #include <unistd.h>
 #include <errno.h>
@@ -353,7 +353,7 @@ static int v1_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct d
 	if (QIO_ENABLED(h))	/* Kernel uses same file? */
 		if (quotactl(QCMD((kernel_iface == IFACE_GENERIC) ? Q_SYNC : Q_6_5_SYNC, h->qh_type),
 			     h->qh_quotadev, 0, NULL) < 0)
-			die(4, _("Can't sync quotas on device %s: %s\n"), h->qh_quotadev,
+			die(4, _("Cannot sync quotas on device %s: %s\n"), h->qh_quotadev,
 			    strerror(errno));
 	memset(dquot, 0, sizeof(*dquot));
 	dquot->dq_h = h;

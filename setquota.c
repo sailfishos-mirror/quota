@@ -325,7 +325,7 @@ static int setindivgraces(struct quota_handle **handles)
 		q->dq_dqb.dqb_itime = toset.dqb_itime;
 	}
 	if (putprivs(curprivs, COMMIT_TIMES) == -1) {
-		errstr(_("Can't write times for %s. Maybe kernel doesn't support such operation?\n"), type2name(flags & FL_USER ? USRQUOTA : GRPQUOTA));
+		errstr(_("cannot write times for %s. Maybe kernel does not support such operation?\n"), type2name(flags & FL_USER ? USRQUOTA : GRPQUOTA));
 		ret = -1;
 	}
 	freeprivs(curprivs);

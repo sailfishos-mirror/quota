@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: quotastats.c,v 1.10 2002/06/16 19:00:46 jkar8572 Exp $
+ * Version: $Id: quotastats.c,v 1.11 2005/11/21 22:30:23 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -45,7 +45,7 @@ static int get_proc_num(char *name)
 
 	sstrncat(namebuf, name, PATH_MAX);
 	if (!(f = fopen(namebuf, "r"))) {
-		errstr(_("Can't read stat file %s: %s\n"), namebuf, strerror(errno));
+		errstr(_("Cannot read stat file %s: %s\n"), namebuf, strerror(errno));
 		return -1;
 	}
 	fscanf(f, "%d", &ret);

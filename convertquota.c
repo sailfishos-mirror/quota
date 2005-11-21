@@ -118,7 +118,7 @@ static void read_blk(int fd, uint blk, dqbuf_t buf)
 	lseek(fd, blk << V2_DQBLKSIZE_BITS, SEEK_SET);
 	err = read(fd, buf, V2_DQBLKSIZE);
 	if (err < 0)
-		die(2, _("Can't read block %u: %s\n"), blk, strerror(errno));
+		die(2, _("Cannot read block %u: %s\n"), blk, strerror(errno));
 	else if (err != V2_DQBLKSIZE)
 		memset(buf + err, 0, V2_DQBLKSIZE - err);
 }
@@ -142,7 +142,7 @@ static void endian_report_block(int fd, uint blk, char *bitmap)
 			endian_disk2memdqblk(&dquot.dq_dqb, ddata + i);
 			dquot.dq_id = __be32_to_cpu(ddata[i].dqb_id);
 			if (qn->qh_ops->commit_dquot(&dquot, COMMIT_ALL) < 0)
-				errstr(_("Can't commit dquot for id %u: %s\n"),
+				errstr(_("Cannot commit dquot for id %u: %s\n"),
 					(uint)dquot.dq_id, strerror(errno));
 		}
 	freedqbuf(buf);
@@ -190,7 +190,7 @@ static int endian_check_header(int fd, int type)
 
 	lseek(fd, 0, SEEK_SET);
 	if (read(fd, &head, sizeof(head)) != sizeof(head)) {
-		errstr(_("Can't read header of old quotafile.\n"));
+		errstr(_("Cannot read header of old quotafile.\n"));
 		return -1;
 	}
 	if (__be32_to_cpu(head.dqh_magic) != file_magics[type] || __be32_to_cpu(head.dqh_version) > known_versions[type]) {
@@ -205,7 +205,7 @@ static int endian_load_info(int fd, int type)
 	struct v2_disk_dqinfo dinfo;
 
 	if (read(fd, &dinfo, sizeof(dinfo)) != sizeof(dinfo)) {
-		errstr(_("Can't read information about old quotafile.\n"));
+		errstr(_("Cannot read information about old quotafile.\n"));
 		return -1;
 	}
 	qn->qh_info.u.v2_mdqi.dqi_flags = __be32_to_cpu(dinfo.dqi_flags);
@@ -234,7 +234,7 @@ static int convert_dquot(struct dquot *dquot, char *name)
 	newdquot.dq_dqb.dqb_btime = dquot->dq_dqb.dqb_btime;
 	newdquot.dq_dqb.dqb_itime = dquot->dq_dqb.dqb_itime;
 	if (qn->qh_ops->commit_dquot(&newdquot, COMMIT_ALL) < 0) {
-		errstr(_("Can't commit dquot for id %u: %s\n"),
+		errstr(_("Cannot commit dquot for id %u: %s\n"),
 			(uint)dquot->dq_id, strerror(errno));
 		return -1;
 	}
@@ -247,13 +247,13 @@ static int rename_file(int type, struct mntent *mnt)
 	int ret = 0;
 
 	if (get_qf_name(mnt, type, (1 << QF_VFSV0), 0, &qfname) < 0) {
-		errstr(_("Can't get name of new quotafile.\n"));
+		errstr(_("Cannot get name of new quotafile.\n"));
 		return -1;
 	}
 	strcpy(namebuf, qfname);
 	sstrncat(namebuf, ".new", sizeof(namebuf));
 	if (rename(namebuf, qfname) < 0) {
-		errstr(_("Can't rename new quotafile %s to name %s: %s\n"),
+		errstr(_("Cannot rename new quotafile %s to name %s: %s\n"),
 			namebuf, qfname, strerror(errno));
 		ret = -1;
 	}
@@ -267,12 +267,12 @@ static int convert_format(int type, struct mntent *mnt)
 	int ret = 0;
 	
 	if (!(qo = init_io(mnt, type, QF_VFSOLD, IOI_OPENFILE))) {
-		errstr(_("Can't open old format file for %ss on %s\n"),
+		errstr(_("Cannot open old format file for %ss on %s\n"),
 			type2name(type), mnt->mnt_dir);
 		return -1;
 	}
 	if (!(qn = new_io(mnt, type, QF_VFSV0))) {
-		errstr(_("Can't create file for %ss for new format on %s: %s\n"),
+		errstr(_("Cannot create file for %ss for new format on %s: %s\n"),
 			type2name(type), mnt->mnt_dir, strerror(errno));
 		end_io(qo);
 		return -1;
@@ -295,7 +295,7 @@ static int convert_endian(int type, struct mntent *mnt)
 	if (get_qf_name(mnt, type, (1 << QF_VFSV0), NF_EXIST, &qfname) < 0)
 		return -1;
 	if ((ofd = open(qfname, O_RDONLY)) < 0) {
-		errstr(_("Can't open old quota file on %s: %s\n"), mnt->mnt_dir, strerror(errno));
+		errstr(_("Cannot open old quota file on %s: %s\n"), mnt->mnt_dir, strerror(errno));
 		free(qfname);
 		return -1;
 	}
@@ -305,7 +305,7 @@ static int convert_endian(int type, struct mntent *mnt)
 		return -1;
 	}
 	if (!(qn = new_io(mnt, type, QF_VFSV0))) {
-		errstr(_("Can't create file for %ss for new format on %s: %s\n"),
+		errstr(_("Cannot create file for %ss for new format on %s: %s\n"),
 			type2name(type), mnt->mnt_dir, strerror(errno));
 		close(ofd);
 		return -1;

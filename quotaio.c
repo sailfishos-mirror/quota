@@ -102,7 +102,7 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 	if (!QIO_ENABLED(h) || flags & IOI_OPENFILE) {	/* Need to open file? */
 		/* We still need to open file for operations like 'repquota' */
 		if ((fd = open(qfname, QIO_RO(h) ? O_RDONLY : O_RDWR)) < 0) {
-			errstr(_("Can't open quotafile %s: %s\n"),
+			errstr(_("Cannot open quotafile %s: %s\n"),
 				qfname, strerror(errno));
 			goto out_handle;
 		}
@@ -125,7 +125,7 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 	memset(&h->qh_info, 0, sizeof(h->qh_info));
 
 	if (h->qh_ops->init_io && h->qh_ops->init_io(h) < 0) {
-		errstr(_("Can't initialize quota on %s: %s\n"), h->qh_quotadev, strerror(errno));
+		errstr(_("Cannot initialize quota on %s: %s\n"), h->qh_quotadev, strerror(errno));
 		goto out_lock;
 	}
 	return h;
@@ -163,7 +163,7 @@ struct quota_handle *new_io(struct mntent *mnt, int type, int fmt)
 	sstrncat(namebuf, ".new", PATH_MAX);
 	free(qfname);
 	if ((fd = open(namebuf, O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR)) < 0) {
-		errstr(_("Can't create new quotafile %s: %s\n"),
+		errstr(_("Cannot create new quotafile %s: %s\n"),
 			namebuf, strerror(errno));
 		return NULL;
 	}

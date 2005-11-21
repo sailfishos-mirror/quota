@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.24 2005/10/25 13:01:14 jkar8572 Exp $
+ * Version: $Id: warnquota.c,v 1.25 2005/11/21 22:30:23 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -193,7 +193,7 @@ static struct offenderlist *add_offender(int type, int id, char *name)
 	
 	if (!name) {
 		if (id2name(id, type, namebuf)) {
-			errstr(_("Can't get name for uid/gid %u.\n"), id);
+			errstr(_("Cannot get name for uid/gid %u.\n"), id);
 			return NULL;
 		}
 		name = namebuf;
@@ -277,27 +277,27 @@ static FILE *run_mailer(char *command)
 	FILE *f;
 
 	if (pipe(pipefd) < 0) {
-		errstr(_("Can't create pipe: %s\n"), strerror(errno));
+		errstr(_("Cannot create pipe: %s\n"), strerror(errno));
 		return NULL;
 	}
 	signal(SIGPIPE, SIG_IGN);
 	switch(fork()) {
 		case -1:
-			errstr(_("Can't fork: %s\n"), strerror(errno));
+			errstr(_("Cannot fork: %s\n"), strerror(errno));
 			return NULL;
 		case 0:
 			close(pipefd[1]);
 			if (dup2(pipefd[0], 0) < 0) {
-				errstr(_("Can't duplicate descriptor: %s\n"), strerror(errno));
+				errstr(_("Cannot duplicate descriptor: %s\n"), strerror(errno));
 				wc_exit(1);
 			}			
 			execl(SHELL, SHELL, "-c", command, NULL);
-			errstr(_("Can't execute '%s': %s\n"), command, strerror(errno));
+			errstr(_("Cannot execute '%s': %s\n"), command, strerror(errno));
 			wc_exit(1);
 		default:
 			close(pipefd[0]);
 			if (!(f = fdopen(pipefd[1], "w")))
-				errstr(_("Can't open pine: %s\n"), strerror(errno));
+				errstr(_("Cannot open pine: %s\n"), strerror(errno));
 			return f;
 	}
 }
@@ -531,7 +531,7 @@ static int mail_user(struct offenderlist *offender, struct configparams *config)
 			fprintf(fp, DEF_GROUP_SIGNATURE, config->support, config->phone);
 	fclose(fp);
 	if (wait(&status) < 0)	/* Wait for mailer */
-		errstr(_("Can't wait for mailer: %s\n"), strerror(errno));
+		errstr(_("Cannot wait for mailer: %s\n"), strerror(errno));
 	else if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
 		errstr(_("Warning: Mailer exitted abnormally.\n"));
 
@@ -590,7 +590,7 @@ static int get_quotatable(void)
 	struct stat st;
 
 	if (!(fp = fopen(quotatabfile, "r"))) {
-		errstr(_("Can't open %s: %s\nWill use device names.\n"), quotatabfile, strerror(errno));
+		errstr(_("Cannot open %s: %s\nWill use device names.\n"), quotatabfile, strerror(errno));
 		qtab_i = 0;
 		return 0;
 	}
@@ -613,7 +613,7 @@ static int get_quotatable(void)
 		}
 		/* Parse line */
 		if (!(colpos = strchr(buffer, ':'))) {
-			errstr(_("Can't parse line %d in quotatab (missing ':')\n"), line);
+			errstr(_("Cannot parse line %d in quotatab (missing ':')\n"), line);
 			qtab_i--;
 			continue;
 		}
@@ -627,7 +627,7 @@ static int get_quotatable(void)
 		create_eoln(quotatable[qtab_i].devdesc);
 
 		if (stat(quotatable[qtab_i].devname, &st) < 0)
-			errstr(_("Can't stat device %s (maybe typo in quotatab)\n"), quotatable[qtab_i].devname);
+			errstr(_("Cannot stat device %s (maybe typo in quotatab)\n"), quotatable[qtab_i].devname);
 	}
 	fclose(fp);
 	return 0;
@@ -683,7 +683,7 @@ static int readconfigfile(const char *filename, struct configparams *config)
 #endif
 
 	if (!(fp = fopen(filename, "r"))) {
-		errstr(_("Can't open %s: %s\n"), filename, strerror(errno));
+		errstr(_("Cannot open %s: %s\n"), filename, strerror(errno));
 		return -1;
 	}
 
@@ -820,7 +820,7 @@ static int get_groupadmins(void)
 	char buffer[IOBUF_SIZE], *colpos, *grouppos, *endname, *adminpos;
 
 	if (!(f = fopen(adminsfile, "r"))) {
-		errstr(_("Can't open file with group administrators: %s\n"), strerror(errno));
+		errstr(_("Cannot open file with group administrators: %s\n"), strerror(errno));
 		return -1;
 	}
 	
@@ -835,7 +835,7 @@ static int get_groupadmins(void)
 		/* Find splitting colon */
 		for (grouppos = colpos; *colpos && *colpos != ':'; colpos++);
 		if (!*colpos || grouppos == colpos) {
-			errstr(_("Parse error at line %d. Can't find end of group name.\n"), line);
+			errstr(_("Parse error at line %d. Cannot find end of group name.\n"), line);
 			continue;
 		}
 		/* Cut trailing spaces */
@@ -844,7 +844,7 @@ static int get_groupadmins(void)
 		/* Skip initial spaces at admins name */
 		for (colpos++; isspace(*colpos); colpos++);
 		if (!*colpos) {
-			errstr(_("Parse error at line %d. Can't find administrators name.\n"), line);
+			errstr(_("Parse error at line %d. Cannot find administrators name.\n"), line);
 			continue;
 		}
 		/* Go through admins name */

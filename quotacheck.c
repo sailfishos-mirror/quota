@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.49 2005/08/23 09:23:35 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.50 2005/11/21 22:30:23 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -846,7 +846,7 @@ static void check_dir(struct mntent *mnt)
 	if (lstat(mnt->mnt_dir, &st) < 0)
 		die(2, _("Cannot stat mountpoint %s: %s\n"), mnt->mnt_dir, strerror(errno));
 	if (!S_ISDIR(st.st_mode))
-		die(2, _("Mountpoint %s isn't a directory?!\n"), mnt->mnt_dir);
+		die(2, _("Mountpoint %s is not a directory?!\n"), mnt->mnt_dir);
 	cur_dev = st.st_dev;
 	files_done = dirs_done = 0;
 	if (ucheck)
@@ -994,7 +994,7 @@ static void check_all(void)
 	int checked = 0;
 
 	if (init_mounts_scan((flags & FL_ALL) ? 0 : 1, &mntpoint, 0) < 0)
-		die(2, _("Can't initialize mountpoint scan.\n"));
+		die(2, _("Cannot initialize mountpoint scan.\n"));
 	while ((mnt = get_next_mount())) {
 		if (flags & FL_ALL && flags & FL_NOROOT && !strcmp(mnt->mnt_dir, "/"))
 			continue;
@@ -1026,7 +1026,7 @@ static void check_all(void)
 	}
 	end_mounts_scan();
 	if (!checked && (!(flags & FL_ALL) || flags & (FL_VERBOSE | FL_DEBUG)))
-		errstr(_("Can't find filesystem to check or filesystem not mounted with quota option.\n"));
+		errstr(_("Cannot find filesystem to check or filesystem not mounted with quota option.\n"));
 }
 
 int main(int argc, char **argv)

@@ -1,4 +1,6 @@
 Changes in quota-tools from 3.13 to 3.14
+* quota(1) has -f option to specify filesystem list (Jan Kara)
+* corrected some informal language in messages (Jan Kara)
 * we cannot even stat NFS mounts in local mode as server may be unreachable (Jan Kara)
 * fixed error messages in getprivs() (Jan Kara, Brian Morris)
 * made UID/GID prints unsigned (Matthew Kent)

@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaops.c,v 1.17 2005/09/20 10:50:53 jkar8572 Exp $"
+#ident "$Id: quotaops.c,v 1.18 2005/11/21 22:30:23 jkar8572 Exp $"
 
 #include <rpc/rpc.h>
 #include <sys/types.h>
@@ -176,7 +176,7 @@ int putprivs(struct dquot *qlist, int flags)
 
 	for (q = qlist; q; q = q->dq_next) {
 		if (q->dq_h->qh_ops->commit_dquot(q, flags) == -1) {
-			errstr(_("Can't write quota for %u on %s: %s\n"),
+			errstr(_("Cannot write quota for %u on %s: %s\n"),
 				q->dq_id, q->dq_h->qh_quotadev, strerror(errno));
 			ret = -1;
 			continue;
@@ -201,7 +201,7 @@ int editprivs(char *tmpfile)
 	sigaddset(&nmask, SIGHUP);
 	sigprocmask(SIG_SETMASK, &nmask, &omask);
 	if ((pid = fork()) < 0) {
-		errstr("Can't fork(): %s\n", strerror(errno));
+		errstr("Cannot fork(): %s\n", strerror(errno));
 		return -1;
 	}
 	if (pid == 0) {
@@ -233,7 +233,7 @@ int editprivs(char *tmpfile)
 		edpars[i++] = tmpfile;
 		edpars[i] = NULL;
 		execvp(edpars[0], edpars);
-		die(1, _("Can't exec %s\n"), ed);
+		die(1, _("Cannot exec %s\n"), ed);
 	}
 	waitpid(pid, &stat, 0);
 	sigprocmask(SIG_SETMASK, &omask, NULL);
@@ -252,7 +252,7 @@ int writeprivs(struct dquot *qlist, int outfd, char *name, int quotatype)
 	ftruncate(outfd, 0);
 	lseek(outfd, 0, SEEK_SET);
 	if (!(fd = fdopen(dup(outfd), "w")))
-		die(1, _("Can't duplicate descriptor of file to write to: %s\n"), strerror(errno));
+		die(1, _("Cannot duplicate descriptor of file to write to: %s\n"), strerror(errno));
 
 #if defined(ALT_FORMAT)
 	fprintf(fd, _("Disk quotas for %s %s (%cid %d):\n"),
@@ -330,7 +330,7 @@ int readprivs(struct dquot *qlist, int infd)
 
 	lseek(infd, 0, SEEK_SET);
 	if (!(fd = fdopen(dup(infd), "r")))
-		die(1, _("Can't duplicate descriptor of temp file: %s\n"), strerror(errno));
+		die(1, _("Cannot duplicate descriptor of temp file: %s\n"), strerror(errno));
 
 #if defined(ALT_FORMAT)
 	/*
@@ -437,7 +437,7 @@ int writeindividualtimes(struct dquot *qlist, int outfd, char *name, int quotaty
 	ftruncate(outfd, 0);
 	lseek(outfd, 0, SEEK_SET);
 	if (!(fd = fdopen(dup(outfd), "w")))
-		die(1, _("Can't duplicate descriptor of file to write to: %s\n"), strerror(errno));
+		die(1, _("Cannot duplicate descriptor of file to write to: %s\n"), strerror(errno));
 
 	fprintf(fd, _("Times to enforce softlimit for %s %s (%cid %d):\n"),
 		type2name(quotatype), name, *type2name(quotatype), name2id(name, quotatype, NULL));
@@ -479,7 +479,7 @@ int readindividualtimes(struct dquot *qlist, int infd)
 
 	lseek(infd, 0, SEEK_SET);
 	if (!(fd = fdopen(dup(infd), "r")))
-		die(1, _("Can't duplicate descriptor of temp file: %s\n"), strerror(errno));
+		die(1, _("Cannot duplicate descriptor of temp file: %s\n"), strerror(errno));
 
 	/*
 	 * Discard title lines, then read lines to process.
@@ -539,7 +539,7 @@ int writetimes(struct quota_handle **handles, int outfd)
 	ftruncate(outfd, 0);
 	lseek(outfd, 0, SEEK_SET);
 	if ((fd = fdopen(dup(outfd), "w")) == NULL)
-		die(1, _("Can't duplicate descriptor of file to edit: %s\n"), strerror(errno));
+		die(1, _("Cannot duplicate descriptor of file to edit: %s\n"), strerror(errno));
 
 #if defined(ALT_FORMAT)
 	fprintf(fd, _("Grace period before enforcing soft limits for %ss:\n"),
@@ -587,7 +587,7 @@ int readtimes(struct quota_handle **handles, int infd)
 		return 0;
 	lseek(infd, 0, SEEK_SET);
 	if (!(fd = fdopen(dup(infd), "r"))) {
-		errstr(_("Can't reopen temp file: %s\n"),
+		errstr(_("Cannot reopen temp file: %s\n"),
 			strerror(errno));
 		return -1;
 	}

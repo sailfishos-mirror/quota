@@ -27,7 +27,7 @@ static void load_dquots(char *filename, int fd, int type)
 	lseek(fd, 0, SEEK_SET);
 	while ((err = read(fd, &ddqblk, sizeof(ddqblk)))) {
 		if (err < 0)
-			die(1, _("Can't read entry for id %u from quotafile %s: %s\n"), (uint) id,
+			die(1, _("Cannot read entry for id %u from quotafile %s: %s\n"), (uint) id,
 			    filename, strerror(errno));
 		if (err != sizeof(ddqblk)) {
 			errstr(_("Entry for id %u is truncated.\n"),
@@ -63,11 +63,11 @@ static int check_info(char *filename, int fd, int type)
 	lseek(fd, 0, SEEK_SET);
 	err = read(fd, &ddqblk, sizeof(ddqblk));
 	if (err < 0)
-		die(1, _("Can't read first entry from quotafile %s: %s\n"), filename,
+		die(1, _("Cannot read first entry from quotafile %s: %s\n"), filename,
 		    strerror(errno));
 	if (err != sizeof(ddqblk)) {
 		errstr(
-			_("WARNING - Quotafile %s was probably truncated. Can't save quota settings...\n"),
+			_("WARNING - Quotafile %s was probably truncated. Cannot save quota settings...\n"),
 			filename);
 		return -1;
 	}

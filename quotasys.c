@@ -102,7 +102,7 @@ uid_t user2uid(char *name, int *err)
 		return ret;
 	if (!(entry = getpwnam(name))) {
 		if (!err) {
-			errstr(_("User %s doesn't exist.\n"), name);
+			errstr(_("user %s does not exist.\n"), name);
 			exit(1);
 		}
 		else {
@@ -129,7 +129,7 @@ gid_t group2gid(char *name, int *err)
 		return ret;
 	if (!(entry = getgrnam(name))) {
 		if (!err) {
-			errstr(_("Group %s doesn't exist.\n"), name);
+			errstr(_("group %s does not exist.\n"), name);
 			exit(1);
 		}
 		else {
@@ -469,7 +469,7 @@ static int check_fmtfile_ok(char *name, int type, int fmt, int flags)
 
 		if (stat(name, &st) < 0) {
 			if (errno != ENOENT)
-				errstr(_("Can't stat quota file %s: %s\n"), name, strerror(errno));
+				errstr(_("Cannot stat quota file %s: %s\n"), name, strerror(errno));
 			return 0;
 		}
 		return 1;
@@ -485,7 +485,7 @@ static int check_fmtfile_ok(char *name, int type, int fmt, int flags)
 			close(fd);
 		}
 		else if (errno != ENOENT && errno != EPERM)
-			errstr(_("Can't open quotafile %s: %s\n"), name, strerror(errno));
+			errstr(_("Cannot open quotafile %s: %s\n"), name, strerror(errno));
 		return ret;
 	}
 }
@@ -571,7 +571,7 @@ struct quota_handle **create_handle_list(int count, char **mntpoints, int type, 
 	}
 
 	if (init_mounts_scan(count, mntpoints, mntflags) < 0)
-		die(2, _("Can't initialize mountpoint scan.\n"));
+		die(2, _("Cannot initialize mountpoint scan.\n"));
 	while ((mnt = get_next_mount())) {
 		if (!nfs_fstype(mnt->mnt_type)) {	/* No NFS? */
 add_entry:
@@ -663,10 +663,10 @@ void init_kernel_interface(void)
 	sig.sa_handler = SIG_IGN;
 	sig.sa_sigaction = NULL;
 	if (sigemptyset(&sig.sa_mask) < 0)
-		die(2, _("Can't create set for sigaction(): %s\n"), strerror(errno));
+		die(2, _("Cannot create set for sigaction(): %s\n"), strerror(errno));
 	sig.sa_flags = 0;
 	if (sigaction(SIGSEGV, &sig, &oldsig) < 0)
-		die(2, _("Can't set signal handler: %s\n"), strerror(errno));
+		die(2, _("Cannot set signal handler: %s\n"), strerror(errno));
 
 	kernel_formats = 0;
 	if (!stat("/proc/fs/xfs/stat", &st))
@@ -713,7 +713,7 @@ void init_kernel_interface(void)
 		}
 	}
 	if (sigaction(SIGSEGV, &oldsig, NULL) < 0)
-		die(2, _("Can't reset signal handler: %s\n"), strerror(errno));
+		die(2, _("Cannot reset signal handler: %s\n"), strerror(errno));
 }
 
 /* Check whether old quota is turned on on given device */
@@ -822,12 +822,12 @@ static int cache_mnt_table(int flags)
 
 	if (!(mntf = setmntent(_PATH_MOUNTED, "r"))) {
 		if (errno != ENOENT) {
-			errstr(_("Can't open %s: %s\n"), _PATH_MOUNTED, strerror(errno));
+			errstr(_("Cannot open %s: %s\n"), _PATH_MOUNTED, strerror(errno));
 			return -1;
 		}
 		else	/* Fallback on fstab when mtab not available */
 			if (!(mntf = setmntent(_PATH_MNTTAB, "r"))) {
-				errstr(_("Can't open %s: %s\n"), _PATH_MNTTAB, strerror(errno));
+				errstr(_("Cannot open %s: %s\n"), _PATH_MNTTAB, strerror(errno));
 				return -1;
 			}
 	}
@@ -838,7 +838,7 @@ static int cache_mnt_table(int flags)
 		const char *devname;
 
 		if (!(devname = get_device_name(mnt->mnt_fsname))) {
-			errstr(_("Can't get device name for %s\n"), mnt->mnt_fsname);
+			errstr(_("Cannot get device name for %s\n"), mnt->mnt_fsname);
 			continue;
 		}
 
@@ -875,13 +875,13 @@ static int cache_mnt_table(int flags)
 		}
 			
 		if (!realpath(mnt->mnt_dir, mntpointbuf)) {
-			errstr(_("Can't resolve mountpoint path %s: %s\n"), mnt->mnt_dir, strerror(errno));
+			errstr(_("Cannot resolve mountpoint path %s: %s\n"), mnt->mnt_dir, strerror(errno));
 			free((char *)devname);
 			continue;
 		}
 		
 		if (statfs(mntpointbuf, &fsstat) != 0) {
-			errstr(_("Can't statfs() %s: %s\n"), mntpointbuf, strerror(errno));
+			errstr(_("Cannot statfs() %s: %s\n"), mntpointbuf, strerror(errno));
 			free((char *)devname);
 			continue;
 		}
@@ -893,7 +893,7 @@ static int cache_mnt_table(int flags)
 
 		if (!nfs_fstype(mnt->mnt_type)) {
 			if (stat(devname, &st) < 0) {	/* Can't stat mounted device? */
-				errstr(_("Can't stat() mounted device %s: %s\n"), devname, strerror(errno));
+				errstr(_("Cannot stat() mounted device %s: %s\n"), devname, strerror(errno));
 				free((char *)devname);
 				continue;
 			}
@@ -914,7 +914,7 @@ static int cache_mnt_table(int flags)
 					int i;
 
 					if (!(opt = strchr(opt, '='))) {
-						errstr(_("Can't find device of loopback mount in options for %s. Skipping.\n"), devname);
+						errstr(_("Cannot find device of loopback mount in options for %s. Skipping.\n"), devname);
 						free((char *)devname);
 						continue;
 					}
@@ -923,12 +923,12 @@ static int cache_mnt_table(int flags)
 						loopdev[i] = *opt;
 					loopdev[i] = 0;
 					if (stat(loopdev, &st) < 0) {	/* Can't stat loopback device? */
-						errstr(_("Can't stat() loopback device %s: %s\n"), opt, strerror(errno));
+						errstr(_("Cannot stat() loopback device %s: %s\n"), opt, strerror(errno));
 						free((char *)devname);
 						continue;
 					}
 					if (!S_ISBLK(st.st_mode)) {
-						errstr(_("Loopback device %s isn't block device!\n"), opt);
+						errstr(_("Loopback device %s is not block device!\n"), opt);
 						free((char *)devname);
 						continue;
 					}
@@ -946,7 +946,7 @@ static int cache_mnt_table(int flags)
 		/* Cope with network filesystems or new mountpoint */
 		if (nfs_fstype(mnt->mnt_type) || i == mnt_entries_cnt) {
 			if (stat(mnt->mnt_dir, &st) < 0) {	/* Can't stat mountpoint? We have better ignore it... */
-				errstr(_("Can't stat() mountpoint %s: %s\n"), mnt->mnt_dir, strerror(errno));
+				errstr(_("Cannot stat() mountpoint %s: %s\n"), mnt->mnt_dir, strerror(errno));
 				free((char *)devname);
 				continue;
 			}
@@ -1006,11 +1006,11 @@ static int process_dirs(int dcnt, char **dirs, int flags)
 				char *devname = (char *)get_device_name(dirs[i]);
 
 				if (!devname) {
-					errstr(_("Can't find a device with %s.\nSkipping...\n"), dirs[i]);
+					errstr(_("Cannot find a device with %s.\nSkipping...\n"), dirs[i]);
 					continue;
 				}
 				if (stat(devname, &st) < 0) {
-					errstr(_("Can't stat() a mountpoint with %s: %s\nSkipping...\n"), dirs[i], strerror(errno));
+					errstr(_("Cannot stat() a mountpoint with %s: %s\nSkipping...\n"), dirs[i], strerror(errno));
 					free(devname);
 					continue;
 				}
@@ -1018,7 +1018,7 @@ static int process_dirs(int dcnt, char **dirs, int flags)
 			}
 			else
 				if (stat(dirs[i], &st) < 0) {
-					errstr(_("Can't stat() given mountpoint %s: %s\nSkipping...\n"), dirs[i], strerror(errno));
+					errstr(_("Cannot stat() given mountpoint %s: %s\nSkipping...\n"), dirs[i], strerror(errno));
 					continue;
 				}
 			check_dirs[check_dirs_cnt].sd_dir = S_ISDIR(st.st_mode);
@@ -1028,13 +1028,13 @@ static int process_dirs(int dcnt, char **dirs, int flags)
 				/* Return st of mountpoint of dir in st.. */
 				if (flags & MS_NO_MNTPOINT && !(realmnt = find_dir_mntpoint(&st))) {
 					if (!(flags & MS_QUIET))
-						errstr(_("Can't find a filesystem mountpoint for directory %s\n"), dirs[i]);
+						errstr(_("Cannot find a filesystem mountpoint for directory %s\n"), dirs[i]);
 					continue;
 				}
 				check_dirs[check_dirs_cnt].sd_dev = st.st_dev;
 				check_dirs[check_dirs_cnt].sd_ino = st.st_ino;
 				if (!realpath(realmnt, mntpointbuf)) {
-					errstr(_("Can't resolve path %s: %s\n"), realmnt, strerror(errno));
+					errstr(_("Cannot resolve path %s: %s\n"), realmnt, strerror(errno));
 					continue;
 				}
 			}
@@ -1045,7 +1045,7 @@ static int process_dirs(int dcnt, char **dirs, int flags)
 				for (mentry = 0; mentry < mnt_entries_cnt && mnt_entries[mentry].me_dev != st.st_rdev; mentry++);
 				if (mentry == mnt_entries_cnt) {
 					if (!(flags & MS_QUIET))
-						errstr(_("Can't find mountpoint for device %s\n"), dirs[i]);
+						errstr(_("Cannot find mountpoint for device %s\n"), dirs[i]);
 					continue;
 				}
 				sstrncpy(mntpointbuf, mnt_entries[mentry].me_dir, PATH_MAX-1);
