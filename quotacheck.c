@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.50 2005/11/21 22:30:23 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.51 2006/05/13 01:05:24 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -296,7 +296,24 @@ static inline void blit(char *msg)
 
 static void usage(void)
 {
-	printf(_("Utility for checking and repairing quota files.\n%s [-gucfinvdmMR] [-F <quota-format>] filesystem|-a\n"), progname);
+	printf(_("Utility for checking and repairing quota files.\n%s [-gucbfinvdmMR] [-F <quota-format>] filesystem|-a\n\n\
+-u, --user                check user files\n\
+-g, --group               check group files\n\
+-c, --create-files        create new quota files\n\
+-b, --backup              create backups of old quota files\n\
+-f, --force               force check even if quotas are enabled\n\
+-i, --interactive         interactive mode\n\
+-n, --use-first-dquot     use the first copy of duplicated structure\n\
+-v, --verbose             print more information\n\
+-d, --debug               print even more messages\n\
+-m, --no-remount          do not remount filesystem read-only\n\
+-M, --try-remount         try remounting filesystem read-only,\n\
+                          continue even if it fails\n\
+-R, --exclude-root        exclude root when checking all filesystems\n\
+-F, --format=formatname   check quota files of specific format\n\
+-a, --all                 check all filesystems\n\
+-h, --help                display this message and exit\n\
+-V, --version             display version information and exit\n\n"), progname);
 	printf(_("Bugs to %s\n"), MY_EMAIL);
 	exit(1);
 }
@@ -304,8 +321,27 @@ static void usage(void)
 static void parse_options(int argcnt, char **argstr)
 {
 	int ret;
+	struct option long_opts[] = {
+		{ "version", 0, NULL, 'V' },
+		{ "help", 0, NULL, 'h' },
+		{ "backup", 0, NULL, 'b' },
+		{ "create-files", 0, NULL, 'c' },
+		{ "verbose", 0, NULL, 'v' },
+		{ "debug", 0, NULL, 'd' },
+		{ "user", 0, NULL, 'u' },
+		{ "group", 0, NULL, 'g' },
+		{ "interactive", 0, NULL, 'i' },
+		{ "use-first-dquot", 0, NULL, 'n' },
+		{ "force", 0, NULL, 'f' },
+		{ "format", 1, NULL, 'F' },
+		{ "no-remount", 0, NULL, 'm' },
+		{ "try-remount", 0, NULL, 'M' },
+		{ "exclude-root", 0, NULL, 'R' },
+		{ "all", 0, NULL, 'a' },
+		{ NULL, 0, NULL, 0 }
+	};
 
-	while ((ret = getopt(argcnt, argstr, "VhbcvugidnfF:mMRa")) != -1) {
+	while ((ret = getopt_long(argcnt, argstr, "VhbcvugidnfF:mMRa", long_opts, NULL)) != -1) {
   	        switch (ret) {
 		  case 'b':
   		          flags |= FL_BACKUPS;

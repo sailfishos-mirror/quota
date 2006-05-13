@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.25 2005/11/21 22:30:23 jkar8572 Exp $
+ * Version: $Id: warnquota.c,v 1.26 2006/05/13 01:05:24 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -28,6 +28,7 @@
 #include <signal.h>
 #include <grp.h>
 #include <time.h>
+#include <getopt.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/utsname.h>
@@ -917,7 +918,18 @@ static void warn_quota(void)
 /* Print usage information */
 static void usage(void)
 {
-	errstr(_("Usage:\n  warnquota [-ugsid] [-F quotaformat] [-c configfile] [-q quotatabfile]\n"));
+	errstr(_("Usage:\n  warnquota [-ugsid] [-F quotaformat] [-c configfile] [-q quotatabfile] [-a adminsfile]\n\n\
+-u, --user                      warn users\n\
+-g, --group                     warn groups\n\
+-s, --human-readable            send information in more human friendly units\n\
+-i, --no-autofs                 avoid autofs mountpoints\n\
+-d, --no-details                do not send quota information itself\n\
+-F, --format=formatname         use quotafiles of specific format\n\
+-c, --config=config-file        non-default config file\n\
+-q, --quota-tab=quotatab-file   non-default quotatab\n\
+-a, --admins-file=admins-file   non-default admins file\n\
+-h, --help                      display this help message and exit\n\
+-v, --version                   display version information and exit\n\n"));
 	fprintf(stderr, _("Bugs to %s\n"), MY_EMAIL);
 	wc_exit(1);
 }
@@ -925,15 +937,29 @@ static void usage(void)
 static void parse_options(int argcnt, char **argstr)
 {
 	int ret;
+	struct option long_opts[] = {
+		{ "user", 0, NULL, 'u' },
+		{ "group", 0, NULL, 'g' },
+		{ "version", 0, NULL, 'V' },
+		{ "help", 0, NULL, 'h' },
+		{ "format", 1, NULL, 'F' },
+		{ "config", 1, NULL, 'c' },
+		{ "quota-tab", 1, NULL, 'q' },
+		{ "admins-file", 1, NULL, 'a' },
+		{ "no-autofs", 0, NULL, 'i' },
+		{ "human-readable", 0, NULL, 's' },
+		{ "no-details", 0, NULL, 'd' },
+		{ NULL, 0, NULL, 0 }
+	};
  
-	while ((ret = getopt(argcnt, argstr, "ugVF:hc:q:a:isd")) != -1) {
+	while ((ret = getopt_long(argcnt, argstr, "ugVF:hc:q:a:isd", long_opts, NULL)) != -1) {
 		switch (ret) {
 		  case '?':
 		  case 'h':
 			usage();
 		  case 'V':
 			version();
-			break;
+			exit(0);
 		  case 'F':
 			if ((fmt = name2fmt(optarg)) == QF_ERROR)
 				wc_exit(1);

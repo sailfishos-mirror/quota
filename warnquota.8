@@ -25,7 +25,7 @@ message to those users who have reached their softlimit.
 It is typically run via
 .BR cron (8).
 .TP
-.B -F \f2quotaformat\f1
+.B -F, --format=\f2quotaformat\f1
 Perform setting for specified format (ie. don't perform format autodetection).
 Possible format names are:
 .B vfsold
@@ -37,43 +37,43 @@ Possible format names are:
 .B xfs
 (quota on XFS filesystem)
 .TP
-.B -q \f2quotatab\f1
+.B -q, --quota-tab=\f2quotatab\f1
 Use
 .I quotatab
 instead of
 .I /etc/quotatab
 as file with device description strings (see example file for syntax).
 .TP
-.B -c \f2configfile\f1
+.B -c, --config=\f2configfile\f1
 Use
 .I configfile
 instead of
 .I /etc/warnquota.conf
 as configuration file (see example file for syntax).
 .TP
-.B -a \f2adminsfile\f1
+.B -a, --admins-file=\f2adminsfile\f1
 Use
 .I adminsfile
 instead of
 .I /etc/quotagrpadmins
 as a file with administrators of the groups.
 .TP
-.B -u
+.B -u, --user
 check whether users are not exceeding quotas (default).
 .TP
-.B -g
+.B -g, --group
 check whether groups are not exceeding quotas. If group is exceeding quota
 a mail is sent to the user specified in /etc/quotagrpadmins.
 .TP
-.B -s
+.B -s, --human-readable
 Try to report used space, number of used inodes and limits in more appropriate units
 than the default ones.
 .TP
-.B \-i
+.B -i, --no-autofs
 ignore mountpoints mounted by automounter.
 .TP
-.B -d
-don't attach quota report in email.
+.B -d, --no-details
+do not attach quota report in email.
 .SH FILES
 .PD 0
 .TP 20

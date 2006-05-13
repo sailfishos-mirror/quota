@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quota.c,v 1.19 2005/11/21 22:30:23 jkar8572 Exp $"
+#ident "$Id: quota.c,v 1.20 2006/05/13 01:05:24 jkar8572 Exp $"
 
 /*
  * Disk quota reporting program.
@@ -70,17 +70,35 @@
 #define FL_NOAUTOFS 128
 #define FL_NOWRAP 256
 #define FL_FSLIST 512
+#define FL_NUMNAMES 1024
 
 int flags, fmt = -1;
 char *progname;
 
 void usage(void)
 {
-	errstr( "%s%s%s%s",
+	errstr( "%s%s%s%s%s",
 		_("Usage: quota [-guqvsw] [-l | -Q] [-i] [-F quotaformat]\n"),
 		_("\tquota [-qvsw] [-l | -Q] [-i] [-F quotaformat] -u username ...\n"),
 		_("\tquota [-qvsw] [-l | -Q] [-i] [-F quotaformat] -g groupname ...\n"),
-		_("\tquota [-qvswugQ] [-F quotaformat] -f filesystem ...\n"));
+		_("\tquota [-qvswugQ] [-F quotaformat] -f filesystem ...\n"),
+		_("\n\
+-u, --user                display quota for user\n\
+-g, --group               display quota for group\n\
+-q, --quiet               print more terse message\n\
+-v, --verbose             print more verbose message\n\
+-s, --human-readable      display numbers in human friendly units (MB, GB...)\n\
+    --always-resolve      always try to translate name to id, even if it is\n\
+			  composed of only digits\n\
+-w, --no-wrap             do not wrap long lines\n\
+-l, --local-only          do not query NFS filesystems\n\
+-Q, --quiet-refuse        do not print error message when NFS server does\n\
+                          not respond\n\
+-i, --no-autofs           do not query autofs mountpoints\n\
+-F, --format=formatname   display quota of a specific format\n\
+-f, --filesystem-list     display quota information only for given filesystems\n\
+-h, --help                display this help message and exit\n\
+-V, --version             display version information and exit\n\n"));
 	fprintf(stderr, _("Bugs to: %s\n"), MY_EMAIL);
 	exit(1);
 }
@@ -196,11 +214,28 @@ int main(int argc, char **argv)
 	int ngroups;
 	gid_t gidset[NGROUPS], *gidsetp;
 	int i, ret;
+	struct option long_opts[] = {
+		{ "help", 0, NULL, 'h' },
+		{ "version", 0, NULL, 'V' },
+		{ "user", 0, NULL, 'u' },
+		{ "group", 0, NULL, 'g' },
+		{ "quiet", 0, NULL, 'q' },
+		{ "verbose", 0, NULL, 'v' },
+		{ "human-readable", 0, NULL, 's' },
+		{ "always-resolve", 0, NULL, 256 },
+		{ "local-only", 0, NULL, 'l' },
+		{ "no-autofs", 0, NULL, 'i' },
+		{ "quiet-refuse", 0, NULL, 'Q' },
+		{ "format", 1, NULL, 'F' },
+		{ "no-wrap", 0, NULL, 'w' },
+		{ "filesystem-list", 0, NULL, 'f' },
+		{ NULL, 0, NULL, 0 }
+	};
 
 	gettexton();
 	progname = basename(argv[0]);
 
-	while ((ret = getopt(argc, argv, "guqvsVliQF:wf")) != -1) {
+	while ((ret = getopt_long(argc, argv, "guqvsVliQF:wf", long_opts, NULL)) != -1) {
 		switch (ret) {
 		  case 'g':
 			  flags |= FL_GROUP;
@@ -220,6 +255,9 @@ int main(int argc, char **argv)
 			  break;
 		  case 's':
 			  flags |= FL_SMARTSIZE;
+			  break;
+		  case 256:
+			  flags |= FL_NUMNAMES;
 			  break;
 		  case 'l':
 			  flags |= FL_LOCALONLY;
@@ -282,9 +320,9 @@ int main(int argc, char **argv)
 
 	if (flags & FL_USER)
 		for (; argc > 0; argc--, argv++)
-			ret |= showquotas(USRQUOTA, user2uid(*argv, NULL), 0, NULL);
+			ret |= showquotas(USRQUOTA, user2uid(*argv, !!(flags & FL_NUMNAMES), NULL), 0, NULL);
 	else if (flags & FL_GROUP)
 		for (; argc > 0; argc--, argv++)
-			ret |= showquotas(GRPQUOTA, group2gid(*argv, NULL), 0, NULL);
+			ret |= showquotas(GRPQUOTA, group2gid(*argv, !!(flags & FL_NUMNAMES), NULL), 0, NULL);
 	return ret;
 }

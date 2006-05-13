@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: edquota.c,v 1.18 2005/11/21 22:30:23 jkar8572 Exp $"
+#ident "$Id: edquota.c,v 1.19 2006/05/13 01:05:24 jkar8572 Exp $"
 
 /*
  * Disk quota editor.
@@ -52,6 +52,7 @@
 #include <paths.h>
 #include <stdlib.h>
 #include <fcntl.h>
+#include <getopt.h>
 
 #include "pot.h"
 #include "quotaops.h"
@@ -59,55 +60,80 @@
 #include "quotaio.h"
 #include "common.h"
 
+#define FL_EDIT_PERIOD 1
+#define FL_EDIT_TIMES 2
+#define FL_REMOTE 4
+#define FL_NUMNAMES 8
+
 char *progname;
+
+int flags, quotatype;
+int fmt = -1;
+char *protoname;
 char *dirname;
 
 void usage(void)
 {
 #if defined(RPC_SETQUOTA)
-	errstr("%s%s%s%s",
-		_("Usage:\n\tedquota [-r] [-u] [-F formatname] [-p username] [-f filesystem] username ...\n"),
-		_("\tedquota [-r] -g [-F formatname] [-p groupname] [-f filesystem] groupname ...\n"),
-		_("\tedquota [-r] [-u|g] [-F formatname] [-f filesystem] -t\n"),
-		_("\tedquota [-r] [-u|g] [-F formatname] [-f filesystem] -T username|groupname ...\n"));
+	char *rpcflag = "[-r] ";
 #else
-	errstr("%s%s%s%s",
-		_("Usage:\n\tedquota [-u] [-F formatname] [-p username] [-f filesystem] username ...\n"),
-		_("\tedquota -g [-F formatname] [-p groupname] [-f filesystem] groupname ...\n"),
-		_("\tedquota [-u|g] [-F formatname] [-f filesystem] -t\n"),
-		_("\tedquota [-u|g] [-F formatname] [-f filesystem] -T username|groupname ...\n"));
+	char *rpcflag = "";
 #endif
+	errstr(_("Usage:\n\tedquota %1$s[-u] [-F formatname] [-p username] [-f filesystem] username ...\n\
+\tedquota %1$s-g [-F formatname] [-p groupname] [-f filesystem] groupname ...\n\
+\tedquota %1$s[-u|g] [-F formatname] [-f filesystem] -t\n\
+\tedquota %1$s[-u|g] [-F formatname] [-f filesystem] -T username|groupname ...\n"), rpcflag);
+	fputs(_("\n\
+-u, --user                    edit user data\n\
+-g, --group                   edit group data\n"), stderr);
+#if defined(RPC_SETQUOTA)
+	fputs(_("-r, --remote                  edit remote quota (via RPC)\n"), stderr);
+#endif
+	fputs(_("-F, --format=formatname       edit quotas of a specific format\n\
+-p, --prototype=name          copy data from a prototype user/group\n\
+    --always-resolve          always try to resolve name, even if it is\n\
+                              composed only of digits\n\
+-f, --filesystem=filesystem   edit data only on a specific filesystem\n\
+-t, --edit-period             edit grace period\n\
+-T, --edit-times              edit grace time of a user/group\n\
+-h, --help                    display this help text and exit\n\
+-V, --version                 display version information and exit\n\n"), stderr);
 	fprintf(stderr, _("Bugs to: %s\n"), MY_EMAIL);
 	exit(1);
 }
 
-int main(int argc, char **argv)
+int parse_options(int argc, char **argv)
 {
-	struct dquot *protoprivs, *curprivs, *pprivs, *cprivs;
-	long id, protoid;
-	int quotatype, tmpfd, ret;
-	char *protoname = NULL;
-	int tflag = 0, Tflag = 0, pflag = 0, rflag = 0, fmt = -1;
-	struct quota_handle **handles;
-	char *tmpfil, *tmpdir = NULL;
-
-	gettexton();
-	progname = basename(argv[0]);
+	int ret;
+	struct option long_opts[] = {
+		{ "help", 0, NULL, 'h' },
+		{ "version", 0, NULL, 'V' },
+		{ "prototype", 1, NULL, 'p' },
+		{ "user", 0, NULL, 'u' },
+		{ "group", 0, NULL, 'g' },
+		{ "format", 1, NULL, 'F' },
+		{ "filesystem", 1, NULL, 'f' },
+#if defined(RPC_SETQUOTA)
+		{ "remote", 0, NULL, 'r' },
+#endif
+		{ "always-resolve", 0, NULL, 256 },
+		{ "edit-period", 0, NULL, 't' },
+		{ "edit-times", 0, NULL, 'T' },
+		{ NULL, 0, NULL, 0 }
+	};
 
 	if (argc < 2)
 		usage();
 
-	dirname = NULL;
 	quotatype = USRQUOTA;
 #if defined(RPC_SETQUOTA)
-	while ((ret = getopt(argc, argv, "ugrntTVp:F:f:")) != -1) {
+	while ((ret = getopt_long(argc, argv, "ugrntTVp:F:f:", long_opts, NULL)) != -1) {
 #else
-	while ((ret = getopt(argc, argv, "ugtTVp:F:f:")) != -1) {
+	while ((ret = getopt_long(argc, argv, "ugtTVp:F:f:", long_opts, NULL)) != -1) {
 #endif
 		switch (ret) {
 		  case 'p':
 			  protoname = optarg;
-			  pflag++;
 			  break;
 		  case 'g':
 			  quotatype = GRPQUOTA;
@@ -115,17 +141,17 @@ int main(int argc, char **argv)
 #if defined(RPC_SETQUOTA)
 		  case 'n':
 		  case 'r':
-			  rflag++;
+			  flags |= FL_REMOTE;
 			  break;
 #endif
 		  case 'u':
 			  quotatype = USRQUOTA;
 			  break;
 		  case 't':
-			  tflag++;
+			  flags |= FL_EDIT_PERIOD;
 			  break;
 		  case 'T':
-			  Tflag++;
+			  flags |= FL_EDIT_TIMES;
 			  break;
 		  case 'F':
 			  if ((fmt = name2fmt(optarg)) == QF_ERROR)	/* Error? */
@@ -133,6 +159,9 @@ int main(int argc, char **argv)
 			  break;
 		  case 'f':
 			  dirname = optarg;
+			  break;
+		  case 256:
+			  flags |= FL_NUMNAMES;
 			  break;
 		  case 'V':
 			  version();
@@ -142,51 +171,76 @@ int main(int argc, char **argv)
 		}
 	}
 	argc -= optind;
-	argv += optind;
 
-	if ((tflag && argc != 0) || (Tflag && argc < 1))
+	if (((flags & FL_EDIT_PERIOD) && argc != 0) || ((flags & FL_EDIT_TIMES) && argc < 1))
 		usage();
+	if ((flags & (FL_EDIT_PERIOD | FL_EDIT_TIMES)) && protoname) {
+		errstr(_("Prototype name does not make sence when editting grace period or times.\n"));
+		usage();
+	}
+	return optind;
+}
+
+void copy_prototype(int argc, char **argv, struct quota_handle **handles)
+{
+	int ret, protoid, id;
+	struct dquot *protoprivs, *curprivs, *pprivs, *cprivs;
+	
+	ret = 0;
+	protoid = name2id(protoname, quotatype, !!(flags & FL_NUMNAMES), NULL);
+	protoprivs = getprivs(protoid, handles, 0);
+	while (argc-- > 0) {
+		id = name2id(*argv++, quotatype, !!(flags & FL_NUMNAMES), NULL);
+		curprivs = getprivs(id, handles, 0);
+
+		for (pprivs = protoprivs, cprivs = curprivs; pprivs && cprivs;
+		     pprivs = pprivs->dq_next, cprivs = cprivs->dq_next) {
+			if (!devcmp_handles(pprivs->dq_h, cprivs->dq_h)) {
+				errstr(_("fsname mismatch\n"));
+				continue;
+			}
+			cprivs->dq_dqb.dqb_bsoftlimit =
+				pprivs->dq_dqb.dqb_bsoftlimit;
+			cprivs->dq_dqb.dqb_bhardlimit =
+				pprivs->dq_dqb.dqb_bhardlimit;
+			cprivs->dq_dqb.dqb_isoftlimit =
+				pprivs->dq_dqb.dqb_isoftlimit;
+			cprivs->dq_dqb.dqb_ihardlimit =
+				pprivs->dq_dqb.dqb_ihardlimit;
+			update_grace_times(cprivs);
+		}
+		if (putprivs(curprivs, COMMIT_LIMITS) == -1)
+			ret = -1;
+		freeprivs(curprivs);
+	}
+	if (dispose_handle_list(handles) == -1)
+		ret = -1;
+	freeprivs(protoprivs);
+	exit(ret ? 1 : 0);
+}
+
+int main(int argc, char **argv)
+{
+	struct dquot *curprivs;
+	int tmpfd, ret, id;
+	struct quota_handle **handles;
+	char *tmpfil, *tmpdir = NULL;
+
+	gettexton();
+	progname = basename(argv[0]);
+	ret = parse_options(argc, argv);
+	argc -= ret;
+	argv += ret;
 
 	init_kernel_interface();
-	handles = create_handle_list(dirname ? 1 : 0, dirname ? &dirname : NULL, quotatype, fmt, 0, rflag ? 0 : MS_LOCALONLY);
+	handles = create_handle_list(dirname ? 1 : 0, dirname ? &dirname : NULL, quotatype, fmt, 0, (flags & FL_REMOTE) ? 0 : MS_LOCALONLY);
 	if (!handles[0]) {
 		dispose_handle_list(handles);
 		fputs(_("No filesystems with quota detected.\n"), stderr);
 		return 0;
 	}
-	if (pflag) {
-		ret = 0;
-		protoid = name2id(protoname, quotatype, NULL);
-		protoprivs = getprivs(protoid, handles, 0);
-		while (argc-- > 0) {
-			id = name2id(*argv++, quotatype, NULL);
-			curprivs = getprivs(id, handles, 0);
-
-			for (pprivs = protoprivs, cprivs = curprivs; pprivs && cprivs;
-			     pprivs = pprivs->dq_next, cprivs = cprivs->dq_next) {
-				if (!devcmp_handles(pprivs->dq_h, cprivs->dq_h))
-					errstr(_("fsname mismatch\n"));
-				else {
-					cprivs->dq_dqb.dqb_bsoftlimit =
-						pprivs->dq_dqb.dqb_bsoftlimit;
-					cprivs->dq_dqb.dqb_bhardlimit =
-						pprivs->dq_dqb.dqb_bhardlimit;
-					cprivs->dq_dqb.dqb_isoftlimit =
-						pprivs->dq_dqb.dqb_isoftlimit;
-					cprivs->dq_dqb.dqb_ihardlimit =
-						pprivs->dq_dqb.dqb_ihardlimit;
-					update_grace_times(cprivs);
-				}
-			}
-			if (putprivs(curprivs, COMMIT_LIMITS) == -1)
-				ret = -1;
-			freeprivs(curprivs);
-		}
-		if (dispose_handle_list(handles) == -1)
-			ret = -1;
-		freeprivs(protoprivs);
-		exit(ret ? 1 : 0);
-	}
+	if (protoname)
+		copy_prototype(argc, argv, handles);
 
 	umask(077);
 	if (getuid() == geteuid() && getgid() == getegid())
@@ -199,7 +253,7 @@ int main(int argc, char **argv)
 	tmpfd = mkstemp(tmpfil);
 	fchown(tmpfd, getuid(), getgid());
 	ret = 0;
-	if (tflag) {
+	if (flags & FL_EDIT_PERIOD) {
 		if (writetimes(handles, tmpfd) < 0) {
 			errstr(_("Cannot write grace times to file.\n"));
 			ret = -1;
@@ -213,9 +267,9 @@ int main(int argc, char **argv)
 			ret = -1;
 		}
 	}
-	else if (Tflag) {
+	else if (flags & FL_EDIT_TIMES) {
 		for (; argc > 0; argc--, argv++) {
-			id = name2id(*argv, quotatype, NULL);
+			id = name2id(*argv, quotatype, !!(flags & FL_NUMNAMES), NULL);
 			curprivs = getprivs(id, handles, 0);
 			if (writeindividualtimes(curprivs, tmpfd, *argv, quotatype) < 0) {
 				errstr(_("Cannot write individual grace times to file.\n"));
@@ -239,7 +293,7 @@ int main(int argc, char **argv)
 	}
 	else {
 		for (; argc > 0; argc--, argv++) {
-			id = name2id(*argv, quotatype, NULL);
+			id = name2id(*argv, quotatype, !!(flags & FL_NUMNAMES), NULL);
 			curprivs = getprivs(id, handles, 0);
 			if (writeprivs(curprivs, tmpfd, *argv, quotatype) < 0) {
 				errstr(_("Cannot write quotas to file.\n"));

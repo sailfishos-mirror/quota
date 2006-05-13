@@ -68,37 +68,37 @@ or
 options.
 .SH OPTIONS
 .TP
-.B \-a
+.B -a, --all
 Report on all filesystems indicated in
 .B /etc/mtab
 to be read-write with quotas.
 .TP
-.B \-v
+.B -v, --verbose
 Report all quotas, even if there is no usage. Be also more verbose about quotafile
 information.
 .TP
-.B \-c
+.B -c, --batch-translation
 Cache entries to report and translate uids/gids to names in big chunks by scanning
 all users (default). This is good (fast) behaviour when using /etc/passwd file.
 .TP
-.B \-C
+.B -C, --no-batch-translation
 Translate individual entries. This is faster when you have users stored in database.
 .TP
-.B \-t
+.B -t, --truncate-names
 Truncate user/group names longer than 9 characters. This results in nicer output when
 there are such names.
 .TP
-.B \-n
+.B -n, --no-names
 Don't resolve UIDs/GIDs to names. This can speedup printing a lot.
 .TP
-.B \-s
+.B -s, --human-readable
 Try to report used space, number of used inodes and limits in more appropriate units
 than the default ones.
 .TP
-.B \-i
+.B -i, --no-autofs
 Ignore mountpoints mounted by automounter.
 .TP
-.B \-F \f2format-name\f1
+.B \-F, --format=\f2format-name\f1
 Report quota for specified format (ie. don't perform format autodetection).
 Possible format names are:
 .B vfsold
@@ -108,10 +108,10 @@ Possible format names are:
 .B xfs
 (quota on XFS filesystem)
 .TP
-.B \-g
+.B -g, --group
 Report quotas for groups.
 .TP
-.B \-u
+.B -u, --user
 Report quotas for users. This is the default.
 .LP
 Only the super-user may view quotas which are not their own.

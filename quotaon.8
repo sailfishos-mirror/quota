@@ -80,34 +80,7 @@ have any disk quotas turned off.
 .SH OPTIONS
 .SS quotaon
 .TP
-.B \-a
-All automatically mounted (no
-.B noauto
-option) non-NFS filesystems in
-.B /etc/fstab
-with quotas will have their quotas turned on.
-This is normally used at boot time to enable quotas.
-.TP
-.B \-v
-Display a message for each filesystem where quotas are turned on.
-.TP
-.B \-u
-Manipulate user quotas. This is the default.
-.TP
-.B \-g
-Manipulate group quotas.
-.TP
-.B \-p
-Instead of turning quotas on just print state of quotas (ie. whether. quota is on or off)
-.TP
-.B \-f
-Make
-.B quotaon
-behave like being called as
-.BR quotaoff .
-.SS quotaoff
-.TP
-.B \-F \f2format-name\f1
+.B -F, --format=\f2format-name\f1
 Report quota for specified format (ie. don't perform format autodetection).
 Possible format names are:
 .B vfsold
@@ -117,31 +90,68 @@ Possible format names are:
 .B xfs
 (quota on XFS filesystem)
 .TP
-.B \-a
+.B -a, --all
+All automatically mounted (no
+.B noauto
+option) non-NFS filesystems in
+.B /etc/fstab
+with quotas will have their quotas turned on.
+This is normally used at boot time to enable quotas.
+.TP
+.B -v, --verbose
+Display a message for each filesystem where quotas are turned on.
+.TP
+.B -u, --user
+Manipulate user quotas. This is the default.
+.TP
+.B -g, --group
+Manipulate group quotas.
+.TP
+.B -p, --print-state
+Instead of turning quotas on just print state of quotas (ie. whether. quota is on or off)
+.TP
+.B -f, --off
+Make
+.B quotaon
+behave like being called as
+.BR quotaoff .
+.SS quotaoff
+.TP
+.B -F, --format=\f2format-name\f1
+Report quota for specified format (ie. don't perform format autodetection).
+Possible format names are:
+.B vfsold
+(version 1 quota),
+.B vfsv0
+(version 2 quota),
+.B xfs
+(quota on XFS filesystem)
+.TP
+.B -a, --all
 Force all filesystems in
 .B /etc/fstab
 to have their quotas disabled.
 .TP
-.B \-v
+.B -v, --verbose
 Display a message for each filesystem affected.
 .TP
-.B \-u
+.B -u, --user
 Manipulate user quotas. This is the default.
 .TP
-.B \-g
+.B -g, --group
 Manipulate group quotas.
 .TP
-.B \-p
+.B -p, --print-state
 Instead of turning quotas off just print state of quotas (ie. whether. quota is on or off)
 .TP
-.B \-x delete
+.B -x, --xfs-command delete
 Free up the space used to hold quota information (maintained
 internally) within XFS.
 This option is only applicable to XFS, and is silently
 ignored for other filesystem types.
 It can only be used on a filesystem with quota previously turned off.
 .TP
-.B \-x enforce
+.B -x, --xfs-command enforce
 Switch off limit enforcement for XFS filesystems (perform
 quota accounting only).
 This option is only applicable to XFS, and is silently

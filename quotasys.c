@@ -89,7 +89,7 @@ char *type2name(int type)
 /*
  *	Convert name to uid
  */
-uid_t user2uid(char *name, int *err)
+uid_t user2uid(char *name, int flag, int *err)
 {
 	struct passwd *entry;
 	uid_t ret;
@@ -97,9 +97,11 @@ uid_t user2uid(char *name, int *err)
 
 	if (err)
 		*err = 0;
-	ret = strtoul(name, &errch, 0);
-	if (!*errch)		/* Is name number - we got directly uid? */
-		return ret;
+	if (!flag) {
+		ret = strtoul(name, &errch, 0);
+		if (!*errch)		/* Is name number - we got directly uid? */
+			return ret;
+	}
 	if (!(entry = getpwnam(name))) {
 		if (!err) {
 			errstr(_("user %s does not exist.\n"), name);
@@ -116,7 +118,7 @@ uid_t user2uid(char *name, int *err)
 /*
  *	Convert group name to gid
  */
-gid_t group2gid(char *name, int *err)
+gid_t group2gid(char *name, int flag, int *err)
 {
 	struct group *entry;
 	gid_t ret;
@@ -124,9 +126,11 @@ gid_t group2gid(char *name, int *err)
 
 	if (err)
 		*err = 0;
-	ret = strtoul(name, &errch, 0);
-	if (!*errch)		/* Is name number - we got directly gid? */
-		return ret;
+	if (!flag) {
+		ret = strtoul(name, &errch, 0);
+		if (!*errch)		/* Is name number - we got directly gid? */
+			return ret;
+	}
 	if (!(entry = getgrnam(name))) {
 		if (!err) {
 			errstr(_("group %s does not exist.\n"), name);
@@ -143,12 +147,12 @@ gid_t group2gid(char *name, int *err)
 /*
  *	Convert name to id
  */
-int name2id(char *name, int qtype, int *err)
+int name2id(char *name, int qtype, int flag, int *err)
 {
 	if (qtype == USRQUOTA)
-		return user2uid(name, err);
+		return user2uid(name, flag, err);
 	else
-		return group2gid(name, err);
+		return group2gid(name, flag, err);
 }
 
 /*

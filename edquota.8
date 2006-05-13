@@ -56,7 +56,7 @@ edquota \- edit user quotas
 .IX  "filesystem"  "edquota command"  ""  "\fLedquota\fP \(em edit user quotas"
 .B edquota
 is a quota editor.  One or more users or groups may be specified on the command
-line. If a number is given in the place of user/group name it is threated as
+line. If a number is given in the place of user/group name it is treated as
 an UID/GID. For each user or group a temporary file is created with an
 .SM ASCII
 representation of the current disk quotas for that user or group and an editor
@@ -87,26 +87,26 @@ environment variable specifies otherwise.
 Only the super-user may edit quotas.
 .SH OPTIONS
 .TP
-.B \-r
+.B -r, --remote
 Edit also non-local quota use rpc.rquotad on remote server to set quota.
 This option is available only if quota tools were compiled with enabled
 support for setting quotas over RPC.
 The
-.B \-n
+.B -n
 option is equivalent, and is maintained for backward compatibility.
 .TP
-.B \-u
+.B -u, --user
 Edit the user quota. This is the default.
 .TP
-.B \-g
+.B -g, --group
 Edit the group quota.
 .TP
-.B \-p \f2protoname\f1
+.B -p, --prototype=\f2protoname\f1
 Duplicate the quotas of the prototypical user
 specified for each user specified.  This is the normal
 mechanism used to initialize quotas for groups of users.
 .TP
-.B \-F \f2format-name\f1
+.B -F, --format=\f2format-name\f1
 Edit quota for specified format (ie. don't perform format autodetection).
 Possible format names are:
 .B vfsold
@@ -118,11 +118,11 @@ Possible format names are:
 .B xfs
 (quota on XFS filesystem)
 .TP
-.B \-f \f2filesystem\f1
+.B \-f, --filesystem \f2filesystem\f1
 Perform specified operations only for given filesystem (default is to perform
 operations for all filesystems with quota).
 .TP
-.B \-t
+.B \-t, --edit-period
 Edit the soft time limits for each filesystem.
 In old quota format if the time limits are zero, the default time limits in
 .B <linux/quota.h>
@@ -131,7 +131,7 @@ value set in kernel). Time units of 'seconds', 'minutes', 'hours', and 'days'
 are understood. Time limits are printed in the greatest possible time unit such that
 the value is greater than or equal to one.
 .TP
-.B \-T
+.B \-T, --edit-times
 Edit time for the user/group when softlimit is enforced. Possible values
 are 'unset' or number and unit. Units are the same as in
 .B \-t

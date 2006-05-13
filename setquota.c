@@ -29,6 +29,7 @@
 #define FL_GRACE 32
 #define FL_INDIVIDUAL_GRACE 64
 #define FL_BATCH 128
+#define FL_NUMNAMES 256
 
 int flags, fmt = -1;
 char **mnt;
@@ -41,22 +42,32 @@ struct util_dqblk toset;
 static void usage(void)
 {
 #if defined(RPC_SETQUOTA)
-	errstr(_("Usage:\n"
-			  "  setquota [-u|-g] [-r] [-F quotaformat] <user|group>\n"
-			  "\t<block-softlimit> <block-hardlimit> <inode-softlimit> <inode-hardlimit> -a|<filesystem>...\n"
-			  "  setquota [-u|-g] [-r] [-F quotaformat] <-p protouser|protogroup> <user|group> -a|<filesystem>...\n"
-			  "  setquota [-u|-g] [-r] [-F quotaformat] -b -a|<filesystem>...\n"
-			  "  setquota [-u|-g] [-F quotaformat] -t <blockgrace> <inodegrace> -a|<filesystem>...\n"
-			  "  setquota [-u|-g] [-F quotaformat] <user|group> -T <blockgrace> <inodegrace> -a|<filesystem>...\n"));
+	char *ropt = "[-r] ";
 #else
-	errstr(_("Usage:\n"
-			  "  setquota [-u|-g] [-F quotaformat] <user|group>\n"
-			  "\t<block-softlimit> <block-hardlimit> <inode-softlimit> <inode-hardlimit> -a|<filesystem>...\n"
-			  "  setquota [-u|-g] [-F quotaformat] <-p protouser|protogroup> <user|group> -a|<filesystem>...\n"
-			  "  setquota [-u|-g] [-F quotaformat] -b -a|<filesystem>...\n"
-			  "  setquota [-u|-g] [-F quotaformat] -t <blockgrace> <inodegrace> -a|<filesystem>...\n"
-			  "  setquota [-u|-g] [-F quotaformat] <user|group> -T <blockgrace> <inodegrace> -a|<filesystem>...\n"));
+	char *ropt = "";
 #endif
+	errstr(_("Usage:\n\
+  setquota [-u|-g] %1$s[-F quotaformat] <user|group>\n\
+\t<block-softlimit> <block-hardlimit> <inode-softlimit> <inode-hardlimit> -a|<filesystem>...\n\
+  setquota [-u|-g] %1$s[-F quotaformat] <-p protouser|protogroup> <user|group> -a|<filesystem>...\n\
+  setquota [-u|-g] %1$s[-F quotaformat] -b -a|<filesystem>...\n\
+  setquota [-u|-g] [-F quotaformat] -t <blockgrace> <inodegrace> -a|<filesystem>...\n\
+  setquota [-u|-g] [-F quotaformat] <user|group> -T <blockgrace> <inodegrace> -a|<filesystem>...\n\n\
+-u, --user                 set limits for user\n\
+-g, --group                set limits for group\n\
+-a, --all                  set limits for all filesystems\n\
+    --always-resolve       always try to resolve name, even if is\n\
+                           composed only of digits\n\
+-F, --format=formatname    operate on specific quota format\n\
+-p, --prototype=protoname  copy limits from user/group\n\
+-b, --batch                read limits from standard input\n"), ropt);
+#if defined(RPC_SETQUOTA)
+	fputs(_("-r, --remote               set remote quota (via RPC)\n"), stderr);
+#endif
+	fputs(_("-t, --edit-period          edit grace period\n\
+-T, --edit-times           edit grace times for user/group\n\
+-h, --help                 display this help text and exit\n\
+-V, --version              display version information and exit\n\n"), stderr);
 	fprintf(stderr, _("Bugs to: %s\n"), MY_EMAIL);
 	exit(1);
 }
@@ -91,12 +102,29 @@ static void parse_options(int argcnt, char **argstr)
 	char *protoname = NULL;
 
 #ifdef RPC_SETQUOTA
-	char *opts = "igp:urVF:taTb";
+	char *opts = "gp:urVF:taTb";
 #else
-	char *opts = "igp:uVF:taTb";
+	char *opts = "gp:uVF:taTb";
 #endif
+	struct option long_opts[] = {
+		{ "user", 0, NULL, 'u' },
+		{ "group", 0, NULL, 'g' },
+		{ "prototype", 1, NULL, 'p' },
+#ifdef RPC_SETQUOTA
+		{ "remote", 0, NULL, 'r' },
+#endif
+		{ "all", 0, NULL, 'a' },
+		{ "always-resolve", 0, NULL, 256},
+		{ "edit-period", 0, NULL, 't' },
+		{ "edit-times", 0, NULL, 'T' },
+		{ "batch", 0, NULL, 'b' },
+		{ "format", 1, NULL, 'F' },
+		{ "version", 0, NULL, 'V' },
+		{ "help", 0, NULL, 'h' },
+		{ NULL, 0, NULL, 0 }
+	};
 
-	while ((ret = getopt(argcnt, argstr, opts)) != -1) {
+	while ((ret = getopt_long(argcnt, argstr, opts, long_opts, NULL)) != -1) {
 		switch (ret) {
 		  case '?':
 		  case 'h':
@@ -117,6 +145,9 @@ static void parse_options(int argcnt, char **argstr)
 		  case 'a':
 			  flags |= FL_ALL;
 			  break;
+		  case 256:
+			  flags |= FL_NUMNAMES;
+			  break;
 		  case 't':
 			  flags |= FL_GRACE;
 			  break;
@@ -132,7 +163,7 @@ static void parse_options(int argcnt, char **argstr)
 			  break;
 		  case 'V':
 			  version();
-			  break;
+			  exit(0);
 		}
 	}
 	if (flags & FL_USER && flags & FL_GROUP) {
@@ -173,7 +204,7 @@ static void parse_options(int argcnt, char **argstr)
 	if (!(flags & (FL_USER | FL_GROUP)))
 		flags |= FL_USER;
 	if (!(flags & (FL_GRACE | FL_BATCH))) {
-		id = name2id(argstr[optind++], flag2type(flags), NULL);
+		id = name2id(argstr[optind++], flag2type(flags), !!(flags & FL_NUMNAMES), NULL);
 		if (!(flags & (FL_GRACE | FL_INDIVIDUAL_GRACE | FL_PROTO))) {
 			toset.dqb_bsoftlimit = parse_num(argstr[optind++], _("block softlimit"));
 			toset.dqb_bhardlimit = parse_num(argstr[optind++], _("block hardlimit"));
@@ -181,7 +212,7 @@ static void parse_options(int argcnt, char **argstr)
 			toset.dqb_ihardlimit = parse_num(argstr[optind++], _("inode hardlimit"));
 		}
 		else if (flags & FL_PROTO)
-			protoid = name2id(protoname, flag2type(flags), NULL);
+			protoid = name2id(protoname, flag2type(flags), !!(flags & FL_NUMNAMES), NULL);
 	}
 	if (flags & FL_GRACE) {
 		toset.dqb_btime = parse_num(argstr[optind++], _("block grace time"));
@@ -265,7 +296,7 @@ static int read_entry(qid_t *id, qsize_t *isoftlimit, qsize_t *ihardlimit, qsize
 		if (ret != 5)
 			die(1, _("Cannot parse input line %d.\n"), line);
 		ret = 0;
-		*id = name2id(name, flag2type(flags), &ret);
+		*id = name2id(name, flag2type(flags), !!(flags & FL_NUMNAMES), &ret);
 		if (ret)
 			errstr(_("Unable to get name '%s'.\n"), name);
 	} while (ret);

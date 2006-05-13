@@ -45,13 +45,13 @@ int nfs_fstype(char *);
 char *type2name(int);
 
 /* Convert username to uid */
-uid_t user2uid(char *, int *err);
+uid_t user2uid(char *, int flag, int *err);
 
 /* Convert groupname to gid */
-gid_t group2gid(char *, int *err);
+gid_t group2gid(char *, int flag, int *err);
 
 /* Convert user/groupname to id */
-int name2id(char *name, int qtype, int *err);
+int name2id(char *name, int qtype, int flag, int *err);
 
 /* Convert uid to username */
 int uid2user(uid_t, char *);

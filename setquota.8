@@ -109,14 +109,14 @@ setquota \- set disk quotas
 is a command line quota editor.
 The filesystem, user/group name and new quotas for this
 filesystem can be specified on the command line. Note that if a number is
-given in the place of a user/group name it is threated as an UID/GID.
+given in the place of a user/group name it is treated as an UID/GID.
 .TP
-.B -r
+.B -r, --remote
 Edit also remote quota use rpc.rquotad on remote server to set quota. This
 option is available only if quota tools were compiled with enabled support
 for setting quotas over RPC.
 .TP
-.B -F \f2quotaformat\f1
+.B -F, --format=\f2quotaformat\f1
 Perform setting for specified format (ie. don't perform format autodetection).
 Possible format names are:
 .B vfsold
@@ -128,37 +128,37 @@ Possible format names are:
 .B xfs
 (quota on XFS filesystem)
 .TP
-.B -u
+.B -u, --user
 Set user quotas for named user. This is the default.
 .TP
-.B -g
+.B -g, --group
 Set group quotas for named group.
 .TP
-.B -p \f2protoname\f1
+.B -p, --prototype=\f2protoname\f1
 Use quota settings of user or group
 .I protoname
 to set the quota for the named user or group.
 .TP
-.B -b
+.B -b, --batch
 Read information to set from stdin (input format is
 .I name block-softlimit block-hardlimit inode-softlimit inode-hardlimit
 ).
 .TP
-.B -t
+.B -t, --edit-period
 Set grace times for users/groups. Times
 .B block-grace
 and
 .B inode-grace
 are specified in seconds.
 .TP
-.B -T
+.B -T, --edit-times
 Alter times for individual user/group when softlimit is enforced. Times
 .B block-grace
 and
 .B inode-grace
 are specified in seconds or can be string 'unset'.
 .TP
-.B -a
+.B -a, --all
 Go through all filesystems with quota in
 .B /etc/mtab
 and perform setting.

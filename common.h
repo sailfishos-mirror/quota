@@ -13,7 +13,7 @@
 # endif
 #endif
 
-#define MY_EMAIL "mvw@planets.elm.net, jack@suse.cz"
+#define MY_EMAIL "jack@suse.cz"
 
 /* Name of current program for error reporting */
 extern char *progname;

@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaon.c,v 1.21 2005/11/21 22:30:23 jkar8572 Exp $"
+#ident "$Id: quotaon.c,v 1.22 2006/05/13 01:05:24 jkar8572 Exp $"
 
 /*
  * Turn quota on/off for a filesystem.
@@ -64,15 +64,39 @@ char *xarg = NULL;
 
 static void usage(void)
 {
-	errstr(_("Usage:\n\t%s [-guvp] [-F quotaformat] [-x state] -a\n\t%s [-guvp] [-F quotaformat] [-x state] filesys ...\n"), progname, progname);
+	errstr(_("Usage:\n\t%s [-guvp] [-F quotaformat] [-x state] -a\n\
+\t%s [-guvp] [-F quotaformat] [-x state] filesys ...\n\n\
+-a, --all                turn quotas on for all filesystems\n\
+-f, --off                turn quotas off\n\
+-u, --user               operate on user quotas\n\
+-g, --group              operate on group quotas\n\
+-p, --print-state        print whether quotas are on or off\n\
+-x, --xfs-command=cmd    perform XFS quota command\n\
+-F, --format=formatname  operate on specific quota format\n\
+-v, --verbose            print more messages\n\
+-h, --help               display this help text and exit\n\
+-V, --version            display version information and exit\n"), progname, progname);
 	exit(1);
 }
 
 static void parse_options(int argcnt, char **argstr)
 {
 	int c;
+	struct option long_opts[] = {
+		{ "all", 0, NULL, 'a' },
+		{ "off", 0, NULL, 'f' },
+		{ "verbose", 0, NULL, 'v' },
+		{ "user", 0, NULL, 'u' },
+		{ "group", 0, NULL, 'g' },
+		{ "print-state", 0, NULL, 'p' },
+		{ "xfs-command", 1, NULL, 'x' },
+		{ "format", 1, NULL, 'F' },
+		{ "version", 0, NULL, 'V' },
+		{ "help", 0, NULL, 'h' },
+		{ NULL, 0, NULL, 0 }
+	};
 
-	while ((c = getopt(argcnt, argstr, "afvugpx:VF:")) != -1) {
+	while ((c = getopt_long(argcnt, argstr, "afvugpx:VF:h", long_opts, NULL)) != -1) {
 		switch (c) {
 		  case 'a':
 			  flags |= FL_ALL;
@@ -102,6 +126,7 @@ static void parse_options(int argcnt, char **argstr)
 		  case 'V':
 			  version();
 			  exit(0);
+		  case 'h':
 		  default:
 			  usage();
 		}

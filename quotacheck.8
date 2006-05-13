@@ -70,65 +70,65 @@ ignore the failure to remount the filesystem read-only with option
 .BR \-M .
 .SH OPTIONS
 .TP
-.B \-b
+.B -b, --backup
 Forces
 .B quotacheck
 to make backups of the quota file before writing the new data.
 .TP
-.B \-v
+.B -v, --verbose
 .B quotacheck
 reports its operation as it progresses.  Normally it operates silently.
 If the option is specified twice, also the current directory is printed (note
 that printing can slow down the scan measurably).
 .TP
-.B \-d
+.B -d, --debug
 Enable debugging mode.  It will result in a lot of information which can
 be used in debugging the program. The output is very verbose and the
 scan will be slow.
 .TP
-.B \-u
+.B -u, --user
 Only user quotas listed in
 .I /etc/mtab
 or on the filesystems specified are to be checked.  This is the default action.
 .TP
-.B \-g
+.B -g, --group
 Only group quotas listed in
 .I /etc/mtab
 or on the filesystems specified are to be checked.
 .TP
-.B \-c
+.B -c, --create-files
 Don't read existing quota files. Just perform a new scan and save it to disk.
 .B quotacheck
 also skips scanning of old quota files when they are not found.
 .TP
-.B \-f
+.B -f, --force
 Forces checking and writing of new quota files on filesystems with quotas
 enabled. This is not recommended as the created quota files may be out of sync.
 .TP
-.B \-M
+.B -M, --try-remount
 This flag forces checking of filesystem in read-write mode if a remount
 fails. Do this only when you are sure no process will write to a
 filesystem while scanning.
 .TP
-.B \-m
+.B -m, --no-remount
 Don't try to remount filesystem read-only. See comment with option
 .BR \-M .
 .TP
-.B \-i
+.B -i, --interactive
 Interactive mode. By default
 .B quotacheck
 exits when it finds an error. In interactive mode user is asked for
 input instead.  See option
 .BR \-n .
 .TP
-.B \-n
+.B -n, --use-first-dquot
 If the quota files become corrupted, it is possible for duplicate
 entries for a single user or group ID to exist.  Normally in this case,
 .B quotacheck
 exits or asks user for input. When this option is set, the first entry found
 is always used (this option works in interactive mode too).
 .TP
-.B \-F \f2format-name\f1
+.B -F, --format=\f2format-name\f1
 Check and fix quota files of specified format (ie. don't perform format
 auto-detection). This is recommended as detection might not work well on
 corrupted quota files.  Possible format names are:
@@ -141,11 +141,11 @@ corrupted quota files.  Possible format names are:
 .B xfs
 (quota on XFS filesystem)
 .TP
-.B \-a
+.B -a, --all
 Check all mounted non-NFS filesystems in
 .B /etc/mtab
 .TP
-.B \-R
+.B -R, --exclude-root
 When used together with the
 .B \-a
 option, all filesystems except for the root filesystem are checked for

@@ -15,6 +15,7 @@
 #include <errno.h>
 #include <pwd.h>
 #include <grp.h>
+#include <getopt.h>
 
 #include "pot.h"
 #include "common.h"
@@ -43,7 +44,19 @@ char *progname;
 
 static void usage(void)
 {
-	errstr(_("Utility for reporting quotas.\nUsage:\n%s [-vugsi] [-c|C] [-t|n] [-F quotaformat] (-a | mntpoint)\n"), progname);
+	errstr(_("Utility for reporting quotas.\nUsage:\n%s [-vugsi] [-c|C] [-t|n] [-F quotaformat] (-a | mntpoint)\n\n\
+-v, --verbose               display also users/groups without any usage\n\
+-u, --user                  display information about users\n\
+-g, --group                 display information about groups\n\
+-s, --human-readable        show numbers in human friendly units (MB, GB, ...)\n\
+-t, --truncate-names        truncate names to 8 characters\n\
+-n, --no-names              do not translate uid/gid to name\n\
+-i, --no-autofs             avoid autofs mountpoints\n\
+-c, --batch-translation     translate big number of ids at once\n\
+-C, --no-batch-translation  translate ids one by one\n\
+-F, --format=formatname     report information for specific format\n\
+-h, --help                  display this help message and exit\n\
+-V, --version               display version information and exit\n\n"), progname);
 	fprintf(stderr, _("Bugs to %s\n"), MY_EMAIL);
 	exit(1);
 }
@@ -52,8 +65,24 @@ static void parse_options(int argcnt, char **argstr)
 {
 	int ret;
 	int cache_specified = 0;
+	struct option long_opts[] = {
+		{ "version", 0, NULL, 'V' },
+		{ "all", 0, NULL, 'a' },
+		{ "verbose", 0, NULL, 'v' },
+		{ "user", 0, NULL, 'u' },
+		{ "group", 0, NULL, 'g' },
+		{ "help", 0, NULL, 'h' },
+		{ "truncate-names", 0, NULL, 't' },
+		{ "human-readable", 0, NULL, 's' },
+		{ "no-names", 0, NULL, 'n' },
+		{ "cache", 0, NULL, 'c' },
+		{ "no-cache", 0, NULL, 'C' },
+		{ "no-autofs", 0, NULL, 'i' },
+		{ "format", 1, NULL, 'F' },
+		{ NULL, 0, NULL, 0 }
+	};
 
-	while ((ret = getopt(argcnt, argstr, "VavughtsncCiF:")) != -1) {
+	while ((ret = getopt_long(argcnt, argstr, "VavughtsncCiF:", long_opts, NULL)) != -1) {
 		switch (ret) {
 			case '?':
 			case 'h':

@@ -1,4 +1,7 @@
 Changes in quota-tools from 3.13 to 3.14
+* added option --always-resolve to force resolving even names with digits only (Jan Kara)
+* minor language corrections in manpages (Jan Kara)
+* implemented long options parsing for all quota tools (Jan Kara)
 * quota(1) has -f option to specify filesystem list (Jan Kara)
 * corrected some informal language in messages (Jan Kara)
 * we cannot even stat NFS mounts in local mode as server may be unreachable (Jan Kara)
@@ -397,7 +400,7 @@ Changes in quota-tools from 1.60 to 1.65
 Changes in quota-tools from 1.55 to 1.60
 
 * Added new option to kernel root_squash which means when that option is
-  set the kernel system threats root as any normal user and he cannot
+  set the kernel system treats root as any normal user and he cannot
   write to any file anymore without obeing the quota limits.
 
 * Added support for root_squash to quotaon and quotaoff using the new

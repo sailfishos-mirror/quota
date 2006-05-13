@@ -42,7 +42,7 @@ For filesystems that are NFS-mounted a call to the rpc.rquotad on
 the server machine is performed to get the information.
 .SH OPTIONS
 .TP
-.B \-F \f2format-name\f1
+.B -F, --format=\f2format-name\f1
 Show quota for specified format (ie. don't perform format autodetection).
 Possible format names are:
 .B vfsold
@@ -54,41 +54,41 @@ Possible format names are:
 .B xfs
 (quota on XFS filesystem)
 .TP
-.B \-g
+.B -g, --group
 Print group quotas for the group 
 of which the user is a member.
 The optional 
 .B group
 argument(s) restricts the display to the specified group(s).
 .TP
-.B \-u
+.B -u, --user
 flag is equivalent to the default.
 .TP
-.B \-v
+.B -v, --verbose
 will display quotas on filesystems
 where no storage is allocated.
 .TP
-.B \-s
+.B -s, --human-readable
 option will make
 .BR quota (1)
 try to choose units for showing limits, used space and used inodes.
 .TP
-.B \-i
+.B -i, --no-autofs
 ignore mountpoints mounted by automounter
 .TP
-.B \-l
+.B -l, --local-only
 report quotas only on local filesystems (ie. ignore NFS mounted filesystems).
 .TP
-.B \-q
+.B -q, --quiet
 Print a more terse message,
 containing only information
 on filesystems where usage is over quota.
 .TP
-.B \-Q
+.B -Q, --quiet-refuse
 Do not print error message if connection to rpc.rquotad is refused (usually this happens
 when rpc.rquotad is not running on the server).
 .TP
-.B \-w
+.B -w, --no-wrap
 Do not wrap the line if the device name is too long. This can be useful when parsing
 the output of
 .BR quota (1)

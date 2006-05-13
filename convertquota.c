@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <getopt.h>
 
 #include <asm/byteorder.h>
 
@@ -34,7 +35,13 @@ int action;			/* Action to be performed */
 
 static void usage(void)
 {
-	errstr(_("Utility for converting quota files.\nUsage:\n\t%s [-u] [-g] [-e|-f] mountpoint\n"), progname);
+	errstr(_("Utility for converting quota files.\nUsage:\n\t%s [options] mountpoint\n\n\
+-u, --user            convert user quota file\n\
+-g, --group           convert group quota file\n\
+-e, --convert-endian  convert quota file to correct endianity\n\
+-f, --convert-format  convert from old to VFSv0 quota format\n\
+-h, --help            show this help text and exit\n\
+-V, --version         output version information and exit\n\n"), progname);
 	errstr(_("Bugs to %s\n"), MY_EMAIL);
 	exit(1);
 }
@@ -42,9 +49,18 @@ static void usage(void)
 static void parse_options(int argcnt, char **argstr)
 {
 	int ret;
+	struct option long_opts[] = {
+		{ "help", 0, NULL, 'h'},
+		{ "version", 0, NULL, 'V'},
+		{ "user", 0, NULL, 'u'},
+		{ "group", 0, NULL, 'g'},
+		{ "convert-endian", 0, NULL, 'e'},
+		{ "convert-format", 0, NULL, 'f'},
+		{ NULL, 0, NULL, 0}
+	};
 
 	action = ACT_FORMAT;
-	while ((ret = getopt(argcnt, argstr, "Vugefh:")) != -1) {
+	while ((ret = getopt_long(argcnt, argstr, "Vugefh:", long_opts, NULL)) != -1) {
 		switch (ret) {
 			case '?':
 			case 'h':
