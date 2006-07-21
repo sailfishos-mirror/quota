@@ -1,5 +1,5 @@
 Changes in quota-tools from 3.13 to 3.14
-* print user/group names in error messages when cannot get quota information (Marian Jancar, Jan Kara)
+* print user/group names in error messages when cannot get quota information (Michal Marek, Jan Kara)
 * added option --always-resolve to force resolving even names with digits only (Jan Kara)
 * minor language corrections in manpages (Jan Kara)
 * implemented long options parsing for all quota tools (Jan Kara)
