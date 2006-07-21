@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaops.c,v 1.19 2006/05/13 01:05:24 jkar8572 Exp $"
+#ident "$Id: quotaops.c,v 1.20 2006/07/21 15:14:01 jkar8572 Exp $"
 
 #include <rpc/rpc.h>
 #include <sys/types.h>
@@ -118,7 +118,8 @@ struct dquot *getprivs(qid_t id, struct quota_handle **handles, int quiet)
 				if (ngroups > NGROUPS) {
 					gidsetp = malloc(ngroups * sizeof(gid_t));
 					if (!gidsetp) {
-						errstr(_("gid set allocation (%d): %s\n"), ngroups, strerror(errno));
+						gid2group(id, name);
+						errstr(_("%s (gid %d): gid set allocation (%d): %s\n"), name, id, ngroups, strerror(errno));
 						return (struct dquot *)NULL;
 					}
 				}
@@ -128,7 +129,8 @@ struct dquot *getprivs(qid_t id, struct quota_handle **handles, int quiet)
 				if (ngroups < 0) {
 					if (gidsetp != gidset)
 						free(gidsetp);
-					errstr(_("error while trying getgroups(): %s\n"), strerror(errno));
+					gid2group(id, name);
+					errstr(_("%s (gid %d): error while trying getgroups(): %s\n"), name, id, strerror(errno));
 					return (struct dquot *)NULL;
 				}
 
@@ -151,9 +153,11 @@ struct dquot *getprivs(qid_t id, struct quota_handle **handles, int quiet)
 
 		if (!(q = handles[i]->qh_ops->read_dquot(handles[i], id))) {
 			/* If rpc.rquotad is not running filesystem might be just without quotas... */
-			if (errno != ENOENT && (errno != ECONNREFUSED || !quiet))
-				errstr(_("error while getting quota from %s for %u: %s\n"),
-					handles[i]->qh_quotadev, id, strerror(errno));
+			if (errno != ENOENT && (errno != ECONNREFUSED || !quiet)) {
+				id2name(id, handles[i]->qh_type, name);
+				errstr(_("error while getting quota from %s for %s (id %u): %s\n"),
+					handles[i]->qh_quotadev, name, id, strerror(errno));
+			}
 			continue;
 		}
 		if (qhead == NULL)
