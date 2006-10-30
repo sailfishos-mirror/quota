@@ -34,6 +34,7 @@
 #define FL_NONAME 64	/* Don't translate ids to names */
 #define FL_NOCACHE 128	/* Don't cache dquots before resolving */
 #define FL_NOAUTOFS 256	/* Ignore autofs mountpoints */
+#define FL_RAWGRACE 512	/* Print grace times in seconds since epoch */
 
 int flags, fmt = -1;
 char **mnt;
@@ -50,6 +51,7 @@ static void usage(void)
 -g, --group                 display information about groups\n\
 -s, --human-readable        show numbers in human friendly units (MB, GB, ...)\n\
 -t, --truncate-names        truncate names to 8 characters\n\
+-p, --raw-grace             print grace time in seconds since epoch\n\
 -n, --no-names              do not translate uid/gid to name\n\
 -i, --no-autofs             avoid autofs mountpoints\n\
 -c, --batch-translation     translate big number of ids at once\n\
@@ -73,6 +75,7 @@ static void parse_options(int argcnt, char **argstr)
 		{ "group", 0, NULL, 'g' },
 		{ "help", 0, NULL, 'h' },
 		{ "truncate-names", 0, NULL, 't' },
+		{ "raw-grace", 0, NULL, 'p' },
 		{ "human-readable", 0, NULL, 's' },
 		{ "no-names", 0, NULL, 'n' },
 		{ "cache", 0, NULL, 'c' },
@@ -82,7 +85,7 @@ static void parse_options(int argcnt, char **argstr)
 		{ NULL, 0, NULL, 0 }
 	};
 
-	while ((ret = getopt_long(argcnt, argstr, "VavughtsncCiF:", long_opts, NULL)) != -1) {
+	while ((ret = getopt_long(argcnt, argstr, "VavughtspncCiF:", long_opts, NULL)) != -1) {
 		switch (ret) {
 			case '?':
 			case 'h':
@@ -104,6 +107,9 @@ static void parse_options(int argcnt, char **argstr)
 				break;
 			case 't':
 				flags |= FL_TRUNCNAMES;
+				break;
+			case 'p':
+				flags |= FL_RAWGRACE;
 				break;
 			case 's':
 				flags |= FL_SHORTNUMS;
@@ -174,9 +180,15 @@ static void print(struct dquot *dquot, char *name)
 	if (flags & FL_TRUNCNAMES)
 		pname[PRINTNAMELEN] = 0;
 	if (entry->dqb_bsoftlimit && toqb(entry->dqb_curspace) >= entry->dqb_bsoftlimit)
-		difftime2str(entry->dqb_btime, time);
+		if (flags & FL_RAWGRACE)
+			sprintf(time, "%s", entry->dqb_btime);
+		else
+			difftime2str(entry->dqb_btime, time);
 	else
-		time[0] = 0;
+		if (flags & FL_RAWGRACE)
+			strcpy(time, "0");
+		else
+			time[0] = 0;
 	space2str(toqb(entry->dqb_curspace), numbuf[0], flags & FL_SHORTNUMS);
 	space2str(entry->dqb_bsoftlimit, numbuf[1], flags & FL_SHORTNUMS);
 	space2str(entry->dqb_bhardlimit, numbuf[2], flags & FL_SHORTNUMS);
@@ -185,9 +197,15 @@ static void print(struct dquot *dquot, char *name)
 	       overlim(entry->dqb_curinodes, entry->dqb_isoftlimit, entry->dqb_ihardlimit),
 	       numbuf[0], numbuf[1], numbuf[2], time);
 	if (entry->dqb_isoftlimit && entry->dqb_curinodes >= entry->dqb_isoftlimit)
-		difftime2str(entry->dqb_itime, time);
+		if (flags & FL_RAWGRACE)
+			sprintf(time, "%s", entry->dqb_itime);
+		else
+			difftime2str(entry->dqb_itime, time);
 	else
-		time[0] = 0;
+		if (flags & FL_RAWGRACE)
+			strcpy(time, "0");
+		else
+			time[0] = 0;
 	number2str(entry->dqb_curinodes, numbuf[0], flags & FL_SHORTNUMS);
 	number2str(entry->dqb_isoftlimit, numbuf[1], flags & FL_SHORTNUMS);
 	number2str(entry->dqb_ihardlimit, numbuf[2], flags & FL_SHORTNUMS);

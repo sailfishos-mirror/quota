@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: edquota.c,v 1.19 2006/05/13 01:05:24 jkar8572 Exp $"
+#ident "$Id: edquota.c,v 1.20 2006/10/30 15:26:20 jkar8572 Exp $"
 
 /*
  * Disk quota editor.
@@ -251,7 +251,16 @@ int main(int argc, char **argv)
 	strcpy(tmpfil, tmpdir);
 	strcat(tmpfil, "/EdP.aXXXXXX");
 	tmpfd = mkstemp(tmpfil);
-	fchown(tmpfd, getuid(), getgid());
+	if (tmpfd < 0) {
+		errstr(_("Cannot create temporary file: %s\n"), strerror(errno));
+		ret = -1;
+		goto out;
+	}
+	if (fchown(tmpfd, getuid(), getgid()) < 0) {
+		errstr(_("Cannot change owner of temporary file: %s\n"), strerror(errno));
+		ret = -1;
+		goto out;
+	}
 	ret = 0;
 	if (flags & FL_EDIT_PERIOD) {
 		if (writetimes(handles, tmpfd) < 0) {
@@ -318,6 +327,7 @@ int main(int argc, char **argv)
 			freeprivs(curprivs);
 		}
 	}
+out:
 	if (dispose_handle_list(handles) == -1)
 		ret = -1;
 
