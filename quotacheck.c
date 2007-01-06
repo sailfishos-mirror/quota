@@ -3,12 +3,12 @@
  *	Utility to check disk quotas
  *
  *	Some parts of this utility are copied from old quotacheck by
- *	Marco van Wieringen <mvw@planets.elm.net> and Edvard Tuinder <ed@elm.ent>
+ *	Marco van Wieringen <mvw@planets.elm.net> and Edvard Tuinder <ed@elm.net>
  * 
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.51 2006/05/13 01:05:24 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.52 2007/01/06 13:08:01 marcovw Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
