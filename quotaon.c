@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaon.c,v 1.22 2006/05/13 01:05:24 jkar8572 Exp $"
+#ident "$Id: quotaon.c,v 1.23 2007/02/21 13:51:25 jkar8572 Exp $"
 
 /*
  * Turn quota on/off for a filesystem.
@@ -174,7 +174,7 @@ static int newstate(struct mntent *mnt, int type, char *extra)
 			ret = xfs_newstate(mnt, type, extra, sflags);
 	}
 	else {
-		if (!hasquota(mnt, type))
+		if (!hasquota(mnt, type, 0))
 			return 0;
 		usefmt = get_qf_name(mnt, type, fmt == -1 ? kernel_formats : (1 << fmt), NF_FORMAT, &extra);
 		if (usefmt < 0) {
@@ -301,7 +301,7 @@ int v1_newstate(struct mntent *mnt, int type, char *file, int flags)
 		return 1;
 	if ((flags & STATEFLAG_OFF) && hasmntopt(mnt, MNTOPT_RSQUASH))
 		errs += quotarsquashonoff(dev, type, flags);
-	if (hasquota(mnt, type))
+	if (hasquota(mnt, type, 0))
 		errs += quotaonoff((char *)dev, mnt->mnt_dir, file, type, QF_VFSOLD, flags);
 	if ((flags & STATEFLAG_ON) && hasmntopt(mnt, MNTOPT_RSQUASH))
 		errs += quotarsquashonoff(dev, type, flags);
@@ -319,7 +319,7 @@ int v2_newstate(struct mntent *mnt, int type, char *file, int flags)
 
 	if (!dev)
 		return 1;
-	if (hasquota(mnt, type))
+	if (hasquota(mnt, type, 0))
 		errs = quotaonoff((char *)dev, mnt->mnt_dir, file, type, QF_VFSV0, flags);
 	free((char *)dev);
 	return errs;
@@ -346,7 +346,7 @@ int main(int argc, char **argv)
 	else if (!kernel_formats)
 		errstr(_("Warning: No quota format detected in the kernel.\n"));
 
-	if (init_mounts_scan(mntcnt, mntpoints, 0) < 0)
+	if (init_mounts_scan(mntcnt, mntpoints, MS_XFS_DISABLED) < 0)
 		return 1;
 	while ((mnt = get_next_mount())) {
 		if (nfs_fstype(mnt->mnt_type)) {

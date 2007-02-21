@@ -35,10 +35,10 @@ void *smalloc(size_t);
 void *srealloc(void *, size_t);
 
 /* Safe strncpy - always finishes string */
-void sstrncpy(char *, const char *, int);
+void sstrncpy(char *, const char *, size_t);
 
 /* Safe strncat - always finishes string */
-void sstrncat(char *, const char *, int);
+void sstrncat(char *, const char *, size_t);
 
 /* Safe version of strdup() */
 char *sstrdup(const char *s);

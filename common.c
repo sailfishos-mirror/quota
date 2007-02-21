@@ -94,13 +94,13 @@ void *srealloc(void *ptr, size_t size)
 	return ret;
 }
 
-void sstrncpy(char *d, const char *s, int len)
+void sstrncpy(char *d, const char *s, size_t len)
 {
 	strncpy(d, s, len);
 	d[len - 1] = 0;
 }
 
-void sstrncat(char *d, const char *s, int len)
+void sstrncat(char *d, const char *s, size_t len)
 {
 	strncat(d, s, len);
 	d[len - 1] = 0;

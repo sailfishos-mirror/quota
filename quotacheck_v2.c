@@ -223,7 +223,7 @@ static void check_read_blk(int fd, uint blk, dqbuf_t buf)
 	}
 }
 
-static int check_tree_ref(uint blk, uint ref, uint blocks, int check_use, uint * corrupted,
+static int check_tree_ref(uint blk, uint ref, uint blocks, int check_use, int * corrupted,
 			  uint * lblk)
 {
 	if (check_blkref(ref, blocks) < 0) {
@@ -239,7 +239,7 @@ static int check_tree_ref(uint blk, uint ref, uint blocks, int check_use, uint *
 }
 
 /* Check block with structures */
-static int check_data_blk(int fd, uint blk, int type, uint blocks, uint * corrupted, uint * lblk)
+static int check_data_blk(int fd, uint blk, int type, uint blocks, int * corrupted, uint * lblk)
 {
 	dqbuf_t buf = getdqbuf();
 	struct v2_disk_dqdbheader *head = (struct v2_disk_dqdbheader *)buf;
@@ -265,7 +265,7 @@ static int check_data_blk(int fd, uint blk, int type, uint blocks, uint * corrup
 }
 
 /* Check one tree block */
-static int check_tree_blk(int fd, uint blk, int depth, int type, uint blocks, uint * corrupted,
+static int check_tree_blk(int fd, uint blk, int depth, int type, uint blocks, int * corrupted,
 			  uint * lblk)
 {
 	dqbuf_t buf = getdqbuf();

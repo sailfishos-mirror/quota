@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.52 2007/01/06 13:08:01 marcovw Exp $"
+#ident "$Id: quotacheck.c,v 1.53 2007/02/21 13:51:25 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -1039,11 +1039,11 @@ static void check_all(void)
 			continue;
 		}
 		cfmt = fmt;
-		if (uwant && hasquota(mnt, USRQUOTA))
+		if (uwant && hasquota(mnt, USRQUOTA, 0))
 			ucheck = 1;
 		else
 			ucheck = 0;
-		if (gwant && hasquota(mnt, GRPQUOTA))
+		if (gwant && hasquota(mnt, GRPQUOTA, 0))
 			gcheck = 1;
 		else
 			gcheck = 0;

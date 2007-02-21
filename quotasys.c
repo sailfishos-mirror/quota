@@ -366,10 +366,10 @@ void space2str(qsize_t space, char *buf, int format)
 	if (format)
 		for (i = 3; i > 0; i--)
 			if (space >= (1LL << (QUOTABLOCK_BITS*i))*100) {
-				sprintf(buf, "%Lu%c", (space+(1 << (QUOTABLOCK_BITS*i))-1) >> (QUOTABLOCK_BITS*i), suffix[i]);
+				sprintf(buf, "%Lu%c", (unsigned long long)(space+(1 << (QUOTABLOCK_BITS*i))-1) >> (QUOTABLOCK_BITS*i), suffix[i]);
 				return;
 			}
-	sprintf(buf, "%Lu", space);
+	sprintf(buf, "%Lu", (unsigned long long)space);
 }
 
 /*
@@ -393,15 +393,31 @@ void number2str(unsigned long long num, char *buf, int format)
 /*
  *	Check for XFS filesystem with quota accounting enabled
  */
-static int hasxfsquota(struct mntent *mnt, int type)
+static int hasxfsquota(struct mntent *mnt, int type, int flags)
 {
 	int ret = 0;
 	u_int16_t sbflags;
 	struct xfs_mem_dqinfo info;
-	const char *dev = get_device_name(mnt->mnt_fsname);
+	const char *dev;
+	char *opt, *endopt;
 
+	if (flags & MS_XFS_DISABLED)
+		return 1;
+
+	dev = get_device_name(mnt->mnt_fsname);
 	if (!dev)
-		return ret;
+		return 0;
+	/* Loopback mounted device with a loopback device in the arguments? */
+	if ((opt = hasmntopt(mnt, MNTOPT_LOOP)) && (opt = strchr(opt, '='))) {
+		free((char *)dev);
+		endopt = strchr(opt+1, ',');
+		if (!endopt)
+			dev = strdup(opt+1);
+		else
+			dev = strndup(opt+1, endopt-opt-1);
+		if (!dev)
+			return 0;
+	}
 
 	memset(&info, 0, sizeof(struct xfs_mem_dqinfo));
 	if (!quotactl(QCMD(Q_XFS_GETQSTAT, type), dev, 0, (void *)&info)) {
@@ -444,13 +460,13 @@ char *hasmntoptarg(struct mntent *mnt, char *opt)
 /*
  *	Check to see if a particular quota is to be enabled (filesystem mounted with proper option)
  */
-int hasquota(struct mntent *mnt, int type)
+int hasquota(struct mntent *mnt, int type, int flags)
 {
 	if (!correct_fstype(mnt->mnt_type) || hasmntopt(mnt, MNTOPT_NOQUOTA))
 		return 0;
 	
 	if (!strcmp(mnt->mnt_type, MNTTYPE_XFS))
-		return hasxfsquota(mnt, type);
+		return hasxfsquota(mnt, type, flags);
 	if (nfs_fstype(mnt->mnt_type))	/* NFS always has quota or better there is no good way how to detect it */
 		return 1;
 
@@ -873,7 +889,7 @@ static int cache_mnt_table(int flags)
 
 		/* Further we are not interested in mountpoints without quotas and
 		   we don't want to touch them */
-		if (!hasquota(mnt, USRQUOTA) && !hasquota(mnt, GRPQUOTA)) {
+		if (!hasquota(mnt, USRQUOTA, flags) && !hasquota(mnt, GRPQUOTA, flags)) {
 			free((char *)devname);
 			continue;
 		}
@@ -1124,7 +1140,7 @@ restart:
 				break;
 	}
 	if (i == mnt_entries_cnt) {
-		errstr(_("Mountpoint (or device) %s not found.\n"), sd->sd_name);
+		errstr(_("Mountpoint (or device) %s not found or has no quota enabled.\n"), sd->sd_name);
 		goto restart;
 	}
 	*pos = i;

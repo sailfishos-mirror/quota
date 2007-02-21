@@ -90,7 +90,7 @@ static int get_label_uuid(const char *device, char **label, char *uuid)
 		memcpy(uuid, e2sb.s_uuid, sizeof(e2sb.s_uuid));
 		namesize = sizeof(e2sb.s_volume_name);
 		*label = smalloc(namesize + 1);
-		sstrncpy(*label, e2sb.s_volume_name, namesize);
+		sstrncpy(*label, (char *)e2sb.s_volume_name, namesize);
 		rv = 0;
 	}
 	else if (lseek(fd, 0, SEEK_SET) == 0
@@ -100,7 +100,7 @@ static int get_label_uuid(const char *device, char **label, char *uuid)
 		memcpy(uuid, xfsb.s_uuid, sizeof(xfsb.s_uuid));
 		namesize = sizeof(xfsb.s_fsname);
 		*label = smalloc(namesize + 1);
-		sstrncpy(*label, xfsb.s_fsname, namesize);
+		sstrncpy(*label, (char *)xfsb.s_fsname, namesize);
 		rv = 0;
 	}
 	else if (lseek(fd, 65536, SEEK_SET) == 65536
@@ -109,7 +109,7 @@ static int get_label_uuid(const char *device, char **label, char *uuid)
 		memcpy(uuid, reisersb.s_uuid, sizeof(reisersb.s_uuid));
 		namesize = sizeof(reisersb.s_volume_name);
 		*label = smalloc(namesize + 1);
-		sstrncpy(*label, reisersb.s_volume_name, namesize);
+		sstrncpy(*label, (char *)reisersb.s_volume_name, namesize);
 		rv = 0;
 	}
 	close(fd);
@@ -245,7 +245,7 @@ static char *get_spec_by_uuid(const char *s)
 		uuid[i] = ((fromhex(s[0]) << 4) | fromhex(s[1]));
 		s += 2;
 	}
-	return get_spec_by_x(UUID, uuid);
+	return get_spec_by_x(UUID, (char *)uuid);
 
       bad_uuid:
 	errstr(_("Found an invalid UUID: %s\n"), s);

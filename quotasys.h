@@ -96,7 +96,8 @@ void space2str(qsize_t, char *, int);
 void number2str(unsigned long long, char *, int);
 
 /* Check to see if particular quota is to be enabled */
-int hasquota(struct mntent *mnt, int type);
+/* Recognizes MS_XFS_DISABLED flag */
+int hasquota(struct mntent *mnt, int type, int flags);
 
 /* Flags for get_qf_name() */
 #define NF_EXIST  1	/* Check whether file exists */
@@ -130,6 +131,8 @@ int kern_quota_on(const char *dev, int type, int fmt);
 #define MS_NO_AUTOFS 0x02	/* Ignore autofs mountpoints */
 #define MS_QUIET 0x04		/* Be quiet with error reporting */
 #define MS_LOCALONLY 0x08	/* Ignore nfs mountpoints */
+#define MS_XFS_DISABLED 0x10	/* Return also XFS mountpoints with quota disabled */
+
 /* Initialize mountpoints scan */
 int init_mounts_scan(int dcnt, char **dirs, int flags);
 

@@ -339,7 +339,7 @@ static void acctXFS(xfs_bstat_t *p)
 static void checkXFS(const char *file, char *fsdir)
 {
 	xfs_fsop_bulkreq_t bulkreq;
-	__s64 last = 0;
+	__u64 last = 0;
 	__s32 count;
 	int i;
 	int sts;

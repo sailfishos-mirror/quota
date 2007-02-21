@@ -471,7 +471,7 @@ static int do_insert_tree(struct quota_handle *h, struct dquot *dquot, uint * tr
 /* Wrapper for inserting quota structure into tree */
 static inline void dq_insert_tree(struct quota_handle *h, struct dquot *dquot)
 {
-	int tmp = V2_DQTREEOFF;
+	uint tmp = V2_DQTREEOFF;
 
 	if (do_insert_tree(h, dquot, &tmp, 0) < 0)
 		die(2, _("Cannot write quota (id %u): %s\n"), (uint) dquot->dq_id, strerror(errno));

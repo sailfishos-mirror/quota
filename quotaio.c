@@ -42,7 +42,7 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 	struct quota_handle *h = smalloc(sizeof(struct quota_handle));
 	const char *mnt_fsname = NULL;
 
-	if (!hasquota(mnt, type))
+	if (!hasquota(mnt, type, 0))
 		goto out_handle;
 	if (!(mnt_fsname = get_device_name(mnt->mnt_fsname)))
 		goto out_handle;
