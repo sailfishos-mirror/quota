@@ -971,9 +971,13 @@ static int cache_mnt_table(int flags)
 				continue;
 			}
 			if (nfs_fstype(mnt->mnt_type)) {
-				/* For network filesystems we must get device from root */
-				dev = st.st_dev;
-				for (i = 0; i < mnt_entries_cnt && mnt_entries[i].me_dev != dev; i++);
+				if (!(flags & MS_NFS_ALL)) {
+					/* For network filesystems we must get device from root */
+					dev = st.st_dev;
+					for (i = 0; i < mnt_entries_cnt && mnt_entries[i].me_dev != dev; i++);
+				}
+				else	/* Always behave as if the device was unique */
+					i = mnt_entries_cnt;
 			}
 		}
 		if (i == mnt_entries_cnt) {	/* New mounted device? */

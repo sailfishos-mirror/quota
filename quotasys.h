@@ -132,6 +132,7 @@ int kern_quota_on(const char *dev, int type, int fmt);
 #define MS_QUIET 0x04		/* Be quiet with error reporting */
 #define MS_LOCALONLY 0x08	/* Ignore nfs mountpoints */
 #define MS_XFS_DISABLED 0x10	/* Return also XFS mountpoints with quota disabled */
+#define MS_NFS_ALL 0x20		/* Don't filter NFS mountpoints on the same device */
 
 /* Initialize mountpoints scan */
 int init_mounts_scan(int dcnt, char **dirs, int flags);

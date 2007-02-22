@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quota.c,v 1.20 2006/05/13 01:05:24 jkar8572 Exp $"
+#ident "$Id: quota.c,v 1.21 2007/02/22 10:30:14 jkar8572 Exp $"
 
 /*
  * Disk quota reporting program.
@@ -71,6 +71,7 @@
 #define FL_NOWRAP 256
 #define FL_FSLIST 512
 #define FL_NUMNAMES 1024
+#define FL_NFSALL 2048
 
 int flags, fmt = -1;
 char *progname;
@@ -78,9 +79,9 @@ char *progname;
 void usage(void)
 {
 	errstr( "%s%s%s%s%s",
-		_("Usage: quota [-guqvsw] [-l | -Q] [-i] [-F quotaformat]\n"),
-		_("\tquota [-qvsw] [-l | -Q] [-i] [-F quotaformat] -u username ...\n"),
-		_("\tquota [-qvsw] [-l | -Q] [-i] [-F quotaformat] -g groupname ...\n"),
+		_("Usage: quota [-guqvsw] [-l | [-Q | -A]] [-i] [-F quotaformat]\n"),
+		_("\tquota [-qvsw] [-l | [-Q | -A]] [-i] [-F quotaformat] -u username ...\n"),
+		_("\tquota [-qvsw] [-l | [-Q | -A]] [-i] [-F quotaformat] -g groupname ...\n"),
 		_("\tquota [-qvswugQ] [-F quotaformat] -f filesystem ...\n"),
 		_("\n\
 -u, --user                display quota for user\n\
@@ -97,6 +98,7 @@ void usage(void)
 -i, --no-autofs           do not query autofs mountpoints\n\
 -F, --format=formatname   display quota of a specific format\n\
 -f, --filesystem-list     display quota information only for given filesystems\n\
+-A, --nfs-all             display quota for all NFS mountpoints\n\
 -h, --help                display this help message and exit\n\
 -V, --version             display version information and exit\n\n"));
 	fprintf(stderr, _("Bugs to: %s\n"), MY_EMAIL);
@@ -126,7 +128,7 @@ int showquotas(int type, qid_t id, int mntcnt, char **mnt)
 
 	time(&now);
 	id2name(id, type, name);
-	handles = create_handle_list(mntcnt, mnt, type, fmt, IOI_READONLY, ((flags & FL_NOAUTOFS) ? MS_NO_AUTOFS : 0) | ((flags & FL_LOCALONLY) ? MS_LOCALONLY : 0));
+	handles = create_handle_list(mntcnt, mnt, type, fmt, IOI_READONLY, ((flags & FL_NOAUTOFS) ? MS_NO_AUTOFS : 0) | ((flags & FL_LOCALONLY) ? MS_LOCALONLY : 0) | ((flags & FL_NFSALL) ? MS_NFS_ALL : 0));
 	qlist = getprivs(id, handles, !!(flags & FL_QUIETREFUSE));
 	over = 0;
 	for (q = qlist; q; q = q->dq_next) {
@@ -229,6 +231,7 @@ int main(int argc, char **argv)
 		{ "format", 1, NULL, 'F' },
 		{ "no-wrap", 0, NULL, 'w' },
 		{ "filesystem-list", 0, NULL, 'f' },
+		{ "all-nfs", 0, NULL, 'A' },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -273,6 +276,9 @@ int main(int argc, char **argv)
 			  break;
 		  case 'f':
 			  flags |= FL_FSLIST;
+			  break;
+		  case 'A':
+			  flags |= FL_NFSALL;
 			  break;
 		  case 'V':
 			  version();
