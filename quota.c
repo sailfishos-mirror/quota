@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quota.c,v 1.21 2007/02/22 10:30:14 jkar8572 Exp $"
+#ident "$Id: quota.c,v 1.22 2007/02/22 10:38:08 jkar8572 Exp $"
 
 /*
  * Disk quota reporting program.
@@ -238,7 +238,7 @@ int main(int argc, char **argv)
 	gettexton();
 	progname = basename(argv[0]);
 
-	while ((ret = getopt_long(argc, argv, "guqvsVliQF:wf", long_opts, NULL)) != -1) {
+	while ((ret = getopt_long(argc, argv, "guqvsVliQF:wfA", long_opts, NULL)) != -1) {
 		switch (ret) {
 		  case 'g':
 			  flags |= FL_GROUP;
