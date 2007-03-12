@@ -152,7 +152,7 @@ ignored for other filesystem types.
 It can only be used on a filesystem with quota previously turned off.
 .TP
 .B -x, --xfs-command enforce
-Switch off limit enforcement for XFS filesystems (perform
+Switch on/off limit enforcement for XFS filesystems (perform
 quota accounting only).
 This option is only applicable to XFS, and is silently
 ignored for other filesystem types.
@@ -172,15 +172,18 @@ boot option.
 .PP
 To turn off quota limit enforcement on any XFS filesystem, first make
 sure that quota accounting and enforcement are both turned on using
-.BR "repquota -s" .
+.B "repquota -v"
+.IR filesystem .
 Then, use
-.B "quotaoff -vo"
+.B "quotaoff -v
+.I filesystem
 to disable limit enforcement.
 This may be done while the filesystem is mounted.
 .PP
 Turning on quota limit enforcement on an XFS filesystem is
 achieved using
-.BR "quotaon -v" .
+.B "quotaon -v"
+.IR filesystem .
 This may be done while the filesystem is mounted.
 .SH FILES
 .PD 0
