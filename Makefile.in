@@ -44,7 +44,7 @@ LIBOBJS += @LIBMALLOC@
 .PHONY: all clean clobber realclean pot mo inst_mo
 
 .%.d: %.c
-	set -e; $(CC) -MM -MG $(CPPFLAGS) $< | \
+	set -e; $(CC) -MM -MG $(CPPFLAGS) $(CFLAGS) $< | \
 		sed 's/\($*\)\.o[ :]*/\1.o $@ : /g' > $@; \
 		[ -s $@ ] || rm -f $@
  
@@ -131,7 +131,6 @@ rpc.rquotad: rquota_server.o rquota_svc.o svc_socket.o $(LIBOBJS)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 pot.o: pot.c pot.h
-	$(CC) $(CFLAGS) -c $<
 
 rquota.h: rquota.x
 	$(RPCGEN) -h -o $@ $<
