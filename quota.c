@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quota.c,v 1.22 2007/02/22 10:38:08 jkar8572 Exp $"
+#ident "$Id: quota.c,v 1.23 2007/03/26 09:34:42 jkar8572 Exp $"
 
 /*
  * Disk quota reporting program.
@@ -43,6 +43,7 @@
 #include <sys/param.h>
 #include <getopt.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <pwd.h>
 #include <grp.h>
 #include <time.h>
