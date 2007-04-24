@@ -1,4 +1,6 @@
 Changes in quota-tools from 3.14 to 3.15
+* fix LDAP scripts to set VISUAL instead of EDITOR (Michael Meskes)
+* added ext4 filesystem to the list of supported filesystems (Jan Kara)
 * pot.o is now compiled with CFLAGS (Ladislav Michnovic)
 * use -fPIE for compilation when available (Jan Kara, Ladislav Michnovic)
 * fixed some more problems XFS quotaon (Kouta Ooizumi, Jan Kara)

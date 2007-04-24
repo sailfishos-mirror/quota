@@ -49,8 +49,8 @@ my $i = 0;
 my $max = $search->count;
 for ( $i=0; $i<$max; $i++ ) {
 	my $entry = $search->entry($i);
-	my $editor = $ENV{'EDITOR'} if $ENV{'EDITOR'};
-	$ENV{'EDITOR'} = $edquota_editor;
+	my $editor = $ENV{'VISUAL'} if $ENV{'VISUAL'};
+	$ENV{'VISUAL'} = $edquota_editor;
 	$ENV{'QUOTA_USER'} = $entry->get_value('uid');
 	# Delete all existing quotas for QUOTA_USER
 	$ENV{'QUOTA_FILESYS'} = '*';
@@ -73,7 +73,12 @@ for ( $i=0; $i<$max; $i++ ) {
 			qx($edquota -u $ENV{'QUOTA_USER'});
 		}
 	}
-	$ENV{'EDITOR'} = $editor if $editor;
+	if ($editor) {
+		$ENV{'VISUAL'} = $editor;
+	}
+	else {
+		delete $ENV{'VISUAL'};
+	}
 }
 $search = $ldap->unbind;
 

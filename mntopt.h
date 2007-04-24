@@ -6,6 +6,7 @@
 /* filesystem type */
 #define MNTTYPE_EXT2		"ext2"	/* 2nd Extended file system */
 #define MNTTYPE_EXT3		"ext3"	/* ext2 + journaling */
+#define MNTTYPE_EXT4		"ext4dev"	/* ext4 filesystem */
 #define MNTTYPE_MINIX		"minix"	/* MINIX file system */
 #define MNTTYPE_UFS		"ufs"	/* UNIX file system */
 #define MNTTYPE_UDF		"udf"	/* OSTA UDF file system */

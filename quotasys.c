@@ -61,6 +61,7 @@ static int correct_fstype(char *type)
 			*next = 0;
 		if (!strcmp(type, MNTTYPE_EXT2) ||
 		    !strcmp(type, MNTTYPE_EXT3) ||
+		    !strcmp(type, MNTTYPE_EXT4) ||
 		    !strcmp(type, MNTTYPE_JFS) ||
 		    !strcmp(type, MNTTYPE_MINIX) ||
 		    !strcmp(type, MNTTYPE_UFS) ||
