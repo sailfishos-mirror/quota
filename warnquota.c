@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.26 2006/05/13 01:05:24 jkar8572 Exp $
+ * Version: $Id: warnquota.c,v 1.27 2007/05/29 13:30:10 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -112,6 +112,7 @@ struct configparams {
 	int ldap_is_setup; /* 0 */
 	char ldap_host[CNF_BUFFER];
 	int ldap_port;
+	char ldap_uri[CNF_BUFFER];
 	char ldap_binddn[CNF_BUFFER];
 	char ldap_bindpw[CNF_BUFFER];
 	char ldap_basedn[CNF_BUFFER];
@@ -171,18 +172,22 @@ static int setup_ldap(struct configparams *config)
 {
 	int ret;
 
-	ldapconn = ldap_init(config->ldap_host, config->ldap_port);
+	if (config->ldap_host[0])
+		ldapconn = ldap_init(config->ldap_host, config->ldap_port);
+	else
+		ldap_initialize(&ldapconn, config->ldap_uri);
+
 	if(ldapconn == NULL) {
 		ldap_perror(ldapconn, "ldap_init");
-		return(-1);
+		return -1;
 	}
 
 	ret = ldap_bind_s(ldapconn, config->ldap_binddn, config->ldap_bindpw, LDAP_AUTH_SIMPLE);
 	if(ret < 0) {
 		ldap_perror(ldapconn, "ldap_bind");
-		return(-1);
+		return -1;
 	}
-	return(0);
+	return 0;
 }
 		
 #endif
@@ -681,6 +686,8 @@ static int readconfigfile(const char *filename, struct configparams *config)
 
 #ifdef USE_LDAP_MAIL_LOOKUP
 	config->ldap_port = config->ldap_is_setup = 0;
+	config->ldap_host[0] = 0;
+	config->ldap_uri[0] = 0;
 #endif
 
 	if (!(fp = fopen(filename, "r"))) {
@@ -774,7 +781,7 @@ static int readconfigfile(const char *filename, struct configparams *config)
 					goto cc_parse_err;
 				if (str2timeunits(num, unit, &config->cc_before) < 0) {
 cc_parse_err:
-					errstr(_("Cannot parse time at CC_BEFORE variable (line %d).\n"), line);
+					die(1, _("Cannot parse time at CC_BEFORE variable (line %d).\n"), line);
 				}
 			}
 #ifdef USE_LDAP_MAIL_LOOKUP
@@ -782,6 +789,8 @@ cc_parse_err:
 				sstrncpy(config->ldap_host, value, CNF_BUFFER);
 			else if (!strcmp(var, "LDAP_PORT"))
 				config->ldap_port = (int)strtol(value, NULL, 10);
+			else if (!strcmp(var, "LDAP_URI"))
+				sstrncpy(config->ldap_uri, value, CNF_BUFFER);
 			else if(!strcmp(var, "LDAP_BINDDN"))
 				sstrncpy(config->ldap_binddn, value, CNF_BUFFER);
 			else if(!strcmp(var, "LDAP_BINDPW"))
@@ -803,6 +812,14 @@ cc_parse_err:
 	}
 	if (bufpos)
 		errstr(_("Unterminated last line, ignoring\n"));
+#ifdef USE_LDAP_MAIL_LOOKUP
+	if (config->ldap_uri[0] && (config->ldap_host[0] || config->ldap_port))
+		die(_("Cannot specify both LDAP_URI and LDAP_HOST:LDAP_PORT.\n"));
+#ifndef HAVE_LDAP_INITIALIZE
+	if (config->ldap_uri[0])
+		die(_("LDAP library does not support ldap_initialize() but URI is specified."));
+#endif
+#endif
 	fclose(fp);
 
 	return 0;

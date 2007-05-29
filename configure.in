@@ -26,8 +26,20 @@ AC_ARG_ENABLE(ldapmail, [  --enable-ldapmail=[yes/no/try]       Enable ldap mail
 	,
 	enable_ldapmail="no")
 if test "x$enable_ldapmail" != "xno"; then
-	LDAPLIBS="-L/usr/lib -lldap -llber -lssl -lresolv"
-	CFLAGS="$CFLAGS -DUSE_LDAP_MAIL_LOOKUP"
+	have_new_ldap="no"
+	have_old_ldap="no"
+	AC_CHECK_LIB(ldap, ldap_initialize, have_new_ldap="yes", AC_CHECK_LIB(ldap, ldap_init, have_old_ldap="yes"))
+	if test "x$have_new_ldap" = "xno" -a "x$have_old_ldap" = "xno"; then
+		LDAPLIBS="-L/usr/lib -lldap -llber -lssl -lresolv"
+		CFLAGS="$CFLAGS -DUSE_LDAP_MAIL_LOOKUP"
+		if test "x$have_new_ldap" = "xyes"; then
+			CFLAGS="$CFLAGS -DHAVE_LDAP_INITIALIZE"
+		fi
+	else
+		if test "x$enable_ldapmail" = "xyes"; then
+			AC_MSG_ERROR([LDAP support required but library not found.]);
+		fi
+	fi
 fi
 AC_SUBST(LDAPLIBS)
 
