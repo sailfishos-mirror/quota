@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.27 2007/05/29 13:30:10 jkar8572 Exp $
+ * Version: $Id: warnquota.c,v 1.28 2007/05/29 14:17:56 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -162,27 +162,50 @@ static void wc_exit(int ex_stat)
 {
 #ifdef USE_LDAP_MAIL_LOOKUP
 	if(ldapconn != NULL)
+#ifdef USE_LDAP_23
+		ldap_unbind_ext(ldapconn, NULL, NULL);
+#else
 		ldap_unbind(ldapconn);
+#endif
 #endif
 	exit(ex_stat);
 }
 
 #ifdef USE_LDAP_MAIL_LOOKUP
+#ifdef USE_LDAP_23
+void ldap_perror(LDAP *ld, char *s)
+{
+	int err;
+
+	ldap_get_option(ld, LDAP_OPT_RESULT_CODE, &err);
+	errstr(_("%s: %s\n"), s, ldap_err2string(err));
+}
+#endif
+
 static int setup_ldap(struct configparams *config)
 {
 	int ret;
+#ifdef USE_LDAP_23
+	struct berval cred = { .bv_val = config->ldap_bindpw,
+			       .bv_len = strlen(config->ldap_bindpw) };
+#endif
 
-	if (config->ldap_host[0])
-		ldapconn = ldap_init(config->ldap_host, config->ldap_port);
-	else
-		ldap_initialize(&ldapconn, config->ldap_uri);
+#ifdef USE_LDAP_23
+	ldap_initialize(&ldapconn, config->ldap_uri);
+#else
+	ldapconn = ldap_init(config->ldap_host, config->ldap_port);
+#endif
 
 	if(ldapconn == NULL) {
 		ldap_perror(ldapconn, "ldap_init");
 		return -1;
 	}
 
+#ifdef USE_LDAP_23
+	ret = ldap_sasl_bind_s(ldapconn, config->ldap_binddn, LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL);
+#else
 	ret = ldap_bind_s(ldapconn, config->ldap_binddn, config->ldap_bindpw, LDAP_AUTH_SIMPLE);
+#endif
 	if(ret < 0) {
 		ldap_perror(ldapconn, "ldap_bind");
 		return -1;
@@ -397,9 +420,15 @@ static int mail_user(struct offenderlist *offender, struct configparams *config)
 				/* search for the offender_name in ldap */
 				snprintf(searchbuf, 256, "(%s=%s)", config->ldap_search_attr, 
 					offender->offender_name);
+#ifdef USE_LDAP_23
+				ret = ldap_search_ext_s(ldapconn, config->ldap_basedn, 
+					LDAP_SCOPE_SUBTREE, searchbuf,
+					NULL, 0, NULL, NULL, NULL, 0, &result);
+#else
 				ret = ldap_search_s(ldapconn, config->ldap_basedn, 
 					LDAP_SCOPE_SUBTREE, searchbuf,
 					NULL, 0, &result);
+#endif
 				if(ret < 0) {
 					errstr(_("Error with %s.\n"), offender->offender_name);
 					ldap_perror(ldapconn, "ldap_search");
@@ -813,11 +842,14 @@ cc_parse_err:
 	if (bufpos)
 		errstr(_("Unterminated last line, ignoring\n"));
 #ifdef USE_LDAP_MAIL_LOOKUP
-	if (config->ldap_uri[0] && (config->ldap_host[0] || config->ldap_port))
-		die(_("Cannot specify both LDAP_URI and LDAP_HOST:LDAP_PORT.\n"));
-#ifndef HAVE_LDAP_INITIALIZE
+#ifdef USE_LDAP_23
+	if (!config->ldap_uri[0]) {
+		snprintf(config->ldap_uri, CNF_BUFFER, "ldap://%s:%d", config->ldap_host, config->ldap_port);
+		errstr(_("LDAP library version >= 2.3 detected. Please use LDAP_URI instead of hostname and port.\nGenerated URI %s\n"), config->ldap_uri);
+	}
+#else
 	if (config->ldap_uri[0])
-		die(_("LDAP library does not support ldap_initialize() but URI is specified."));
+		die(1, _("LDAP library does not support ldap_initialize() but URI is specified."));
 #endif
 #endif
 	fclose(fp);

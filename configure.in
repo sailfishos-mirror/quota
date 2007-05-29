@@ -29,11 +29,11 @@ if test "x$enable_ldapmail" != "xno"; then
 	have_new_ldap="no"
 	have_old_ldap="no"
 	AC_CHECK_LIB(ldap, ldap_initialize, have_new_ldap="yes", AC_CHECK_LIB(ldap, ldap_init, have_old_ldap="yes"))
-	if test "x$have_new_ldap" = "xno" -a "x$have_old_ldap" = "xno"; then
+	if test "x$have_new_ldap" != "xno" -o "x$have_old_ldap" != "xno"; then
 		LDAPLIBS="-L/usr/lib -lldap -llber -lssl -lresolv"
 		CFLAGS="$CFLAGS -DUSE_LDAP_MAIL_LOOKUP"
 		if test "x$have_new_ldap" = "xyes"; then
-			CFLAGS="$CFLAGS -DHAVE_LDAP_INITIALIZE"
+			CFLAGS="$CFLAGS -DUSE_LDAP_23"
 		fi
 	else
 		if test "x$enable_ldapmail" = "xyes"; then
