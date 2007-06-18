@@ -93,6 +93,31 @@ if test "x$enable_ext2direct" != "xno"; then
 fi
 AC_SUBST(EXT2LIBS)
 
+AC_ARG_WITH(dbus_include,
+	[  --with-dbus_include=path        Path to directory with dbus include directory [default=/usr/include/dbus-1.0/]],
+	DBUS_INCLUDE="$with_dbus_include",
+	DBUS_INCLUDE="/usr/include/dbus-1.0/")
+AC_ARG_WITH(dbus_arch_include,
+	[  --with-dbus_arch_include=path   Path to directory with dbus arch-dependent include directory [default=/usr/lib/dbus-1.0/include/]],
+	DBUS_ARCH_INCLUDE="$with_dbus_arch_include",
+	DBUS_ARCH_INCLUDE="/usr/lib/dbus-1.0/include/")
+
+AC_ARG_ENABLE(netlink,
+	[  --enable-netlink=[yes/no]       Compile daemon receiving quota messages via netlink [default=yes].],
+	,
+	enable_netlink="yes")
+if test "x$enable_netlink" != "xno"; then
+	AC_CHECK_LIB(nl, genl_register, NETLINKLIBS="-lnl $NETLINKLIBS")
+	AC_CHECK_LIB(dbus-1, dbus_bus_get, NETLINKLIBS="-ldbus-1 $NETLINKLIBS")
+	if test "${ac_cv_lib_nl_genl_register}" != "yes" -o "${ac_cv_lib_dbus_1_dbus_bus_get}" != "yes"; then
+		AC_MSG_ERROR([Required libraries for quota netlink daemon not found.]);
+	fi
+	CPPFLAGS="-I $DBUS_INCLUDE -I $DBUS_ARCH_INCLUDE $CPPFLAGS"
+	AC_CHECK_HEADERS(dbus/dbus.h, , AC_MSG_ERROR([Required headers for quota netlink daemon not found.]))
+	
+fi
+AC_SUBST(NETLINKLIBS)
+
 AC_SEARCH_LIBS(gethostbyname, nsl)
 AC_CACHE_VAL(ac_cv_lib_wrap_main,
 	saved_LIBS="$LIBS"
@@ -135,11 +160,11 @@ AC_ARG_ENABLE(rpcsetquota,
 	,
 	enable_rpcsetquota="no")
 AC_ARG_ENABLE(xfs_roothack,
-	[  --enable-xfs_roothack=[yes/no]   Support old XFS root filesystems [default=no].],
+	[  --enable-xfs_roothack=[yes/no]  Support old XFS root filesystems [default=no].],
 	,
 	enable_xfs_roothack="no")
 AC_ARG_ENABLE(bsd_behaviour,
-	[  --enable-bsd_behaviour=[yes/no]   Mimic BSD behaviour [default=yes].],
+	[  --enable-bsd_behaviour=[yes/no] Mimic BSD behaviour [default=yes].],
 	,
 	enable_bsd_behaviour="yes")
 AC_ARG_ENABLE(libefence,
@@ -186,5 +211,6 @@ fi
 AC_SUBST(LIBMALLOC)
 AC_SUBST(INSTMO)
 AC_SUBST(ROOTSBIN)
+AC_SUBST(CPPFLAGS)
 
 AC_OUTPUT(Makefile)
