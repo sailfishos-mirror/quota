@@ -41,7 +41,7 @@ static const struct option options[] = {
 	{ "help", 0, NULL, 'h' },
 	{ "no-dbus", 0, NULL, 'D' },
 	{ "no-console", 0, NULL, 'C' },
-	{ "no-daemon", 0, NULL, 'n' },
+	{ "no-daemon", 0, NULL, 'F' },
 	{ NULL, 0, NULL, 0 }
 };
 
@@ -95,14 +95,14 @@ void show_help(void)
  -V --version      shows version information\n\
  -C --no-console   do not try to write messages to console\n\
  -D --no-dbus      do not try to write messages to DBUS\n\
- -n --no-daemon    do not detach from tty\n"), progname);
+ -F --foreground   run daemon in foreground\n"), progname);
 }
 
 static void parse_options(int argc, char **argv)
 {
 	int opt;
 
-	while ((opt = getopt_long(argc, argv, "VhDCn", options, NULL)) >= 0) {
+	while ((opt = getopt_long(argc, argv, "VhDCF", options, NULL)) >= 0) {
 		switch (opt) {
 			case 'V':
 				version();
@@ -116,7 +116,7 @@ static void parse_options(int argc, char **argv)
 			case 'C':
 				flags |= FL_NOCONSOLE;
 				break;
-			case 'n':
+			case 'F':
 				flags |= FL_NODAEMON;
 				break;
 			default:
