@@ -114,8 +114,9 @@ if test "x$enable_netlink" != "xno"; then
 	fi
 	CPPFLAGS="-I $DBUS_INCLUDE -I $DBUS_ARCH_INCLUDE $CPPFLAGS"
 	AC_CHECK_HEADERS(dbus/dbus.h, , AC_MSG_ERROR([Required headers for quota netlink daemon not found.]))
-	
+	QUOTA_NETLINK_PROG=quota_nld
 fi
+AC_SUBST(QUOTA_NETLINK_PROG)
 AC_SUBST(NETLINKLIBS)
 
 AC_SEARCH_LIBS(gethostbyname, nsl)
