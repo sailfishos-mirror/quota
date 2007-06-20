@@ -94,6 +94,11 @@ option will make
 .BR quota (1)
 try to choose units for showing limits, used space and used inodes.
 .TP
+.B -p, --raw-grace
+When user is in grace period, report time in seconds since epoch when his grace
+time runs out (or has run out). Field is '0' when no grace time is in effect.
+This is especially useful when parsing output by a script.
+.TP
 .B -i, --no-autofs
 ignore mountpoints mounted by automounter
 .TP

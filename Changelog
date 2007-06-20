@@ -13,7 +13,7 @@ Changes in quota-tools from 3.14 to 3.15
 * fixed mountpoints scanning to make XFS -x delete command work (Jan Kara)
 * fixes of signed vs unsigned int issues (Jan Kara)
 * fixed a format string bug in reporting of raw grace times in repquota (Jan Kara)
-* added repquota(8) option for better parsable output (Jan Kara)
+* added repquota(8) and quota(1) option for better parsable output (Jan Kara)
 * fixed error handling in edquota(8) when creating tmp file (Jan Kara)
 
 Changes in quota-tools from 3.13 to 3.14

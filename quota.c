@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quota.c,v 1.23 2007/03/26 09:34:42 jkar8572 Exp $"
+#ident "$Id: quota.c,v 1.24 2007/06/20 16:22:23 jkar8572 Exp $"
 
 /*
  * Disk quota reporting program.
@@ -73,6 +73,7 @@
 #define FL_FSLIST 512
 #define FL_NUMNAMES 1024
 #define FL_NFSALL 2048
+#define FL_RAWGRACE 4096
 
 int flags, fmt = -1;
 char *progname;
@@ -93,6 +94,7 @@ void usage(void)
     --always-resolve      always try to translate name to id, even if it is\n\
 			  composed of only digits\n\
 -w, --no-wrap             do not wrap long lines\n\
+-p, --raw-grace           print grace time in seconds since epoch\n\
 -l, --local-only          do not query NFS filesystems\n\
 -Q, --quiet-refuse        do not print error message when NFS server does\n\
                           not respond\n\
@@ -188,20 +190,41 @@ int showquotas(int type, qid_t id, int mntcnt, char **mnt)
 				printf("%s\n%15s", q->dq_h->qh_quotadev, "");
 			else
 				printf("%15s", q->dq_h->qh_quotadev);
-			if (bover)
-				difftime2str(q->dq_dqb.dqb_btime, timebuf);
+			if (!(flags & FL_RAWGRACE)) {
+				if (bover)
+					difftime2str(q->dq_dqb.dqb_btime, timebuf);
+				else
+					timebuf[0] = 0;
+			}
+			else {
+				if (bover)
+					sprintf(timebuf, "%Lu", (long long unsigned int)q->dq_dqb.dqb_btime);
+				else
+					strcpy(timebuf, "0");
+			}
 			space2str(toqb(q->dq_dqb.dqb_curspace), numbuf[0], !!(flags & FL_SMARTSIZE));
 			space2str(q->dq_dqb.dqb_bsoftlimit, numbuf[1], !!(flags & FL_SMARTSIZE));
 			space2str(q->dq_dqb.dqb_bhardlimit, numbuf[2], !!(flags & FL_SMARTSIZE));
 			printf(" %7s%c %6s %7s %7s", numbuf[0], bover ? '*' : ' ', numbuf[1],
-			       numbuf[2], bover ? timebuf : "");
-			if (iover)
-				difftime2str(q->dq_dqb.dqb_itime, timebuf);
+			       numbuf[2], timebuf);
+
+			if (!(flags & FL_RAWGRACE)) {
+				if (iover)
+					difftime2str(q->dq_dqb.dqb_itime, timebuf);
+				else
+					timebuf[0] = 0;
+			}
+			else {
+				if (iover)
+					sprintf(timebuf, "%Lu", (long long unsigned int)q->dq_dqb.dqb_itime);
+				else
+					strcpy(timebuf, "0");
+			}
 			number2str(q->dq_dqb.dqb_curinodes, numbuf[0], !!(flags & FL_SMARTSIZE));
 			number2str(q->dq_dqb.dqb_isoftlimit, numbuf[1], !!(flags & FL_SMARTSIZE));
 			number2str(q->dq_dqb.dqb_ihardlimit, numbuf[2], !!(flags & FL_SMARTSIZE));
 			printf(" %7s%c %6s %7s %7s\n", numbuf[0], iover ? '*' : ' ', numbuf[1],
-			       numbuf[2], iover ? timebuf : "");
+			       numbuf[2], timebuf);
 			continue;
 		}
 	}
@@ -226,6 +249,7 @@ int main(int argc, char **argv)
 		{ "verbose", 0, NULL, 'v' },
 		{ "human-readable", 0, NULL, 's' },
 		{ "always-resolve", 0, NULL, 256 },
+		{ "raw-grace", 0, NULL, 'p' },
 		{ "local-only", 0, NULL, 'l' },
 		{ "no-autofs", 0, NULL, 'i' },
 		{ "quiet-refuse", 0, NULL, 'Q' },
@@ -239,7 +263,7 @@ int main(int argc, char **argv)
 	gettexton();
 	progname = basename(argv[0]);
 
-	while ((ret = getopt_long(argc, argv, "guqvsVliQF:wfA", long_opts, NULL)) != -1) {
+	while ((ret = getopt_long(argc, argv, "guqvsVliQF:wfAp", long_opts, NULL)) != -1) {
 		switch (ret) {
 		  case 'g':
 			  flags |= FL_GROUP;
@@ -259,6 +283,9 @@ int main(int argc, char **argv)
 			  break;
 		  case 's':
 			  flags |= FL_SMARTSIZE;
+			  break;
+		  case 'p':
+			  flags |= FL_RAWGRACE;
 			  break;
 		  case 256:
 			  flags |= FL_NUMNAMES;
