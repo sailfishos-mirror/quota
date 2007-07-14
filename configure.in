@@ -103,18 +103,37 @@ AC_ARG_WITH(dbus_arch_include,
 	DBUS_ARCH_INCLUDE="/usr/lib/dbus-1.0/include/")
 
 AC_ARG_ENABLE(netlink,
-	[  --enable-netlink=[yes/no]       Compile daemon receiving quota messages via netlink [default=yes].],
+	[  --enable-netlink=[yes/no/try]   Compile daemon receiving quota messages via netlink [default=no].],
 	,
-	enable_netlink="yes")
+	enable_netlink="no")
 if test "x$enable_netlink" != "xno"; then
 	AC_CHECK_LIB(nl, genl_register, NETLINKLIBS="-lnl $NETLINKLIBS")
 	AC_CHECK_LIB(dbus-1, dbus_bus_get, NETLINKLIBS="-ldbus-1 $NETLINKLIBS")
 	if test "${ac_cv_lib_nl_genl_register}" != "yes" -o "${ac_cv_lib_dbus_1_dbus_bus_get}" != "yes"; then
-		AC_MSG_ERROR([Required libraries for quota netlink daemon not found.]);
+		if test "x$enable_netlink" = "xyes"; then
+			AC_MSG_ERROR([Required libraries for quota netlink daemon not found.])
+		else
+			AC_MSG_WARN([Quota netlink daemon won't be compiled. Required libraries not found.])
+		fi
+		enable_netlink="no"
+		NETLINKLIBS=""
+	else
+		oldCPPFLAGS="$CPPFLAGS"
+		CPPFLAGS="-I $DBUS_INCLUDE -I $DBUS_ARCH_INCLUDE $CPPFLAGS"
+		AC_CHECK_HEADERS(dbus/dbus.h, have_dbus="yes")
+		if test "x$have_dbus" != "xyes"; then
+			if test "x$enable_netlink" = "xyes"; then
+				AC_MSG_ERROR([Required headers for quota netlink daemon not found.])
+			else
+				AC_MSG_WARN([Quota netlink daemon won't be compiled. Required headers not found.])
+			fi
+			CPPFLAGS="$oldCPPFLAGS"
+			NETLINKLIBS=""
+			enable_netlink="no"
+		else
+			QUOTA_NETLINK_PROG=quota_nld
+		fi
 	fi
-	CPPFLAGS="-I $DBUS_INCLUDE -I $DBUS_ARCH_INCLUDE $CPPFLAGS"
-	AC_CHECK_HEADERS(dbus/dbus.h, , AC_MSG_ERROR([Required headers for quota netlink daemon not found.]))
-	QUOTA_NETLINK_PROG=quota_nld
 fi
 AC_SUBST(QUOTA_NETLINK_PROG)
 AC_SUBST(NETLINKLIBS)
