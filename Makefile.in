@@ -16,6 +16,7 @@ LDAPLIBS      = @LDAPLIBS@
 CFLAGS       += @HOSTS_ACCESS@
 
 INSTALL       = @INSTALL@
+STRIP         = -s
 LN            = ln -sf
 ROOTDIR       =
 SUPER_OWNER   = root
@@ -82,10 +83,10 @@ install: all @INSTMO@
 	-mkdir -p $(ROOTDIR)$(sbindir)
 	-mkdir -p $(ROOTDIR)$(bindir)
 	-mkdir -p $(ROOTDIR)$(root_sbindir)
-	-$(INSTALL) -m $(DEF_SBIN_MODE) \
+	-$(INSTALL) $(STRIP) -m $(DEF_SBIN_MODE) \
 	quotacheck quotaon $(ROOTDIR)$(root_sbindir)
 	-$(LN) quotaon $(ROOTDIR)$(root_sbindir)/quotaoff
-	-$(INSTALL) -m $(DEF_SBIN_MODE) \
+	-$(INSTALL) $(STRIP) -m $(DEF_SBIN_MODE) \
 	edquota repquota warnquota quotastats setquota quot xqmstats \
 	convertquota $(ROOTDIR)$(sbindir)
 	-mkdir -p $(ROOTDIR)$(sysconfdir)
@@ -98,8 +99,8 @@ install: all @INSTMO@
 	-mkdir -p $(ROOTDIR)$(mandir)/man8
 	-$(INSTALL) -m 755 -d $(ROOTDIR)$(includedir)/rpcsvc
 	-$(INSTALL) -m 644 rquota.h rquota.x $(ROOTDIR)$(includedir)/rpcsvc
-	-$(INSTALL) -s -m $(DEF_SBIN_MODE) quota $(ROOTDIR)$(bindir)
-	-$(INSTALL) -s -m $(DEF_SBIN_MODE) rpc.rquotad $(ROOTDIR)$(sbindir)
+	-$(INSTALL) $(STRIP) -m $(DEF_SBIN_MODE) quota $(ROOTDIR)$(bindir)
+	-$(INSTALL) $(STRIP) -m $(DEF_SBIN_MODE) rpc.rquotad $(ROOTDIR)$(sbindir)
 	-$(INSTALL) -m $(DEF_MAN_MODE) *.1 $(ROOTDIR)$(mandir)/man1
 	-$(INSTALL) -m $(DEF_MAN_MODE) *.2 $(ROOTDIR)$(mandir)/man2
 	-$(INSTALL) -m $(DEF_MAN_MODE) *.3 $(ROOTDIR)$(mandir)/man3
