@@ -114,7 +114,7 @@ static int xfs_state_check(int qcmd, int type, int flags, char *dev, int roothac
 			    return -1;
 		    case Q_XFS_QUOTAOFF:
 			    if (xopts == XFS_QUOTA_UDQ_ACCT || xopts == XFS_QUOTA_GDQ_ACCT) {
-				    errstr(_("Cannot switch off %s quota"
+				    errstr(_("Cannot switch off %s quota "
 					"accounting on %s when enforcement is on\n"),
 					type2name(type), dev);
 				    return -1;

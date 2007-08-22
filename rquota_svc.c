@@ -12,7 +12,7 @@
  *          changes for new utilities by Jan Kara <jack@suse.cz>
  *          patches by Jani Jaakkola <jjaakkol@cs.helsinki.fi>
  *
- * Version: $Id: rquota_svc.c,v 1.17 2005/06/01 07:20:50 jkar8572 Exp $
+ * Version: $Id: rquota_svc.c,v 1.18 2007/08/22 13:03:24 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -36,6 +36,8 @@
 #ifdef HOSTS_ACCESS
 #include <tcpd.h>
 #include <netdb.h>
+
+int deny_severity, allow_severity;	/* Needed by some versions of libwrap */
 #endif
 
 #ifdef __STDC__
@@ -173,7 +175,7 @@ int good_client(struct sockaddr_in *addr, ulong rq_proc)
 	struct hostent *h;
 	char *name, **ad;
 #endif
-	const char *remote=inet_ntoa(addr->sin_addr);
+	char *remote = inet_ntoa(addr->sin_addr);
 
 	if (rq_proc==RQUOTAPROC_SETQUOTA ||
 	     rq_proc==RQUOTAPROC_SETACTIVEQUOTA) {
@@ -213,13 +215,13 @@ int good_client(struct sockaddr_in *addr, ulong rq_proc)
 		if (!memcmp(*ad, &(addr->sin_addr), h->h_length))
 			break;
 	if (!*ad)	/* Our address not found? */
-		goto denied;	
+		goto denied;
 	/* Check host name */
-	if (hosts_ctl("rquotad", "", h->h_name, ""))
+	if (hosts_ctl("rquotad", h->h_name, remote, ""))
 		return 1;
 	/* Check aliases */
 	for (ad = h->h_aliases; *ad; ad++)
-		if (hosts_ctl("rquotad", "", *ad, ""))
+		if (hosts_ctl("rquotad", *ad, remote, ""))
 			return 1;
 denied:
 	errstr(_("Denied access to host %s\n"), remote);

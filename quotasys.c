@@ -43,7 +43,8 @@ static char *fmtnames[] = INITQFMTNAMES;
  */
 int nfs_fstype(char *type)
 {
-	return !strcmp(type, MNTTYPE_NFS) || !strcmp(type, MNTTYPE_NFS4);
+	return !strcmp(type, MNTTYPE_NFS) || !strcmp(type, MNTTYPE_NFS4) ||
+		!strcmp(type, MNTTYPE_MPFS);
 }
 
 /*
@@ -69,7 +70,8 @@ static int correct_fstype(char *type)
 		    !strcmp(type, MNTTYPE_REISER) ||
 		    !strcmp(type, MNTTYPE_XFS) ||
 		    !strcmp(type, MNTTYPE_NFS) ||
-		    !strcmp(type, MNTTYPE_NFS4)) {
+		    !strcmp(type, MNTTYPE_NFS4) ||
+		    !strcmp(type, MNTTYPE_MPFS)) {
 			free(mtype);
 			return 1;
 		}

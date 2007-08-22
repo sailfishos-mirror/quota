@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.28 2007/05/29 14:17:56 jkar8572 Exp $
+ * Version: $Id: warnquota.c,v 1.29 2007/08/22 13:03:24 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -842,15 +842,18 @@ cc_parse_err:
 	if (bufpos)
 		errstr(_("Unterminated last line, ignoring\n"));
 #ifdef USE_LDAP_MAIL_LOOKUP
+	if (config->use_ldap_mail)
+	{
 #ifdef USE_LDAP_23
-	if (!config->ldap_uri[0]) {
-		snprintf(config->ldap_uri, CNF_BUFFER, "ldap://%s:%d", config->ldap_host, config->ldap_port);
-		errstr(_("LDAP library version >= 2.3 detected. Please use LDAP_URI instead of hostname and port.\nGenerated URI %s\n"), config->ldap_uri);
-	}
+		if (!config->ldap_uri[0]) {
+			snprintf(config->ldap_uri, CNF_BUFFER, "ldap://%s:%d", config->ldap_host, config->ldap_port);
+			errstr(_("LDAP library version >= 2.3 detected. Please use LDAP_URI instead of hostname and port.\nGenerated URI %s\n"), config->ldap_uri);
+		}
 #else
-	if (config->ldap_uri[0])
-		die(1, _("LDAP library does not support ldap_initialize() but URI is specified."));
+		if (config->ldap_uri[0])
+			die(1, _("LDAP library does not support ldap_initialize() but URI is specified."));
 #endif
+	}
 #endif
 	fclose(fp);
 

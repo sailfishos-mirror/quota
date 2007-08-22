@@ -15,6 +15,7 @@
 #define MNTTYPE_AUTOFS		"autofs"	/* Automount mountpoint */
 #define MNTTYPE_JFS		"jfs"	/* JFS file system */
 #define MNTTYPE_NFS4		"nfs4"	/* NFSv4 filesystem */
+#define MNTTYPE_MPFS		"mpfs"  /* EMC Celerra MPFS filesystem */
 
 /* mount options */
 #define MNTOPT_NOQUOTA		"noquota"	/* don't enforce quota */

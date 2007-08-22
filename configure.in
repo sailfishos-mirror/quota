@@ -139,17 +139,21 @@ AC_SUBST(QUOTA_NETLINK_PROG)
 AC_SUBST(NETLINKLIBS)
 
 AC_SEARCH_LIBS(gethostbyname, nsl)
+AC_MSG_CHECKING(for host_access in -lwrap)
 AC_CACHE_VAL(ac_cv_lib_wrap_main,
 	saved_LIBS="$LIBS"
 	LIBS="$LIBS -lwrap"
-	[AC_TRY_LINK([#include <stdio.h>
+	[AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+	#include <stdio.h>
 	#include <sys/types.h>
 	#include <sys/socket.h>
 	#include <netinet/in.h>
 	#include <tcpd.h>
 	struct request_info request;
-	int deny_severity, allow_severity;],[hosts_access(&request);],
-	[ac_cv_lib_wrap_main=yes],[ac_cv_lib_wrap_main=no;LIBS="$saved_LIBS"])
+	int deny_severity, allow_severity;]],[[hosts_access(&request);]])],
+	dnl We always restore LIBS as we add -lwrap in the next check
+	[ac_cv_lib_wrap_main=yes; LIBS="$saved_LIBS"; AC_MSG_RESULT(yes)],
+	[ac_cv_lib_wrap_main=no; LIBS="$saved_LIBS"; AC_MSG_RESULT(no)])
 	])
 
 if test ${ac_cv_lib_wrap_main} = yes; then
@@ -157,7 +161,6 @@ if test ${ac_cv_lib_wrap_main} = yes; then
 		echo 'ERROR: could not find tcpd.h - missing TCP wrappers package'
 		exit 1
 	])
-	dnl Do this in case value was cached...
 	LIBS="$LIBS -lwrap"
 	HOSTS_ACCESS="-DHOSTS_ACCESS"
 	AC_SUBST(HOSTS_ACCESS)

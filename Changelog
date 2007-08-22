@@ -1,5 +1,12 @@
 Changes in quota-tools from 3.15 to 3.16
+* always define allow_severity and deny_severity for older versions of libwrap (Martin Jacobs)
+* cleaned up host_access() handling (Jan Kara)
+* configure script now correctly reports checking of libwrap (Jan Kara)
+* added MPFS to the list of supported filesystems (Dave Boone)
 * all binaries are now stripped during installation (Jan Kara)
+* updated Polish translations (Jakub Bogusz)
+* fixed typo in a quotaon message (Jakub Bogusz)
+* fixed warnquota to check URI only if LDAP enabled (Michael Meskes)
 
 Changes in quota-tools from 3.14 to 3.15
 * added a wrapper script around setquota which also updates LDAP (Stefan Adams)
