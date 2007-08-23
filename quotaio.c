@@ -54,6 +54,7 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 	h->qh_type = type;
 	sstrncpy(h->qh_quotadev, mnt_fsname, sizeof(h->qh_quotadev));
 	free((char *)mnt_fsname);
+	sstrncpy(h->qh_fstype, mnt->mnt_type, MAX_FSTYPE_LEN);
 	if (nfs_fstype(mnt->mnt_type)) {	/* NFS filesystem? */
 		if (fmt != -1 && fmt != QF_RPC) {	/* User wanted some other format? */
 			errstr(_("Only RPC quota format is allowed on NFS filesystem.\n"));

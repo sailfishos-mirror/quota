@@ -40,6 +40,8 @@
 	"xfs"\
 }
 
+#define MAX_FSTYPE_LEN 16		/* Maximum length of filesystem type name */
+
 /* Values for format handling */
 #define QF_UNKNOWN -3		/* Format cannot be detected from filename */
 #define QF_TOONEW -2		/* Quota format is too new to handle */
@@ -82,6 +84,7 @@ struct quota_handle {
 	int qh_fd;		/* Handle of file (-1 when IOFL_QUOTAON) */
 	int qh_io_flags;	/* IO flags for file */
 	char qh_quotadev[PATH_MAX];	/* Device file is for */
+	char qh_fstype[MAX_FSTYPE_LEN];	/* Type of the filesystem on qh_quotadev */
 	int qh_type;		/* Type of quotafile */
 	int qh_fmt;		/* Quotafile format */
 	struct stat qh_stat;	/* stat(2) for qh_quotadev */

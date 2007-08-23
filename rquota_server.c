@@ -9,7 +9,7 @@
  *
  *          This part does the lookup of the info.
  *
- * Version: $Id: rquota_server.c,v 1.16 2005/06/01 07:20:50 jkar8572 Exp $
+ * Version: $Id: rquota_server.c,v 1.17 2007/08/23 18:55:28 jkar8572 Exp $
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
@@ -123,12 +123,11 @@ setquota_rslt *setquotainfo(int lflags, caddr_t * argp, struct svc_req *rqstp)
 	struct util_dqblk dqblk;
 	struct dquot *dquot;
 	struct mntent *mnt;
-	char pathname[PATH_MAX];
+	char pathname[PATH_MAX] = {0};
 	char *pathp = pathname;
 	int id, qcmd, type;
 	struct quota_handle *handles[2] = { NULL, NULL };
 
-	sstrncpy(pathname, nfs_pseudoroot, PATH_MAX);
 	/*
 	 * First check authentication.
 	 */
@@ -143,6 +142,8 @@ setquota_rslt *setquotainfo(int lflags, caddr_t * argp, struct svc_req *rqstp)
 
 		qcmd = arguments.ext_args->sqa_qcmd;
 		type = arguments.ext_args->sqa_type;
+		if (arguments.ext_args->sqa_pathp[0] != '/')
+			sstrncpy(pathname, nfs_pseudoroot, PATH_MAX);
 		sstrncat(pathname, arguments.ext_args->sqa_pathp, PATH_MAX);
 		servnet2utildqblk(&dqblk, &arguments.ext_args->sqa_dqblk);
 	}
@@ -157,6 +158,8 @@ setquota_rslt *setquotainfo(int lflags, caddr_t * argp, struct svc_req *rqstp)
 
 		qcmd = arguments.args->sqa_qcmd;
 		type = USRQUOTA;
+		if (arguments.args->sqa_pathp[0] != '/')
+			sstrncpy(pathname, nfs_pseudoroot, PATH_MAX);
 		sstrncat(pathname, arguments.args->sqa_pathp, PATH_MAX);
 		servnet2utildqblk(&dqblk, &arguments.args->sqa_dqblk);
 	}
@@ -212,12 +215,11 @@ getquota_rslt *getquotainfo(int lflags, caddr_t * argp, struct svc_req * rqstp)
 	} arguments;
 	struct dquot *dquot = NULL;
 	struct mntent *mnt;
-	char pathname[PATH_MAX];
+	char pathname[PATH_MAX] = {0};
 	char *pathp = pathname;
 	int id, type;
 	struct quota_handle *handles[2] = { NULL, NULL };
 
-	sstrncpy(pathname, nfs_pseudoroot, PATH_MAX);
 	/*
 	 * First check authentication.
 	 */
@@ -225,6 +227,8 @@ getquota_rslt *getquotainfo(int lflags, caddr_t * argp, struct svc_req * rqstp)
 		arguments.ext_args = (ext_getquota_args *) argp;
 		id = arguments.ext_args->gqa_id;
 		type = arguments.ext_args->gqa_type;
+		if (arguments.ext_args->gqa_pathp[0] != '/')
+			sstrncpy(pathname, nfs_pseudoroot, PATH_MAX);
 		sstrncat(pathname, arguments.ext_args->gqa_pathp, PATH_MAX);
 
 		if (type == USRQUOTA && unix_cred->aup_uid && unix_cred->aup_uid != id) {
@@ -242,6 +246,8 @@ getquota_rslt *getquotainfo(int lflags, caddr_t * argp, struct svc_req * rqstp)
 		arguments.args = (getquota_args *) argp;
 		id = arguments.args->gqa_uid;
 		type = USRQUOTA;
+		if (arguments.ext_args->gqa_pathp[0] != '/')
+			sstrncpy(pathname, nfs_pseudoroot, PATH_MAX);
 		sstrncat(pathname, arguments.args->gqa_pathp, PATH_MAX);
 
 		if (unix_cred->aup_uid && unix_cred->aup_uid != id) {

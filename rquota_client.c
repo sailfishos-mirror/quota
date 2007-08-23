@@ -9,7 +9,7 @@
  *
  *          This part does the rpc-communication with the rquotad.
  *
- * Version: $Id: rquota_client.c,v 1.9 2005/03/31 11:48:02 jkar8572 Exp $
+ * Version: $Id: rquota_client.c,v 1.10 2007/08/23 18:55:28 jkar8572 Exp $
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
@@ -155,6 +155,12 @@ int rpc_rquota_get(struct dquot *dquot)
 	}
 
 	*pathname++ = '\0';
+	/* For NFSv4, we send the filesystem path without initial /. Server prepends proper
+	 * NFS pseudoroot automatically and uses this for detection of NFSv4 mounts. */
+	if (!strcmp(dquot->dq_h->qh_fstype, MNTTYPE_NFS4)) {
+		while (*pathname == '/')
+			pathname++;
+	}
 
 	/*
 	 * First try EXT_RQUOTAPROG (Extended (LINUX) RPC quota program)
@@ -265,6 +271,12 @@ int rpc_rquota_set(int qcmd, struct dquot *dquot)
 		return -ENOENT;
 
 	*pathname++ = '\0';
+	/* For NFSv4, we send the filesystem path without initial /. Server prepends proper
+	 * NFS pseudoroot automatically and uses this for detection of NFSv4 mounts. */
+	if (!strcmp(dquot->dq_h->qh_fstype, MNTTYPE_NFS4)) {
+		while (*pathname == '/')
+			pathname++;
+	}
 
 	/*
 	 * First try EXT_RQUOTAPROG (Extended (LINUX) RPC quota program)
