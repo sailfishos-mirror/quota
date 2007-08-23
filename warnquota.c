@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.29 2007/08/22 13:03:24 jkar8572 Exp $
+ * Version: $Id: warnquota.c,v 1.30 2007/08/23 14:05:49 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -172,8 +172,8 @@ static void wc_exit(int ex_stat)
 }
 
 #ifdef USE_LDAP_MAIL_LOOKUP
-#ifdef USE_LDAP_23
-void ldap_perror(LDAP *ld, char *s)
+#ifdef NEED_LDAP_PERROR
+static void ldap_perror(LDAP *ld, LDAP_CONST char *s)
 {
 	int err;
 
