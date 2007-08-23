@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: edquota.c,v 1.20 2006/10/30 15:26:20 jkar8572 Exp $"
+#ident "$Id: edquota.c,v 1.21 2007/08/23 19:58:14 jkar8572 Exp $"
 
 /*
  * Disk quota editor.
@@ -64,6 +64,7 @@
 #define FL_EDIT_TIMES 2
 #define FL_REMOTE 4
 #define FL_NUMNAMES 8
+#define FL_MIXED_PATHS 16
 
 char *progname;
 
@@ -75,7 +76,7 @@ char *dirname;
 void usage(void)
 {
 #if defined(RPC_SETQUOTA)
-	char *rpcflag = "[-r] ";
+	char *rpcflag = "[-rm] ";
 #else
 	char *rpcflag = "";
 #endif
@@ -87,7 +88,8 @@ void usage(void)
 -u, --user                    edit user data\n\
 -g, --group                   edit group data\n"), stderr);
 #if defined(RPC_SETQUOTA)
-	fputs(_("-r, --remote                  edit remote quota (via RPC)\n"), stderr);
+	fputs(_("-r, --remote                  edit remote quota (via RPC)\n\
+-m, --mixed-pathnames         trim leading slashes from NFSv4 mountpoints\n"), stderr);
 #endif
 	fputs(_("-F, --format=formatname       edit quotas of a specific format\n\
 -p, --prototype=name          copy data from a prototype user/group\n\
@@ -115,6 +117,7 @@ int parse_options(int argc, char **argv)
 		{ "filesystem", 1, NULL, 'f' },
 #if defined(RPC_SETQUOTA)
 		{ "remote", 0, NULL, 'r' },
+		{ "mixed-pathnames", 0, NULL, 'm' },
 #endif
 		{ "always-resolve", 0, NULL, 256 },
 		{ "edit-period", 0, NULL, 't' },
@@ -127,7 +130,7 @@ int parse_options(int argc, char **argv)
 
 	quotatype = USRQUOTA;
 #if defined(RPC_SETQUOTA)
-	while ((ret = getopt_long(argc, argv, "ugrntTVp:F:f:", long_opts, NULL)) != -1) {
+	while ((ret = getopt_long(argc, argv, "ugrmntTVp:F:f:", long_opts, NULL)) != -1) {
 #else
 	while ((ret = getopt_long(argc, argv, "ugtTVp:F:f:", long_opts, NULL)) != -1) {
 #endif
@@ -142,6 +145,9 @@ int parse_options(int argc, char **argv)
 		  case 'n':
 		  case 'r':
 			  flags |= FL_REMOTE;
+			  break;
+		  case 'm':
+			  flags |= FL_MIXED_PATHS;
 			  break;
 #endif
 		  case 'u':
@@ -233,7 +239,9 @@ int main(int argc, char **argv)
 	argv += ret;
 
 	init_kernel_interface();
-	handles = create_handle_list(dirname ? 1 : 0, dirname ? &dirname : NULL, quotatype, fmt, 0, (flags & FL_REMOTE) ? 0 : MS_LOCALONLY);
+	handles = create_handle_list(dirname ? 1 : 0, dirname ? &dirname : NULL, quotatype, fmt,
+			(flags & FL_MIXED_PATHS) ? IOI_NFS_MIXED_PATHS : 0,
+			(flags & FL_REMOTE) ? 0 : MS_LOCALONLY);
 	if (!handles[0]) {
 		dispose_handle_list(handles);
 		fputs(_("No filesystems with quota detected.\n"), stderr);

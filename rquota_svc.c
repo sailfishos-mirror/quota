@@ -12,7 +12,7 @@
  *          changes for new utilities by Jan Kara <jack@suse.cz>
  *          patches by Jani Jaakkola <jjaakkol@cs.helsinki.fi>
  *
- * Version: $Id: rquota_svc.c,v 1.18 2007/08/22 13:03:24 jkar8572 Exp $
+ * Version: $Id: rquota_svc.c,v 1.19 2007/08/23 19:58:14 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -62,6 +62,7 @@ struct authunix_parms *unix_cred;
 #define FL_SETQUOTA 1	/* Enable setquota rpc */
 #define FL_NODAEMON 2	/* Disable daemon() call */
 #define FL_AUTOFS   4	/* Don't ignore autofs mountpoints */
+#define FL_MIXED_PATHS 8	/* Prepend NFS pseudoroot only to relative paths */
 
 int flags;				/* Options specified on command line */ 
 static int port;			/* Port to use (0 for default one) */
@@ -79,6 +80,7 @@ static struct option options[]= {
 	{ "autofs", 0, NULL, 'I'},
 	{ "port", 1, NULL, 'p' },
 	{ "xtab", 1, NULL, 'x' },
+	{ "mixed-pathnames", 0, NULL, 'm'},
 	{ NULL, 0, NULL , 0 }
 };
 
@@ -86,23 +88,27 @@ static void show_help(void)
 {
 #ifdef RPC_SETQUOTA
 	errstr(_("Usage: %s [options]\nOptions are:\n\
- -h --help         shows this text\n\
- -V --version      shows version information\n\
- -F --foreground   starts the quota service in foreground\n\
- -I --autofs       do not ignore mountpoints mounted by automounter\n\
- -p --port <port>  listen on given port\n\
- -s --no-setquota  disables remote calls to setquota (default)\n\
- -S --setquota     enables remote calls to setquota\n\
- -x --xtab <path>  set an alternative file with NFSD export table\n"), progname);
+ -h --help             shows this text\n\
+ -V --version          shows version information\n\
+ -F --foreground       starts the quota service in foreground\n\
+ -I --autofs           do not ignore mountpoints mounted by automounter\n\
+ -p --port <port>      listen on given port\n\
+ -s --no-setquota      disables remote calls to setquota (default)\n\
+ -S --setquota         enables remote calls to setquota\n\
+ -x --xtab <path>      set an alternative file with NFSD export table\n\
+ -m --mixed-pathnames  prepend by NFS pseudoroot only pathnames without\n\
+                         leading slash\n"), progname);
 
 #else
 	errstr(_("Usage: %s [options]\nOptions are:\n\
- -h --help         shows this text\n\
- -V --version      shows version information\n\
- -F --foreground   starts the quota service in foreground\n\
- -I --autofs       do not ignore mountpoints mounted by automounter\n\
- -p --port <port>  listen on given port\n\
- -x --xtab <path>  set an alternative file with NFSD export table\n"), progname);
+ -h --help             shows this text\n\
+ -V --version          shows version information\n\
+ -F --foreground       starts the quota service in foreground\n\
+ -I --autofs           do not ignore mountpoints mounted by automounter\n\
+ -p --port <port>      listen on given port\n\
+ -x --xtab <path>      set an alternative file with NFSD export table\n\
+ -m --mixed-pathnames  prepend by NFS pseudoroot only pathnames without\n\
+                         leading slash\n"), progname);
 #endif
 }
 
@@ -155,6 +161,9 @@ static void parse_options(int argc, char **argv)
 					exit(1);
 				}
 				sstrncpy(xtab_path, optarg, PATH_MAX);
+				break;
+			case 'm':
+				flags |= FL_MIXED_PATHS;
 				break;
 			default:
 				errstr(_("Unknown option '%c'.\n"), opt);

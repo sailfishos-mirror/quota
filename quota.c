@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quota.c,v 1.24 2007/06/20 16:22:23 jkar8572 Exp $"
+#ident "$Id: quota.c,v 1.25 2007/08/23 19:58:14 jkar8572 Exp $"
 
 /*
  * Disk quota reporting program.
@@ -74,6 +74,7 @@
 #define FL_NUMNAMES 1024
 #define FL_NFSALL 2048
 #define FL_RAWGRACE 4096
+#define FL_MIXED_PATHS 8192
 
 int flags, fmt = -1;
 char *progname;
@@ -81,10 +82,10 @@ char *progname;
 void usage(void)
 {
 	errstr( "%s%s%s%s%s",
-		_("Usage: quota [-guqvsw] [-l | [-Q | -A]] [-i] [-F quotaformat]\n"),
-		_("\tquota [-qvsw] [-l | [-Q | -A]] [-i] [-F quotaformat] -u username ...\n"),
-		_("\tquota [-qvsw] [-l | [-Q | -A]] [-i] [-F quotaformat] -g groupname ...\n"),
-		_("\tquota [-qvswugQ] [-F quotaformat] -f filesystem ...\n"),
+		_("Usage: quota [-guqvswim] [-l | [-Q | -A]] [-F quotaformat]\n"),
+		_("\tquota [-qvswim] [-l | [-Q | -A]] [-F quotaformat] -u username ...\n"),
+		_("\tquota [-qvswim] [-l | [-Q | -A]] [-F quotaformat] -g groupname ...\n"),
+		_("\tquota [-qvswugQm] [-F quotaformat] -f filesystem ...\n"),
 		_("\n\
 -u, --user                display quota for user\n\
 -g, --group               display quota for group\n\
@@ -102,6 +103,7 @@ void usage(void)
 -F, --format=formatname   display quota of a specific format\n\
 -f, --filesystem-list     display quota information only for given filesystems\n\
 -A, --nfs-all             display quota for all NFS mountpoints\n\
+-m, --mixed-pathnames     trim leading slashes from NFSv4 mountpoints\n\
 -h, --help                display this help message and exit\n\
 -V, --version             display version information and exit\n\n"));
 	fprintf(stderr, _("Bugs to: %s\n"), MY_EMAIL);
@@ -131,7 +133,11 @@ int showquotas(int type, qid_t id, int mntcnt, char **mnt)
 
 	time(&now);
 	id2name(id, type, name);
-	handles = create_handle_list(mntcnt, mnt, type, fmt, IOI_READONLY, ((flags & FL_NOAUTOFS) ? MS_NO_AUTOFS : 0) | ((flags & FL_LOCALONLY) ? MS_LOCALONLY : 0) | ((flags & FL_NFSALL) ? MS_NFS_ALL : 0));
+	handles = create_handle_list(mntcnt, mnt, type, fmt,
+		IOI_READONLY | ((flags & FL_MIXED_PATHS) ? IOI_NFS_MIXED_PATHS : 0),
+		((flags & FL_NOAUTOFS) ? MS_NO_AUTOFS : 0)
+		| ((flags & FL_LOCALONLY) ? MS_LOCALONLY : 0)
+		| ((flags & FL_NFSALL) ? MS_NFS_ALL : 0));
 	qlist = getprivs(id, handles, !!(flags & FL_QUIETREFUSE));
 	over = 0;
 	for (q = qlist; q; q = q->dq_next) {
@@ -257,13 +263,14 @@ int main(int argc, char **argv)
 		{ "no-wrap", 0, NULL, 'w' },
 		{ "filesystem-list", 0, NULL, 'f' },
 		{ "all-nfs", 0, NULL, 'A' },
+		{ "mixed-pathnames", 0, NULL, 'm' },
 		{ NULL, 0, NULL, 0 }
 	};
 
 	gettexton();
 	progname = basename(argv[0]);
 
-	while ((ret = getopt_long(argc, argv, "guqvsVliQF:wfAp", long_opts, NULL)) != -1) {
+	while ((ret = getopt_long(argc, argv, "guqvsVliQF:wfApm", long_opts, NULL)) != -1) {
 		switch (ret) {
 		  case 'g':
 			  flags |= FL_GROUP;
@@ -307,6 +314,9 @@ int main(int argc, char **argv)
 			  break;
 		  case 'A':
 			  flags |= FL_NFSALL;
+			  break;
+		  case 'm':
+			  flags |= FL_MIXED_PATHS;
 			  break;
 		  case 'V':
 			  version();

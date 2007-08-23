@@ -51,6 +51,8 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 	h->qh_io_flags = 0;
 	if (flags & IOI_READONLY)
 		h->qh_io_flags |= IOFL_RO;
+	if (flags & IOI_NFS_MIXED_PATHS)
+		h->qh_io_flags |= IOFL_NFS_MIXED_PATHS;
 	h->qh_type = type;
 	sstrncpy(h->qh_quotadev, mnt_fsname, sizeof(h->qh_quotadev));
 	free((char *)mnt_fsname);

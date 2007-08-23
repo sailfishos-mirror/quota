@@ -21,6 +21,7 @@
 /* Flags for IO initialization */
 #define IOI_READONLY	0x1	/* Only readonly access */
 #define IOI_OPENFILE	0x2	/* Open file even if kernel has quotas turned on */
+#define IOI_NFS_MIXED_PATHS	0x4	/* Trim leading / from NFSv4 mountpoints */
 
 #define KERN_KNOWN_QUOTA_VERSION (6*10000 + 5*100 + 1)
 

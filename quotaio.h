@@ -66,6 +66,8 @@
 #define IOFL_QUOTAON	0x01	/* Is quota enabled in kernel? */
 #define IOFL_INFODIRTY	0x02	/* Did info change? */
 #define IOFL_RO		0x04	/* Just RO access? */
+#define IOFL_NFS_MIXED_PATHS	0x08	/* Should we trim leading slashes
+					   from NFSv4 mountpoints? */
 
 struct quotafile_ops;
 

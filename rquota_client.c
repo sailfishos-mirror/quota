@@ -9,7 +9,7 @@
  *
  *          This part does the rpc-communication with the rquotad.
  *
- * Version: $Id: rquota_client.c,v 1.10 2007/08/23 18:55:28 jkar8572 Exp $
+ * Version: $Id: rquota_client.c,v 1.11 2007/08/23 19:58:14 jkar8572 Exp $
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
@@ -157,7 +157,8 @@ int rpc_rquota_get(struct dquot *dquot)
 	*pathname++ = '\0';
 	/* For NFSv4, we send the filesystem path without initial /. Server prepends proper
 	 * NFS pseudoroot automatically and uses this for detection of NFSv4 mounts. */
-	if (!strcmp(dquot->dq_h->qh_fstype, MNTTYPE_NFS4)) {
+	if ((dquot->dq_h->qh_io_flags & IOFL_NFS_MIXED_PATHS) &&
+	    !strcmp(dquot->dq_h->qh_fstype, MNTTYPE_NFS4)) {
 		while (*pathname == '/')
 			pathname++;
 	}
@@ -273,7 +274,8 @@ int rpc_rquota_set(int qcmd, struct dquot *dquot)
 	*pathname++ = '\0';
 	/* For NFSv4, we send the filesystem path without initial /. Server prepends proper
 	 * NFS pseudoroot automatically and uses this for detection of NFSv4 mounts. */
-	if (!strcmp(dquot->dq_h->qh_fstype, MNTTYPE_NFS4)) {
+	if ((dquot->dq_h->qh_io_flags & IOFL_NFS_MIXED_PATHS) &&
+	    !strcmp(dquot->dq_h->qh_fstype, MNTTYPE_NFS4)) {
 		while (*pathname == '/')
 			pathname++;
 	}
