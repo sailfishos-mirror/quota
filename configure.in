@@ -34,7 +34,7 @@ if test "x$enable_ldapmail" != "xno"; then
 		CFLAGS="$CFLAGS -DUSE_LDAP_MAIL_LOOKUP"
 		if test "x$have_new_ldap" = "xyes"; then
 			CFLAGS="$CFLAGS -DUSE_LDAP_23"
-			AC_CHECK_DECL(ldap_perror, , CFLAGS="$CFLAGS -DNEED_LDAP_PERROR", ldap.h)
+			AC_CHECK_DECL(ldap_perror, , CFLAGS="$CFLAGS -DNEED_LDAP_PERROR", [#include <ldap.h>])
 		fi
 	else
 		if test "x$enable_ldapmail" = "xyes"; then
