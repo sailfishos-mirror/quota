@@ -9,7 +9,7 @@
  *
  *          This part does the lookup of the info.
  *
- * Version: $Id: rquota_server.c,v 1.18 2007/08/23 19:58:14 jkar8572 Exp $
+ * Version: $Id: rquota_server.c,v 1.19 2007/08/27 12:32:57 jkar8572 Exp $
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
@@ -49,7 +49,6 @@
 
 /* Options from rquota_svc.c */
 #define FL_AUTOFS 4
-#define FL_MIXED_PATHS 8
 extern int flags;
 
 extern char nfs_pseudoroot[PATH_MAX];
@@ -143,7 +142,7 @@ setquota_rslt *setquotainfo(int lflags, caddr_t * argp, struct svc_req *rqstp)
 
 		qcmd = arguments.ext_args->sqa_qcmd;
 		type = arguments.ext_args->sqa_type;
-		if (!(flags & FL_MIXED_PATHS) || arguments.ext_args->sqa_pathp[0] != '/')
+		if (arguments.ext_args->sqa_pathp[0] != '/')
 			sstrncpy(pathname, nfs_pseudoroot, PATH_MAX);
 		sstrncat(pathname, arguments.ext_args->sqa_pathp, PATH_MAX);
 		servnet2utildqblk(&dqblk, &arguments.ext_args->sqa_dqblk);
@@ -159,7 +158,7 @@ setquota_rslt *setquotainfo(int lflags, caddr_t * argp, struct svc_req *rqstp)
 
 		qcmd = arguments.args->sqa_qcmd;
 		type = USRQUOTA;
-		if (!(flags & FL_MIXED_PATHS) || arguments.args->sqa_pathp[0] != '/')
+		if (arguments.args->sqa_pathp[0] != '/')
 			sstrncpy(pathname, nfs_pseudoroot, PATH_MAX);
 		sstrncat(pathname, arguments.args->sqa_pathp, PATH_MAX);
 		servnet2utildqblk(&dqblk, &arguments.args->sqa_dqblk);
@@ -228,7 +227,7 @@ getquota_rslt *getquotainfo(int lflags, caddr_t * argp, struct svc_req * rqstp)
 		arguments.ext_args = (ext_getquota_args *) argp;
 		id = arguments.ext_args->gqa_id;
 		type = arguments.ext_args->gqa_type;
-		if (!(flags & FL_MIXED_PATHS) || arguments.ext_args->gqa_pathp[0] != '/')
+		if (arguments.ext_args->gqa_pathp[0] != '/')
 			sstrncpy(pathname, nfs_pseudoroot, PATH_MAX);
 		sstrncat(pathname, arguments.ext_args->gqa_pathp, PATH_MAX);
 
@@ -247,7 +246,7 @@ getquota_rslt *getquotainfo(int lflags, caddr_t * argp, struct svc_req * rqstp)
 		arguments.args = (getquota_args *) argp;
 		id = arguments.args->gqa_uid;
 		type = USRQUOTA;
-		if (!(flags & FL_MIXED_PATHS) || arguments.ext_args->gqa_pathp[0] != '/')
+		if (arguments.ext_args->gqa_pathp[0] != '/')
 			sstrncpy(pathname, nfs_pseudoroot, PATH_MAX);
 		sstrncat(pathname, arguments.args->gqa_pathp, PATH_MAX);
 

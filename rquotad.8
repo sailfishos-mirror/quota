@@ -72,20 +72,8 @@ Listen on alternate port
 .B \-x \f2path\f3, \-\-xtab \f2path\f1
 Set an alternative file with NFSD export table. This file is used to
 determine pseudoroot of NFSv4 exports. The pseudoroot is then prepended
-to a path received in each quota RPC request. This may cause some
-troubles in environments with both NFSv3 and NFSv4 clients. In such cases
-consider
-.I mixed-pathnames
-option.
-.TP
-.B \-m, \-\-mixed-pathnames
-Prepend pseudoroot of NFSv4 exports only to pathnames which do not begin
-with a slash. This option is useful in environments with both NFSv3 and
-NFSv4 clients together with the same option of tools such as
-.BR quota (1).
-If you pass an option
-.I mixed-pathnames
-to these tools, they trim leading slashes from NFSv4 mounts in RPC requests.
+to each relative path (i.e. a path not beginning by '/') received in a
+quota RPC request.
 
 .SH FILES
 .PD 0
