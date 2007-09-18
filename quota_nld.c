@@ -137,6 +137,13 @@ static int quota_nl_warn_cmd_parser(struct genl_ops *ops, struct genl_cmd *cmd,
 {
 	struct quota_warning *warn = (struct quota_warning *)arg;
 
+	if (!info->attrs[QUOTA_NL_A_QTYPE] || !info->attrs[QUOTA_NL_A_EXCESS_ID] ||
+	    !info->attrs[QUOTA_NL_A_WARNING] || !info->attrs[QUOTA_NL_A_DEV_MAJOR] ||
+	    !info->attrs[QUOTA_NL_A_DEV_MAJOR] || !info->attrs[QUOTA_NL_A_DEV_MINOR] ||
+	    !info->attrs[QUOTA_NL_A_CAUSED_ID]) {
+		errstr(_("Unknown format of kernel netlink message!\nMaybe your quota tools are too old?\n"));
+		return -EINVAL;
+	}
 	warn->qtype = nla_get_u32(info->attrs[QUOTA_NL_A_QTYPE]);
 	warn->excess_id = nla_get_u64(info->attrs[QUOTA_NL_A_EXCESS_ID]);
 	warn->warntype = nla_get_u32(info->attrs[QUOTA_NL_A_WARNING]);
@@ -341,7 +348,7 @@ static void run(struct nl_handle *nhandle, struct DBusConnection *dhandle)
 				write_dbus_warning(dhandle, &warn);
 		}
 		else
-			errstr(_("Failed parsing netlink command: %s\n"), strerror(errno));
+			errstr(_("Failed parsing netlink command: %s\n"), strerror(-ret));
 		free(buf);
 	}
 }

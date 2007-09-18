@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaon.c,v 1.23 2007/02/21 13:51:25 jkar8572 Exp $"
+#ident "$Id: quotaon.c,v 1.24 2007/09/18 12:23:54 jkar8572 Exp $"
 
 /*
  * Turn quota on/off for a filesystem.
@@ -346,7 +346,7 @@ int main(int argc, char **argv)
 	else if (!kernel_formats)
 		errstr(_("Warning: No quota format detected in the kernel.\n"));
 
-	if (init_mounts_scan(mntcnt, mntpoints, MS_XFS_DISABLED) < 0)
+	if (init_mounts_scan(mntcnt, mntpoints, MS_XFS_DISABLED | MS_LOCALONLY) < 0)
 		return 1;
 	while ((mnt = get_next_mount())) {
 		if (nfs_fstype(mnt->mnt_type)) {
