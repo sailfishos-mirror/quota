@@ -11,7 +11,7 @@ quota \- display disk usage and limits
 ] [
 .BR -l \ |
 [
-.BR -Q \ |\  -A
+.BR -QAm
 ]]
 .br
 .B quota
@@ -23,7 +23,7 @@ quota \- display disk usage and limits
 ] [
 .BR -l \ |
 [
-.BR -Q \ |\  -A
+.BR -QAm
 ]]
 .B -u
 .IR user ...
@@ -37,7 +37,7 @@ quota \- display disk usage and limits
 ] [
 .BR -l \ |
 [
-.BR -Q \ |\  -A
+.BR -QAm
 ]]
 .B -g
 .IR group ...
@@ -47,7 +47,7 @@ quota \- display disk usage and limits
 .B -F
 .I format-name
 ] [
-.B -qvswugQ
+.B -qvswugQm
 ]
 .B -f
 .IR filesystem ...
@@ -109,14 +109,27 @@ report quotas only on local filesystems (ie. ignore NFS mounted filesystems).
 report quotas for all NFS filesystems even if they report to be on the same
 device.
 .TP
+.B -m, --no-mixed-pathnames
+Currently, pathnames of NFSv4 mountpoints are sent without leading slash in the path.
+.BR rpc.rquotad
+uses this to recognize NFSv4 mounts and properly prepend pseudoroot of NFS filesystem
+to the path. If you specify this option, 
+.BR setquota 
+will always send paths with a trailing slash. This can be useful for legacy reasons but
+be aware that quota over RPC will stop working if you are using new
+.BR rpc.rquotad .
+.TP
 .B -q, --quiet
 Print a more terse message,
 containing only information
 on filesystems where usage is over quota.
 .TP
 .B -Q, --quiet-refuse
-Do not print error message if connection to rpc.rquotad is refused (usually this happens
-when rpc.rquotad is not running on the server).
+Do not print error message if connection to
+.BR rpc.rquotad
+is refused (usually this happens when
+.BR rpc.rquotad
+is not running on the server).
 .TP
 .B -w, --no-wrap
 Do not wrap the line if the device name is too long. This can be useful when parsing

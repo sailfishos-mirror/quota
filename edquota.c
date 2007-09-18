@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: edquota.c,v 1.21 2007/08/23 19:58:14 jkar8572 Exp $"
+#ident "$Id: edquota.c,v 1.22 2007/09/18 16:21:07 jkar8572 Exp $"
 
 /*
  * Disk quota editor.
@@ -64,7 +64,7 @@
 #define FL_EDIT_TIMES 2
 #define FL_REMOTE 4
 #define FL_NUMNAMES 8
-#define FL_MIXED_PATHS 16
+#define FL_NO_MIXED_PATHS 16
 
 char *progname;
 
@@ -89,7 +89,7 @@ void usage(void)
 -g, --group                   edit group data\n"), stderr);
 #if defined(RPC_SETQUOTA)
 	fputs(_("-r, --remote                  edit remote quota (via RPC)\n\
--m, --mixed-pathnames         trim leading slashes from NFSv4 mountpoints\n"), stderr);
+-m, --no-mixed-pathnames      trim leading slashes from NFSv4 mountpoints\n"), stderr);
 #endif
 	fputs(_("-F, --format=formatname       edit quotas of a specific format\n\
 -p, --prototype=name          copy data from a prototype user/group\n\
@@ -117,7 +117,7 @@ int parse_options(int argc, char **argv)
 		{ "filesystem", 1, NULL, 'f' },
 #if defined(RPC_SETQUOTA)
 		{ "remote", 0, NULL, 'r' },
-		{ "mixed-pathnames", 0, NULL, 'm' },
+		{ "no-mixed-pathnames", 0, NULL, 'm' },
 #endif
 		{ "always-resolve", 0, NULL, 256 },
 		{ "edit-period", 0, NULL, 't' },
@@ -147,7 +147,7 @@ int parse_options(int argc, char **argv)
 			  flags |= FL_REMOTE;
 			  break;
 		  case 'm':
-			  flags |= FL_MIXED_PATHS;
+			  flags |= FL_NO_MIXED_PATHS;
 			  break;
 #endif
 		  case 'u':
@@ -240,7 +240,7 @@ int main(int argc, char **argv)
 
 	init_kernel_interface();
 	handles = create_handle_list(dirname ? 1 : 0, dirname ? &dirname : NULL, quotatype, fmt,
-			(flags & FL_MIXED_PATHS) ? IOI_NFS_MIXED_PATHS : 0,
+			(flags & FL_NO_MIXED_PATHS) ? 0 : IOI_NFS_MIXED_PATHS,
 			(flags & FL_REMOTE) ? 0 : MS_LOCALONLY);
 	if (!handles[0]) {
 		dispose_handle_list(handles);

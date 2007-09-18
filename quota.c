@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quota.c,v 1.25 2007/08/23 19:58:14 jkar8572 Exp $"
+#ident "$Id: quota.c,v 1.26 2007/09/18 16:21:07 jkar8572 Exp $"
 
 /*
  * Disk quota reporting program.
@@ -74,7 +74,7 @@
 #define FL_NUMNAMES 1024
 #define FL_NFSALL 2048
 #define FL_RAWGRACE 4096
-#define FL_MIXED_PATHS 8192
+#define FL_NO_MIXED_PATHS 8192
 
 int flags, fmt = -1;
 char *progname;
@@ -103,7 +103,7 @@ void usage(void)
 -F, --format=formatname   display quota of a specific format\n\
 -f, --filesystem-list     display quota information only for given filesystems\n\
 -A, --nfs-all             display quota for all NFS mountpoints\n\
--m, --mixed-pathnames     trim leading slashes from NFSv4 mountpoints\n\
+-m, --no-mixed-pathnames  trim leading slashes from NFSv4 mountpoints\n\
 -h, --help                display this help message and exit\n\
 -V, --version             display version information and exit\n\n"));
 	fprintf(stderr, _("Bugs to: %s\n"), MY_EMAIL);
@@ -134,7 +134,7 @@ int showquotas(int type, qid_t id, int mntcnt, char **mnt)
 	time(&now);
 	id2name(id, type, name);
 	handles = create_handle_list(mntcnt, mnt, type, fmt,
-		IOI_READONLY | ((flags & FL_MIXED_PATHS) ? IOI_NFS_MIXED_PATHS : 0),
+		IOI_READONLY | ((flags & FL_NO_MIXED_PATHS) ? 0 : IOI_NFS_MIXED_PATHS),
 		((flags & FL_NOAUTOFS) ? MS_NO_AUTOFS : 0)
 		| ((flags & FL_LOCALONLY) ? MS_LOCALONLY : 0)
 		| ((flags & FL_NFSALL) ? MS_NFS_ALL : 0));
@@ -263,7 +263,7 @@ int main(int argc, char **argv)
 		{ "no-wrap", 0, NULL, 'w' },
 		{ "filesystem-list", 0, NULL, 'f' },
 		{ "all-nfs", 0, NULL, 'A' },
-		{ "mixed-pathnames", 0, NULL, 'm' },
+		{ "no-mixed-pathnames", 0, NULL, 'm' },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -316,7 +316,7 @@ int main(int argc, char **argv)
 			  flags |= FL_NFSALL;
 			  break;
 		  case 'm':
-			  flags |= FL_MIXED_PATHS;
+			  flags |= FL_NO_MIXED_PATHS;
 			  break;
 		  case 'V':
 			  version();

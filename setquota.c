@@ -30,7 +30,7 @@
 #define FL_INDIVIDUAL_GRACE 64
 #define FL_BATCH 128
 #define FL_NUMNAMES 256
-#define FL_MIXED_PATHS 512
+#define FL_NO_MIXED_PATHS 512
 
 int flags, fmt = -1;
 char **mnt;
@@ -64,7 +64,7 @@ static void usage(void)
 -b, --batch                read limits from standard input\n"), ropt);
 #if defined(RPC_SETQUOTA)
 	fputs(_("-r, --remote               set remote quota (via RPC)\n\
--m, --mixed-pathnames      trim leading slashes from NFSv4 mountpoints\n"), stderr);
+-m, --no-mixed-pathnames      trim leading slashes from NFSv4 mountpoints\n"), stderr);
 #endif
 	fputs(_("-t, --edit-period          edit grace period\n\
 -T, --edit-times           edit grace times for user/group\n\
@@ -114,7 +114,7 @@ static void parse_options(int argcnt, char **argstr)
 		{ "prototype", 1, NULL, 'p' },
 #ifdef RPC_SETQUOTA
 		{ "remote", 0, NULL, 'r' },
-		{ "mixed-pathnames", 0, NULL, 'm' },
+		{ "no-mixed-pathnames", 0, NULL, 'm' },
 #endif
 		{ "all", 0, NULL, 'a' },
 		{ "always-resolve", 0, NULL, 256},
@@ -146,7 +146,7 @@ static void parse_options(int argcnt, char **argstr)
 			  flags |= FL_RPC;
 			  break;
 		  case 'm':
-			  flags |= FL_MIXED_PATHS;
+			  flags |= FL_NO_MIXED_PATHS;
 			  break;
 		  case 'a':
 			  flags |= FL_ALL;
@@ -382,11 +382,11 @@ int main(int argc, char **argv)
 
 	if (flags & FL_ALL)
 		handles = create_handle_list(0, NULL, flag2type(flags), fmt,
-			(flags & FL_MIXED_PATHS) ? IOI_NFS_MIXED_PATHS : 0,
+			(flags & FL_NO_MIXED_PATHS) ? 0 : IOI_NFS_MIXED_PATHS,
 			(flags & FL_RPC) ? 0 : MS_LOCALONLY);
 	else
 		handles = create_handle_list(mntcnt, mnt, flag2type(flags), fmt,
-			(flags & FL_MIXED_PATHS) ? IOI_NFS_MIXED_PATHS : 0,
+			(flags & FL_NO_MIXED_PATHS) ? 0 : IOI_NFS_MIXED_PATHS,
 			(flags & FL_RPC) ? 0 : MS_LOCALONLY);
 
 	if (flags & FL_GRACE)

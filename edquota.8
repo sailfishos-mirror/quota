@@ -10,7 +10,7 @@ edquota \- edit user quotas
 .BR \-u \ |
 .B \-g
 ] [
-.B \-r
+.B \-rm
 ] [
 .B \-F
 .I format-name
@@ -94,6 +94,16 @@ support for setting quotas over RPC.
 The
 .B -n
 option is equivalent, and is maintained for backward compatibility.
+.TP
+.B -m, --no-mixed-pathnames
+Currently, pathnames of NFSv4 mountpoints are sent without leading slash in the path.
+.BR rpc.rquotad
+uses this to recognize NFSv4 mounts and properly prepend pseudoroot of NFS filesystem
+to the path. If you specify this option, 
+.BR setquota 
+will always send paths with a trailing slash. This can be useful for legacy reasons but
+be aware that quota over RPC will stop working if you are using new
+.BR rpc.rquotad .
 .TP
 .B -u, --user
 Edit the user quota. This is the default.
