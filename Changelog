@@ -1,4 +1,5 @@
 Changes in quota-tools from 3.15 to 3.16
+* print more verbose list of compile options when --version specified (Jan Kara)
 * quotaon(8) should work only on local filesystems (Ladislav Michnovic)
 * made possible to use quota rpc in mixed NFSv3 and NFSv4 environments (Jan Kara) 
 * fixed compilation with openLDAP library versions 2.1 and 2.2 (Jan Kara)

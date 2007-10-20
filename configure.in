@@ -32,6 +32,7 @@ if test "x$enable_ldapmail" != "xno"; then
 	if test "x$have_new_ldap" != "xno" -o "x$have_old_ldap" != "xno"; then
 		LDAPLIBS="-L/usr/lib -lldap -llber -lssl -lresolv"
 		CFLAGS="$CFLAGS -DUSE_LDAP_MAIL_LOOKUP"
+		COMPILE_OPTS="$COMPILE_OPTS USE_LDAP_MAIL_LOOKUP"
 		if test "x$have_new_ldap" = "xyes"; then
 			CFLAGS="$CFLAGS -DUSE_LDAP_23"
 			AC_CHECK_DECL(ldap_perror, , CFLAGS="$CFLAGS -DNEED_LDAP_PERROR", [#include <ldap.h>])
@@ -89,6 +90,7 @@ if test "x$enable_ext2direct" != "xno"; then
 	fi
 	if test "x$enable_ext2direct" = "xyes"; then
 		EXT2_DIRECT="-DEXT2_DIRECT"
+		COMPILE_OPTS="$COMPILE_OPTS EXT2_DIRECT"
 		AC_SUBST(EXT2_DIRECT)
 	fi
 fi
@@ -164,6 +166,7 @@ if test ${ac_cv_lib_wrap_main} = yes; then
 	])
 	LIBS="$LIBS -lwrap"
 	HOSTS_ACCESS="-DHOSTS_ACCESS"
+	COMPILE_OPTS="$COMPILE_OPTS HOST_ACCESS"
 	AC_SUBST(HOSTS_ACCESS)
 fi
 
@@ -206,19 +209,24 @@ AC_ARG_ENABLE(rootsbin,
 	enable_rootsbin="no")
 
 if test "$enable_altformat" = "yes" ; then
-	CFLAGS="-DALT_FORMAT $CFLAGS";
+	CFLAGS="-DALT_FORMAT $CFLAGS"
+	COMPILE_OPTS="$COMPILE_OPTS ALT_FORMAT"
 fi
 if test "$enable_rpc" = "yes" ; then
-	CFLAGS="-DRPC $CFLAGS";
+	CFLAGS="-DRPC $CFLAGS"
+	COMPILE_OPTS="$COMPILE_OPTS RPC"
 fi
 if test "$enable_rpcsetquota" = "yes" ; then
 	CFLAGS="-DRPC_SETQUOTA $CFLAGS"
+	COMPILE_OPTS="$COMPILE_OPTS RPC_SETQUOTA"
 fi
 if test "$enable_xfs_roothack" = "yes" ; then
 	CFLAGS="-DXFS_ROOTHACK $CFLAGS"
+	COMPILE_OPTS="$COMPILE_OPTS XFS_ROOTHACK"
 fi
 if test "$enable_bsd_behaviour" = "yes" ; then
 	CFLAGS="-DBSD_BEHAVIOUR $CFLAGS"
+	COMPILE_OPTS="$COMPILE_OPTS BSD_BEHAVIOUR"
 fi
 if test "$enable_libefence" = "yes" ; then
 	LIBMALLOC="/usr/lib/libefence.a"
@@ -232,6 +240,7 @@ if test "$enable_rootsbin" = "yes" ; then
 else
 	ROOTSBIN='$(prefix)/sbin'
 fi
+AC_SUBST(COMPILE_OPTS)
 AC_SUBST(LIBMALLOC)
 AC_SUBST(INSTMO)
 AC_SUBST(ROOTSBIN)

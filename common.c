@@ -120,15 +120,6 @@ char *sstrdup(const char *s)
 void version(void)
 {
 	printf(_("Quota utilities version %s.\n"), QUOTA_VERSION);
-#if defined(RPC) || defined(EXT2_DIRECT)
-	printf(_("Compiled with "));
-#if defined(RPC) && defined(EXT2_DIRECT)
-	puts(_("RPC and EXT2_DIRECT"));
-#elif defined(RPC)
-	puts(_("RPC"));
-#else
-	puts(_("EXT2_DIRECT"));
-#endif /* defined RPC && EXT2_DIRECT */
-#endif /* defined RPC || EXT2_DIRECT */
+	printf(_("Compiled with:%s\n"), COMPILE_OPTS);
 	printf(_("Bugs to %s\n"), MY_EMAIL);
 }
