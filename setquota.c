@@ -11,6 +11,7 @@
 #include <string.h>
 #include <getopt.h>
 #include <time.h>
+#include <ctype.h>
 
 #if defined(RPC)
 #include "rquota.h"
@@ -284,28 +285,40 @@ static int setlimits(struct quota_handle **handles)
 	return ret;
 }
 
-#define MAXLINELEN (MAXNUMLEN*4+MAXNAMELEN+16)
+#define MAXLINELEN 65536
 
 /* Read & parse one batch entry */
 static int read_entry(qid_t *id, qsize_t *isoftlimit, qsize_t *ihardlimit, qsize_t *bsoftlimit, qsize_t *bhardlimit)
 {
 	static int line = 0;
 	char name[MAXNAMELEN+1];
+	char linebuf[MAXLINELEN], *chptr;
 	unsigned long is, ih, bs, bh;
 	int ret;
 
-	do {
+	while (1) {
 		line++;
-		ret = scanf("%s %lu %lu %lu %lu", name, &bs, &bh, &is, &ih);
-		if (ret == -1)
+		if (!fgets(linebuf, sizeof(linebuf), stdin))
 			return -1;
+		if (linebuf[strlen(linebuf)-1] != '\n')
+			die(1, _("Line %d too long.\n"), line);
+		/* Comment? */
+		if (linebuf[0] == '#')
+			continue;
+		/* Blank line? */
+		chptr = linebuf;
+		while (isblank(*chptr))
+			chptr++;
+		if (*chptr == '\n')
+			continue;
+		ret = sscanf(chptr, "%s %lu %lu %lu %lu", name, &bs, &bh, &is, &ih);
 		if (ret != 5)
 			die(1, _("Cannot parse input line %d.\n"), line);
-		ret = 0;
 		*id = name2id(name, flag2type(flags), !!(flags & FL_NUMNAMES), &ret);
 		if (ret)
-			errstr(_("Unable to get name '%s'.\n"), name);
-	} while (ret);
+			die(1, _("Unable to resolve name '%s' on line %d.\n"), name, line);
+		break;
+	}
 	*isoftlimit = is;
 	*ihardlimit = ih;
 	*bsoftlimit = bs;
