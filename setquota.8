@@ -156,7 +156,10 @@ to set the quota for the named user or group.
 .B -b, --batch
 Read information to set from stdin (input format is
 .I name block-softlimit block-hardlimit inode-softlimit inode-hardlimit
-).
+). Empty lines and lines starting with # are ignored.
+.TP
+.B -c, --continue-batch
+If parsing of an input line in batch mode fails, continue with processing the next line.
 .TP
 .B -t, --edit-period
 Set grace times for users/groups. Times

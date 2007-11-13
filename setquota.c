@@ -32,6 +32,7 @@
 #define FL_BATCH 128
 #define FL_NUMNAMES 256
 #define FL_NO_MIXED_PATHS 512
+#define FL_CONTINUE_BATCH 1024
 
 int flags, fmt = -1;
 char **mnt;
@@ -52,7 +53,7 @@ static void usage(void)
   setquota [-u|-g] %1$s[-F quotaformat] <user|group>\n\
 \t<block-softlimit> <block-hardlimit> <inode-softlimit> <inode-hardlimit> -a|<filesystem>...\n\
   setquota [-u|-g] %1$s[-F quotaformat] <-p protouser|protogroup> <user|group> -a|<filesystem>...\n\
-  setquota [-u|-g] %1$s[-F quotaformat] -b -a|<filesystem>...\n\
+  setquota [-u|-g] %1$s[-F quotaformat] -b [-c] -a|<filesystem>...\n\
   setquota [-u|-g] [-F quotaformat] -t <blockgrace> <inodegrace> -a|<filesystem>...\n\
   setquota [-u|-g] [-F quotaformat] <user|group> -T <blockgrace> <inodegrace> -a|<filesystem>...\n\n\
 -u, --user                 set limits for user\n\
@@ -62,7 +63,8 @@ static void usage(void)
                            composed only of digits\n\
 -F, --format=formatname    operate on specific quota format\n\
 -p, --prototype=protoname  copy limits from user/group\n\
--b, --batch                read limits from standard input\n"), ropt);
+-b, --batch                read limits from standard input\n\
+-c, --continue-batch       continue in input processing in case of an error\n"), ropt);
 #if defined(RPC_SETQUOTA)
 	fputs(_("-r, --remote               set remote quota (via RPC)\n\
 -m, --no-mixed-pathnames      trim leading slashes from NFSv4 mountpoints\n"), stderr);
@@ -105,9 +107,9 @@ static void parse_options(int argcnt, char **argstr)
 	char *protoname = NULL;
 
 #ifdef RPC_SETQUOTA
-	char *opts = "gp:urmVF:taTb";
+	char *opts = "gp:urmVF:taTbc";
 #else
-	char *opts = "gp:uVF:taTb";
+	char *opts = "gp:uVF:taTbc";
 #endif
 	struct option long_opts[] = {
 		{ "user", 0, NULL, 'u' },
@@ -122,6 +124,7 @@ static void parse_options(int argcnt, char **argstr)
 		{ "edit-period", 0, NULL, 't' },
 		{ "edit-times", 0, NULL, 'T' },
 		{ "batch", 0, NULL, 'b' },
+		{ "continue", 0, NULL, 'c' },
 		{ "format", 1, NULL, 'F' },
 		{ "version", 0, NULL, 'V' },
 		{ "help", 0, NULL, 'h' },
@@ -160,6 +163,9 @@ static void parse_options(int argcnt, char **argstr)
 			  break;
 		  case 'b':
 			  flags |= FL_BATCH;
+			  break;
+		  case 'c':
+			  flags |= FL_CONTINUE_BATCH;
 			  break;
 		  case 'T':
 			  flags |= FL_INDIVIDUAL_GRACE;
@@ -312,11 +318,21 @@ static int read_entry(qid_t *id, qsize_t *isoftlimit, qsize_t *ihardlimit, qsize
 		if (*chptr == '\n')
 			continue;
 		ret = sscanf(chptr, "%s %lu %lu %lu %lu", name, &bs, &bh, &is, &ih);
-		if (ret != 5)
-			die(1, _("Cannot parse input line %d.\n"), line);
+		if (ret != 5) {
+			errstr(_("Cannot parse input line %d.\n"), line);
+			if (!(flags & FL_CONTINUE_BATCH))
+				die(1, _("Exitting.\n"));
+			errstr(_("Skipping line.\n"));
+			continue;
+		}
 		*id = name2id(name, flag2type(flags), !!(flags & FL_NUMNAMES), &ret);
-		if (ret)
-			die(1, _("Unable to resolve name '%s' on line %d.\n"), name, line);
+		if (ret) {
+			errstr(_("Unable to resolve name '%s' on line %d.\n"), name, line);
+			if (!(flags & FL_CONTINUE_BATCH))
+				die(1, _("Exitting.\n"));
+			errstr(_("Skipping line.\n"));
+			continue;
+		}
 		break;
 	}
 	*isoftlimit = is;
