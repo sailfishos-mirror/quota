@@ -120,15 +120,23 @@ static void write_dbus_warning(struct DBusConnection *dhandle, struct quota_warn
 static int quota_nl_parser(struct nl_msg *msg, void *arg)
 {
 	struct nlmsghdr *nlh = nlmsg_hdr(msg);
+	struct genlmsghdr *ghdr;
 	struct nlattr *attrs[QUOTA_NL_A_MAX+1];
 	struct quota_warning warn;
 	int ret;
 
+	if (!genlmsg_valid_hdr(nlh, 0))
+                return 0;
+        ghdr = nlmsg_data(nlh);
 	/* Unknown message? Ignore... */
-	if (nlh->nlmsg_type != QUOTA_NL_C_WARNING)
+	if (ghdr->cmd != QUOTA_NL_C_WARNING)
 		return 0;
 
 	ret = genlmsg_parse(nlh, 0, attrs, QUOTA_NL_A_MAX, quota_nl_warn_cmd_policy);
+	if (ret < 0) {
+		errstr(_("Error parsing netlink message.\n"));
+		return ret;
+	}
 	if (!attrs[QUOTA_NL_A_QTYPE] || !attrs[QUOTA_NL_A_EXCESS_ID] ||
 	    !attrs[QUOTA_NL_A_WARNING] || !attrs[QUOTA_NL_A_DEV_MAJOR] ||
 	    !attrs[QUOTA_NL_A_DEV_MAJOR] || !attrs[QUOTA_NL_A_DEV_MINOR] ||
