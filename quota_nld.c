@@ -23,9 +23,8 @@
 #include <string.h>
 #include <fcntl.h>
 
-#include <netlink/netlink.h>
-#include <netlink/netlink-kernel.h>
-#include <netlink/genl/mngt.h>
+#include <netlink/genl/genl.h>
+#include <netlink/genl/ctrl.h>
 
 #include <dbus/dbus.h>
 
@@ -54,9 +53,6 @@ struct quota_warning {
 	uint64_t caused_id;
 };
 
-static int quota_nl_warn_cmd_parser(struct genl_ops *ops, struct genl_cmd *cmd,
-	struct genl_info *info, void *arg);
-
 static struct nla_policy quota_nl_warn_cmd_policy[QUOTA_NL_A_MAX+1] = {
 	[QUOTA_NL_A_QTYPE] = { .type = NLA_U32 },
 	[QUOTA_NL_A_EXCESS_ID] = { .type = NLA_U64 },
@@ -66,27 +62,13 @@ static struct nla_policy quota_nl_warn_cmd_policy[QUOTA_NL_A_MAX+1] = {
 	[QUOTA_NL_A_CAUSED_ID] = { .type = NLA_U64 },
 };
 
-static struct genl_cmd quota_nl_warn_cmd = {
-	.c_id		= QUOTA_NL_C_WARNING,
-	.c_name		= "Quota warning",
-	.c_maxattr	= QUOTA_NL_A_MAX,
-	.c_attr_policy	= quota_nl_warn_cmd_policy,
-	.c_msg_parser	= quota_nl_warn_cmd_parser,
-};
-
-static struct genl_ops quota_nl_ops = {
-	.o_cmds		= &quota_nl_warn_cmd,
-	.o_ncmds	= 1,
-	.o_name		= "VFS_DQUOT",
-	.o_hdrsize	= 0,
-};
-
 /* User options */
 #define FL_NODBUS 1
 #define FL_NOCONSOLE 2
 #define FL_NODAEMON 4
 
 int flags;
+DBusConnection *dhandle;
 
 void show_help(void)
 {
@@ -131,52 +113,68 @@ static void parse_options(int argc, char **argv)
 	}
 }
 
-/* Parse netlink message and process it. */
-static int quota_nl_warn_cmd_parser(struct genl_ops *ops, struct genl_cmd *cmd,
-	struct genl_info *info, void *arg)
-{
-	struct quota_warning *warn = (struct quota_warning *)arg;
+static void write_console_warning(struct quota_warning *warn);
+static void write_dbus_warning(struct DBusConnection *dhandle, struct quota_warning *warn);
 
-	if (!info->attrs[QUOTA_NL_A_QTYPE] || !info->attrs[QUOTA_NL_A_EXCESS_ID] ||
-	    !info->attrs[QUOTA_NL_A_WARNING] || !info->attrs[QUOTA_NL_A_DEV_MAJOR] ||
-	    !info->attrs[QUOTA_NL_A_DEV_MAJOR] || !info->attrs[QUOTA_NL_A_DEV_MINOR] ||
-	    !info->attrs[QUOTA_NL_A_CAUSED_ID]) {
+/* Parse netlink message and process it. */
+static int quota_nl_parser(struct nl_msg *msg, void *arg)
+{
+	struct nlmsghdr *nlh = nlmsg_hdr(msg);
+	struct nlattr *attrs[QUOTA_NL_A_MAX+1];
+	struct quota_warning warn;
+	int ret;
+
+	/* Unknown message? Ignore... */
+	if (nlh->nlmsg_type != QUOTA_NL_C_WARNING)
+		return 0;
+
+	ret = genlmsg_parse(nlh, 0, attrs, QUOTA_NL_A_MAX, quota_nl_warn_cmd_policy);
+	if (!attrs[QUOTA_NL_A_QTYPE] || !attrs[QUOTA_NL_A_EXCESS_ID] ||
+	    !attrs[QUOTA_NL_A_WARNING] || !attrs[QUOTA_NL_A_DEV_MAJOR] ||
+	    !attrs[QUOTA_NL_A_DEV_MAJOR] || !attrs[QUOTA_NL_A_DEV_MINOR] ||
+	    !attrs[QUOTA_NL_A_CAUSED_ID]) {
 		errstr(_("Unknown format of kernel netlink message!\nMaybe your quota tools are too old?\n"));
 		return -EINVAL;
 	}
-	warn->qtype = nla_get_u32(info->attrs[QUOTA_NL_A_QTYPE]);
-	warn->excess_id = nla_get_u64(info->attrs[QUOTA_NL_A_EXCESS_ID]);
-	warn->warntype = nla_get_u32(info->attrs[QUOTA_NL_A_WARNING]);
-	warn->dev_major = nla_get_u32(info->attrs[QUOTA_NL_A_DEV_MAJOR]);
-	warn->dev_minor = nla_get_u32(info->attrs[QUOTA_NL_A_DEV_MINOR]);
-	warn->caused_id = nla_get_u64(info->attrs[QUOTA_NL_A_CAUSED_ID]);
+	warn.qtype = nla_get_u32(attrs[QUOTA_NL_A_QTYPE]);
+	warn.excess_id = nla_get_u64(attrs[QUOTA_NL_A_EXCESS_ID]);
+	warn.warntype = nla_get_u32(attrs[QUOTA_NL_A_WARNING]);
+	warn.dev_major = nla_get_u32(attrs[QUOTA_NL_A_DEV_MAJOR]);
+	warn.dev_minor = nla_get_u32(attrs[QUOTA_NL_A_DEV_MINOR]);
+	warn.caused_id = nla_get_u64(attrs[QUOTA_NL_A_CAUSED_ID]);
 
+	if (!(flags & FL_NOCONSOLE))
+		write_console_warning(&warn);
+	if (!(flags & FL_NODBUS))
+		write_dbus_warning(dhandle, &warn);
 	return 0;
 }
 
 static struct nl_handle *init_netlink(void)
 {
 	struct nl_handle *handle;
-	int ret;
+	int ret, family;
 
 	handle = nl_handle_alloc();
 	if (!handle)
 		die(2, _("Cannot allocate netlink handle!\n"));
 	nl_disable_sequence_check(handle);
-	ret = nl_connect(handle, NETLINK_GENERIC);
+	ret = genl_connect(handle);
 	if (ret < 0)
 		die(2, _("Cannot connect to netlink socket: %s\n"), strerror(-ret));
-	ret = genl_ops_resolve(handle, &quota_nl_ops);
+	family = genl_ctrl_resolve(handle, "VFS_DQUOT");
 	if (ret < 0)
 		die(2, _("Cannot resolve quota netlink name: %s\n"), strerror(-ret));
 
-	ret = nl_socket_add_membership(handle, quota_nl_ops.o_id);
+	ret = nl_socket_add_membership(handle, family);
 	if (ret < 0)
 		die(2, _("Cannot join quota multicast group: %s\n"), strerror(-ret));
 
-	ret = genl_register(&quota_nl_ops);
+	ret = nl_socket_modify_cb(handle, NL_CB_VALID, NL_CB_CUSTOM,
+			quota_nl_parser, NULL);
 	if (ret < 0)
-		die(2, _("Cannot register netlink family: %s\n"), strerror(-ret));
+		die(2, _("Cannot register callback for"
+			 " netlink messages: %s\n"), strerror(-ret));
 
 	return handle;
 }
@@ -321,42 +319,21 @@ out:
 		dbus_message_unref(msg);
 }
 
-static void run(struct nl_handle *nhandle, struct DBusConnection *dhandle)
+static void run(struct nl_handle *nhandle)
 {
-	struct sockaddr_nl nla;
-	struct ucred *creds;
-	struct quota_warning warn;
-	unsigned char *buf;
-	struct nlmsghdr *hdr;
 	int ret;
 
 	while (1) {
-		ret = nl_recv(nhandle, &nla, &buf, &creds);
+		ret = nl_recvmsgs_default(nhandle);
 		if (ret < 0)
-			die(2, _("Read from netlink socket failed: %s\n"), strerror(-ret));
-		hdr = (struct nlmsghdr *)buf;
-		/* Not message from quota? */
-		if (hdr->nlmsg_type != quota_nl_ops.o_id) {
-			free(buf);
-			continue;
-		}
-		ret = genl_msg_parser(&quota_nl_ops, &nla, (struct nlmsghdr *)buf, &warn);
-		if (!ret) {	/* Parsing successful? */
-			if (!(flags & FL_NOCONSOLE))
-				write_console_warning(&warn);
-			if (!(flags & FL_NODBUS))
-				write_dbus_warning(dhandle, &warn);
-		}
-		else
-			errstr(_("Failed parsing netlink command: %s\n"), strerror(-ret));
-		free(buf);
+			errstr(_("Failed to read or parse quota netlink"
+				" message: %s\n"), strerror(-ret));
 	}
 }
 
 int main(int argc, char **argv)
 {
 	struct nl_handle *nhandle;
-	DBusConnection *dhandle = NULL;
 
 	gettexton();
 	progname = basename(argv[0]);
@@ -369,6 +346,6 @@ int main(int argc, char **argv)
 		use_syslog();
 		daemon(0, 0);
 	}
-	run(nhandle, dhandle);
+	run(nhandle);
 	return 0;
 }
