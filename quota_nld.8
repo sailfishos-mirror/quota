@@ -9,8 +9,10 @@ quota_nld \- quota netlink message daemon
 .SH DESCRIPTION
 .BR quota_nld
 is a daemon that listens on netlink socket and processes received quota
-warnings. The daemon supports forwarding warning messages to the system's
-DBUS and writing them to the terminal user has last accessed.
+warnings. Note, that you have to enable the kernel support for sending quota
+messages over netlink (in Filesystems->Quota menu). The daemon supports
+forwarding warning messages to the system's DBUS (so that desktop manager
+can display a dialog) and writing them to the terminal user has last accessed.
 
 .SH OPTIONS
 .TP
