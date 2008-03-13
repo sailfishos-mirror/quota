@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaon.c,v 1.24 2007/09/18 12:23:54 jkar8572 Exp $"
+#ident "$Id: quotaon.c,v 1.25 2008/03/13 14:49:33 jkar8572 Exp $"
 
 /*
  * Turn quota on/off for a filesystem.
@@ -319,6 +319,7 @@ int v2_newstate(struct mntent *mnt, int type, char *file, int flags)
 
 	if (!dev)
 		return 1;
+
 	if (hasquota(mnt, type, 0))
 		errs = quotaonoff((char *)dev, mnt->mnt_dir, file, type, QF_VFSV0, flags);
 	free((char *)dev);

@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.53 2007/02/21 13:51:25 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.54 2008/03/13 14:49:33 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -26,6 +26,7 @@
 #include <sys/statfs.h>
 #include <sys/ioctl.h>
 #include <sys/mount.h>
+#include <sys/utsname.h>
 
 #if defined(HAVE_EXT2_INCLUDE)
 #include <linux/types.h>
@@ -1028,6 +1029,7 @@ static void check_all(void)
 {
 	struct mntent *mnt;
 	int checked = 0;
+	static int warned;
 
 	if (init_mounts_scan((flags & FL_ALL) ? 0 : 1, &mntpoint, 0) < 0)
 		die(2, _("Cannot initialize mountpoint scan.\n"));
@@ -1057,6 +1059,36 @@ static void check_all(void)
 			}
 			debug(FL_DEBUG, _("Detected quota format %s\n"), fmt2name(cfmt));
 		}
+
+		if (flags & FL_VERBOSE && !hasmntopt(mnt, MNTOPT_USRJQUOTA) &&
+		    !hasmntopt(mnt, MNTOPT_GRPJQUOTA) && !warned &&
+		    (!strcmp(mnt->mnt_type, MNTTYPE_EXT3) ||
+		     !strcmp(mnt->mnt_type, MNTTYPE_EXT4) ||
+		     !strcmp(mnt->mnt_type, MNTTYPE_REISER))) {
+			struct utsname stats;
+
+			/* Parse Linux kernel version and issue warning if not using
+			 * journaled quotas. */
+			warned = 1;
+			if (uname(&stats) < 0)
+				errstr(_("Cannot get system info: %s\n"),
+					strerror(errno));
+			else if (!strcmp(stats.sysname, "Linux")) {
+				int v;
+				char *errch;
+
+				v = strtol(stats.release, &errch, 10);
+				if (*errch == '.' && v >= 2) {
+					v = strtol(errch + 1, &errch, 10);
+					if (*errch == '.' && v >= 6) {
+						v = strtol(errch + 1, &errch, 10);
+						if (v >= 11)
+							errstr(_("Your kernel probably supports journaled quota but you are not using it. Consider switching to journaled quota to avoid running quotacheck after an unclean shutdown.\n"));
+					}
+				}
+			}
+		}
+
 		checked++;
 		check_dir(mnt);
 	}
