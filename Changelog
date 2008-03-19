@@ -1,3 +1,6 @@
+Changes in quota-tools from 3.16 to 3.17
+* removed ssl from the list of LDAP libraries since we don't need it (Jan Kara)
+
 Changes in quota-tools from 3.15 to 3.16
 * added information message about journaled quota to quotacheck (Jan Kara, Alex Tomas)
 * added pointers to quota_nld and warnquota to some manpages (Jan Kara)
