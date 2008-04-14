@@ -1,5 +1,6 @@
 Changes in quota-tools from 3.16 to 3.17
 * removed ssl, resolv, lber from the list of LDAP libraries since we don't need them directly (Jan Kara)
+* added limits.h include to quota_nld (Jan Kara)
 
 Changes in quota-tools from 3.15 to 3.16
 * added information message about journaled quota to quotacheck (Jan Kara, Alex Tomas)

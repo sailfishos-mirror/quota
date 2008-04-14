@@ -22,6 +22,7 @@
 #include <errno.h>
 #include <string.h>
 #include <fcntl.h>
+#include <limits.h>
 
 #include <netlink/genl/genl.h>
 #include <netlink/genl/ctrl.h>
