@@ -158,7 +158,7 @@ static int buffer_entry(dqbuf_t buf, uint blk, int *corrupted, uint * lblk, int 
 			if (flags & FL_GUESSDQ) {
 				if (!(flags & (FL_DEBUG | FL_VERBOSE)))
 					fputc('\n', stderr);
-				errstr(_("Found more structures for ID %u. Using values: BHARD: %Ld BSOFT: %Ld IHARD: %Ld ISOFT: %Ld\n"),
+				errstr(_("Found more structures for ID %u. Using values: BHARD: %lld BSOFT: %lld IHARD: %lld ISOFT: %lld\n"),
 					(uint) id, (long long)fdq->dqb_bhardlimit, (long long)fdq->dqb_bsoftlimit,
 					(long long)fdq->dqb_ihardlimit, (long long)fdq->dqb_isoftlimit);
 				return 0;
@@ -166,7 +166,7 @@ static int buffer_entry(dqbuf_t buf, uint blk, int *corrupted, uint * lblk, int 
 			else if (flags & FL_INTERACTIVE) {
 				if (!(flags & (FL_DEBUG | FL_VERBOSE)))
 					fputc('\n', stderr);
-				errstr(_("Found more structures for ID %u. Values: BHARD: %Ld/%Ld BSOFT: %Ld/%Ld IHARD: %Ld/%Ld ISOFT: %Ld/%Ld\n"),
+				errstr(_("Found more structures for ID %u. Values: BHARD: %lld/%lld BSOFT: %lld/%lld IHARD: %lld/%lld ISOFT: %lld/%lld\n"),
 					(uint) id, (long long)fdq->dqb_bhardlimit, (long long)mdq.dqb_bhardlimit,
 					(long long)fdq->dqb_bsoftlimit, (long long)mdq.dqb_bsoftlimit,
 					(long long)fdq->dqb_ihardlimit, (long long)mdq.dqb_ihardlimit,

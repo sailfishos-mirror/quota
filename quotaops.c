@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaops.c,v 1.20 2006/07/21 15:14:01 jkar8572 Exp $"
+#ident "$Id: quotaops.c,v 1.21 2008/04/21 15:37:42 jkar8572 Exp $"
 
 #include <rpc/rpc.h>
 #include <sys/types.h>
@@ -266,7 +266,7 @@ int writeprivs(struct dquot *qlist, int outfd, char *name, int quotatype)
 		_("  Filesystem                   blocks       soft       hard     inodes     soft     hard\n"));
 
 	for (q = qlist; q; q = q->dq_next) {
-		fprintf(fd, "  %-24s %10Lu %10Lu %10Lu %10Lu %8Lu %8Lu\n",
+		fprintf(fd, "  %-24s %10llu %10llu %10llu %10llu %8llu %8llu\n",
 			q->dq_h->qh_quotadev,
 			(long long)toqb(q->dq_dqb.dqb_curspace),
 			(long long)q->dq_dqb.dqb_bsoftlimit,
@@ -344,7 +344,7 @@ int readprivs(struct dquot *qlist, int infd)
 	fgets(line, sizeof(line), fd);
 
 	while (fgets(line, sizeof(line), fd)) {
-		cnt = sscanf(line, "%s %Lu %Lu %Lu %Lu %Lu %Lu",
+		cnt = sscanf(line, "%s %llu %llu %llu %llu %llu %llu",
 			     fsp, &blocks, &bsoft, &bhard, &inodes, &isoft, &ihard);
 
 		if (cnt != 7) {
@@ -370,7 +370,7 @@ int readprivs(struct dquot *qlist, int infd)
 			return -1;
 		}
 
-		cnt = sscanf(cp, _(" blocks in use: %Lu, limits (soft = %Lu, hard = %Lu)"),
+		cnt = sscanf(cp, _(" blocks in use: %llu, limits (soft = %llu, hard = %llu)"),
 			     &blocks, &bsoft, &bhard);
 		if (cnt != 3) {
 			errstr(_("%s - %s -- bad format\n"),
@@ -384,7 +384,7 @@ int readprivs(struct dquot *qlist, int infd)
 			return -1;
 		}
 
-		cnt = sscanf(cp, _("\tinodes in use: %Lu, limits (soft = %Lu, hard = %Lu)"),
+		cnt = sscanf(cp, _("\tinodes in use: %llu, limits (soft = %llu, hard = %llu)"),
 			     &inodes, &isoft, &ihard);
 		if (cnt != 3) {
 			errstr(_("%s - %s -- bad format\n"),

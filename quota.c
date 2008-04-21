@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quota.c,v 1.26 2007/09/18 16:21:07 jkar8572 Exp $"
+#ident "$Id: quota.c,v 1.27 2008/04/21 15:37:42 jkar8572 Exp $"
 
 /*
  * Disk quota reporting program.
@@ -204,7 +204,7 @@ int showquotas(int type, qid_t id, int mntcnt, char **mnt)
 			}
 			else {
 				if (bover)
-					sprintf(timebuf, "%Lu", (long long unsigned int)q->dq_dqb.dqb_btime);
+					sprintf(timebuf, "%llu", (long long unsigned int)q->dq_dqb.dqb_btime);
 				else
 					strcpy(timebuf, "0");
 			}
@@ -222,7 +222,7 @@ int showquotas(int type, qid_t id, int mntcnt, char **mnt)
 			}
 			else {
 				if (iover)
-					sprintf(timebuf, "%Lu", (long long unsigned int)q->dq_dqb.dqb_itime);
+					sprintf(timebuf, "%llu", (long long unsigned int)q->dq_dqb.dqb_itime);
 				else
 					strcpy(timebuf, "0");
 			}

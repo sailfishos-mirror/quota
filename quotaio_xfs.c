@@ -274,7 +274,7 @@ static int xfs_report(struct quota_handle *h, int verbose)
 		if (info->qs_uquota.qfs_ino == -1 || info->qs_uquota.qfs_ino == 0)
 			printf(_("Inode: none\n"));
 		else
-			printf(_("Inode: #%Lu (%Lu blocks, %u extents)\n"),
+			printf(_("Inode: #%llu (%llu blocks, %u extents)\n"),
 			       (unsigned long long)info->qs_uquota.qfs_ino,
 			       (unsigned long long)info->qs_uquota.qfs_nblks,
 			       info->qs_uquota.qfs_nextents);
@@ -283,7 +283,7 @@ static int xfs_report(struct quota_handle *h, int verbose)
 		if (info->qs_gquota.qfs_ino == -1)
 			printf(_("Inode: none\n"));
 		else
-			printf(_("Inode: #%Lu (%Lu blocks, %u extents)\n"),
+			printf(_("Inode: #%llu (%llu blocks, %u extents)\n"),
 			       (unsigned long long)info->qs_gquota.qfs_ino,
 			       (unsigned long long)info->qs_gquota.qfs_nblks,
 			       info->qs_gquota.qfs_nextents);

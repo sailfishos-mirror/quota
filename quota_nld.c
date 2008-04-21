@@ -251,12 +251,12 @@ static void write_console_warning(struct quota_warning *warn)
 		}
 	}
 	if (!max_atime) {
-		errstr(_("Failed to find tty of user %Lu to report warning to.\n"), (unsigned long long)warn->caused_id);
+		errstr(_("Failed to find tty of user %llu to report warning to.\n"), (unsigned long long)warn->caused_id);
 		return;
 	}
 	fd = open(max_dev, O_WRONLY);
 	if (fd < 0) {
-		errstr(_("Failed to open tty %s of user %Lu to report warning.\n"), dev, (unsigned long long)warn->caused_id);
+		errstr(_("Failed to open tty %s of user %llu to report warning.\n"), dev, (unsigned long long)warn->caused_id);
 		return;
 	}
 	id2name(warn->excess_id, warn->qtype, user);
@@ -288,7 +288,7 @@ static void write_console_warning(struct quota_warning *warn)
 	}
 	sprintf(warnbuf, "%s: %s %s %s.\r\n", level, type2name(warn->qtype), user, msg);
 	if (write_all(fd, warnbuf, strlen(warnbuf)) < 0)
-		errstr(_("Failed to write quota message for user %Lu to %s: %s\n"), (unsigned long long)warn->caused_id, dev, strerror(errno));
+		errstr(_("Failed to write quota message for user %llu to %s: %s\n"), (unsigned long long)warn->caused_id, dev, strerror(errno));
 	close(fd);
 }
 

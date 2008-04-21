@@ -181,7 +181,7 @@ static void print(struct dquot *dquot, char *name)
 		pname[PRINTNAMELEN] = 0;
 	if (entry->dqb_bsoftlimit && toqb(entry->dqb_curspace) >= entry->dqb_bsoftlimit)
 		if (flags & FL_RAWGRACE)
-			sprintf(time, "%Lu", (unsigned long long)entry->dqb_btime);
+			sprintf(time, "%llu", (unsigned long long)entry->dqb_btime);
 		else
 			difftime2str(entry->dqb_btime, time);
 	else
@@ -198,7 +198,7 @@ static void print(struct dquot *dquot, char *name)
 	       numbuf[0], numbuf[1], numbuf[2], time);
 	if (entry->dqb_isoftlimit && entry->dqb_curinodes >= entry->dqb_isoftlimit)
 		if (flags & FL_RAWGRACE)
-			sprintf(time, "%Lu", (unsigned long long)entry->dqb_itime);
+			sprintf(time, "%llu", (unsigned long long)entry->dqb_itime);
 		else
 			difftime2str(entry->dqb_itime, time);
 	else

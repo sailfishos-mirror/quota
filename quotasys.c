@@ -369,10 +369,10 @@ void space2str(qsize_t space, char *buf, int format)
 	if (format)
 		for (i = 3; i > 0; i--)
 			if (space >= (1LL << (QUOTABLOCK_BITS*i))*100) {
-				sprintf(buf, "%Lu%c", (unsigned long long)(space+(1 << (QUOTABLOCK_BITS*i))-1) >> (QUOTABLOCK_BITS*i), suffix[i]);
+				sprintf(buf, "%llu%c", (unsigned long long)(space+(1 << (QUOTABLOCK_BITS*i))-1) >> (QUOTABLOCK_BITS*i), suffix[i]);
 				return;
 			}
-	sprintf(buf, "%Lu", (unsigned long long)space);
+	sprintf(buf, "%llu", (unsigned long long)space);
 }
 
 /*
@@ -387,10 +387,10 @@ void number2str(unsigned long long num, char *buf, int format)
 	if (format)
 		for (i = 4, div = 1000000000000LL; i > 0; i--, div /= 1000)
 			if (num >= 100*div) {
-				sprintf(buf, "%Lu%c", (num+div-1) / div, suffix[i]);
+				sprintf(buf, "%llu%c", (num+div-1) / div, suffix[i]);
 				return;
 			}
-	sprintf(buf, "%Lu", num);
+	sprintf(buf, "%llu", num);
 }
 
 /*

@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.54 2008/03/13 14:49:33 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.55 2008/04/21 15:37:42 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -554,7 +554,7 @@ static int scan_dir(char *pathname)
 			if (gcheck)
 				add_to_quota(GRPQUOTA, st.st_ino, st.st_uid, st.st_gid, st.st_mode,
 					     st.st_nlink, qspace, 1);
-			debug(FL_DEBUG, _("\tAdding %s size %Ld ino %d links %d uid %u gid %u\n"), de->d_name,
+			debug(FL_DEBUG, _("\tAdding %s size %lld ino %d links %d uid %u gid %u\n"), de->d_name,
 			      (long long)st.st_size, (int)st.st_ino, (int)st.st_nlink, (int)st.st_uid, (int)st.st_gid);
 			files_done++;
 		}
