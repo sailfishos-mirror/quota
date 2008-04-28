@@ -192,7 +192,7 @@ msgid "Bugs to: %s\n"
 msgstr "B³êdy na adres: %s\n"
 
 #: edquota.c:178
-msgid "Prototype name does not make sence when editting grace period or times.\n"
+msgid "Prototype name does not make sense when editing grace period or times.\n"
 msgstr "Wzorcowy u¿ytkownik nie ma sensu przy edycji okresów pob³a¿liwo¶ci.\n"
 
 #: edquota.c:199
@@ -2277,7 +2277,7 @@ msgid "Group and user quotas cannot be used together.\n"
 msgstr "Limity grupy i u¿ytkownika nie mog± byæ u¿yte razem.\n"
 
 #: setquota.c:174
-msgid "Prototype user has no sense when editting grace times.\n"
+msgid "Prototype user has no sense when editing grace times.\n"
 msgstr "Wzorcowy u¿ytkownik nie ma sensu przy edycji okresów pob³a¿liwo¶ci.\n"
 
 #: setquota.c:178

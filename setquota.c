@@ -184,7 +184,7 @@ static void parse_options(int argcnt, char **argstr)
 		usage();
 	}
 	if (flags & FL_PROTO && flags & FL_GRACE) {
-		errstr(_("Prototype user has no sense when editting grace times.\n"));
+		errstr(_("Prototype user has no sense when editing grace times.\n"));
 		usage();
 	}
 	if (flags & FL_INDIVIDUAL_GRACE && flags & FL_GRACE) {

@@ -175,7 +175,7 @@ msgid "Can't write grace times to file.\n"
 msgstr "Impossible d'écrire les temps de sursis dans le fichier.\n"
 
 #: edquota.c:204
-msgid "Error while editting grace times.\n"
+msgid "Error while editing grace times.\n"
 msgstr "Erreur lors de la modification des temps de sursis.\n"
 
 #: edquota.c:208
@@ -187,7 +187,7 @@ msgid "Can't write individual grace times to file.\n"
 msgstr "Impossible d'écrire les temps de sursis individuels dans le fichier.\n"
 
 #: edquota.c:220
-msgid "Error while editting individual grace times.\n"
+msgid "Error while editing individual grace times.\n"
 msgstr "Erreur lors de la modification des temps de sursis individuels.\n"
 
 #: edquota.c:224
@@ -199,7 +199,7 @@ msgid "Can't write quotas to file.\n"
 msgstr "Impossible d'écrire les quotas dans le fichier.\n"
 
 #: edquota.c:240
-msgid "Error while editting quotas.\n"
+msgid "Error while editing quotas.\n"
 msgstr "Erreur lors de la modification des quotas.\n"
 
 #: edquota.c:244
@@ -1833,7 +1833,7 @@ msgid "Group and user quotas can't be used together.\n"
 msgstr "Les quotas groupes et utilisateurs ne peuvent pas être utilisés simultanément.\n"
 
 #: setquota.c:137
-msgid "Prototype user has no sense when editting grace times.\n"
+msgid "Prototype user has no sense when editing grace times.\n"
 msgstr "Un prototype d'utilisateur n'a pas lieu d'être pour la modification des temps de sursis.\n"
 
 #: setquota.c:158

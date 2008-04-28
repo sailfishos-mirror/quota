@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: edquota.c,v 1.22 2007/09/18 16:21:07 jkar8572 Exp $"
+#ident "$Id: edquota.c,v 1.23 2008/04/28 10:25:37 jkar8572 Exp $"
 
 /*
  * Disk quota editor.
@@ -181,7 +181,7 @@ int parse_options(int argc, char **argv)
 	if (((flags & FL_EDIT_PERIOD) && argc != 0) || ((flags & FL_EDIT_TIMES) && argc < 1))
 		usage();
 	if ((flags & (FL_EDIT_PERIOD | FL_EDIT_TIMES)) && protoname) {
-		errstr(_("Prototype name does not make sence when editting grace period or times.\n"));
+		errstr(_("Prototype name does not make sense when editing grace period or times.\n"));
 		usage();
 	}
 	return optind;
@@ -196,8 +196,11 @@ void copy_prototype(int argc, char **argv, struct quota_handle **handles)
 	protoid = name2id(protoname, quotatype, !!(flags & FL_NUMNAMES), NULL);
 	protoprivs = getprivs(protoid, handles, 0);
 	while (argc-- > 0) {
-		id = name2id(*argv++, quotatype, !!(flags & FL_NUMNAMES), NULL);
+		id = name2id(*argv, quotatype, !!(flags & FL_NUMNAMES), NULL);
 		curprivs = getprivs(id, handles, 0);
+		if (!curprivs)
+			die(1, _("Cannot get quota information for user %s\n"), *argv);
+		argv++;
 
 		for (pprivs = protoprivs, cprivs = curprivs; pprivs && cprivs;
 		     pprivs = pprivs->dq_next, cprivs = cprivs->dq_next) {
@@ -276,7 +279,7 @@ int main(int argc, char **argv)
 			ret = -1;
 		}
 		if (editprivs(tmpfil) < 0) {
-			errstr(_("Error while editting grace times.\n"));
+			errstr(_("Error while editing grace times.\n"));
 			ret = -1;
 		}
 		if (readtimes(handles, tmpfd) < 0) {
@@ -288,13 +291,15 @@ int main(int argc, char **argv)
 		for (; argc > 0; argc--, argv++) {
 			id = name2id(*argv, quotatype, !!(flags & FL_NUMNAMES), NULL);
 			curprivs = getprivs(id, handles, 0);
+			if (!curprivs)
+				die(1, _("Cannot get quota information for user %s.\n"), *argv);
 			if (writeindividualtimes(curprivs, tmpfd, *argv, quotatype) < 0) {
 				errstr(_("Cannot write individual grace times to file.\n"));
 				ret = -1;
 				continue;
 			}
 			if (editprivs(tmpfil) < 0) {
-				errstr(_("Error while editting individual grace times.\n"));
+				errstr(_("Error while editing individual grace times.\n"));
 				ret = -1;
 				continue;
 			}
@@ -312,13 +317,15 @@ int main(int argc, char **argv)
 		for (; argc > 0; argc--, argv++) {
 			id = name2id(*argv, quotatype, !!(flags & FL_NUMNAMES), NULL);
 			curprivs = getprivs(id, handles, 0);
+			if (!curprivs)
+				die(1, _("Cannot get quota information for user %s.\n"), *argv);
 			if (writeprivs(curprivs, tmpfd, *argv, quotatype) < 0) {
 				errstr(_("Cannot write quotas to file.\n"));
 				ret = -1;
 				continue;
 			}
 			if (editprivs(tmpfil) < 0) {
-				errstr(_("Error while editting quotas.\n"));
+				errstr(_("Error while editing quotas.\n"));
 				ret = -1;
 				continue;
 			}
