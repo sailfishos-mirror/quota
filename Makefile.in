@@ -101,6 +101,9 @@ install: all @INSTMO@
 	-$(INSTALL) -m 644 rquota.h rquota.x $(ROOTDIR)$(includedir)/rpcsvc
 	-$(INSTALL) $(STRIP) -m $(DEF_SBIN_MODE) quota $(ROOTDIR)$(bindir)
 	-$(INSTALL) $(STRIP) -m $(DEF_SBIN_MODE) rpc.rquotad $(ROOTDIR)$(sbindir)
+ifneq ($(NETLINKLIBS),)
+	-$(INSTALL) $(STRIP) -m $(DEF_SBIN_MODE) quota_nld $(ROOTDIR)$(sbindir)
+endif
 	-$(INSTALL) -m $(DEF_MAN_MODE) *.1 $(ROOTDIR)$(mandir)/man1
 	-$(INSTALL) -m $(DEF_MAN_MODE) *.2 $(ROOTDIR)$(mandir)/man2
 	-$(INSTALL) -m $(DEF_MAN_MODE) *.3 $(ROOTDIR)$(mandir)/man3

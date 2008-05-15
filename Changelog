@@ -1,9 +1,11 @@
 Changes in quota-tools from 3.16 to 3.17
+* Added quota_nld to the list of installed programs (Jan Kara)
 * some typos fixes (Matthew Boyle)
 * fixed possible segfault when unpriviledged user run edquota (Matthew Boyle)
 * fixed format strings to use "%llu" and "%lld" instead of "%Lu" and "%Ld" (Ladislav Michnovic)
 * removed ssl, resolv, lber from the list of LDAP libraries since we don't need them directly (Jan Kara)
 * added limits.h include to quota_nld (Jan Kara)
+* fixed repquota to work with limits over 4 TB (Jan Kara, Michael Meier)
 
 Changes in quota-tools from 3.15 to 3.16
 * added information message about journaled quota to quotacheck (Jan Kara, Alex Tomas)

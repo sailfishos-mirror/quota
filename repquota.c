@@ -158,7 +158,7 @@ static void parse_options(int argcnt, char **argstr)
 }
 
 /* Are we over soft or hard limit? */
-static char overlim(uint usage, uint softlim, uint hardlim)
+static char overlim(qsize_t usage, qsize_t softlim, qsize_t hardlim)
 {
 	if ((usage > softlim && softlim) || (usage > hardlim && hardlim))
 		return '+';
