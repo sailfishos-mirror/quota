@@ -10,7 +10,7 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.30 2007/08/23 14:05:49 jkar8572 Exp $
+ * Version: $Id: warnquota.c,v 1.31 2008/07/09 15:26:37 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -102,6 +102,7 @@ struct configparams {
 	char cc_to[CNF_BUFFER];
 	char support[CNF_BUFFER];
 	char phone[CNF_BUFFER];
+	char charset[CNF_BUFFER];
 	char *user_message;
 	char *user_signature;
 	char *group_message;
@@ -501,6 +502,11 @@ static int mail_user(struct offenderlist *offender, struct configparams *config)
 	fprintf(fp, "To: %s\n", to);
 	if (should_cc(offender, config))
 		fprintf(fp, "Cc: %s\n", config->cc_to);
+	if ((config->charset)[0] != '\0') { /* are we supposed to set the encoding */
+		fprintf(fp, "Content-Type: text/plain; charset=%s\n", config->charset);
+		fprintf(fp, "Content-Disposition: inline\n");
+		fprintf(fp, "Content-Transfer-Encoding: 8bit\n");
+	}
 	fprintf(fp, "\n");
 	free(to);
 
@@ -708,6 +714,7 @@ static int readconfigfile(const char *filename, struct configparams *config)
 	sstrncpy(config->cc_to, CC_TO, CNF_BUFFER);
 	sstrncpy(config->support, SUPPORT, CNF_BUFFER);
 	sstrncpy(config->phone, PHONE, CNF_BUFFER);
+	(config->charset)[0] = '\0';
 	maildev[0] = 0;
 	config->user_signature = config->user_message = config->group_signature = config->group_message = NULL;
 	config->use_ldap_mail = 0;
@@ -773,10 +780,12 @@ static int readconfigfile(const char *filename, struct configparams *config)
 				sstrncpy(config->support, value, CNF_BUFFER);
 			else if (!strcmp(var, "PHONE"))
 				sstrncpy(config->phone, value, CNF_BUFFER);
-			else if (!strcmp(var, "MAILDEV")) {
+			else if (!strcmp(var, "CHARSET"))
+				sstrncpy(config->charset, value, CNF_BUFFER);
+			else if (!strcmp(var, "MAILDEV"))
 				/* set the global */
 				sstrncpy(maildev, value, CNF_BUFFER);
-			} else if (!strcmp(var, "MESSAGE")) {
+			else if (!strcmp(var, "MESSAGE")) {
 				config->user_message = sstrdup(value);
 				create_eoln(config->user_message);
 				verify_format(config->user_message, "MESSAGE");
