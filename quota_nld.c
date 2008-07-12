@@ -67,6 +67,7 @@ static struct nla_policy quota_nl_warn_cmd_policy[QUOTA_NL_A_MAX+1] = {
 #define FL_NODBUS 1
 #define FL_NOCONSOLE 2
 #define FL_NODAEMON 4
+#define FL_PRINTBELOW 8
 
 int flags;
 DBusConnection *dhandle;
@@ -77,6 +78,7 @@ void show_help(void)
  -h --help         shows this text\n\
  -V --version      shows version information\n\
  -C --no-console   do not try to write messages to console\n\
+ -b --print-below  write to console also information about getting below hard/soft limits\n\
  -D --no-dbus      do not try to write messages to DBUS\n\
  -F --foreground   run daemon in foreground\n"), progname);
 }
@@ -85,7 +87,7 @@ static void parse_options(int argc, char **argv)
 {
 	int opt;
 
-	while ((opt = getopt_long(argc, argv, "VhDCF", options, NULL)) >= 0) {
+	while ((opt = getopt_long(argc, argv, "VhDCFb", options, NULL)) >= 0) {
 		switch (opt) {
 			case 'V':
 				version();
@@ -101,6 +103,9 @@ static void parse_options(int argc, char **argv)
 				break;
 			case 'F':
 				flags |= FL_NODAEMON;
+				break;
+			case 'b':
+				flags |= FL_PRINTBELOW;
 				break;
 			default:
 				errstr(_("Unknown option '%c'.\n"), opt);
@@ -231,6 +236,11 @@ static void write_console_warning(struct quota_warning *warn)
 	char warnbuf[WARN_BUF_SIZE];
 	char *level, *msg;
 
+	if ((warn->warntype == QUOTA_NL_IHARDBELOW ||
+	    warn->warntype == QUOTA_NL_ISOFTBELOW ||
+	    warn->warntype == QUOTA_NL_BHARDBELOW ||
+	    warn->warntype == QUOTA_NL_BSOFTBELOW) && !(flags & FL_PRINTBELOW))
+		return;
 	uid2user(warn->caused_id, user);
 	strcpy(dev, "/dev/");
 
@@ -260,31 +270,47 @@ static void write_console_warning(struct quota_warning *warn)
 		return;
 	}
 	id2name(warn->excess_id, warn->qtype, user);
-	if (warn->warntype == QUOTA_NL_ISOFTWARN || warn->warntype == QUOTA_NL_BSOFTWARN)
-		level = "Warning";
+	if (warn->warntype == QUOTA_NL_ISOFTWARN ||
+	    warn->warntype == QUOTA_NL_BSOFTWARN)
+		level = _("Warning");
+	else if (warn->warntype == QUOTA_NL_IHARDWARN ||
+		 warn->warntype == QUOTA_NL_BHARDWARN)
+		level = _("Error");
 	else
-		level = "Error";
+		level = _("Info");
 	switch (warn->warntype) {
 		case QUOTA_NL_IHARDWARN:
-			msg = "file limit reached";
+			msg = _("file limit reached");
 			break;
 		case QUOTA_NL_ISOFTLONGWARN:
-			msg = "file quota exceeded too long";
+			msg = _("file quota exceeded too long");
 			break;
 		case QUOTA_NL_ISOFTWARN:
-			msg = "file quota exceeded";
+			msg = _("file quota exceeded");
 			break;
 		case QUOTA_NL_BHARDWARN:
-			msg = "block limit reached";
+			msg = _("block limit reached");
 			break;
 		case QUOTA_NL_BSOFTLONGWARN:
-			msg = "block quota exceeded too long";
+			msg = _("block quota exceeded too long");
 			break;
 		case QUOTA_NL_BSOFTWARN:
-			msg = "block quota exceeded";
+			msg = _("block quota exceeded");
+			break;
+		case QUOTA_NL_IHARDBELOW:
+			msg = _("got below file limit");
+			break;
+		case QUOTA_NL_ISOFTBELOW:
+			msg = _("got below file quota");
+			break;
+		case QUOTA_NL_BHARDBELOW:
+			msg = _("got below block limit");
+			break;
+		case QUOTA_NL_BSOFTBELOW:
+			msg = _("got below block quota");
 			break;
 		default:
-			msg = "unknown quota warning";
+			msg = _("unknown quota warning");
 	}
 	sprintf(warnbuf, "%s: %s %s %s.\r\n", level, type2name(warn->qtype), user, msg);
 	if (write_all(fd, warnbuf, strlen(warnbuf)) < 0)
