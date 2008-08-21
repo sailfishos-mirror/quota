@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.55 2008/04/21 15:37:42 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.56 2008/08/21 11:19:09 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -721,6 +721,18 @@ static int rename_files(struct mntent *mnt, int type)
 	}
 	if (ioctl(fd, EXT2_IOC_GETFLAGS, &ext2_flags) < 0)
 		debug(FL_DEBUG, _("EXT2_IOC_GETFLAGS failed: %s\n"), strerror(errno));
+	/* IMMUTABLE flag set probably because system crashed and quota was not properly
+	 * turned off */
+	if (ext2_flags & EXT2_IMMUTABLE_FL) {
+		debug(FL_DEBUG | FL_VERBOSE, _("Quota file %s has IMMUTABLE flag set. Clearing.\n"), filename);
+		ext2_flags &= ~EXT2_IMMUTABLE_FL;
+		if (ioctl(fd, EXT2_IOC_SETFLAGS, &ext2_flags) < 0) {
+			errstr(_("Failed to remove IMMUTABLE flag from quota file %s: %s\n"), filename, strerror(errno));
+			free(filename);
+			close(fd);
+			return -1;
+		}
+	}
 	close(fd);
 #endif
 	if (flags & FL_BACKUPS) {
