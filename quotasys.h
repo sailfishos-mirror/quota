@@ -41,6 +41,8 @@ extern int kernel_formats, kernel_iface;
  */
 /* Check whether type is one of the NFS filesystems */
 int nfs_fstype(char *);
+/* Quota file is treated as metadata? */
+int meta_qf_fstype(char *type);
 
 /* Convert quota type to written form */
 char *type2name(int);

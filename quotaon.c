@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaon.c,v 1.25 2008/03/13 14:49:33 jkar8572 Exp $"
+#ident "$Id: quotaon.c,v 1.26 2008/12/17 12:40:07 jkar8572 Exp $"
 
 /*
  * Turn quota on/off for a filesystem.
@@ -172,6 +172,12 @@ static int newstate(struct mntent *mnt, int type, char *extra)
 		    || kern_quota_on(mnt->mnt_fsname, GRPQUOTA, 1 << QF_XFS)))
 		    || (!(flags & FL_OFF) && kern_quota_on(mnt->mnt_fsname, type, 1 << QF_XFS))))
 			ret = xfs_newstate(mnt, type, extra, sflags);
+	}
+	else if (meta_qf_fstype(mnt->mnt_type)) {
+		if (!hasquota(mnt, type, 0))
+			return 0;
+		/* Must be non-empty because empty path is always invalid. */
+		ret = v2_newstate(mnt, type, ".", sflags);
 	}
 	else {
 		if (!hasquota(mnt, type, 0))

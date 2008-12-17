@@ -50,6 +50,7 @@
 #define QF_VFSV0 1		/* New quota format - version 0 */
 #define QF_RPC 2		/* RPC should be used on given filesystem */
 #define QF_XFS 3		/* XFS quota format */
+#define QF_META 4		/* Quota files are hidden, we don't care about the format */
 
 /*
  * Definitions for disk quotas imposed on the average user
@@ -152,6 +153,9 @@ struct quotafile_ops {
 	int (*scan_dquots) (struct quota_handle * h, int (*process_dquot) (struct dquot * dquot, char * dqname));	/* Scan quotafile and call callback on every structure */
 	int (*report) (struct quota_handle * h, int verbose);	/* Function called after 'repquota' to print format specific file information */
 };
+
+/* This might go into a special header file but that sounds a bit silly... */
+extern struct quotafile_ops quotafile_ops_meta;
 
 static inline void mark_quotafile_info_dirty(struct quota_handle *h)
 {

@@ -8,7 +8,7 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.56 2008/08/21 11:19:09 jkar8572 Exp $"
+#ident "$Id: quotacheck.c,v 1.57 2008/12/17 12:40:07 jkar8572 Exp $"
 
 #include <dirent.h>
 #include <stdio.h>
@@ -1048,7 +1048,8 @@ static void check_all(void)
 	while ((mnt = get_next_mount())) {
 		if (flags & FL_ALL && flags & FL_NOROOT && !strcmp(mnt->mnt_dir, "/"))
 			continue;
-		if (!strcmp(mnt->mnt_type, MNTTYPE_XFS) || nfs_fstype(mnt->mnt_type)) {
+		if (!strcmp(mnt->mnt_type, MNTTYPE_XFS) || nfs_fstype(mnt->mnt_type) ||
+		    meta_qf_fstype(mnt->mnt_type)) {
 			debug(FL_DEBUG | FL_VERBOSE, _("Skipping %s [%s]\n"), mnt->mnt_fsname, mnt->mnt_dir);
 			continue;
 		}
@@ -1076,6 +1077,7 @@ static void check_all(void)
 		    !hasmntopt(mnt, MNTOPT_GRPJQUOTA) && !warned &&
 		    (!strcmp(mnt->mnt_type, MNTTYPE_EXT3) ||
 		     !strcmp(mnt->mnt_type, MNTTYPE_EXT4) ||
+		     !strcmp(mnt->mnt_type, MNTTYPE_EXT4DEV) ||
 		     !strcmp(mnt->mnt_type, MNTTYPE_REISER))) {
 			struct utsname stats;
 

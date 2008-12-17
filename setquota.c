@@ -78,10 +78,10 @@ static void usage(void)
 }
 
 /* Convert string to number - print errstr message in case of failure */
-static long parse_num(char *str, char *msg)
+static qsize_t parse_unum(char *str, char *msg)
 {
 	char *errch;
-	long ret = strtol(str, &errch, 0);
+	qsize_t ret = strtoull(str, &errch, 0);
 
 	if (*errch) {
 		errstr(_("Bad %s: %s\n"), msg, str);
@@ -219,17 +219,17 @@ static void parse_options(int argcnt, char **argstr)
 	if (!(flags & (FL_GRACE | FL_BATCH))) {
 		id = name2id(argstr[optind++], flag2type(flags), !!(flags & FL_NUMNAMES), NULL);
 		if (!(flags & (FL_GRACE | FL_INDIVIDUAL_GRACE | FL_PROTO))) {
-			toset.dqb_bsoftlimit = parse_num(argstr[optind++], _("block softlimit"));
-			toset.dqb_bhardlimit = parse_num(argstr[optind++], _("block hardlimit"));
-			toset.dqb_isoftlimit = parse_num(argstr[optind++], _("inode softlimit"));
-			toset.dqb_ihardlimit = parse_num(argstr[optind++], _("inode hardlimit"));
+			toset.dqb_bsoftlimit = parse_unum(argstr[optind++], _("block softlimit"));
+			toset.dqb_bhardlimit = parse_unum(argstr[optind++], _("block hardlimit"));
+			toset.dqb_isoftlimit = parse_unum(argstr[optind++], _("inode softlimit"));
+			toset.dqb_ihardlimit = parse_unum(argstr[optind++], _("inode hardlimit"));
 		}
 		else if (flags & FL_PROTO)
 			protoid = name2id(protoname, flag2type(flags), !!(flags & FL_NUMNAMES), NULL);
 	}
 	if (flags & FL_GRACE) {
-		toset.dqb_btime = parse_num(argstr[optind++], _("block grace time"));
-		toset.dqb_itime = parse_num(argstr[optind++], _("inode grace time"));
+		toset.dqb_btime = parse_unum(argstr[optind++], _("block grace time"));
+		toset.dqb_itime = parse_unum(argstr[optind++], _("inode grace time"));
 	}
 	else if (flags & FL_INDIVIDUAL_GRACE) {
 		time_t now;
@@ -240,13 +240,13 @@ static void parse_options(int argcnt, char **argstr)
 			optind++;
 		}
 		else
-			toset.dqb_btime = now + parse_num(argstr[optind++], _("block grace time"));
+			toset.dqb_btime = now + parse_unum(argstr[optind++], _("block grace time"));
 		if (!strcmp(argstr[optind], _("unset"))) {
 			toset.dqb_itime = 0;
 			optind++;
 		}
 		else
-			toset.dqb_itime = now + parse_num(argstr[optind++], _("inode grace time"));
+			toset.dqb_itime = now + parse_unum(argstr[optind++], _("inode grace time"));
 	}
 	if (!(flags & FL_ALL)) {
 		mntcnt = argcnt - optind;

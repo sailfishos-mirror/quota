@@ -48,6 +48,15 @@ int nfs_fstype(char *type)
 }
 
 /*
+ *	Check whether filesystem has hidden quota files which is handles
+ *	as metadata (and thus always tracks usage).
+ */
+int meta_qf_fstype(char *type)
+{
+	return !strcmp(type, MNTTYPE_OCFS2);
+}
+
+/*
  *	Check whether give filesystem type is supported
  */
 
@@ -63,6 +72,7 @@ static int correct_fstype(char *type)
 		if (!strcmp(type, MNTTYPE_EXT2) ||
 		    !strcmp(type, MNTTYPE_EXT3) ||
 		    !strcmp(type, MNTTYPE_EXT4) ||
+		    !strcmp(type, MNTTYPE_EXT4DEV) ||
 		    !strcmp(type, MNTTYPE_JFS) ||
 		    !strcmp(type, MNTTYPE_MINIX) ||
 		    !strcmp(type, MNTTYPE_UFS) ||
@@ -71,6 +81,7 @@ static int correct_fstype(char *type)
 		    !strcmp(type, MNTTYPE_XFS) ||
 		    !strcmp(type, MNTTYPE_NFS) ||
 		    !strcmp(type, MNTTYPE_NFS4) ||
+		    !strcmp(type, MNTTYPE_OCFS2) ||
 		    !strcmp(type, MNTTYPE_MPFS)) {
 			free(mtype);
 			return 1;
@@ -267,6 +278,8 @@ int kern2utilfmt(int fmt)
 			return QF_VFSOLD;
 		case QFMT_VFS_V0:
 			return QF_VFSV0;
+		case QFMT_OCFS2:
+			return QF_META;
 	}
 	return -1;
 }
@@ -700,7 +713,7 @@ void init_kernel_interface(void)
 	/* Detect new kernel interface; Assume generic interface unless we can prove there is not one... */
 	if (!stat("/proc/sys/fs/quota", &st) || errno != ENOENT) {
 		kernel_iface = IFACE_GENERIC;
-		kernel_formats |= (1 << QF_VFSOLD) | (1 << QF_VFSV0);
+		kernel_formats |= (1 << QF_VFSOLD) | (1 << QF_VFSV0) | (1 << QF_META);
 	}
 	else {
 		struct v2_dqstats v2_stats;

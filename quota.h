@@ -4,7 +4,7 @@
 #include <sys/types.h>
 
 typedef u_int32_t qid_t;	/* Type in which we store ids in memory */
-typedef u_int64_t qsize_t;	/* Type in which we store size limitations */
+typedef int64_t qsize_t;	/* Type in which we store size limitations */
 
 #define MAXQUOTAS 2
 #define USRQUOTA  0		/* element used for user quotas */
@@ -139,6 +139,7 @@ enum {
 /* Quota format identifiers */
 #define QFMT_VFS_OLD 1
 #define QFMT_VFS_V0  2
+#define QFMT_OCFS2   3
 
 /* Flags supported by kernel */
 #define V1_DQF_RSQUASH 1

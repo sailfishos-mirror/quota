@@ -97,8 +97,26 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 			fmt = kernfmt;	/* Default is kernel used format */
 		}
 	}
-	if ((fmt = get_qf_name(mnt, type, (fmt == -1) ? ((1 << QF_VFSOLD) | (1 << QF_VFSV0)) : (1 << fmt),
-	    (!QIO_ENABLED(h) || flags & IOI_OPENFILE) ? NF_FORMAT : 0, &qfname)) < 0) {
+
+	if (meta_qf_fstype(mnt->mnt_type)) {
+		if (!QIO_ENABLED(h)) {
+			errstr(_("Quota not supported by the filesystem.\n"));
+			goto out_handle;
+		}
+		if (flags & IOI_OPENFILE) {
+			errstr(_("Operation not supported for filesystems with hidden quota files!\n"));
+			goto out_handle;
+		}
+		h->qh_fd = -1;
+		h->qh_fmt = fmt;
+		goto set_ops;
+	}
+
+	fmt = get_qf_name(mnt, type,
+			  (fmt == -1) ? ((1 << QF_VFSOLD) | (1 << QF_VFSV0)) : (1 << fmt),
+			  (!QIO_ENABLED(h) || flags & IOI_OPENFILE) ? NF_FORMAT : 0,
+			  &qfname);
+	if (fmt < 0) {
 		errstr(_("Quota file not found or has wrong format.\n"));
 		goto out_handle;
 	}
@@ -121,10 +139,13 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 	free(qfname);	/* We don't need it anymore */
 	qfname = NULL;
 
+set_ops:
 	if (h->qh_fmt == QF_VFSOLD)
 		h->qh_ops = &quotafile_ops_1;
 	else if (h->qh_fmt == QF_VFSV0)
 		h->qh_ops = &quotafile_ops_2;
+	else if (h->qh_fmt == QF_META)
+		h->qh_ops = &quotafile_ops_meta;
 	memset(&h->qh_info, 0, sizeof(h->qh_info));
 
 	if (h->qh_ops->init_io && h->qh_ops->init_io(h) < 0) {
@@ -155,7 +176,7 @@ struct quota_handle *new_io(struct mntent *mnt, int type, int fmt)
 
 	if (fmt == -1)
 		fmt = QF_VFSV0;	/* Use the newest format */
-	else if (fmt == QF_RPC || fmt == QF_XFS) {
+	else if (fmt == QF_RPC || fmt == QF_XFS || meta_qf_fstype(mnt->mnt_type)) {
 		errstr(_("Creation of %s quota format is not supported.\n"),
 			fmt == QF_RPC ? "RPC" : "XFS");
 		return NULL;

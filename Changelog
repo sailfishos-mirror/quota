@@ -1,4 +1,9 @@
 Changes in quota-tools from 3.16 to 3.17
+* fix reference to rpc manpage (anonymous reporter)
+* add EXT4 (not only EXT4DEV) to the list of supported filesystems (Mingming Cao)
+* fix setting of more than 31-bit block and inode limits (Gui Xiaohua)
+* fixed bug in error reporting when quota reading fails (Jan Kara)
+* added support for quota formats with hidden quota files (Jan Kara)
 * remove IMMUTABLE flag from quota file in quotacheck (Jan Kara)
 * fix bug in warnquota which could result in bogus hostname and domainname (anonymous reporter)
 * implemented writing of messages that user got below hard/soft limits to quota_nld (Jan Kara)
