@@ -387,8 +387,14 @@ static int setindivgraces(struct quota_handle **handles)
 
 	curprivs = getprivs(id, handles, 0);
 	for (q = curprivs; q; q = q->dq_next) {
-		q->dq_dqb.dqb_btime = toset.dqb_btime;
-		q->dq_dqb.dqb_itime = toset.dqb_itime;
+		if (q->dq_dqb.dqb_bsoftlimit && toqb(q->dq_dqb.dqb_curspace) > q->dq_dqb.dqb_bsoftlimit)
+			q->dq_dqb.dqb_btime = toset.dqb_btime;
+		else
+			errstr(_("Not setting block grace time on %s because softlimit is not exceeded.\n"), q->dq_h->qh_quotadev);
+		if (q->dq_dqb.dqb_isoftlimit && q->dq_dqb.dqb_curinodes > q->dq_dqb.dqb_isoftlimit)
+			q->dq_dqb.dqb_itime = toset.dqb_itime;
+		else
+			errstr(_("Not setting inode grace time on %s because softlimit is not exceeded.\n"), q->dq_h->qh_quotadev);
 	}
 	if (putprivs(curprivs, COMMIT_TIMES) == -1) {
 		errstr(_("cannot write times for %s. Maybe kernel does not support such operation?\n"), type2name(flags & FL_USER ? USRQUOTA : GRPQUOTA));

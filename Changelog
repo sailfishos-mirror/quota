@@ -1,4 +1,5 @@
 Changes in quota-tools from 3.16 to 3.17
+* do not allow setting of user's grace time when softlimit is not exceeded (Jan Kara)
 * fix reference to rpc manpage (anonymous reporter)
 * add EXT4 (not only EXT4DEV) to the list of supported filesystems (Mingming Cao)
 * fix setting of more than 31-bit block and inode limits (Gui Xiaohua)
