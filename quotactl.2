@@ -268,16 +268,24 @@ is not a block device.
 The call is privileged and the caller was not the super-user.
 .TP
 .SM ESRCH
-No disc quota is found for the indicated user.
-.IP
-Quotas have not been turned on for this filesystem.
+No disc quota is found for the indicated user. Quotas have not been turned on for this filesystem.
+.LP
+If
+.I cmd
+is
+.BR \s-1Q_SETQUOTA\s0 ,
+.B quotactl(\|)
+may also set errno to:
+.TP 15
+.SM ERANGE
+Specified limits are out of range allowed by quota format.
 .LP
 If
 .I cmd
 is
 .BR \s-1Q_QUOTAON\s0 ,
 .B quotactl(\|)
-may set errno to:
+may also set errno to:
 .TP 15
 .SM EACCES
 The quota file pointed to by
