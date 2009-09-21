@@ -9,7 +9,7 @@
  *
  *          This part does the lookup of the info.
  *
- * Version: $Id: rquota_server.c,v 1.19 2007/08/27 12:32:57 jkar8572 Exp $
+ * Version: $Id: rquota_server.c,v 1.20 2009/09/21 15:14:48 jkar8572 Exp $
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
@@ -167,7 +167,7 @@ setquota_rslt *setquotainfo(int lflags, caddr_t * argp, struct svc_req *rqstp)
 	result.status = Q_NOQUOTA;
 	result.setquota_rslt_u.sqr_rquota.rq_bsize = RPC_DQBLK_SIZE;
 
-	if (init_mounts_scan(1, &pathp, MS_QUIET | MS_NO_MNTPOINT | ((flags & FL_AUTOFS) ? 0 : MS_NO_AUTOFS)) < 0)
+	if (init_mounts_scan(1, &pathp, MS_QUIET | MS_NO_MNTPOINT | MS_NFS_ALL | ((flags & FL_AUTOFS) ? 0 : MS_NO_AUTOFS)) < 0)
 		goto out;
 	if (!(mnt = get_next_mount())) {
 		end_mounts_scan();
@@ -259,7 +259,7 @@ getquota_rslt *getquotainfo(int lflags, caddr_t * argp, struct svc_req * rqstp)
 	result.status = Q_NOQUOTA;
 	result.getquota_rslt_u.gqr_rquota.rq_bsize = RPC_DQBLK_SIZE;
 
-	if (init_mounts_scan(1, &pathp, MS_QUIET | MS_NO_MNTPOINT | ((flags & FL_AUTOFS) ? 0 : MS_NO_AUTOFS)) < 0)
+	if (init_mounts_scan(1, &pathp, MS_QUIET | MS_NO_MNTPOINT | MS_NFS_ALL | ((flags & FL_AUTOFS) ? 0 : MS_NO_AUTOFS)) < 0)
 		goto out;
 	if (!(mnt = get_next_mount())) {
 		end_mounts_scan();

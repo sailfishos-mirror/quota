@@ -606,6 +606,10 @@ struct quota_handle **create_handle_list(int count, char **mntpoints, int type, 
 		hlist_allocated = START_MNT_POINTS;
 	}
 
+	/* If directories are specified, cache all NFS mountpoints */
+	if (count && !(mntflags & MS_LOCALONLY))
+		mntflags |= MS_NFS_ALL;
+
 	if (init_mounts_scan(count, mntpoints, mntflags) < 0)
 		die(2, _("Cannot initialize mountpoint scan.\n"));
 	while ((mnt = get_next_mount())) {
@@ -987,9 +991,9 @@ static int cache_mnt_table(int flags)
 				continue;
 			}
 			if (nfs_fstype(mnt->mnt_type)) {
+				/* For network filesystems we must get device from root */
+				dev = st.st_dev;
 				if (!(flags & MS_NFS_ALL)) {
-					/* For network filesystems we must get device from root */
-					dev = st.st_dev;
 					for (i = 0; i < mnt_entries_cnt && mnt_entries[i].me_dev != dev; i++);
 				}
 				else	/* Always behave as if the device was unique */
