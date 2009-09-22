@@ -1,5 +1,6 @@
 Changes in quota-tools from 3.16 to 3.18
 * Fixed mountpoint scanning when NFS mountpoint is specified on command line (Jan Kara)
+* Updated manpage of quotactl(2) (Jan Kara)
 
 Changes in quota-tools from 3.16 to 3.17
 * Updated quotactl(2) manpage to mention possible ERANGE error (Jan Kara)
