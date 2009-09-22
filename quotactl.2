@@ -159,7 +159,10 @@ in which data should be stored.
 .I special
 and
 .I id
-are ignored.
+are ignored. This call is obsolete and not supported by recent kernels.
+Files in 
+.B /proc/sys/fs/quota/
+carry the information instead.
 .TP
 For XFS filesystems making use of the XFS Quota Manager (XQM), the above commands are bypassed and the following commands are used:
 .TP 15
