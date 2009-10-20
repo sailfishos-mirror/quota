@@ -379,12 +379,15 @@ void space2str(qsize_t space, char *buf, int format)
 	char suffix[8] = " MGT";
 
 	space = qb2kb(space);
-	if (format)
+	if (format) {
 		for (i = 3; i > 0; i--)
 			if (space >= (1LL << (QUOTABLOCK_BITS*i))*100) {
 				sprintf(buf, "%llu%c", (unsigned long long)(space+(1 << (QUOTABLOCK_BITS*i))-1) >> (QUOTABLOCK_BITS*i), suffix[i]);
 				return;
 			}
+		sprintf(buf, "%lluK", (unsigned long long)space);
+		return;
+	}
 	sprintf(buf, "%llu", (unsigned long long)space);
 }
 

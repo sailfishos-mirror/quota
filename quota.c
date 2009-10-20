@@ -34,7 +34,7 @@
 
 #ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
 #ident "$Copyright: All rights reserved. $"
-#ident "$Id: quota.c,v 1.27 2008/04/21 15:37:42 jkar8572 Exp $"
+#ident "$Id: quota.c,v 1.28 2009/10/20 01:15:39 jkar8572 Exp $"
 
 /*
  * Disk quota reporting program.
@@ -112,11 +112,18 @@ void usage(void)
 
 void heading(int type, qid_t id, char *name, char *tag)
 {
+	char *spacehdr;
+
+	if (flags & FL_SMARTSIZE)
+		spacehdr = _("space");
+	else
+		spacehdr = _("blocks");
+
 	printf(_("Disk quotas for %s %s (%cid %u): %s\n"), type2name(type),
 	       name, *type2name(type), (uint) id, tag);
 	if (!(flags & FL_QUIET) && !tag[0]) {
 		printf("%15s%8s %7s%8s%8s%8s %7s%8s%8s\n", _("Filesystem"),
-		       _("blocks"), _("quota"), _("limit"), _("grace"),
+		       spacehdr,_("quota"), _("limit"), _("grace"),
 		       _("files"), _("quota"), _("limit"), _("grace"));
 	}
 }
