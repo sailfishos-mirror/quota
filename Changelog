@@ -1,4 +1,5 @@
-Changes in quota-tools from 3.17 to 3.18
+Changes in quota-tools from 3.17 to 4.00-pre1
+* 64-bit quota support, rewritten some code to allow clean integration (Jan Kara)
 * Improved header of quota an repquota output when -s option is used (Jan Kara)
 * Fixed mountpoint scanning when NFS mountpoint is specified on command line (Jan Kara)
 * Updated manpage of quotactl(2) (Jan Kara)
