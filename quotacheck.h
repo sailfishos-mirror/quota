@@ -40,7 +40,8 @@ void debug(int df, char *fmtstr, ...) __attribute__ ((__format__ (__printf__, 2,
 int ask_yn(char *q, int def);
 struct dquot *lookup_dquot(qid_t id, int type);
 struct dquot *add_dquot(qid_t id, int type);
-int v2_buffer_file(char *filename, int fd, int type);
+int v2_detect_version(char *filename, int fd, int type);
+int v2_buffer_file(char *filename, int fd, int type, int version);
 int v1_buffer_file(char *filename, int fd, int type);
 void v2_merge_info(struct util_dqinfo *new, struct util_dqinfo *old);
 #endif

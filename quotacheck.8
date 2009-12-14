@@ -133,9 +133,11 @@ Check and fix quota files of specified format (ie. don't perform format
 auto-detection). This is recommended as detection might not work well on
 corrupted quota files.  Possible format names are:
 .B vfsold
-(version 1 quota),
+Original quota format with 16-bit UIDs / GIDs,
 .B vfsv0
-(version 2 quota),
+Quota format with 32-bit UIDs / GIDs, 64-bit space usage, 32-bit inode usage and limits,
+.B vfsv1
+Quota format with 64-bit quota limits and usage,
 .B rpc
 (quota over NFS),
 .B xfs

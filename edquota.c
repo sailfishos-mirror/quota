@@ -32,10 +32,6 @@
  * SUCH DAMAGE.
  */
 
-#ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
-#ident "$Copyright: All rights reserved. $"
-#ident "$Id: edquota.c,v 1.23 2008/04/28 10:25:37 jkar8572 Exp $"
-
 /*
  * Disk quota editor.
  */

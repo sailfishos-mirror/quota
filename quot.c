@@ -32,10 +32,6 @@
  * SUCH DAMAGE.
  */
 
-#ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
-#ident "$Copyright: (c) 2000, 2001 Silicon Graphics, Inc. $"
-#ident "$Copyright: All rights reserved. $"
-
 #include <sys/stat.h>
 #include <sys/param.h>
 #include <sys/ioctl.h>

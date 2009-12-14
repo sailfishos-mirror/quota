@@ -1,8 +1,7 @@
 /*
  *	State changes for the XFS Quota Manager.
+ *	Copyright (c) 2001 Silicon Graphics, Inc.
  */
-
-#ident "Copyright (c) 2001 Silicon Graphics, Inc."
 
 #include <stdio.h>
 #include <unistd.h>

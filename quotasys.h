@@ -33,8 +33,8 @@
 /* Path to export table of NFS daemon */
 #define NFSD_XTAB_PATH "/var/lib/nfs/etab"
 
-/* Kernel quota format and supported interface */
-extern int kernel_formats, kernel_iface;
+/* Supported kernel interface */
+extern int kernel_iface;
 
 /*
  *	Exported functions
@@ -76,9 +76,6 @@ int name2fmt(char *str);
 
 /* Convert quota format number to name */
 char *fmt2name(int fmt);
-
-/* Convert kernel to utility format numbers */
-int kern2utilfmt(int fmt);
 
 /* Convert utility to kernel format numbers */
 int util2kernfmt(int fmt);
@@ -128,6 +125,9 @@ void init_kernel_interface(void);
 
 /* Check whether is quota turned on on given device for given type */
 int kern_quota_on(const char *dev, int type, int fmt);
+
+/* Return whether kernel is able to handle given format */
+int kern_qfmt_supp(int fmt);
 
 /* Flags for init_mounts_scan() */
 #define MS_NO_MNTPOINT 0x01	/* Specified directory needn't be mountpoint */

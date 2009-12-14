@@ -8,6 +8,7 @@
 #define _DQBLK_V2_H
 
 #include <sys/types.h>
+#include "quota_tree.h"
 
 #define Q_V2_GETQUOTA	0x0D00	/* Get limits and usage */
 #define Q_V2_SETQUOTA	0x0E00	/* Set limits and usage */
@@ -21,10 +22,8 @@
 
 /* Structure for format specific information */
 struct v2_mem_dqinfo {
+	struct qtree_mem_dqinfo dqi_qtree;
 	uint dqi_flags;		/* Flags set in quotafile */
-	uint dqi_blocks;	/* Number of blocks in file */
-	uint dqi_free_blk;	/* Number of first free block in the list */
-	uint dqi_free_entry;	/* Number of first block with free entry in the list */
 	uint dqi_used_entries;	/* Number of entries in file - updated by scan_dquots */
 	uint dqi_data_blocks;	/* Number of data blocks in file - updated by scan_dquots */
 };

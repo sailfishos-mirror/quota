@@ -34,9 +34,16 @@
 
 #define min(x,y) (((x) < (y)) ? (x) : (y))
 
+#define QFMT_NAMES 5
+
 static char extensions[MAXQUOTAS + 2][20] = INITQFNAMES;
 static char *basenames[] = INITQFBASENAMES;
-static char *fmtnames[] = INITQFMTNAMES;
+static char *fmtnames[] = { "vfsold",
+			    "vfsv0",
+			    "vfsv1",
+			    "rpc",
+			    "xfs",
+};
 
 /*
  *	Check for various kinds of NFS filesystem
@@ -246,12 +253,13 @@ int name2fmt(char *str)
 {
 	int fmt;
 
-	for (fmt = 0; fmt < QUOTAFORMATS; fmt++)
+	for (fmt = 0; fmt < QFMT_NAMES; fmt++)
 		if (!strcmp(str, fmtnames[fmt]))
 			return fmt;
 	errstr(_("Unknown quota format: %s\nSupported formats are:\n\
   vfsold - original quota format\n\
-  vfsv0 - new quota format\n\
+  vfsv0 - standard quota format\n\
+  vfsv1 - quota format with 64-bit limits\n\
   rpc - use RPC calls\n\
   xfs - XFS quota format\n"), str);
 	return QF_ERROR;
@@ -262,22 +270,21 @@ int name2fmt(char *str)
  */
 char *fmt2name(int fmt)
 {
-
-	if (fmt < 0)
-		return _("Unknown format");
 	return fmtnames[fmt];
 }
 
 /*
  *	Convert kernel to utility quota format number
  */
-int kern2utilfmt(int fmt)
+int kern2utilfmt(int kernfmt)
 {
-	switch (fmt) {
+	switch (kernfmt) {
 		case QFMT_VFS_OLD:
 			return QF_VFSOLD;
 		case QFMT_VFS_V0:
 			return QF_VFSV0;
+		case QFMT_VFS_V1:
+			return QF_VFSV1;
 		case QFMT_OCFS2:
 			return QF_META;
 	}
@@ -294,6 +301,8 @@ int util2kernfmt(int fmt)
 			return QFMT_VFS_OLD;
 		case QF_VFSV0:
 			return QFMT_VFS_V0;
+		case QF_VFSV1:
+			return QFMT_VFS_V1;
 	}
 	return -1;
 }
@@ -511,81 +520,85 @@ static int check_fmtfile_ok(char *name, int type, int fmt, int flags)
 				errstr(_("Cannot stat quota file %s: %s\n"), name, strerror(errno));
 			return 0;
 		}
-		return 1;
-	}
-	else {
+	} 
+	if (flags & NF_FORMAT) {
 		int fd, ret = 0;
 
 		if ((fd = open(name, O_RDONLY)) >= 0) {
-			if (fmt == QF_VFSV0)
-				ret = quotafile_ops_2.check_file(fd, type);
+			if (is_tree_qfmt(fmt))
+				ret = quotafile_ops_2.check_file(fd, type, fmt);
 			else
-				ret = quotafile_ops_1.check_file(fd, type);
+				ret = quotafile_ops_1.check_file(fd, type, fmt);
 			close(fd);
+			if (ret <= 0)
+				return 0;
 		}
-		else if (errno != ENOENT && errno != EPERM)
+		else if (errno != ENOENT && errno != EPERM) {
 			errstr(_("Cannot open quotafile %s: %s\n"), name, strerror(errno));
-		return ret;
+			return 0;
+		}
 	}
+	return 1;
 }
 
 /*
- *	Get quotafile name for given entry. Return format and quota file name.
+ *	Get quotafile name for given entry. Return 0 in case format check succeeded,
+ * 	otherwise return -1.
  *	Note that formats without quotafile *must* be detected prior to calling this function
  */
 int get_qf_name(struct mntent *mnt, int type, int fmt, int flags, char **filename)
 {
 	char *option, *pathname, has_quota_file_definition = 0;
-	char qfullname[PATH_MAX] = "";
+	char qfullname[PATH_MAX];
 
+	qfullname[0] = 0;
 	if (type == USRQUOTA && (option = hasmntopt(mnt, MNTOPT_USRQUOTA))) {
 		if (*(pathname = option + strlen(MNTOPT_USRQUOTA)) == '=')
 			has_quota_file_definition = 1;
 	}
 	else if (type == USRQUOTA && (option = hasmntoptarg(mnt, MNTOPT_USRJQUOTA))) {
-		pathname = option-1;
+		pathname = option;
 		has_quota_file_definition = 1;
 		sstrncpy(qfullname, mnt->mnt_dir, sizeof(qfullname));
 		sstrncat(qfullname, "/", sizeof(qfullname));
 	}
 	else if (type == GRPQUOTA && (option = hasmntopt(mnt, MNTOPT_GRPQUOTA))) {
-		if (*(pathname = option + strlen(MNTOPT_GRPQUOTA)) == '=')
+		pathname = option + strlen(MNTOPT_GRPQUOTA);
+		if (*pathname == '=') {
 			has_quota_file_definition = 1;
+			pathname++;
+		}
 	}
 	else if (type == GRPQUOTA && (option = hasmntoptarg(mnt, MNTOPT_GRPJQUOTA))) {
-		pathname = option-1;
+		pathname = option;
 		has_quota_file_definition = 1;
 		sstrncpy(qfullname, mnt->mnt_dir, sizeof(qfullname));
 		sstrncat(qfullname, "/", sizeof(qfullname));
 	}
 	else if (type == USRQUOTA && (option = hasmntopt(mnt, MNTOPT_QUOTA))) {
-		if (*(pathname = option + strlen(MNTOPT_QUOTA)) == '=')
+		pathname = option + strlen(MNTOPT_QUOTA);
+		if (*pathname == '=') {
 			has_quota_file_definition = 1;
+			pathname++;
+		}
 	}
 	else
 		return -1;
 
 	if (has_quota_file_definition) {
-		if ((option = strchr(++pathname, ',')))
-			sstrncpy(qfullname+strlen(qfullname), pathname, min((option - pathname + 1), sizeof(qfullname)-strlen(qfullname)));
-		else
+		if ((option = strchr(pathname, ','))) {
+			int tocopy = min(option - pathname + 1,
+					 sizeof(qfullname) - strlen(qfullname));
+			sstrncpy(qfullname + strlen(qfullname), pathname, tocopy);
+		} else
 			sstrncat(qfullname, pathname, sizeof(qfullname));
+	} else {
+		snprintf(qfullname, PATH_MAX, "%s/%s.%s", mnt->mnt_dir,
+			 basenames[fmt], extensions[type]);
 	}
-	if (fmt & (1 << QF_VFSV0)) {
-		if (!has_quota_file_definition)
-			snprintf(qfullname, PATH_MAX, "%s/%s.%s", mnt->mnt_dir, basenames[QF_VFSV0], extensions[type]);
-		if (check_fmtfile_ok(qfullname, type, QF_VFSV0, flags)) {
-			*filename = sstrdup(qfullname);
-			return QF_VFSV0;
-		}
-	}
-	if (fmt & (1 << QF_VFSOLD)) {
-		if (!has_quota_file_definition)
-			snprintf(qfullname, PATH_MAX, "%s/%s.%s", mnt->mnt_dir, basenames[QF_VFSOLD], extensions[type]);
-		if (check_fmtfile_ok(qfullname, type, QF_VFSOLD, flags)) {
-			*filename = sstrdup(qfullname);
-			return QF_VFSOLD;
-		}
+	if (check_fmtfile_ok(qfullname, type, fmt, flags)) {
+		*filename = sstrdup(qfullname);
+		return 0;
 	}
 	return -1;
 }
@@ -688,7 +701,9 @@ int devcmp_handles(struct quota_handle *a, struct quota_handle *b)
  *	Check kernel quota version
  */
 
-int kernel_iface, kernel_formats;	/* Formats supported by kernel */
+int kernel_iface;	/* Kernel interface type */
+static int kernel_qfmt_num;	/* Number of different supported formats */
+static int kernel_qfmt[QUOTAFORMATS]; /* Formats supported by kernel */
 
 #ifndef FS_DQSTATS
 #define FS_DQSTATS 16
@@ -711,22 +726,25 @@ void init_kernel_interface(void)
 	if (sigaction(SIGSEGV, &sig, &oldsig) < 0)
 		die(2, _("Cannot set signal handler: %s\n"), strerror(errno));
 
-	kernel_formats = 0;
+	kernel_qfmt_num = 0;
 	if (!stat("/proc/fs/xfs/stat", &st))
-		kernel_formats |= (1 << QF_XFS);
+		kernel_qfmt[kernel_qfmt_num++] = QF_XFS;
 	else
 		if (!quotactl(QCMD(Q_XGETQSTAT, 0), NULL, 0, NULL) || (errno != EINVAL && errno != ENOSYS))
-			kernel_formats |= (1 << QF_XFS);
+			kernel_qfmt[kernel_qfmt_num++] = QF_XFS;
 	/* Detect new kernel interface; Assume generic interface unless we can prove there is not one... */
 	if (!stat("/proc/sys/fs/quota", &st) || errno != ENOENT) {
 		kernel_iface = IFACE_GENERIC;
-		kernel_formats |= (1 << QF_VFSOLD) | (1 << QF_VFSV0) | (1 << QF_META);
+		kernel_qfmt[kernel_qfmt_num++] = QF_META;
+		kernel_qfmt[kernel_qfmt_num++] = QF_VFSOLD;
+		kernel_qfmt[kernel_qfmt_num++] = QF_VFSV0;
+		kernel_qfmt[kernel_qfmt_num++] = QF_VFSV1;
 	}
 	else {
 		struct v2_dqstats v2_stats;
 
 		if (quotactl(QCMD(Q_V2_GETSTATS, 0), NULL, 0, (void *)&v2_stats) >= 0) {
-			kernel_formats |= (1 << QF_VFSV0);
+			kernel_qfmt[kernel_qfmt_num++] = QF_VFSV0;
 			kernel_iface = IFACE_VFSV0;
 		}
 		else if (errno != ENOSYS && errno != ENOTSUP) {
@@ -746,17 +764,31 @@ void init_kernel_interface(void)
 			 * On a 2.4.x 		we expect 0, ENOENT
 			 * On a 2.4.x-ac	we wont get here */
 			if (err_stat == 0 && err_quota == EINVAL) {
-				kernel_formats |= (1 << QF_VFSV0);
+				kernel_qfmt[kernel_qfmt_num++] = QF_VFSV0;
 				kernel_iface = IFACE_VFSV0;
 			}
 			else {
-				kernel_formats |= (1 << QF_VFSOLD);
+				kernel_qfmt[kernel_qfmt_num++] = QF_VFSOLD;
 				kernel_iface = IFACE_VFSOLD;
 			}
 		}
 	}
 	if (sigaction(SIGSEGV, &oldsig, NULL) < 0)
 		die(2, _("Cannot reset signal handler: %s\n"), strerror(errno));
+}
+
+/* Return whether kernel is able to handle given format */
+int kern_qfmt_supp(int fmt)
+{
+	int i;
+
+	if (fmt == -1)
+		return kernel_qfmt_num > 0;
+
+	for (i = 0; i < kernel_qfmt_num; i++)
+		if (fmt == kernel_qfmt[i])
+			return 1;
+	return 0;
 }
 
 /* Check whether old quota is turned on on given device */
@@ -807,15 +839,18 @@ int kern_quota_on(const char *dev, int type, int fmt)
 		if (quotactl(QCMD(Q_GETFMT, type), dev, 0, (void *)&actfmt) < 0)
 			return -1;
 		actfmt = kern2utilfmt(actfmt);
-		if (actfmt >= 0 && (fmt == -1 || (1 << actfmt) & fmt))
-			return actfmt;
-		return -1;
+		if (actfmt < 0)
+			return -1;
+		return actfmt;
 	}
-	if ((fmt & (1 << QF_VFSV0)) && v2_kern_quota_on(dev, type))	/* New quota format */
+	if ((fmt == -1 || fmt == QF_VFSV0) &&
+	    v2_kern_quota_on(dev, type))	/* VFSv0 quota format */
 		return QF_VFSV0;
-	if ((fmt & (1 << QF_XFS)) && xfs_kern_quota_on(dev, type))	/* XFS quota format */
+	if ((fmt == -1 || fmt == QF_XFS) &&
+	    xfs_kern_quota_on(dev, type))	/* XFS quota format */
 		return QF_XFS;
-	if ((fmt & (1 << QF_VFSOLD)) && v1_kern_quota_on(dev, type))	/* Old quota format */
+	if ((fmt == -1 || fmt == QF_VFSOLD) &&
+	    v1_kern_quota_on(dev, type))	/* Old quota format */
 		return QF_VFSOLD;
 	return -1;
 }

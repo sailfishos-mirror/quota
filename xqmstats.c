@@ -1,8 +1,8 @@
 /*
  *	Display XFS quota manager statistics from /proc.
+ *      Copyright (c) 2001-2003 Silicon Graphics, Inc.
  */
 
-#ident "Copyright (c) 2001-2003 Silicon Graphics, Inc."
 
 #include <stdio.h>
 #include <unistd.h>

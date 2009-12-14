@@ -67,9 +67,11 @@ the server machine is performed to get the information.
 Show quota for specified format (ie. don't perform format autodetection).
 Possible format names are:
 .B vfsold
-(version 1 quota),
+Original quota format with 16-bit UIDs / GIDs,
 .B vfsv0
-(version 2 quota),
+Quota format with 32-bit UIDs / GIDs, 64-bit space usage, 32-bit inode usage and limits,
+.B vfsv1
+Quota format with 64-bit quota limits and usage,
 .B rpc
 (quota over NFS),
 .B xfs

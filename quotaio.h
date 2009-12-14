@@ -18,39 +18,32 @@
 #include "dqblk_rpc.h"
 #include "dqblk_xfs.h"
 
-/* Latest known versions */
-#define INITKNOWNVERSIONS {\
-	0,\
-	0\
-}
-
-#define QUOTAFORMATS 4
+#define QUOTAFORMATS 6
 
 #define INITQFBASENAMES {\
 	"quota",\
 	"aquota",\
+	"aquota",\
 	"",\
-	""\
-}
-
-#define INITQFMTNAMES {\
-	"vfsold",\
-	"vfsv0",\
-	"rpc",\
-	"xfs"\
+	"",\
+	"",\
 }
 
 #define MAX_FSTYPE_LEN 16		/* Maximum length of filesystem type name */
 
 /* Values for format handling */
-#define QF_UNKNOWN -3		/* Format cannot be detected from filename */
-#define QF_TOONEW -2		/* Quota format is too new to handle */
 #define QF_ERROR -1		/* There was error while detecting format (maybe unknown format...) */
 #define QF_VFSOLD 0		/* Old quota format */
-#define QF_VFSV0 1		/* New quota format - version 0 */
-#define QF_RPC 2		/* RPC should be used on given filesystem */
-#define QF_XFS 3		/* XFS quota format */
-#define QF_META 4		/* Quota files are hidden, we don't care about the format */
+#define QF_VFSV0 1		/* Quota files with tree quota format */
+#define QF_VFSV1 2		/* Quota files with 64-bit tree quota format */
+#define QF_RPC 3		/* RPC should be used on given filesystem */
+#define QF_XFS 4		/* XFS quota format */
+#define QF_META 5		/* Quota files are hidden, we don't care about the format */
+
+static inline int is_tree_qfmt(int fmt)
+{
+	return fmt == QF_VFSV0 || fmt == QF_VFSV1;
+}
 
 /*
  * Definitions for disk quotas imposed on the average user
@@ -143,7 +136,7 @@ struct dquot {
 
 /* Structure of quotafile operations */
 struct quotafile_ops {
-	int (*check_file) (int fd, int type);		/* Check whether quotafile is in our format */
+	int (*check_file) (int fd, int type, int fmt);	/* Check whether quotafile is in our format */
 	int (*init_io) (struct quota_handle * h);	/* Open quotafile */
 	int (*new_io) (struct quota_handle * h);	/* Create new quotafile */
 	int (*end_io) (struct quota_handle * h);	/* Write all changes and close quotafile */

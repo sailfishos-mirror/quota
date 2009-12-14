@@ -32,10 +32,6 @@
  * SUCH DAMAGE.
  */
 
-#ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
-#ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaops.c,v 1.22 2008/12/17 12:40:07 jkar8572 Exp $"
-
 #include <rpc/rpc.h>
 #include <sys/types.h>
 #include <sys/stat.h>

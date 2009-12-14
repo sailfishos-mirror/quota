@@ -32,10 +32,6 @@
  * SUCH DAMAGE.
  */
 
-#ident "$Copyright: (c) 1980, 1990 Regents of the University of California. $"
-#ident "$Copyright: All rights reserved. $"
-#ident "$Id: quotaio_v1.c,v 1.15 2005/11/21 22:30:23 jkar8572 Exp $"
-
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
@@ -49,7 +45,7 @@
 #include "quotasys.h"
 #include "quotaio_generic.h"
 
-static int v1_check_file(int fd, int type);
+static int v1_check_file(int fd, int type, int fmt);
 static int v1_init_io(struct quota_handle *h);
 static int v1_new_io(struct quota_handle *h);
 static int v1_write_info(struct quota_handle *h);
@@ -126,7 +122,7 @@ static inline void v1_util2kerndqblk(struct v1_kern_dqblk *k, struct util_dqblk 
 /*
  *	Check whether quotafile is in our format
  */
-static int v1_check_file(int fd, int type)
+static int v1_check_file(int fd, int type, int fmt)
 {
 	struct stat st;
 

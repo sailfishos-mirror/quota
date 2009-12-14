@@ -140,6 +140,7 @@ enum {
 #define QFMT_VFS_OLD 1
 #define QFMT_VFS_V0  2
 #define QFMT_OCFS2   3
+#define QFMT_VFS_V1  4
 
 /* Flags supported by kernel */
 #define V1_DQF_RSQUASH 1

@@ -6,11 +6,16 @@ convertquota \- convert quota from old file format to new one
 .B convertquota
 [
 .B -ug
-] [
+] 
 .B -e
-|
+.I filesystem
+.LP
+.B convertquota
+[
+.B -ug
+] 
 .B -f
-]
+.IR oldformat , newformat
 .I filesystem
 .SH DESCRIPTION
 .B convertquota
@@ -37,11 +42,15 @@ convert user quota file. This is the default.
 .B -g, --group
 convert group quota file.
 .TP
-.B -f, --convert-format
-convert from old file format to new one. This is the default.
+.B -f, --convert-format \f2oldformat,newformat\f1
+convert quota file from
+.I oldformat
+to
+.IR newformat .
 .TP
 .B -e, --convert-endian
-convert new file format from big endian to little endian.
+convert vfsv0 file format from big endian to little endian (old kernels had
+a bug and did not store quota files in little endian format).
 .TP
 .B -V, --version
 print version information.

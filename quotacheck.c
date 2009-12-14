@@ -8,8 +8,6 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
-#ident "$Id: quotacheck.c,v 1.57 2008/12/17 12:40:07 jkar8572 Exp $"
-
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
@@ -623,7 +621,7 @@ static int process_file(struct mntent *mnt, int type)
 	debug(FL_DEBUG, _("Going to check %s quota file of %s\n"), type2name(type),
 	      mnt->mnt_dir);
 
-	if (kern_quota_on(mnt->mnt_fsname, type, (1 << cfmt)) > 0) {	/* Is quota enabled? */
+	if (kern_quota_on(mnt->mnt_fsname, type, cfmt) >= 0) {	/* Is quota enabled? */
 		if (!(flags & FL_FORCE)) {
 			if (flags & FL_INTERACTIVE) {
 				printf(_("Quota for %ss is enabled on mountpoint %s so quotacheck might damage the file.\n"), type2name(type), mnt->mnt_dir);
@@ -644,7 +642,7 @@ Please turn quotas off or use -f to force checking.\n"),
 	}
 
 	if (!(flags & FL_NEWFILE)) {	/* Need to buffer file? */
-		if (get_qf_name(mnt, type, (1 << cfmt), 0, &qfname) < 0) {
+		if (get_qf_name(mnt, type, cfmt, 0, &qfname) < 0) {
 			errstr(_("Cannot get quotafile name for %s\n"), mnt->mnt_fsname);
 			return -1;
 		}
@@ -664,18 +662,11 @@ Please turn quotas off or use -f to force checking.\n"),
 
 	ret = 0;
 	memset(old_info + type, 0, sizeof(old_info[type]));
-	switch (cfmt) {
-		case QF_TOONEW:
-			errstr(_("Too new quotafile format on %s\n"), mnt->mnt_fsname);
-			ret = -1;
-			break;
-		case QF_VFSOLD:
-			ret = v1_buffer_file(qfname, fd, type);
-			break;
-		case QF_VFSV0:
-			ret = v2_buffer_file(qfname, fd, type);
-			break;
-	}
+	if (is_tree_qfmt(cfmt))
+		ret = v2_buffer_file(qfname, fd, type, cfmt);
+	else
+		ret = v1_buffer_file(qfname, fd, type);
+
 	if (!(flags & FL_NEWFILE)) {
 		free(qfname);
 		close(fd);
@@ -695,7 +686,7 @@ static int rename_files(struct mntent *mnt, int type)
 #endif
 
 	debug(FL_DEBUG, _("Renaming new files to proper names.\n"));
-	if (get_qf_name(mnt, type, (1 << cfmt), 0, &filename) < 0)
+	if (get_qf_name(mnt, type, cfmt, 0, &filename) < 0)
 		die(2, _("Cannot get name of old quotafile on %s.\n"), mnt->mnt_dir);
 	if (stat(filename, &st) < 0) {	/* File doesn't exist? */
 		if (errno == ENOENT) {
@@ -802,7 +793,7 @@ static int dump_to_file(struct mntent *mnt, int type)
 	if (!(flags & FL_NEWFILE)) {
 		h->qh_info.dqi_bgrace = old_info[type].dqi_bgrace;
 		h->qh_info.dqi_igrace = old_info[type].dqi_igrace;
-		if (cfmt == QF_VFSV0)
+		if (is_tree_qfmt(cfmt))
 			v2_merge_info(&h->qh_info, old_info + type);
 		mark_quotafile_info_dirty(h);
 	}
@@ -817,10 +808,10 @@ static int dump_to_file(struct mntent *mnt, int type)
 		return -1;
 	}
 	debug(FL_DEBUG, _("Data dumped.\n"));
-	if (cfmt == kern_quota_on(mnt->mnt_fsname, type, 1 << cfmt)) {	/* Quota turned on? */
+	if (kern_quota_on(mnt->mnt_fsname, type, cfmt) >= 0) {	/* Quota turned on? */
 		char *filename;
 
-		if (get_qf_name(mnt, type, 1 << cfmt, NF_FORMAT, &filename) < 0)
+		if (get_qf_name(mnt, type, cfmt, NF_FORMAT, &filename) < 0)
 			errstr(_("Cannot find checked quota file for %ss on %s!\n"), type2name(type), mnt->mnt_fsname);
 		else {
 			if (quotactl(QCMD((kernel_iface == IFACE_GENERIC) ? Q_QUOTAOFF : Q_6_5_QUOTAOFF, type),
@@ -830,7 +821,7 @@ static int dump_to_file(struct mntent *mnt, int type)
 			else {
 				int ret;
 
-				/* Rename files - if it fails we cannot do anything better then just turn on quotas again */
+				/* Rename files - if it fails we cannot do anything better than just turn on quotas again */
 				rename_files(mnt, type);
 
 				if (kernel_iface == IFACE_GENERIC)
@@ -860,7 +851,7 @@ static void sub_quota_file(struct mntent *mnt, int qtype, int ftype)
 	qid_t id;
 
 	debug(FL_DEBUG, _("Substracting space used by old %s quota file.\n"), type2name(ftype));
-	if (get_qf_name(mnt, ftype, 1 << cfmt, 0, &filename) < 0) {
+	if (get_qf_name(mnt, ftype, cfmt, 0, &filename) < 0) {
 		debug(FL_VERBOSE, _("Old %s file not found. Usage will not be substracted.\n"), type2name(ftype));
 		return;
 	}
@@ -976,6 +967,7 @@ static int detect_filename_format(struct mntent *mnt, int type)
 	struct stat statbuf;
 	char namebuf[PATH_MAX];
 	int journal = 0;
+	int fmt;
 
 	if (type == USRQUOTA) {
 		if ((option = hasmntopt(mnt, MNTOPT_USRQUOTA)))
@@ -998,7 +990,6 @@ static int detect_filename_format(struct mntent *mnt, int type)
 	if (!option)
 		die(2, _("Cannot find quota option on filesystem %s with quotas!\n"), mnt->mnt_dir);
 	if (journal) {
-		int fmt;
 		char fmtbuf[64], *space;
 		
 		if (!(option = hasmntopt(mnt, MNTOPT_JQFMT))) {
@@ -1015,24 +1006,32 @@ jquota_err:
 		if (space-option > sizeof(fmtbuf))
 			goto jquota_err;
 		sstrncpy(fmtbuf, option+1, space-option);
-		if ((fmt = name2fmt(fmtbuf)) == QF_ERROR)
+		fmt = name2fmt(fmtbuf);
+		if (fmt == QF_ERROR)
 			goto jquota_err;
 		return fmt;
 	}
 	else if (*option == '=')	/* If the file name is specified we can't detect quota format from it... */
 		return -1;
 	snprintf(namebuf, PATH_MAX, "%s/%s.%s", mnt->mnt_dir, basenames[QF_VFSV0], extensions[type]);
-	if (!stat(namebuf, &statbuf))
-		return QF_VFSV0;
+	if (!stat(namebuf, &statbuf)) {
+		int fd = open(namebuf, O_RDONLY);
+		if (fd < 0)
+			return -1;
+		fmt = v2_detect_version(namebuf, fd, type);
+		close(fd);
+		return fmt;
+		
+	}
 	if (errno != ENOENT)
 		return -1;
 	snprintf(namebuf, PATH_MAX, "%s/%s.%s", mnt->mnt_dir, basenames[QF_VFSOLD], extensions[type]);
 	if (!stat(namebuf, &statbuf))
 		return QF_VFSOLD;
-	/* Old quota files don't exist, just create newest quotafile available */
-	if (kernel_formats & (1 << QF_VFSV0))
+	/* Old quota files don't exist, just create VFSv0 format if available */
+	if (kern_qfmt_supp(QF_VFSV0))
 		return QF_VFSV0;
-	if (kernel_formats & (1 << QF_VFSOLD))
+	if (kern_qfmt_supp(QF_VFSOLD))
 		return QF_VFSOLD;
 	return -1;
 }
@@ -1065,7 +1064,8 @@ static void check_all(void)
 		if (!ucheck && !gcheck)
 			continue;
 		if (cfmt == -1) {
-			if ((cfmt = detect_filename_format(mnt, ucheck ? USRQUOTA : GRPQUOTA)) == -1) {
+			cfmt = detect_filename_format(mnt, ucheck ? USRQUOTA : GRPQUOTA);
+			if (cfmt == -1) {
 				errstr(_("Cannot guess format from filename on %s. Please specify format on commandline.\n"),
 					mnt->mnt_fsname);
 				continue;

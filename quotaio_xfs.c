@@ -1,8 +1,8 @@
 /*
  *	Implementation of XFS quota manager.
+ *      Copyright (c) 2001 Silicon Graphics, Inc.
  */
 
-#ident "Copyright (c) 2001 Silicon Graphics, Inc."
 
 #include <stdio.h>
 #include <unistd.h>

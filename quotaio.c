@@ -89,9 +89,9 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 		errstr(_("XFS quota allowed only on XFS filesystem.\n"));
 		goto out_handle;
 	}
-	if (kernel_formats > 0 && (fmt == -1 || (1 << fmt) & kernel_formats)) {	/* Quota compiled and desired format available? */
+	if (kern_qfmt_supp(fmt)) {	/* Quota compiled and desired format available? */
 		/* Quota turned on? */
-		kernfmt = kern_quota_on(h->qh_quotadev, type, fmt == -1 ? kernel_formats : (1 << fmt));
+		kernfmt = kern_quota_on(h->qh_quotadev, type, fmt);
 		if (kernfmt >= 0) {
 			h->qh_io_flags |= IOFL_QUOTAON;
 			fmt = kernfmt;	/* Default is kernel used format */
@@ -112,13 +112,33 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 		goto set_ops;
 	}
 
-	fmt = get_qf_name(mnt, type,
-			  (fmt == -1) ? ((1 << QF_VFSOLD) | (1 << QF_VFSV0)) : (1 << fmt),
-			  (!QIO_ENABLED(h) || flags & IOI_OPENFILE) ? NF_FORMAT : 0,
-			  &qfname);
-	if (fmt < 0) {
-		errstr(_("Quota file not found or has wrong format.\n"));
-		goto out_handle;
+	if (fmt == -1) {
+		/* Let's try any VFSv0 quota format... */
+		if (get_qf_name(mnt, type, QF_VFSV0,
+				(!QIO_ENABLED(h) || flags & IOI_OPENFILE) ? NF_FORMAT : 0,
+			  	&qfname) >= 0)
+			fmt = QF_VFSV0;
+		/* And then VFSv1 quota format... */
+		else if (get_qf_name(mnt, type, QF_VFSV1,
+				(!QIO_ENABLED(h) || flags & IOI_OPENFILE) ? NF_FORMAT : 0,
+			  	&qfname) >= 0)
+			fmt = QF_VFSV1;
+		/* And then old quota format... */
+		else if (get_qf_name(mnt, type, QF_VFSOLD,
+                                (!QIO_ENABLED(h) || flags & IOI_OPENFILE) ? NF_FORMAT : 0,
+                                &qfname) >= 0)
+			fmt = QF_VFSOLD;
+		else {	/* Don't know... */
+			errstr(_("Cannot find any quota file to work on.\n"));
+			goto out_handle;
+		}
+	} else {
+		if (get_qf_name(mnt, type, fmt,
+				(!QIO_ENABLED(h) || flags & IOI_OPENFILE) ? NF_FORMAT : 0,
+			  	&qfname) < 0) {
+			errstr(_("Quota file not found or has wrong format.\n"));
+			goto out_handle;
+		}
 	}
 	if (!QIO_ENABLED(h) || flags & IOI_OPENFILE) {	/* Need to open file? */
 		/* We still need to open file for operations like 'repquota' */
@@ -131,8 +151,7 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 		/* Init handle */
 		h->qh_fd = fd;
 		h->qh_fmt = fmt;
-	}
-	else {
+	} else {
 		h->qh_fd = -1;
 		h->qh_fmt = fmt;
 	}
@@ -140,11 +159,11 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 	qfname = NULL;
 
 set_ops:
-	if (h->qh_fmt == QF_VFSOLD)
+	if (fmt == QF_VFSOLD)
 		h->qh_ops = &quotafile_ops_1;
-	else if (h->qh_fmt == QF_VFSV0)
+	else if (is_tree_qfmt(fmt))
 		h->qh_ops = &quotafile_ops_2;
-	else if (h->qh_fmt == QF_META)
+	else if (fmt == QF_META)
 		h->qh_ops = &quotafile_ops_meta;
 	memset(&h->qh_info, 0, sizeof(h->qh_info));
 
@@ -175,13 +194,13 @@ struct quota_handle *new_io(struct mntent *mnt, int type, int fmt)
 	char namebuf[PATH_MAX];
 
 	if (fmt == -1)
-		fmt = QF_VFSV0;	/* Use the newest format */
+		fmt = QF_VFSV0;
 	else if (fmt == QF_RPC || fmt == QF_XFS || meta_qf_fstype(mnt->mnt_type)) {
 		errstr(_("Creation of %s quota format is not supported.\n"),
-			fmt == QF_RPC ? "RPC" : "XFS");
+			fmt2name(fmt));
 		return NULL;
 	}
-	if (get_qf_name(mnt, type, (1 << fmt), 0, &qfname) < 0)
+	if (get_qf_name(mnt, type, fmt, 0, &qfname) < 0)
 		return NULL;
 	sstrncpy(namebuf, qfname, PATH_MAX);
 	sstrncat(namebuf, ".new", PATH_MAX);
@@ -200,6 +219,7 @@ struct quota_handle *new_io(struct mntent *mnt, int type, int fmt)
 	sstrncpy(h->qh_quotadev, mnt_fsname, sizeof(h->qh_quotadev));
 	free((char *)mnt_fsname);
 	h->qh_type = type;
+	h->qh_fmt = fmt;
 	memset(&h->qh_info, 0, sizeof(h->qh_info));
 	if (fmt == QF_VFSOLD)
 		h->qh_ops = &quotafile_ops_1;
@@ -213,7 +233,7 @@ struct quota_handle *new_io(struct mntent *mnt, int type, int fmt)
 		goto out_fd;
 	}
 	return h;
-      out_fd:
+out_fd:
 	close(fd);
 	return NULL;
 }
