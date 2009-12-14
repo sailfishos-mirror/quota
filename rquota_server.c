@@ -9,7 +9,7 @@
  *
  *          This part does the lookup of the info.
  *
- * Version: $Id: rquota_server.c,v 1.20 2009/09/21 15:14:48 jkar8572 Exp $
+ * Version: $Id: rquota_server.c,v 1.21 2009/12/14 22:27:33 jkar8572 Exp $
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
@@ -95,8 +95,8 @@ static inline void servutil2netdqblk(struct rquota *n, struct util_dqblk *u)
 	time_t now;
 
 	time(&now);
-	n->rq_bhardlimit = u->dqb_bhardlimit;
-	n->rq_bsoftlimit = u->dqb_bsoftlimit;
+	n->rq_bhardlimit = (u->dqb_bhardlimit << QUOTABLOCK_BITS) >> RPC_DQBLK_SIZE_BITS;
+	n->rq_bsoftlimit = (u->dqb_bsoftlimit << QUOTABLOCK_BITS) >> RPC_DQBLK_SIZE_BITS;
 	n->rq_fhardlimit = u->dqb_ihardlimit;
 	n->rq_fsoftlimit = u->dqb_isoftlimit;
 	n->rq_curblocks = (u->dqb_curspace + RPC_DQBLK_SIZE - 1) >> RPC_DQBLK_SIZE_BITS;

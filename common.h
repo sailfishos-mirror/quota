@@ -19,7 +19,7 @@
 extern char *progname;
 
 /* Finish programs being */
-void die(int, char *, ...) __attribute__ ((__format__ (__printf__, 2, 3)));
+void __attribute ((noreturn)) die(int, char *, ...) __attribute__ ((__format__ (__printf__, 2, 3)));
 
 /* Print an error */
 void errstr(char *, ...) __attribute__ ((__format__ (__printf__, 1, 2)));

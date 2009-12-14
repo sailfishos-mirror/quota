@@ -9,7 +9,7 @@
  *
  *          This part does the rpc-communication with the rquotad.
  *
- * Version: $Id: rquota_client.c,v 1.11 2007/08/23 19:58:14 jkar8572 Exp $
+ * Version: $Id: rquota_client.c,v 1.12 2009/12/14 22:27:33 jkar8572 Exp $
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
@@ -45,8 +45,8 @@ static inline void clinet2utildqblk(struct util_dqblk *u, struct rquota *n)
 	time_t now;
 	
 	/* Copy the quota */
-	u->dqb_bhardlimit = n->rq_bhardlimit;
-	u->dqb_bsoftlimit = n->rq_bsoftlimit;
+	u->dqb_bhardlimit = toqb(((qsize_t)n->rq_bhardlimit) * n->rq_bsize);
+	u->dqb_bsoftlimit = toqb(((qsize_t)n->rq_bsoftlimit) * n->rq_bsize);
 	u->dqb_ihardlimit = n->rq_fhardlimit;
 	u->dqb_isoftlimit = n->rq_fsoftlimit;
 	u->dqb_curinodes = n->rq_curfiles;
@@ -60,22 +60,6 @@ static inline void clinet2utildqblk(struct util_dqblk *u, struct rquota *n)
 		u->dqb_itime = n->rq_ftimeleft + now;
 	else
 		u->dqb_itime = 0;
-	/* Convert from remote block size */
-	if (n->rq_bsize != RPC_DQBLK_SIZE) {
-		int conversion_unit;
-
-		conversion_unit = n->rq_bsize >> RPC_DQBLK_SIZE_BITS;
-		if (conversion_unit == 0) {
-			conversion_unit = RPC_DQBLK_SIZE / n->rq_bsize;
-
-			u->dqb_bhardlimit /= conversion_unit;
-			u->dqb_bsoftlimit /= conversion_unit;
-		}
-		else {
-			u->dqb_bhardlimit *= conversion_unit;
-			u->dqb_bsoftlimit *= conversion_unit;
-		}
-	}
 }
 
 /* Convert utils format of quotas to network one */
