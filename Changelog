@@ -1,6 +1,7 @@
 Changes in quota-tools from 3.17 to 4.00-pre1
-* convert quota limits using rq_bsize from RPC request (Jan Kara)
-* added noreturn attribute to die to avoid false warnings (Jan Kara)
+* Fixed error reporting when rpc format specified on command line (Jan Kara)
+* Convert quota limits using rq_bsize from RPC request (Jan Kara)
+* Added noreturn attribute to die to avoid false warnings (Jan Kara)
 * 64-bit quota support, rewritten some code to allow clean integration (Jan Kara)
 * Improved header of quota an repquota output when -s option is used (Jan Kara)
 * Fixed mountpoint scanning when NFS mountpoint is specified on command line (Jan Kara)

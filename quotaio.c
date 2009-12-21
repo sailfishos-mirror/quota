@@ -71,6 +71,9 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 		errstr(_("RPC quota format not compiled.\n"));
 		goto out_handle;
 #endif
+	} else if (fmt == QF_RPC) {
+		errstr(_("RPC quota format specified for non-NFS filesystem.\n"));
+		goto out_handle;
 	}
 
 	if (!strcmp(mnt->mnt_type, MNTTYPE_XFS)) {	/* XFS filesystem? */

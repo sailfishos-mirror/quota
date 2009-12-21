@@ -629,7 +629,11 @@ struct quota_handle **create_handle_list(int count, char **mntpoints, int type, 
 	if (init_mounts_scan(count, mntpoints, mntflags) < 0)
 		die(2, _("Cannot initialize mountpoint scan.\n"));
 	while ((mnt = get_next_mount())) {
-		if (!nfs_fstype(mnt->mnt_type)) {	/* No NFS? */
+#ifndef RPC
+		if (nfs_fstype(mnt->mnt_type))
+			continue;
+#endif
+		if (fmt == -1 || count) {
 add_entry:
 			if (gotmnt+1 >= hlist_allocated) {
 				hlist_allocated += START_MNT_POINTS;
@@ -639,10 +643,21 @@ add_entry:
 				continue;
 			gotmnt++;
 		}
-		else if (fmt == -1 || fmt == QF_RPC) {	/* Use NFS? */
-#ifdef RPC
-			goto add_entry;
-#endif
+		else {
+			switch (fmt) {
+			case QF_RPC:
+				if (nfs_fstype(mnt->mnt_type))
+					goto add_entry;
+				break;
+			case QF_XFS:
+				if (!strcmp(mnt->mnt_type, MNTTYPE_XFS))
+					goto add_entry;
+				break;
+			default:
+				if (strcmp(mnt->mnt_type, MNTTYPE_XFS) && !nfs_fstype(mnt->mnt_type))
+					goto add_entry;
+				break;
+			}
 		}
 	}
 	end_mounts_scan();
