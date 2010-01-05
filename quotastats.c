@@ -10,13 +10,15 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: quotastats.c,v 1.11 2005/11/21 22:30:23 jkar8572 Exp $
+ * Version: $Id: quotastats.c,v 1.12 2010/01/05 16:04:57 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
  *          published by the Free Software Foundation; either version 2 of
  *          the License, or (at your option) any later version.
  */
+
+#include "config.h"
 
 #include <sys/types.h>
 #include <stdio.h>

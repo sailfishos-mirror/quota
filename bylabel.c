@@ -12,6 +12,8 @@
  * - Added XFS support
  */
 
+#include "config.h"
+
 #include <stdio.h>
 #include <sys/param.h>
 #include <string.h>

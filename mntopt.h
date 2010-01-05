@@ -1,5 +1,5 @@
-#ifndef _MNTOPT_H
-#define _MNTOPT_H
+#ifndef MNTOPT_H
+#define MNTOPT_H
 
 #include <mntent.h>
 

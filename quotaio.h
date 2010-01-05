@@ -4,8 +4,8 @@
  *
  */
 
-#ifndef _QUOTAIO_H
-#define _QUOTAIO_H
+#ifndef QUOTAIO_H
+#define QUOTAIO_H
 
 #include <limits.h>
 #include <sys/types.h>
@@ -170,4 +170,4 @@ int end_io(struct quota_handle *h);
 /* Get empty quota structure */
 struct dquot *get_empty_dquot(void);
 
-#endif /* _QUOTAIO_H */
+#endif /* QUOTAIO_H */

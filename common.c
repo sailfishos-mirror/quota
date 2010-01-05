@@ -7,6 +7,8 @@
  *      Jani Jaakkola <jjaakkol@cs.helsinki.fi> - syslog support
  */
 
+#include "config.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -119,7 +121,7 @@ char *sstrdup(const char *s)
 
 void version(void)
 {
-	printf(_("Quota utilities version %s.\n"), QUOTA_VERSION);
+	printf(_("Quota utilities version %s.\n"), PACKAGE_VERSION);
 	printf(_("Compiled with:%s\n"), COMPILE_OPTS);
 	printf(_("Bugs to %s\n"), MY_EMAIL);
 }

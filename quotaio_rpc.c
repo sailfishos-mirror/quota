@@ -2,6 +2,8 @@
  *	quotaio_rpc.c - quota IO operations for RPC (just wrappers for RPC calls)
  */
 
+#include "config.h"
+
 #include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>

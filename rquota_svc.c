@@ -12,7 +12,7 @@
  *          changes for new utilities by Jan Kara <jack@suse.cz>
  *          patches by Jani Jaakkola <jjaakkol@cs.helsinki.fi>
  *
- * Version: $Id: rquota_svc.c,v 1.21 2009/04/28 15:36:22 jkar8572 Exp $
+ * Version: $Id: rquota_svc.c,v 1.22 2010/01/05 16:04:57 jkar8572 Exp $
  *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
@@ -20,6 +20,8 @@
  *          the License, or (at your option) any later version.
  */
                                                                                                           
+#include "config.h"
+
 #include <rpc/rpc.h>
 #include <sys/socket.h>
 #include <netinet/in.h>

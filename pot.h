@@ -1,7 +1,7 @@
-#ifndef _POT_H
-#define _POT_H
+#ifndef POT_H
+#define POT_H
 
-#ifdef __GETTEXT__
+#ifdef USE_GETTEXT
 
 #include <libintl.h>
 

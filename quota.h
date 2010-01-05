@@ -1,5 +1,5 @@
-#ifndef _QUOTA_H
-#define _QUOTA_H
+#ifndef QUOTA_H
+#define QUOTA_H
 
 #include <sys/types.h>
 
@@ -120,9 +120,9 @@ struct if_dqinfo {
 enum {
 	QUOTA_NL_C_UNSPEC,
 	QUOTA_NL_C_WARNING,
-	__QUOTA_NL_C_MAX,
+	ENUM_QUOTA_NL_C_MAX,
 };
-#define QUOTA_NL_C_MAX (__QUOTA_NL_C_MAX - 1)
+#define QUOTA_NL_C_MAX (ENUM_QUOTA_NL_C_MAX - 1)
 
 enum {
 	QUOTA_NL_A_UNSPEC,
@@ -132,9 +132,9 @@ enum {
 	QUOTA_NL_A_DEV_MAJOR,
 	QUOTA_NL_A_DEV_MINOR,
 	QUOTA_NL_A_CAUSED_ID,
-	__QUOTA_NL_A_MAX,
+	ENUM_QUOTA_NL_A_MAX,
 };
-#define QUOTA_NL_A_MAX (__QUOTA_NL_A_MAX - 1)
+#define QUOTA_NL_A_MAX (ENUM_QUOTA_NL_A_MAX - 1)
 
 /* Quota format identifiers */
 #define QFMT_VFS_OLD 1

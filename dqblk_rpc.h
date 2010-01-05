@@ -2,8 +2,8 @@
  *	Headerfile for rpc quotafile format
  */
 
-#ifndef _DQBLK_RPC_H
-#define _DQBLK_RPC_H
+#ifndef DQBLK_RPC_H
+#define DQBLK_RPC_H
 
 /* Values used for communication through network */
 #define Q_RPC_GETQUOTA	0x0300	/* get limits and usage */

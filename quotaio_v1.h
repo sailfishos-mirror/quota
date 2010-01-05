@@ -10,7 +10,7 @@
 #define V1_DQBLK_SIZE_BITS 10
 #define V1_DQBLK_SIZE (1 << V1_DQBLK_SIZE_BITS)	/* Size of one quota block in bytes in old format */
 
-#define V1_DQOFF(__id) ((loff_t) ((__id) * sizeof(struct v1_disk_dqblk)))
+#define V1_DQOFF(id) ((loff_t) ((id) * sizeof(struct v1_disk_dqblk)))
 
 /* Structure of quota on disk */
 struct v1_disk_dqblk {

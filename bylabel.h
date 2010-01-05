@@ -1,4 +1,4 @@
-#ifndef _BYLABEL_H_
-#define _BYLABEL_H_
+#ifndef BYLABEL_H_
+#define BYLABEL_H_
 const char *get_device_name(const char *item);
-#endif /* _BYLABEL_H_ */
+#endif /* BYLABEL_H_ */

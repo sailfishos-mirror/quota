@@ -4,8 +4,8 @@
  *
  */
 
-#ifndef _QUOTACHECK_H
-#define _QUOTACHECK_H
+#ifndef QUOTACHECK_H
+#define QUOTACHECK_H
 
 #include <sys/types.h>
 

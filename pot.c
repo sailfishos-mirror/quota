@@ -1,3 +1,4 @@
+#include "config.h"
 #include "pot.h"
 #include <locale.h>
 
@@ -7,7 +8,7 @@
 
 void gettexton(void)
 {
-#ifdef __GETTEXT__
+#ifdef USE_GETTEXT
 	setlocale(LC_ALL, "");
 	bindtextdomain("quota", "/usr/share/locale");
 	textdomain("quota");

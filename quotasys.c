@@ -5,6 +5,8 @@
  *	Jan Kara <jack@suse.cz> - sponsored by SuSE CR
  */
 
+#include "config.h"
+
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
@@ -913,17 +915,20 @@ static int cache_mnt_table(int flags)
 	int autofsdircnt = 0;
 	char autofsdir[AUTOFS_DIR_MAX][PATH_MAX];
 
-	if (!(mntf = setmntent(_PATH_MOUNTED, "r"))) {
-		if (errno != ENOENT) {
-			errstr(_("Cannot open %s: %s\n"), _PATH_MOUNTED, strerror(errno));
-			return -1;
-		}
-		else	/* Fallback on fstab when mtab not available */
-			if (!(mntf = setmntent(_PATH_MNTTAB, "r"))) {
-				errstr(_("Cannot open %s: %s\n"), _PATH_MNTTAB, strerror(errno));
-				return -1;
-			}
+#ifdef ALT_MTAB
+	mntf = setmntent(ALT_MTAB, "r");
+	if (mntf)
+		goto alloc;
+#endif
+	mntf = setmntent(_PATH_MOUNTED, "r");
+	if (mntf)
+		goto alloc;
+	/* Fallback to fstab when mtab not available */
+	if (!(mntf = setmntent(_PATH_MNTTAB, "r"))) {
+		errstr(_("Cannot open any file with mount points.\n"));
+		return -1;
 	}
+alloc:
 	mnt_entries = smalloc(sizeof(struct mount_entry) * ALLOC_ENTRIES_NUM);
 	mnt_entries_cnt = 0;
 	allocated += ALLOC_ENTRIES_NUM;

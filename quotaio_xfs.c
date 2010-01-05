@@ -3,6 +3,7 @@
  *      Copyright (c) 2001 Silicon Graphics, Inc.
  */
 
+#include "config.h"
 
 #include <stdio.h>
 #include <unistd.h>

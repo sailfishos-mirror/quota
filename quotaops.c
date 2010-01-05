@@ -32,6 +32,8 @@
  * SUCH DAMAGE.
  */
 
+#include "config.h"
+
 #include <rpc/rpc.h>
 #include <sys/types.h>
 #include <sys/stat.h>

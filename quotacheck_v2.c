@@ -4,6 +4,8 @@
  *
  */
 
+#include "config.h"
+
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
@@ -317,6 +319,7 @@ int v2_detect_version(char *filename, int fd, int type)
 {
 	struct v2_disk_dqheader head;
 	int err;
+	int ver;
 
 	lseek(fd, 0, SEEK_SET);
 	err = read(fd, &head, sizeof(head));
@@ -328,7 +331,10 @@ int v2_detect_version(char *filename, int fd, int type)
 			filename);
 		return -1;
 	}
-	return __le32_to_cpu(head.dqh_version);
+	ver = __le32_to_cpu(head.dqh_version);
+	if (ver == 0)
+		return QF_VFSV0;
+	return QF_VFSV1;
 }
 
 /* Check basic header */

@@ -1,7 +1,6 @@
 PROGS         = quotacheck quotaon quota quot repquota warnquota quotastats xqmstats edquota setquota convertquota rpc.rquotad @QUOTA_NETLINK_PROG@
 SOURCES       = bylabel.c common.c convertquota.c edquota.c pot.c quot.c quota.c quotacheck.c quotacheck_v1.c quotacheck_v2.c quotaio.c quotaio_rpc.c quotaio_v1.c quotaio_v2.c quotaio_tree.c quotaio_xfs.c quotaio_meta.c quotaio_generic.c quotaon.c quotaon_xfs.c quotaops.c quotastats.c quotasys.c repquota.c rquota_client.c rquota_server.c rquota_svc.c setquota.c warnquota.c xqmstats.c svc_socket.c
-VERSIONDEF    = -DQUOTA_VERSION=\"3.17\"
-CFLAGS        = @CFLAGS@ @EXT2_DIRECT@ -D_GNU_SOURCE -Wall -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 $(VERSIONDEF) -DCOMPILE_OPTS="\"@COMPILE_OPTS@\""
+CFLAGS        = @CFLAGS@ -D_GNU_SOURCE -Wall -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64
 CPPFLAGS      = @CPPFLAGS@
 EXT2LIBS      = @EXT2LIBS@
 NETLINKLIBS   = @NETLINKLIBS@
@@ -9,11 +8,6 @@ RPCSRC        = rquota.h rquota_xdr.c rquota_clnt.c
 LIBS          = @LIBS@
 LDFLAGS       = @LDFLAGS@
 LDAPLIBS      = @LDAPLIBS@
-
-# Add lines to /etc/hosts.allow and /etc/hosts.deny
-# like: "rquotad: ALL@ALL except my.host.i.want.com" in hosts.deny means
-#        only the host designated can get info from rquotad
-CFLAGS       += @HOSTS_ACCESS@
 
 INSTALL       = @INSTALL@
 STRIP         = -s
@@ -37,6 +31,7 @@ mandir        = @mandir@
 includedir    = $(prefix)/include
 locale_dir    = $(prefix)/share/locale
 sysconfdir    = @sysconfdir@
+datarootdir   = @datarootdir@
 
 RPCCLNTOBJS = rquota_xdr.o rquota_client.o rquota_clnt.o
 IOOBJS = quotaio.o quotaio_v1.o quotaio_v2.o quotaio_tree.o quotaio_rpc.o quotaio_xfs.o quotaio_meta.o quotaio_generic.o

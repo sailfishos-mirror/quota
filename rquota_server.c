@@ -9,7 +9,7 @@
  *
  *          This part does the lookup of the info.
  *
- * Version: $Id: rquota_server.c,v 1.21 2009/12/14 22:27:33 jkar8572 Exp $
+ * Version: $Id: rquota_server.c,v 1.22 2010/01/05 16:04:57 jkar8572 Exp $
  *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
@@ -18,6 +18,9 @@
  *          as published by the Free Software Foundation; either version
  *          2 of the License, or (at your option) any later version.
  */
+
+#include "config.h"
+
 #include <rpc/rpc.h>
 #include <arpa/inet.h>
 #include <paths.h>

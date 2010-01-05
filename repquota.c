@@ -6,6 +6,8 @@
  *	Jan Kara <jack@suse.cz> - Sponsored by SuSE CZ
  */
 
+#include "config.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

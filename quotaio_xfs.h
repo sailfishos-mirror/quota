@@ -29,8 +29,8 @@
  *
  * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
  */
-#ifndef _QUOTAIO_XFS_H
-#define _QUOTAIO_XFS_H
+#ifndef QUOTAIO_XFS_H
+#define QUOTAIO_XFS_H
 
 #include <asm/types.h>
 
@@ -147,4 +147,4 @@ typedef struct fs_quota_stat {
 	__u16 qs_iwarnlimit;	/* limit for num warnings */
 } fs_quota_stat_t;
 
-#endif /* _QUOTAIO_XFS_H */
+#endif /* QUOTAIO_XFS_H */

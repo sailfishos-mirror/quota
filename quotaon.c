@@ -32,6 +32,8 @@
  * SUCH DAMAGE.
  */
 
+#include "config.h"
+
 /*
  * Turn quota on/off for a filesystem.
  */

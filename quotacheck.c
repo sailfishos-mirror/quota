@@ -8,6 +8,8 @@
  *	New quota format implementation - Jan Kara <jack@suse.cz> - Sponsored by SuSE CR
  */
 
+#include "config.h"
+
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>

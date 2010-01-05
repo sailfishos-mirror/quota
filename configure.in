@@ -1,5 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(quota.c)
+AC_CONFIG_HEADERS([config.h])
 
 dnl Checks for programs.
 AC_PROG_CC
@@ -31,11 +32,13 @@ if test "x$enable_ldapmail" != "xno"; then
 	AC_CHECK_LIB(ldap, ldap_initialize, have_new_ldap="yes", AC_CHECK_LIB(ldap, ldap_init, have_old_ldap="yes"))
 	if test "x$have_new_ldap" != "xno" -o "x$have_old_ldap" != "xno"; then
 		LDAPLIBS="-L/usr/lib -lldap"
-		CFLAGS="$CFLAGS -DUSE_LDAP_MAIL_LOOKUP"
+		AC_DEFINE([USE_LDAP_MAIL_LOOKUP], 1, [Lookup email address using LDAP])
 		COMPILE_OPTS="$COMPILE_OPTS USE_LDAP_MAIL_LOOKUP"
 		if test "x$have_new_ldap" = "xyes"; then
-			CFLAGS="$CFLAGS -DUSE_LDAP_23"
-			AC_CHECK_DECL(ldap_perror, , CFLAGS="$CFLAGS -DNEED_LDAP_PERROR", [#include <ldap.h>])
+			AC_DEFINE([USE_LDAP_23], 1, [LDAP 2.3 or newer installed])
+			AC_CHECK_DECL(ldap_perror, ,
+				      AC_DEFINE([NEED_LDAP_PERROR], 1, [ldap_perror function not declared]),
+				      [#include <ldap.h>])
 		fi
 	else
 		if test "x$enable_ldapmail" = "xyes"; then
@@ -48,7 +51,7 @@ AC_SUBST(LDAPLIBS)
 	
 AC_CHECK_HEADER(ext2fs/ext2fs.h,ext2fshead="yes")
 if test "x$ext2fshead" = "xyes"; then
-	CFLAGS="-DHAVE_EXT2_INCLUDE $CFLAGS"
+	AC_DEFINE([HAVE_EXT2_INCLUDE], 1, [Header files for e2fslib])
 	AC_MSG_CHECKING([for ext2_ino_t])
 	have_ext2_ino_t="no"
 	AC_EGREP_HEADER(ext2_ino_t, ext2fs/ext2fs.h, have_ext2_ino_t="yes")
@@ -56,7 +59,7 @@ if test "x$ext2fshead" = "xyes"; then
 		AC_MSG_RESULT([not found])
 	else
 		AC_MSG_RESULT([found])
-		CFLAGS="-DHAVE_EXT2_INO_T $CFLAGS"
+		AC_DEFINE([HAVE_EXT2_INO_T], 1, [ext2fs.h defines ext2_ino_t])
 	fi
 fi
 
@@ -89,21 +92,11 @@ if test "x$enable_ext2direct" != "xno"; then
 		fi
 	fi
 	if test "x$enable_ext2direct" = "xyes"; then
-		EXT2_DIRECT="-DEXT2_DIRECT"
+		AC_DEFINE([EXT2_DIRECT], 1, [Scanning of ext? filesystems using e2fslib])
 		COMPILE_OPTS="$COMPILE_OPTS EXT2_DIRECT"
-		AC_SUBST(EXT2_DIRECT)
 	fi
 fi
 AC_SUBST(EXT2LIBS)
-
-#AC_ARG_WITH(dbus_include,
-#	[  --with-dbus_include=path        Path to directory with dbus include directory [default=/usr/include/dbus-1.0/]],
-#	DBUS_INCLUDE="$with_dbus_include",
-#	DBUS_INCLUDE="/usr/include/dbus-1.0/")
-#AC_ARG_WITH(dbus_arch_include,
-#	[  --with-dbus_arch_include=path   Path to directory with dbus arch-dependent include directory [default=/usr/lib/dbus-1.0/include/]],
-#	DBUS_ARCH_INCLUDE="$with_dbus_arch_include",
-#	DBUS_ARCH_INCLUDE="/usr/lib/dbus-1.0/include/")
 
 AC_ARG_ENABLE(netlink,
 	[  --enable-netlink=[yes/no/try]   Compile daemon receiving quota messages via netlink [default=no].],
@@ -163,9 +156,8 @@ if test ${ac_cv_lib_wrap_main} = yes; then
 		exit 1
 	])
 	LIBS="$LIBS -lwrap"
-	HOSTS_ACCESS="-DHOSTS_ACCESS"
-	COMPILE_OPTS="$COMPILE_OPTS HOST_ACCESS"
-	AC_SUBST(HOSTS_ACCESS)
+	AC_DEFINE([HOSTS_ACCESS], 1, [Use hosts.allow and hosts.deny for access checking of rpc.rquotad])
+	COMPILE_OPTS="$COMPILE_OPTS HOSTS_ACCESS"
 fi
 
 dnl Checks for typedefs, structures, and compiler characteristics.
@@ -198,47 +190,57 @@ AC_ARG_ENABLE(libefence,
 	enable_libefence="no")
 
 AC_ARG_ENABLE(nls,
-	[  --enable-nls=[yes/no]           Enable gettext [dafault=yes].],
+	[  --enable-nls=[yes/no]           Enable gettext [default=yes].],
 	,
 	enable_nls="yes")
 AC_ARG_ENABLE(rootsbin,
 	[  --enable-rootsbin=[yes/no]      Use /sbin for some important binaries regardless $prefix [default=no].],
 	,
 	enable_rootsbin="no")
+AC_ARG_ENABLE(proc-mounts,
+	[  --enable-proc-mounts=[path]   Use alternate file instead of /etc/mtab [default=/proc/mounts].],
+	,
+	enable_proc_mounts="/proc/mounts")
 
 if test "$enable_altformat" = "yes" ; then
-	CFLAGS="-DALT_FORMAT $CFLAGS"
+	AC_DEFINE([ALT_FORMAT], 1, [Alternative file format of edquota])
 	COMPILE_OPTS="$COMPILE_OPTS ALT_FORMAT"
 fi
 if test "$enable_rpc" = "yes" ; then
-	CFLAGS="-DRPC $CFLAGS"
+	AC_DEFINE([RPC], 1, [Support for RPC])
 	COMPILE_OPTS="$COMPILE_OPTS RPC"
 fi
 if test "$enable_rpcsetquota" = "yes" ; then
-	CFLAGS="-DRPC_SETQUOTA $CFLAGS"
+	AC_DEFINE([RPC_SETQUOTA], 1, [Allow setting of quotas over RPC])
 	COMPILE_OPTS="$COMPILE_OPTS RPC_SETQUOTA"
 fi
 if test "$enable_xfs_roothack" = "yes" ; then
-	CFLAGS="-DXFS_ROOTHACK $CFLAGS"
+	AC_DEFINE([XFS_ROOTHACK], 1, [Assume quota mount options for root filesystem])
 	COMPILE_OPTS="$COMPILE_OPTS XFS_ROOTHACK"
 fi
 if test "$enable_bsd_behaviour" = "yes" ; then
-	CFLAGS="-DBSD_BEHAVIOUR $CFLAGS"
+	AC_DEFINE([BSD_BEHAVIOUR], 1, [Check rights to query / set quotas before calling quotactl])
 	COMPILE_OPTS="$COMPILE_OPTS BSD_BEHAVIOUR"
 fi
 if test "$enable_libefence" = "yes" ; then
 	LIBMALLOC="/usr/lib/libefence.a"
 fi
 if test "$enable_nls" = "yes" ; then
-	CFLAGS="-D__GETTEXT__ $CFLAGS"
+	AC_DEFINE([USE_GETTEXT], 1, [Use gettext to translate messages])
 	INSTMO="inst_mo"
+fi
+if test -n "$enable_proc_mounts" ; then
+	AC_DEFINE_UNQUOTED([ALT_MTAB], ["$enable_proc_mounts"], [File with mounted filesystems])
 fi
 if test "$enable_rootsbin" = "yes" ; then
 	ROOTSBIN="/sbin"
 else
 	ROOTSBIN='$(prefix)/sbin'
 fi
-AC_SUBST(COMPILE_OPTS)
+
+AC_DEFINE_UNQUOTED([COMPILE_OPTS], ["$COMPILE_OPTS"], [Configuration options])
+AC_DEFINE([PACKAGE_VERSION], ["4.00-pre1"], [Version of quota tools])
+
 AC_SUBST(LIBMALLOC)
 AC_SUBST(INSTMO)
 AC_SUBST(ROOTSBIN)

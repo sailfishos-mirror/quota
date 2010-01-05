@@ -1,5 +1,8 @@
 Changes in quota-tools from 3.17 to 4.00-pre1
-* Improved manpage of quota_nld (Eddie)
+* Rewritten configuration script to create config.h (Jan Kara)
+* Use /proc/mounts for mountpoint scanning (Jan Kara)
+* Removed use of reserved identifiers (Jan Kara)
+* Improved manpage of quota_nld (Eddie Eyles)
 * Fixed long option handling of quota_nld (Jan Kara)
 * Fixed error reporting when rpc format specified on command line (Jan Kara)
 * Convert quota limits using rq_bsize from RPC request (Jan Kara)
