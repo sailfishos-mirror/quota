@@ -36,15 +36,6 @@
 
 char *progname;
 
-static const struct option options[] = {
-	{ "version", 0, NULL, 'V' },
-	{ "help", 0, NULL, 'h' },
-	{ "no-dbus", 0, NULL, 'D' },
-	{ "no-console", 0, NULL, 'C' },
-	{ "no-daemon", 0, NULL, 'F' },
-	{ NULL, 0, NULL, 0 }
-};
-
 struct quota_warning {
 	uint32_t qtype;
 	uint64_t excess_id;
@@ -71,6 +62,16 @@ static struct nla_policy quota_nl_warn_cmd_policy[QUOTA_NL_A_MAX+1] = {
 
 int flags;
 DBusConnection *dhandle;
+
+static const struct option options[] = {
+	{ "version", 0, NULL, 'V' },
+	{ "help", 0, NULL, 'h' },
+	{ "no-dbus", 0, NULL, 'D' },
+	{ "no-console", 0, NULL, 'C' },
+	{ "foreground", 0, NULL, 'F' },
+	{ "print-below", 0, NULL, 'b' },
+	{ NULL, 0, NULL, 0 }
+};
 
 void show_help(void)
 {
