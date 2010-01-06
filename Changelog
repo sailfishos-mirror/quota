@@ -1,4 +1,5 @@
 Changes in quota-tools from 3.17 to 4.00-pre1
+* added liblber to the list of libraries needed for LDAP support (Michael Meskes)
 * Rewritten configuration script to create config.h (Jan Kara)
 * Use /proc/mounts for mountpoint scanning (Jan Kara)
 * Removed use of reserved identifiers (Jan Kara)

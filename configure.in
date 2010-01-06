@@ -31,7 +31,7 @@ if test "x$enable_ldapmail" != "xno"; then
 	have_old_ldap="no"
 	AC_CHECK_LIB(ldap, ldap_initialize, have_new_ldap="yes", AC_CHECK_LIB(ldap, ldap_init, have_old_ldap="yes"))
 	if test "x$have_new_ldap" != "xno" -o "x$have_old_ldap" != "xno"; then
-		LDAPLIBS="-L/usr/lib -lldap"
+		LDAPLIBS="-L/usr/lib -lldap -llber"
 		AC_DEFINE([USE_LDAP_MAIL_LOOKUP], 1, [Lookup email address using LDAP])
 		COMPILE_OPTS="$COMPILE_OPTS USE_LDAP_MAIL_LOOKUP"
 		if test "x$have_new_ldap" = "xyes"; then
