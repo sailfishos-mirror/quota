@@ -4,8 +4,8 @@
  *
  */
 
-#ifndef _QUOTAIO_V2_H
-#define _QUOTAIO_V2_H
+#ifndef GUARD_QUOTAIO_V2_H
+#define GUARD_QUOTAIO_V2_H
 
 #include <sys/types.h>
 #include "quota.h"

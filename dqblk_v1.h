@@ -2,8 +2,8 @@
  *	Headerfile for old quotafile format
  */
 
-#ifndef _DQBLK_V1_H
-#define _DQBLK_V1_H
+#ifndef GUARD_DQBLK_V1_H
+#define GUARD_DQBLK_V1_H
 
 /* Values of quota calls */
 #define Q_V1_RSQUASH	0x1000

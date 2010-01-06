@@ -4,8 +4,8 @@
  *
  */
 
-#ifndef QUOTASYS_H
-#define QUOTASYS_H
+#ifndef GUARD_QUOTASYS_H
+#define GUARD_QUOTASYS_H
 
 #include <sys/types.h>
 #include "mntopt.h"
@@ -146,4 +146,4 @@ struct mntent *get_next_mount(void);
 /* Free all structures associated with mountpoints scan */
 void end_mounts_scan(void);
 
-#endif /* QUOTASYS_H */
+#endif /* GUARD_QUOTASYS_H */

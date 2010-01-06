@@ -1,5 +1,5 @@
-#ifndef POT_H
-#define POT_H
+#ifndef GUARD_POT_H
+#define GUARD_POT_H
 
 #ifdef USE_GETTEXT
 

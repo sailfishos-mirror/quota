@@ -1,5 +1,5 @@
-#ifndef QUOTA_TREE_H
-#define QUOTA_TREE_H
+#ifndef GUARD_QUOTA_TREE_H
+#define GUARD_QUOTA_TREE_H
 
 #include <sys/types.h>
 #include "quota.h"

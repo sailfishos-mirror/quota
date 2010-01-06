@@ -2,8 +2,8 @@
  *	Headerfile for XFS quota format
  */
 
-#ifndef DQBLK_XFS_H
-#define DQBLK_XFS_H
+#ifndef GUARD_DQBLK_XFS_H
+#define GUARD_DQBLK_XFS_H
 
 #include "quotaio_xfs.h"
 

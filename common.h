@@ -4,8 +4,8 @@
  *
  */
 
-#ifndef COMMON_H
-#define COMMON_H
+#ifndef GUARD_COMMON_H
+#define GUARD_COMMON_H
 
 #ifndef __attribute__
 # if !defined __GNUC__ || __GNUC__ < 2 || (__GNUC__ == 2 && __GNUC_MINOR__ < 8) || __STRICT_ANSI__
@@ -46,4 +46,4 @@ char *sstrdup(const char *s);
 /* Print version string */
 void version(void);
 
-#endif /* COMMON_H */
+#endif /* GUARD_COMMON_H */

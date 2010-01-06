@@ -4,8 +4,8 @@
  *
  */
 
-#ifndef _DQBLK_V2_H
-#define _DQBLK_V2_H
+#ifndef GUARD_DQBLK_V2_H
+#define GUARD_DQBLK_V2_H
 
 #include <sys/types.h>
 #include "quota_tree.h"

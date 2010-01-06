@@ -1,5 +1,5 @@
-#ifndef QUOTA_H
-#define QUOTA_H
+#ifndef GUARD_QUOTA_H
+#define GUARD_QUOTA_H
 
 #include <sys/types.h>
 

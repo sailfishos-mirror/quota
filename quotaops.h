@@ -1,5 +1,5 @@
-#ifndef QUOTAOPS_H
-#define QUOTAOPS_H
+#ifndef GUARD_QUOTAOPS_H
+#define GUARD_QUOTAOPS_H
 
 #include "quotaio.h"
 
@@ -15,4 +15,4 @@ int readtimes(struct quota_handle ** handles, int infd);
 void freeprivs(struct dquot * qlist);
 void update_grace_times(struct dquot *q);
 
-#endif /* QUOTAOPS_H */
+#endif /* GUARD_QUOTAOPS_H */

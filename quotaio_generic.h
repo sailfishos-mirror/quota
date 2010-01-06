@@ -4,8 +4,8 @@
  *
  */
 
-#ifndef QUOTAIO_GENERIC_H
-#define QUOTAIO_GENERIC_H
+#ifndef GUARD_QUOTAIO_GENERIC_H
+#define GUARD_QUOTAIO_GENERIC_H
 
 #include "quotaio.h"
 

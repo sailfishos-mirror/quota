@@ -4,8 +4,8 @@
  *
  */
 
-#ifndef RQUOTA_CLIENT_H
-#define RQUOTA_CLIENT_H
+#ifndef GUARD_RQUOTA_CLIENT_H
+#define GUARD_RQUOTA_CLIENT_H
 
 #include "quotaio.h"
 

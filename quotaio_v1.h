@@ -2,8 +2,8 @@
  *	Headerfile for old quotafile format
  */
 
-#ifndef _QUOTAIO_V1_H
-#define _QUOTAIO_V1_H
+#ifndef GUARD_QUOTAIO_V1_H
+#define GUARD_QUOTAIO_V1_H
 
 #include <sys/types.h>
 

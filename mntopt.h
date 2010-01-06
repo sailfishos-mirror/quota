@@ -1,5 +1,5 @@
-#ifndef MNTOPT_H
-#define MNTOPT_H
+#ifndef GUARD_MNTOPT_H
+#define GUARD_MNTOPT_H
 
 #include <mntent.h>
 
