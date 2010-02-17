@@ -714,9 +714,9 @@ static int rename_files(struct mntent *mnt, int type)
 	}
 	if (ioctl(fd, EXT2_IOC_GETFLAGS, &ext2_flags) < 0)
 		debug(FL_DEBUG, _("EXT2_IOC_GETFLAGS failed: %s\n"), strerror(errno));
-	/* IMMUTABLE flag set probably because system crashed and quota was not properly
-	 * turned off */
-	if (ext2_flags & EXT2_IMMUTABLE_FL) {
+	else if (ext2_flags & EXT2_IMMUTABLE_FL) {
+		/* IMMUTABLE flag set probably because system crashed and quota
+		 * was not properly turned off */
 		debug(FL_DEBUG | FL_VERBOSE, _("Quota file %s has IMMUTABLE flag set. Clearing.\n"), filename);
 		ext2_flags &= ~EXT2_IMMUTABLE_FL;
 		if (ioctl(fd, EXT2_IOC_SETFLAGS, &ext2_flags) < 0) {
