@@ -1,6 +1,7 @@
 Changes in quota-tools from 3.17 to 4.00-pre2
 * fixup typos in manpages (Michael Meskes)
 * added german translation (Michael Bunk)
+* added --enable-static-link configure option (Jan Kara)
 
 Changes in quota-tools from 3.17 to 4.00-pre1
 * don't try to set inode flags when getting them failed (Michalski Wojciech)
