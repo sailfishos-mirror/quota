@@ -746,9 +746,12 @@ void init_kernel_interface(void)
 	kernel_qfmt_num = 0;
 	if (!stat("/proc/fs/xfs/stat", &st))
 		kernel_qfmt[kernel_qfmt_num++] = QF_XFS;
-	else
-		if (!quotactl(QCMD(Q_XGETQSTAT, 0), NULL, 0, NULL) || (errno != EINVAL && errno != ENOSYS))
+	else {
+		fs_quota_stat_t dummy;
+
+		if (!quotactl(QCMD(Q_XGETQSTAT, 0), NULL, 0, (void *)&dummy) || (errno != EINVAL && errno != ENOSYS))
 			kernel_qfmt[kernel_qfmt_num++] = QF_XFS;
+	}
 	/* Detect new kernel interface; Assume generic interface unless we can prove there is not one... */
 	if (!stat("/proc/sys/fs/quota", &st) || errno != ENOENT) {
 		kernel_iface = IFACE_GENERIC;
