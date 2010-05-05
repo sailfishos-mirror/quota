@@ -1,4 +1,5 @@
 Changes in quota-tools from 3.17 to 4.00-pre2
+* support of GFS2 filesystem (Christoph Hellwig)
 * avoid memory corruption of NULL address (Petr Pisar)
 * fixup typos in manpages (Michael Meskes)
 * added german translation (Michael Bunk)

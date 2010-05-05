@@ -1049,7 +1049,9 @@ static void check_all(void)
 	while ((mnt = get_next_mount())) {
 		if (flags & FL_ALL && flags & FL_NOROOT && !strcmp(mnt->mnt_dir, "/"))
 			continue;
-		if (!strcmp(mnt->mnt_type, MNTTYPE_XFS) || nfs_fstype(mnt->mnt_type) ||
+		if (!strcmp(mnt->mnt_type, MNTTYPE_XFS) ||
+		    !strcmp(mnt->mnt_type, MNTTYPE_GFS2) ||
+		    nfs_fstype(mnt->mnt_type) ||
 		    meta_qf_fstype(mnt->mnt_type)) {
 			debug(FL_DEBUG | FL_VERBOSE, _("Skipping %s [%s]\n"), mnt->mnt_fsname, mnt->mnt_dir);
 			continue;

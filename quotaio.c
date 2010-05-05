@@ -78,7 +78,8 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 		goto out_handle;
 	}
 
-	if (!strcmp(mnt->mnt_type, MNTTYPE_XFS)) {	/* XFS filesystem? */
+	if (!strcmp(mnt->mnt_type, MNTTYPE_XFS) ||	/* XFS filesystem? */
+	    !strcmp(mnt->mnt_type, MNTTYPE_GFS2)) {	/* XFS filesystem? */
 		if (fmt != -1 && fmt != QF_XFS) {	/* User wanted some other format? */
 			errstr(_("Only XFS quota format is allowed on XFS filesystem.\n"));
 			goto out_handle;

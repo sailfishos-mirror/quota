@@ -18,6 +18,7 @@
 #define MNTTYPE_NFS4		"nfs4"	/* NFSv4 filesystem */
 #define MNTTYPE_MPFS		"mpfs"  /* EMC Celerra MPFS filesystem */
 #define MNTTYPE_OCFS2		"ocfs2"	/* Oracle Cluster filesystem */
+#define MNTTYPE_GFS2		"gfs2"	/* Red Hat Global filesystem 2 */
 
 /* mount options */
 #define MNTOPT_NOQUOTA		"noquota"	/* don't enforce quota */

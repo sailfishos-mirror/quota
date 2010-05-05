@@ -91,7 +91,8 @@ static int correct_fstype(char *type)
 		    !strcmp(type, MNTTYPE_NFS) ||
 		    !strcmp(type, MNTTYPE_NFS4) ||
 		    !strcmp(type, MNTTYPE_OCFS2) ||
-		    !strcmp(type, MNTTYPE_MPFS)) {
+		    !strcmp(type, MNTTYPE_MPFS) ||
+		    !strcmp(type, MNTTYPE_GFS2)) {
 			free(mtype);
 			return 1;
 		}
@@ -495,6 +496,8 @@ int hasquota(struct mntent *mnt, int type, int flags)
 	if (!correct_fstype(mnt->mnt_type) || hasmntopt(mnt, MNTOPT_NOQUOTA))
 		return 0;
 	
+	if (!strcmp(mnt->mnt_type, MNTTYPE_GFS2))
+		return 1;
 	if (!strcmp(mnt->mnt_type, MNTTYPE_XFS))
 		return hasxfsquota(mnt, type, flags);
 	if (nfs_fstype(mnt->mnt_type))	/* NFS always has quota or better there is no good way how to detect it */
@@ -652,11 +655,14 @@ add_entry:
 					goto add_entry;
 				break;
 			case QF_XFS:
-				if (!strcmp(mnt->mnt_type, MNTTYPE_XFS))
+				if (!strcmp(mnt->mnt_type, MNTTYPE_XFS) ||
+				    !strcmp(mnt->mnt_type, MNTTYPE_GFS2))
 					goto add_entry;
 				break;
 			default:
-				if (strcmp(mnt->mnt_type, MNTTYPE_XFS) && !nfs_fstype(mnt->mnt_type))
+				if (strcmp(mnt->mnt_type, MNTTYPE_XFS) &&
+				    strcmp(mnt->mnt_type, MNTTYPE_GFS2) &&
+				    !nfs_fstype(mnt->mnt_type))
 					goto add_entry;
 				break;
 			}
