@@ -496,9 +496,8 @@ int hasquota(struct mntent *mnt, int type, int flags)
 	if (!correct_fstype(mnt->mnt_type) || hasmntopt(mnt, MNTOPT_NOQUOTA))
 		return 0;
 	
-	if (!strcmp(mnt->mnt_type, MNTTYPE_GFS2))
-		return 1;
-	if (!strcmp(mnt->mnt_type, MNTTYPE_XFS))
+	if (!strcmp(mnt->mnt_type, MNTTYPE_GFS2) ||
+	    !strcmp(mnt->mnt_type, MNTTYPE_XFS))
 		return hasxfsquota(mnt, type, flags);
 	if (nfs_fstype(mnt->mnt_type))	/* NFS always has quota or better there is no good way how to detect it */
 		return 1;
