@@ -754,7 +754,7 @@ void init_kernel_interface(void)
 	else {
 		fs_quota_stat_t dummy;
 
-		if (!quotactl(QCMD(Q_XGETQSTAT, 0), NULL, 0, (void *)&dummy) || (errno != EINVAL && errno != ENOSYS))
+		if (!quotactl(QCMD(Q_XGETQSTAT, 0), "/dev/root", 0, (void *)&dummy) || (errno != EINVAL && errno != ENOSYS))
 			kernel_qfmt[kernel_qfmt_num++] = QF_XFS;
 	}
 	/* Detect new kernel interface; Assume generic interface unless we can prove there is not one... */
