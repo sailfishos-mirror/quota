@@ -455,8 +455,10 @@ static int ext2_direct_scan(char *device)
 		return -1;
 	}
 
-	while ((long)i_num) {
-		if (inode.i_links_count) {
+	while (i_num) {
+		if ((i_num == EXT2_ROOT_INO ||
+		     i_num >= EXT2_FIRST_INO(fs->super)) &&
+		    inode.i_links_count) {
 			debug(FL_DEBUG, _("Found i_num %ld, blocks %ld\n"), (long)i_num, (long)inode.i_blocks);
 			if (flags & FL_VERBOSE)
 				blit(NULL);
