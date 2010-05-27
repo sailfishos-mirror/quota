@@ -147,6 +147,15 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 		}
 	}
 	if (!QIO_ENABLED(h) || flags & IOI_OPENFILE) {	/* Need to open file? */
+		if (QIO_ENABLED(h)) {	/* Kernel uses same file? */
+			unsigned int cmd =
+				(kernel_iface == IFACE_GENERIC) ? Q_SYNC : Q_6_5_SYNC;
+			if (quotactl(QCMD(cmd, h->qh_type), h->qh_quotadev,
+				     0, NULL) < 0) {
+				die(4, _("Cannot sync quotas on device %s: %s\n"),
+				    h->qh_quotadev, strerror(errno));
+			}
+		}
 		/* We still need to open file for operations like 'repquota' */
 		if ((fd = open(qfname, QIO_RO(h) ? O_RDONLY : O_RDWR)) < 0) {
 			errstr(_("Cannot open quotafile %s: %s\n"),

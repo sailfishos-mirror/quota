@@ -484,11 +484,6 @@ static int v2_commit_dquot(struct dquot *dquot, int flags)
 
 static int v2_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct dquot *, char *))
 {
-	if (QIO_ENABLED(h))	/* Kernel uses same file? */
-		if (quotactl(QCMD((kernel_iface == IFACE_GENERIC) ? Q_SYNC : Q_6_5_SYNC, h->qh_type),
-			     h->qh_quotadev, 0, NULL) < 0)
-			die(4, _("Cannot sync quotas on device %s: %s\n"), h->qh_quotadev,
-			    strerror(errno));
 	return qtree_scan_dquots(h, process_dquot);
 }
 

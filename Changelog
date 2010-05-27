@@ -1,4 +1,5 @@
 Changes in quota-tools from 3.17 to 4.00-pre2
+* fix repquota to get latest quota info header (Jan Kara)
 * do not count system inodes into quota for ext[234] (Jan Kara)
 * improve detection of XFS kernel quota interface (Jan Kara)
 * support of GFS2 filesystem (Christoph Hellwig)

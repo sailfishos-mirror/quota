@@ -348,11 +348,6 @@ static int v1_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct d
 	struct dquot *dquot = get_empty_dquot();
 	qid_t id = 0;
 
-	if (QIO_ENABLED(h))	/* Kernel uses same file? */
-		if (quotactl(QCMD((kernel_iface == IFACE_GENERIC) ? Q_SYNC : Q_6_5_SYNC, h->qh_type),
-			     h->qh_quotadev, 0, NULL) < 0)
-			die(4, _("Cannot sync quotas on device %s: %s\n"), h->qh_quotadev,
-			    strerror(errno));
 	memset(dquot, 0, sizeof(*dquot));
 	dquot->dq_h = h;
 	lseek(h->qh_fd, 0, SEEK_SET);
