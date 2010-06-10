@@ -13,7 +13,7 @@
 #define STATEFLAG_ON		0x01
 #define STATEFLAG_OFF		0x02
 #define STATEFLAG_ALL		0x04
-#define STATEFLAG_VERBOSE	0x08
 
 typedef int (newstate_t) (struct mntent * mnt, int type, char *file, int flags);
 extern int xfs_newstate(struct mntent *mnt, int type, char *file, int flags);
+extern int pinfo(char *fmt, ...);

@@ -42,6 +42,7 @@
 #include <getopt.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
 #include "quotaon.h"
 #include "quota.h"
@@ -145,6 +146,19 @@ static void parse_options(int argcnt, char **argstr)
 	}
 }
 
+int pinfo(char *fmt, ...)
+{
+	va_list arg;
+	int ret;
+
+	if (!(flags & FL_VERBOSE))
+		return 0;
+	va_start(arg, fmt);
+	ret = vprintf(fmt, arg);
+	va_end(arg);
+	return ret;
+}
+
 /*
  *	Enable/disable rsquash on given filesystem
  */
@@ -171,10 +185,10 @@ static int quotarsquashonoff(const char *quotadev, int type, int flags)
 		errstr(_("set root_squash on %s: %s\n"), quotadev, strerror(errno));
 		return 1;
 	}
-	if ((flags & STATEFLAG_VERBOSE) && (flags & STATEFLAG_OFF))
-		printf(_("%s: %s root_squash turned off\n"), quotadev, type2name(type));
-	else if ((flags & STATEFLAG_VERBOSE) && (flags & STATEFLAG_ON))
-		printf(_("%s: %s root_squash turned on\n"), quotadev, type2name(type));
+	if (flags & STATEFLAG_OFF)
+		pinfo(_("%s: %s root_squash turned off\n"), quotadev, type2name(type));
+	else if (flags & STATEFLAG_ON)
+		pinfo(_("%s: %s root_squash turned on\n"), quotadev, type2name(type));
 #endif
 	return 0;
 }
@@ -195,8 +209,7 @@ static int quotaonoff(char *quotadev, char *quotadir, char *quotafile, int type,
 			errstr(_("quotactl on %s [%s]: %s\n"), quotadev, quotadir, strerror(errno));
 			return 1;
 		}
-		if (flags & STATEFLAG_VERBOSE)
-			printf(_("%s [%s]: %s quotas turned off\n"), quotadev, quotadir, type2name(type));
+		pinfo(_("%s [%s]: %s quotas turned off\n"), quotadev, quotadir, type2name(type));
 		return 0;
 	}
 	if (kernel_iface == IFACE_GENERIC) {
@@ -218,8 +231,7 @@ static int quotaonoff(char *quotadev, char *quotadir, char *quotafile, int type,
 			errstr(_("Quota format not supported in kernel.\n"));
 		return 1;
 	}
-	if (flags & STATEFLAG_VERBOSE)
-		printf(_("%s [%s]: %s quotas turned on\n"), quotadev, quotadir, type2name(type));
+	pinfo(_("%s [%s]: %s quotas turned on\n"), quotadev, quotadir, type2name(type));
 	return 0;
 }
 
@@ -268,8 +280,6 @@ static int newstate(struct mntent *mnt, int type, char *extra)
 	int sflags, ret = 0;
 
 	sflags = flags & FL_OFF ? STATEFLAG_OFF : STATEFLAG_ON;
-	if (flags & FL_VERBOSE)
-		sflags |= STATEFLAG_VERBOSE;
 	if (flags & FL_ALL)
 		sflags |= STATEFLAG_ALL;
 
@@ -376,7 +386,7 @@ int main(int argc, char **argv)
 	while ((mnt = get_next_mount())) {
 		if (nfs_fstype(mnt->mnt_type)) {
 			if (!(flags & FL_ALL))
-				fprintf(stderr, "%s: Quota cannot be turned on on NFS filesystem\n", mnt->mnt_fsname);
+				errstr(_("%s: Quota cannot be turned on on NFS filesystem\n"), mnt->mnt_fsname);
 			continue;
 		}
 

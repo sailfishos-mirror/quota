@@ -59,8 +59,8 @@ static int xfs_state_check(int qcmd, int type, int flags, char *dev, int roothac
 			    return 1;
 		    case Q_XFS_QUOTAON:
 			    if (roothack) {
-				    printf(_("Enabling %s quota on root filesystem"
-					     " (reboot to take effect)\n"), type2name(type));
+				    pinfo(_("Enabling %s quota on root filesystem"
+					    " (reboot to take effect)\n"), type2name(type));
 				    return 1;
 			    }
 			    errstr(_("Enable XFS %s quota accounting during mount\n"),
@@ -79,12 +79,12 @@ static int xfs_state_check(int qcmd, int type, int flags, char *dev, int roothac
 			    return -1;
 		    case Q_XFS_QUOTAON:
 			    if (roothack) {
-				    printf(_("Enabling %s quota on root filesystem"
-					     " (reboot to take effect)\n"), type2name(type));
+				    pinfo(_("Enabling %s quota on root filesystem"
+					    " (reboot to take effect)\n"), type2name(type));
 				    return 1;
 			    }
 			    if (xopts & XFS_QUOTA_UDQ_ENFD || xopts & XFS_QUOTA_GDQ_ENFD) {
-				    printf(_("Enabling %s quota enforcement on %s\n"), type2name(type), dev);
+				    pinfo(_("Enabling %s quota enforcement on %s\n"), type2name(type), dev);
 				    return 1;
 			    }
 			    errstr(_("Already accounting %s quota on %s\n"),
@@ -92,7 +92,7 @@ static int xfs_state_check(int qcmd, int type, int flags, char *dev, int roothac
 			    return -1;
 		    case Q_XFS_QUOTAOFF:
 			    if (xopts & XFS_QUOTA_UDQ_ACCT || xopts & XFS_QUOTA_GDQ_ACCT) {
-				    printf(_("Disabling %s quota accounting on %s\n"),
+				    pinfo(_("Disabling %s quota accounting on %s\n"),
 					   type2name(type), dev);
 			    	    return 1;
 			    }
@@ -121,9 +121,9 @@ static int xfs_state_check(int qcmd, int type, int flags, char *dev, int roothac
 				    return -1;
 			    }
 			    if (xopts & XFS_QUOTA_UDQ_ACCT || xopts & XFS_QUOTA_GDQ_ACCT)
-			    	    acctstr = _("and accounting ");
-			    printf(_("Disabling %s quota enforcement %son %s\n"),
-				   type2name(type), acctstr, dev);
+		    		    acctstr = _("and accounting ");
+			    pinfo(_("Disabling %s quota enforcement %son %s\n"),
+				  type2name(type), acctstr, dev);
 			    return 1;
 		  }
 		  break;
@@ -146,10 +146,10 @@ static int xfs_onoff(char *dev, int type, int flags, int roothack, int xopts)
 		errstr(_("quotactl on %s: %s\n"), dev, strerror(errno));
 		return 1;
 	}
-	if ((flags & STATEFLAG_VERBOSE) && qoff)
-		printf(_("%s: %s quotas turned off\n"), dev, type2name(type));
-	else if ((flags & STATEFLAG_VERBOSE) && !qoff)
-		printf(_("%s: %s quotas turned on\n"), dev, type2name(type));
+	if (qoff)
+		pinfo(_("%s: %s quotas turned off\n"), dev, type2name(type));
+	else
+		pinfo(_("%s: %s quotas turned on\n"), dev, type2name(type));
 	return 0;
 }
 
@@ -168,8 +168,7 @@ static int xfs_delete(char *dev, int type, int flags, int roothack, int xopts)
 		return 1;
 	}
 
-	if (flags & STATEFLAG_VERBOSE)
-		printf(_("%s: deleted %s quota blocks\n"), dev, type2name(type));
+	pinfo(_("%s: deleted %s quota blocks\n"), dev, type2name(type));
 	return 0;
 }
 
