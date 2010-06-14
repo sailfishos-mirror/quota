@@ -291,10 +291,7 @@ static int newstate(struct mntent *mnt, int type, char *extra)
 			errstr(_("Cannot change state of XFS quota. It's not compiled in kernel.\n"));
 			return 1;
 		}
-		if ((flags & FL_OFF && (kern_quota_on(mnt->mnt_fsname, USRQUOTA, QF_XFS) != -1
-		    || kern_quota_on(mnt->mnt_fsname, GRPQUOTA, QF_XFS) != -1))
-		    || (!(flags & FL_OFF) && kern_quota_on(mnt->mnt_fsname, type, QF_XFS) == -1))
-			ret = xfs_newstate(mnt, type, extra, sflags);
+		ret = xfs_newstate(mnt, type, extra, sflags);
 	}
 	else if (meta_qf_fstype(mnt->mnt_type)) {
 		if (!hasquota(mnt, type, 0))

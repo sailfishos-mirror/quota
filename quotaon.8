@@ -112,6 +112,11 @@ Manipulate group quotas.
 .B -p, --print-state
 Instead of turning quotas on just print state of quotas (ie. whether. quota is on or off)
 .TP
+.B -x, --xfs-command enforce
+Switch on limit enforcement for XFS filesystems. This is the default action for
+any XFS filesystem. This option is only applicable to XFS, and is silently
+ignored for other filesystem types.
+.TP
 .B -f, --off
 Make
 .B quotaon
@@ -154,9 +159,15 @@ ignored for other filesystem types.
 It can only be used on a filesystem with quota previously turned off.
 .TP
 .B -x, --xfs-command enforce
-Switch on/off limit enforcement for XFS filesystems (perform
-quota accounting only).
-This option is only applicable to XFS, and is silently
+Switch off limit enforcement for XFS filesystems (perform quota accounting
+only). This is the default action for any XFS filesystem.  This option is only
+applicable to XFS, and is silently ignored for other filesystem types.
+.TP
+.B -x, --xfs-command account
+This option can be used to disable quota accounting. It is not possible to
+enable quota accounting by quota tools. Use
+.IR mount (8)
+for that. This option is only applicable to XFS filesystems, and is silently
 ignored for other filesystem types.
 .SH "NOTES ON XFS FILESYSTEMS"
 To enable quotas on an XFS filesystem, use

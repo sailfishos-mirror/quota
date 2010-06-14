@@ -861,22 +861,23 @@ int kern_quota_on(const char *dev, int type, int fmt)
 	if (kernel_iface == IFACE_GENERIC) {
 		int actfmt;
 
-		if (quotactl(QCMD(Q_GETFMT, type), dev, 0, (void *)&actfmt) < 0)
-			return -1;
-		actfmt = kern2utilfmt(actfmt);
-		if (actfmt < 0)
-			return -1;
-		return actfmt;
+		if (quotactl(QCMD(Q_GETFMT, type), dev, 0,
+			     (void *)&actfmt) >= 0) {
+			actfmt = kern2utilfmt(actfmt);
+			if (actfmt >= 0)
+				return actfmt;
+		}
+	} else {
+		if ((fmt == -1 || fmt == QF_VFSV0) &&
+		    v2_kern_quota_on(dev, type))	/* VFSv0 quota format */
+			return QF_VFSV0;
+		if ((fmt == -1 || fmt == QF_VFSOLD) &&
+		    v1_kern_quota_on(dev, type))	/* Old quota format */
+			return QF_VFSOLD;
 	}
-	if ((fmt == -1 || fmt == QF_VFSV0) &&
-	    v2_kern_quota_on(dev, type))	/* VFSv0 quota format */
-		return QF_VFSV0;
 	if ((fmt == -1 || fmt == QF_XFS) &&
 	    xfs_kern_quota_on(dev, type))	/* XFS quota format */
 		return QF_XFS;
-	if ((fmt == -1 || fmt == QF_VFSOLD) &&
-	    v1_kern_quota_on(dev, type))	/* Old quota format */
-		return QF_VFSOLD;
 	return -1;
 }
 

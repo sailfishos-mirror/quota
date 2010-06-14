@@ -213,9 +213,6 @@ int xfs_newstate(struct mntent *mnt, int type, char *xarg, int flags)
 		err = xfs_onoff((char *)dev, type, flags, roothack, xopts);
 	}
 	else if (strcmp(xarg, "account") == 0) {
-		/* only useful if we want root accounting only */
-		if (!roothack || !(flags & STATEFLAG_ON))
-			goto done;
 		xopts |= (type == USRQUOTA) ? XFS_QUOTA_UDQ_ACCT : XFS_QUOTA_GDQ_ACCT;
 		err = xfs_onoff((char *)dev, type, flags, roothack, xopts);
 	}
@@ -229,7 +226,6 @@ int xfs_newstate(struct mntent *mnt, int type, char *xarg, int flags)
 	}
 	else
 		die(1, _("Invalid argument \"%s\"\n"), xarg);
-      done:
 	free((char *)dev);
 	return err;
 }
