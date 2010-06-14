@@ -111,6 +111,9 @@ report quotas only on local filesystems (ie. ignore NFS mounted filesystems).
 report quotas for all NFS filesystems even if they report to be on the same
 device.
 .TP
+.B -f, --filesystem-list
+report quotas only for filesystems specified on command line.
+.TP
 .B -m, --no-mixed-pathnames
 Currently, pathnames of NFSv4 mountpoints are sent without leading slash in the path.
 .BR rpc.rquotad
