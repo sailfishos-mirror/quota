@@ -1,4 +1,5 @@
 Changes in quota-tools from 3.17 to 4.00-pre2
+* fix quotaon to turn off only limit enforcement on XFS (Eric Sandeen)
 * fix quotaon to print all informational messages only in verbose mode (Jan Kara)
 * fix warnquota manpage to not speak about RPC (Jan Kara)
 * fix repquota to get latest quota info header (Jan Kara)

@@ -207,10 +207,9 @@ int xfs_newstate(struct mntent *mnt, int type, char *xarg, int flags)
 	}
 #endif /* XFS_ROOTHACK */
 
-	if (xarg == NULL) {	/* both acct & enfd on/off */
-		xopts |= (type == USRQUOTA) ?
-			(XFS_QUOTA_UDQ_ACCT | XFS_QUOTA_UDQ_ENFD) :
-			(XFS_QUOTA_GDQ_ACCT | XFS_QUOTA_GDQ_ENFD);
+	if (xarg == NULL) {	/* only enfd on/off */
+		xopts |= (type == USRQUOTA) ? XFS_QUOTA_UDQ_ENFD :
+			XFS_QUOTA_GDQ_ENFD;
 		err = xfs_onoff((char *)dev, type, flags, roothack, xopts);
 	}
 	else if (strcmp(xarg, "account") == 0) {
