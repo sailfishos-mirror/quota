@@ -100,7 +100,7 @@ Currently, pathnames of NFSv4 mountpoints are sent without leading slash in the 
 .BR rpc.rquotad
 uses this to recognize NFSv4 mounts and properly prepend pseudoroot of NFS filesystem
 to the path. If you specify this option, 
-.BR setquota 
+.BR edquota 
 will always send paths with a trailing slash. This can be useful for legacy reasons but
 be aware that quota over RPC will stop working if you are using new
 .BR rpc.rquotad .

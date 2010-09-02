@@ -1,4 +1,5 @@
 Changes in quota-tools from 3.17 to 4.00-pre2
+* minor updates of manpages (Jan Kara)
 * quotactl manpage was moved to man-pages package (Jan Kara)
 * fix quotaon to work properly with XFS filesystems (Eric Sandeen, Jan Kara )
 * fix quotaon to print all informational messages only in verbose mode (Jan Kara)
