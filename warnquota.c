@@ -10,8 +10,6 @@
  * 
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
- * Version: $Id: warnquota.c,v 1.33 2010/01/05 16:04:57 jkar8572 Exp $
- *
  *          This program is free software; you can redistribute it and/or
  *          modify it under the terms of the GNU General Public License as
  *          published by the Free Software Foundation; either version 2 of

@@ -9,8 +9,6 @@
  *
  *          This part does the lookup of the info.
  *
- * Version: $Id: rquota_server.c,v 1.22 2010/01/05 16:04:57 jkar8572 Exp $
- *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
  *          This program is free software; you can redistribute it and/or

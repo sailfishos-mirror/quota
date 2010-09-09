@@ -9,8 +9,6 @@
  *
  *          This part does the rpc-communication with the rquotad.
  *
- * Version: $Id: rquota_client.c,v 1.13 2010/01/05 16:04:57 jkar8572 Exp $
- *
  * Author:  Marco van Wieringen <mvw@planets.elm.net>
  *
  *          This program is free software; you can redistribute it and/or
