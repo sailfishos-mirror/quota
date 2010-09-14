@@ -1,4 +1,5 @@
 Changes in quota-tools from 3.17 to 4.00-pre2
+* create quota-nfs.sh script for nicer quota(1) output formatting on some NFS clients (Jan Kara)
 * add options for quota(1) modifying formatting of filesystem identificaion (Jan Kara)
 * minor updates of manpages (Jan Kara)
 * quotactl manpage was moved to man-pages package (Jan Kara)
