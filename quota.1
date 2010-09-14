@@ -96,6 +96,10 @@ option will make
 .BR quota (1)
 try to choose units for showing limits, used space and used inodes.
 .TP
+.B --always-resolve
+Always try to translate user / group name to uid / gid even if the name
+is composed of digits only.
+.TP
 .B -p, --raw-grace
 When user is in grace period, report time in seconds since epoch when his grace
 time runs out (or has run out). Field is '0' when no grace time is in effect.
