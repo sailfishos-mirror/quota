@@ -80,6 +80,7 @@ struct quota_handle {
 	int qh_fd;		/* Handle of file (-1 when IOFL_QUOTAON) */
 	int qh_io_flags;	/* IO flags for file */
 	char qh_quotadev[PATH_MAX];	/* Device file is for */
+	char qh_dir[PATH_MAX];		/* Directory filesystem is mounted at */
 	char qh_fstype[MAX_FSTYPE_LEN];	/* Type of the filesystem on qh_quotadev */
 	int qh_type;		/* Type of quotafile */
 	int qh_fmt;		/* Quotafile format */

@@ -73,6 +73,8 @@
 #define FL_NFSALL 2048
 #define FL_RAWGRACE 4096
 #define FL_NO_MIXED_PATHS 8192
+#define FL_SHOW_MNTPOINT 16384
+#define FL_SHOW_DEVICE 32768
 
 int flags, fmt = -1;
 char *progname;
@@ -102,6 +104,8 @@ void usage(void)
 -f, --filesystem-list     display quota information only for given filesystems\n\
 -A, --nfs-all             display quota for all NFS mountpoints\n\
 -m, --no-mixed-pathnames  trim leading slashes from NFSv4 mountpoints\n\
+    --show-mntpoint       show mount point of the file system in output\n\
+    --hide-device         do not show file system device in output\n\
 -h, --help                display this help message and exit\n\
 -V, --version             display version information and exit\n\n"));
 	fprintf(stderr, _("Bugs to: %s\n"), MY_EMAIL);
@@ -121,8 +125,50 @@ void heading(int type, qid_t id, char *name, char *tag)
 	       name, *type2name(type), (uint) id, tag);
 	if (!(flags & FL_QUIET) && !tag[0]) {
 		printf("%15s%8s %7s%8s%8s%8s %7s%8s%8s\n", _("Filesystem"),
-		       spacehdr,_("quota"), _("limit"), _("grace"),
+		       spacehdr, _("quota"), _("limit"), _("grace"),
 		       _("files"), _("quota"), _("limit"), _("grace"));
+	}
+}
+
+void print_fs_location(struct dquot *q)
+{
+	struct quota_handle *h = q->dq_h;
+
+	if (flags & FL_QUIET) {
+		if (flags & FL_SHOW_DEVICE)
+			printf(" %s", h->qh_quotadev);
+		if (flags & FL_SHOW_MNTPOINT)
+			printf(" %s", h->qh_dir);
+		putchar('\n');
+	} else {
+		int wrap = 0;
+
+		if (flags & FL_SHOW_DEVICE && flags & FL_SHOW_MNTPOINT &&
+		    !(flags & FL_NOWRAP))
+			wrap = 1;
+		else if (flags & FL_SHOW_DEVICE && strlen(h->qh_quotadev) > 15 &&
+		    !(flags & FL_NOWRAP))
+			wrap = 1;
+		else if (flags & FL_SHOW_MNTPOINT && strlen(h->qh_dir) > 15 &&
+		    !(flags & FL_NOWRAP))
+			wrap = 1;
+		
+		if (flags & FL_SHOW_DEVICE) {
+			if (wrap || flags & FL_SHOW_MNTPOINT)
+				printf("%s", h->qh_quotadev);
+			else
+				printf("%15s", h->qh_quotadev);
+		}
+		if (flags & FL_SHOW_MNTPOINT) {
+			if (flags & FL_SHOW_DEVICE)
+				putchar(' ');
+			if (wrap || flags & FL_SHOW_DEVICE)
+				printf("%s", h->qh_dir);
+			else
+				printf("%15s", h->qh_dir);
+		}
+		if (wrap)
+			printf("\n%15s", "");
 	}
 }
 
@@ -186,10 +232,14 @@ int showquotas(int type, qid_t id, int mntcnt, char **mnt)
 		if (flags & FL_QUIET) {
 			if ((msgi || msgb) && !lines++)
 				heading(type, id, name, "");
-			if (msgi)
-				printf("\t%s %s\n", msgi, q->dq_h->qh_quotadev);
-			if (msgb)
-				printf("\t%s %s\n", msgb, q->dq_h->qh_quotadev);
+			if (msgi) {
+				printf("\t%s", msgi);
+				print_fs_location(q);
+			}
+			if (msgb) {
+				printf("\t%s", msgb);
+				print_fs_location(q);
+			}
 			continue;
 		}
 		if ((flags & FL_VERBOSE) || q->dq_dqb.dqb_curspace || q->dq_dqb.dqb_curinodes) {
@@ -197,10 +247,7 @@ int showquotas(int type, qid_t id, int mntcnt, char **mnt)
 
 			if (!lines++)
 				heading(type, id, name, "");
-			if (strlen(q->dq_h->qh_quotadev) > 15 && !(flags & FL_NOWRAP))
-				printf("%s\n%15s", q->dq_h->qh_quotadev, "");
-			else
-				printf("%15s", q->dq_h->qh_quotadev);
+			print_fs_location(q);
 			if (!(flags & FL_RAWGRACE)) {
 				if (bover)
 					difftime2str(q->dq_dqb.dqb_btime, timebuf);
@@ -269,12 +316,15 @@ int main(int argc, char **argv)
 		{ "filesystem-list", 0, NULL, 'f' },
 		{ "all-nfs", 0, NULL, 'A' },
 		{ "no-mixed-pathnames", 0, NULL, 'm' },
+		{ "show-mntpoint", 0, NULL, 257 },
+		{ "hide-device", 0, NULL, 258 },
 		{ NULL, 0, NULL, 0 }
 	};
 
 	gettexton();
 	progname = basename(argv[0]);
 
+	flags |= FL_SHOW_DEVICE;
 	while ((ret = getopt_long(argc, argv, "guqvsVliQF:wfApm", long_opts, NULL)) != -1) {
 		switch (ret) {
 		  case 'g':
@@ -322,6 +372,12 @@ int main(int argc, char **argv)
 			  break;
 		  case 'm':
 			  flags |= FL_NO_MIXED_PATHS;
+			  break;
+		  case 257:
+			  flags |= FL_SHOW_MNTPOINT;
+			  break;
+		  case 258:
+			  flags &= ~FL_SHOW_DEVICE;
 			  break;
 		  case 'V':
 			  version();
