@@ -66,43 +66,6 @@ int meta_qf_fstype(char *type)
 }
 
 /*
- *	Check whether give filesystem type is supported
- */
-
-static int correct_fstype(char *type)
-{
-	char *mtype = sstrdup(type), *next;
-
-	type = mtype;
-	do {
-		next = strchr(type, ',');
-		if (next)
-			*next = 0;
-		if (!strcmp(type, MNTTYPE_EXT2) ||
-		    !strcmp(type, MNTTYPE_EXT3) ||
-		    !strcmp(type, MNTTYPE_EXT4) ||
-		    !strcmp(type, MNTTYPE_EXT4DEV) ||
-		    !strcmp(type, MNTTYPE_JFS) ||
-		    !strcmp(type, MNTTYPE_MINIX) ||
-		    !strcmp(type, MNTTYPE_UFS) ||
-		    !strcmp(type, MNTTYPE_UDF) ||
-		    !strcmp(type, MNTTYPE_REISER) ||
-		    !strcmp(type, MNTTYPE_XFS) ||
-		    !strcmp(type, MNTTYPE_NFS) ||
-		    !strcmp(type, MNTTYPE_NFS4) ||
-		    !strcmp(type, MNTTYPE_OCFS2) ||
-		    !strcmp(type, MNTTYPE_MPFS) ||
-		    !strcmp(type, MNTTYPE_GFS2)) {
-			free(mtype);
-			return 1;
-		}
-		type = next+1;	
-	} while (next);
-	free(mtype);
-	return 0;
-}
-
-/*
  *	Convert type of quota to written representation
  */
 char *type2name(int type)
@@ -493,7 +456,7 @@ char *hasmntoptarg(struct mntent *mnt, char *opt)
  */
 int hasquota(struct mntent *mnt, int type, int flags)
 {
-	if (!correct_fstype(mnt->mnt_type) || hasmntopt(mnt, MNTOPT_NOQUOTA))
+	if (hasmntopt(mnt, MNTOPT_NOQUOTA))
 		return 0;
 	
 	if (!strcmp(mnt->mnt_type, MNTTYPE_GFS2) ||
