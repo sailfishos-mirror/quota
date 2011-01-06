@@ -91,17 +91,41 @@ static inline void servnet2utildqblk(struct util_dqblk *u, sq_dqblk * n)
 		u->dqb_itime = 0;
 }
 
+/* XDR transports 32b variables exactly. Find smallest needed shift to fit
+ * 64b variable into into 32 bits and to preserve precision as high as
+ * possible. */
+static int find_block_shift(qsize_t hard, qsize_t soft, qsize_t cur)
+{
+	int shift;
+	qsize_t value = hard;
+
+	if (value < soft)
+		value = soft;
+	if (value < cur)
+		value = cur;
+	value >>= 32 + QUOTABLOCK_BITS;
+	for (shift = QUOTABLOCK_BITS; value; shift++)
+		value >>= 1;
+
+	return shift;
+}
+
 static inline void servutil2netdqblk(struct rquota *n, struct util_dqblk *u)
 {
 	time_t now;
+	int shift;
 
-	time(&now);
-	n->rq_bhardlimit = (u->dqb_bhardlimit << QUOTABLOCK_BITS) >> RPC_DQBLK_SIZE_BITS;
-	n->rq_bsoftlimit = (u->dqb_bsoftlimit << QUOTABLOCK_BITS) >> RPC_DQBLK_SIZE_BITS;
+	shift = find_block_shift(u->dqb_bhardlimit, u->dqb_bsoftlimit,
+		u->dqb_curspace);
+	n->rq_bsize = 1 << shift;
+	n->rq_bhardlimit = (u->dqb_bhardlimit << QUOTABLOCK_BITS) >> shift;
+	n->rq_bsoftlimit = (u->dqb_bsoftlimit << QUOTABLOCK_BITS) >> shift;
 	n->rq_fhardlimit = u->dqb_ihardlimit;
 	n->rq_fsoftlimit = u->dqb_isoftlimit;
-	n->rq_curblocks = (u->dqb_curspace + RPC_DQBLK_SIZE - 1) >> RPC_DQBLK_SIZE_BITS;
+	n->rq_curblocks = (u->dqb_curspace + n->rq_bsize - 1) >> shift;
 	n->rq_curfiles = u->dqb_curinodes;
+
+	time(&now);
 	if (u->dqb_btime)
 		n->rq_btimeleft = u->dqb_btime - now;
 	else
@@ -258,7 +282,6 @@ getquota_rslt *getquotainfo(int lflags, caddr_t * argp, struct svc_req * rqstp)
 	}
 
 	result.status = Q_NOQUOTA;
-	result.getquota_rslt_u.gqr_rquota.rq_bsize = RPC_DQBLK_SIZE;
 
 	if (init_mounts_scan(1, &pathp, MS_QUIET | MS_NO_MNTPOINT | MS_NFS_ALL | ((flags & FL_AUTOFS) ? 0 : MS_NO_AUTOFS)) < 0)
 		goto out;
