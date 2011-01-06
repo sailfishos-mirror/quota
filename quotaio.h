@@ -10,6 +10,7 @@
 #include <limits.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <stdint.h>
 
 #include "quota.h"
 #include "mntopt.h"
@@ -69,6 +70,10 @@ struct quotafile_ops;
 struct util_dqinfo {
 	time_t dqi_bgrace;	/* Block grace time for given quotafile */
 	time_t dqi_igrace;	/* Inode grace time for given quotafile */
+	uint64_t dqi_max_b_limit;	/* Maximal block limit storable in current format */
+	uint64_t dqi_max_i_limit;	/* Maximal inode limit storable in current format */
+	uint64_t dqi_max_b_usage;	/* Maximal block usage storable in current format */
+	uint64_t dqi_max_i_usage;	/* Maximal inode usage storable in current format */
 	union {
 		struct v2_mem_dqinfo v2_mdqi;
 		struct xfs_mem_dqinfo xfs_mdqi;
@@ -170,5 +175,8 @@ int end_io(struct quota_handle *h);
 
 /* Get empty quota structure */
 struct dquot *get_empty_dquot(void);
+
+/* Check whether values in current dquot can be stored on disk */
+int check_dquot_range(struct dquot *dquot);
 
 #endif /* GUARD_QUOTAIO_H */

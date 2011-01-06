@@ -307,9 +307,17 @@ static int v2_init_io(struct quota_handle *h)
 		if (__le32_to_cpu(header.dqh_version) == 0) {
 			h->qh_info.u.v2_mdqi.dqi_qtree.dqi_entry_size = sizeof(struct v2r0_disk_dqblk);
 			h->qh_info.u.v2_mdqi.dqi_qtree.dqi_ops = &v2r0_fmt_ops;
+			h->qh_info.dqi_max_b_limit = ~(uint32_t)0;
+			h->qh_info.dqi_max_i_limit = ~(uint32_t)0;
+			h->qh_info.dqi_max_b_usage = ~(uint64_t)0;
+			h->qh_info.dqi_max_i_usage = ~(uint32_t)0;
 		} else {
 			h->qh_info.u.v2_mdqi.dqi_qtree.dqi_entry_size = sizeof(struct v2r1_disk_dqblk);
 			h->qh_info.u.v2_mdqi.dqi_qtree.dqi_ops = &v2r1_fmt_ops;
+			h->qh_info.dqi_max_b_limit = ~(uint64_t)0;
+			h->qh_info.dqi_max_i_limit = ~(uint64_t)0;
+			h->qh_info.dqi_max_b_usage = ~(uint64_t)0;
+			h->qh_info.dqi_max_i_usage = ~(uint64_t)0;
 		}
 	} else {
 		/* We don't have the file open -> we don't need quota tree operations */
@@ -351,9 +359,17 @@ static int v2_new_io(struct quota_handle *h)
 	if (version == 0) {
 		h->qh_info.u.v2_mdqi.dqi_qtree.dqi_entry_size = sizeof(struct v2r0_disk_dqblk);
 		h->qh_info.u.v2_mdqi.dqi_qtree.dqi_ops = &v2r0_fmt_ops;
+		h->qh_info.dqi_max_b_limit = ~(uint32_t)0;
+		h->qh_info.dqi_max_i_limit = ~(uint32_t)0;
+		h->qh_info.dqi_max_b_usage = ~(uint64_t)0;
+		h->qh_info.dqi_max_i_usage = ~(uint32_t)0;
 	} else if (version == 1) {
 		h->qh_info.u.v2_mdqi.dqi_qtree.dqi_entry_size = sizeof(struct v2r1_disk_dqblk);
 		h->qh_info.u.v2_mdqi.dqi_qtree.dqi_ops = &v2r1_fmt_ops;
+		h->qh_info.dqi_max_b_limit = ~(uint64_t)0;
+		h->qh_info.dqi_max_i_limit = ~(uint64_t)0;
+		h->qh_info.dqi_max_b_usage = ~(uint64_t)0;
+		h->qh_info.dqi_max_i_usage = ~(uint64_t)0;
 	}
 	v2_mem2diskdqinfo(&ddqinfo, &h->qh_info);
 	lseek(h->qh_fd, V2_DQINFOOFF, SEEK_SET);
@@ -477,8 +493,13 @@ static int v2_commit_dquot(struct dquot *dquot, int flags)
 	if (!b->dqb_curspace && !b->dqb_curinodes && !b->dqb_bsoftlimit && !b->dqb_isoftlimit
 	    && !b->dqb_bhardlimit && !b->dqb_ihardlimit)
 		qtree_delete_dquot(dquot);
-	else
+	else {
+		if (check_dquot_range(dquot) < 0) {
+			errno = ERANGE;
+			return -1;
+		}
 		qtree_write_dquot(dquot);
+	}
 	return 0;
 }
 

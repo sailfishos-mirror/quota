@@ -287,3 +287,27 @@ struct dquot *get_empty_dquot(void)
 	dquot->dq_id = -1;
 	return dquot;
 }
+
+/*
+ *	Check whether values in current dquot can be stored on disk
+ */
+int check_dquot_range(struct dquot *dquot)
+{
+	struct util_dqinfo *info = &dquot->dq_h->qh_info;
+
+	if (dquot->dq_dqb.dqb_bhardlimit > info->dqi_max_b_limit ||
+	    dquot->dq_dqb.dqb_bsoftlimit > info->dqi_max_b_limit ||
+	    dquot->dq_dqb.dqb_ihardlimit > info->dqi_max_i_limit ||
+	    dquot->dq_dqb.dqb_isoftlimit > info->dqi_max_i_limit) {
+		errstr(_("Trying to set quota limits out of range "
+				 "supported by quota format on %s.\n"), dquot->dq_h->qh_quotadev);
+		return -1;
+	}
+	if (dquot->dq_dqb.dqb_curinodes > info->dqi_max_i_usage ||
+	    dquot->dq_dqb.dqb_curspace > info->dqi_max_b_usage) {
+		errstr(_("Trying to set quota usage out of range "
+			 "supported by quota format on %s.\n"), dquot->dq_h->qh_quotadev);
+		return -1;
+	}
+	return 0;
+}

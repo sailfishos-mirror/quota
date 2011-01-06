@@ -1,4 +1,6 @@
 Changes in quota-tools from 3.17 to 4.00-pre2
+* check whether set limits fit into range supported by quota format (Jan Kara)
+* remove checking of filesystem type from hasquota() (Jan Kara)
 * create quota-nfs.sh script for nicer quota(1) output formatting on some NFS clients (Jan Kara)
 * add options for quota(1) modifying formatting of filesystem identificaion (Jan Kara)
 * minor updates of manpages (Jan Kara)

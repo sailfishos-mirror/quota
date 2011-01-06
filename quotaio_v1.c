@@ -174,6 +174,10 @@ static int v1_init_io(struct quota_handle *h)
 		h->qh_info.dqi_bgrace = MAX_DQ_TIME;
 	if (!h->qh_info.dqi_igrace)
 		h->qh_info.dqi_igrace = MAX_IQ_TIME;
+	h->qh_info.dqi_max_b_limit = ~(uint32_t)0;
+	h->qh_info.dqi_max_i_limit = ~(uint32_t)0;
+	h->qh_info.dqi_max_b_usage = ((uint64_t)(~(uint32_t)0)) << V1_DQBLK_SIZE_BITS;
+	h->qh_info.dqi_max_i_usage = ~(uint32_t)0;
 
 	return 0;
 }
@@ -327,6 +331,10 @@ static int v1_commit_dquot(struct dquot *dquot, int flags)
 		}
 	}
 	else {
+		if (check_dquot_range(dquot) < 0) {
+			errno = ERANGE;
+			return -1;
+		}
 		v1_mem2diskdqblk(&ddqblk, &dquot->dq_dqb);
 		lseek(h->qh_fd, (long)V1_DQOFF(dquot->dq_id), SEEK_SET);
 		if (write(h->qh_fd, &ddqblk, sizeof(ddqblk)) != sizeof(ddqblk))
