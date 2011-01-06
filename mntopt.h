@@ -7,6 +7,7 @@
 #define MNTTYPE_EXT2		"ext2"	/* 2nd Extended file system */
 #define MNTTYPE_EXT3		"ext3"	/* ext2 + journaling */
 #define MNTTYPE_EXT4		"ext4"	/* ext4 filesystem */
+#define MNTTYPE_NEXT3		"next3"	/* next3 filesystem */
 #define MNTTYPE_EXT4DEV		"ext4dev"/* ext4dev filesystem */
 #define MNTTYPE_MINIX		"minix"	/* MINIX file system */
 #define MNTTYPE_UFS		"ufs"	/* UNIX file system */

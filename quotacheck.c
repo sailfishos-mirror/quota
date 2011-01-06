@@ -925,7 +925,7 @@ Please stop all programs writing to filesystem or use -m flag to force checking.
 	}
 	debug(FL_VERBOSE, _("Scanning %s [%s] "), mnt->mnt_fsname, mnt->mnt_dir);
 #if defined(EXT2_DIRECT)
-	if (!strcmp(mnt->mnt_type, MNTTYPE_EXT2) || !strcmp(mnt->mnt_type, MNTTYPE_EXT3)) {
+	if (!strcmp(mnt->mnt_type, MNTTYPE_EXT2) || !strcmp(mnt->mnt_type, MNTTYPE_EXT3) || !strcmp(mnt->mnt_type, MNTTYPE_NEXT3)) {
 		if (ext2_direct_scan(mnt->mnt_fsname) < 0)
 			goto out;
 	}
@@ -1083,6 +1083,7 @@ static void check_all(void)
 		    !hasmntopt(mnt, MNTOPT_GRPJQUOTA) && !warned &&
 		    (!strcmp(mnt->mnt_type, MNTTYPE_EXT3) ||
 		     !strcmp(mnt->mnt_type, MNTTYPE_EXT4) ||
+		     !strcmp(mnt->mnt_type, MNTTYPE_NEXT3) ||
 		     !strcmp(mnt->mnt_type, MNTTYPE_EXT4DEV) ||
 		     !strcmp(mnt->mnt_type, MNTTYPE_REISER))) {
 			struct utsname stats;
