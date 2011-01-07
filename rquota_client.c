@@ -265,6 +265,10 @@ int rpc_rquota_set(int qcmd, struct dquot *dquot)
 	char *fsname_tmp, *host, *pathname;
 	struct timeval timeout = { 2, 0 };
 
+	/* RPC limits values to 32b variables. Prevent value wrapping. */
+	if (check_dquot_range(dquot) < 0)
+		return -ERANGE;
+
 	/*
 	 * Convert host:pathname to seperate host and pathname.
 	 */

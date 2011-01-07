@@ -70,6 +70,8 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 		h->qh_fd = -1;
 		h->qh_fmt = QF_RPC;
 		h->qh_ops = &quotafile_ops_rpc;
+		memset(&h->qh_info, 0, sizeof(h->qh_info));
+		h->qh_ops->init_io(h);
 		return h;
 #else
 		errstr(_("RPC quota format not compiled.\n"));

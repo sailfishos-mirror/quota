@@ -15,13 +15,31 @@
 #include "rquota_client.h"
 #include "pot.h"
 
+static int rpc_init_io(struct quota_handle *h);
 static struct dquot *rpc_read_dquot(struct quota_handle *h, qid_t id);
 static int rpc_commit_dquot(struct dquot *dquot, int flags);
 
 struct quotafile_ops quotafile_ops_rpc = {
+init_io:	rpc_init_io,
 read_dquot:	rpc_read_dquot,
 commit_dquot:	rpc_commit_dquot
 };
+
+/*
+ * Define maximal values RPC client can transmit to server.
+ */
+static int rpc_init_io(struct quota_handle *h)
+{
+#ifdef RPC
+	h->qh_info.dqi_max_b_limit = ~(uint32_t)0;
+	h->qh_info.dqi_max_i_limit = ~(uint32_t)0;
+	h->qh_info.dqi_max_b_usage = (~(uint32_t)0) << QUOTABLOCK_BITS;
+	h->qh_info.dqi_max_i_usage = ~(uint32_t)0;
+	return 0;
+#else
+	return -1;
+#endif
+}
 
 /*
  *	Read a dqblk struct from RPC server - just wrapper function.
