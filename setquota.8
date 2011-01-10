@@ -155,6 +155,10 @@ Use quota settings of user or group
 .I protoname
 to set the quota for the named user or group.
 .TP
+.B --always-resolve
+Always try to translate user / group name to uid / gid even if the name
+is composed of digits only.
+.TP
 .B -b, --batch
 Read information to set from stdin (input format is
 .I name block-softlimit block-hardlimit inode-softlimit inode-hardlimit

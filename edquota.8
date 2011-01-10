@@ -116,6 +116,10 @@ Duplicate the quotas of the prototypical user
 specified for each user specified.  This is the normal
 mechanism used to initialize quotas for groups of users.
 .TP
+.B --always-resolve
+Always try to translate user / group name to uid / gid even if the name
+is composed of digits only.
+.TP
 .B -F, --format=\f2format-name\f1
 Edit quota for specified format (ie. don't perform format autodetection).
 Possible format names are:
