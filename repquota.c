@@ -52,7 +52,7 @@ static void usage(void)
 -u, --user                  display information about users\n\
 -g, --group                 display information about groups\n\
 -s, --human-readable        show numbers in human friendly units (MB, GB, ...)\n\
--t, --truncate-names        truncate names to 8 characters\n\
+-t, --truncate-names        truncate names to 9 characters\n\
 -p, --raw-grace             print grace time in seconds since epoch\n\
 -n, --no-names              do not translate uid/gid to name\n\
 -i, --no-autofs             avoid autofs mountpoints\n\
