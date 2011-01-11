@@ -110,9 +110,9 @@ static void parse_options(int argcnt, char **argstr)
 	char *protoname = NULL;
 
 #ifdef RPC_SETQUOTA
-	char *opts = "gp:urmVF:taTbc";
+	char *opts = "ghp:urmVF:taTbc";
 #else
-	char *opts = "gp:uVF:taTbc";
+	char *opts = "ghp:uVF:taTbc";
 #endif
 	struct option long_opts[] = {
 		{ "user", 0, NULL, 'u' },

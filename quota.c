@@ -325,7 +325,7 @@ int main(int argc, char **argv)
 	progname = basename(argv[0]);
 
 	flags |= FL_SHOW_DEVICE;
-	while ((ret = getopt_long(argc, argv, "guqvsVliQF:wfApm", long_opts, NULL)) != -1) {
+	while ((ret = getopt_long(argc, argv, "hguqvsVliQF:wfApm", long_opts, NULL)) != -1) {
 		switch (ret) {
 		  case 'g':
 			  flags |= FL_GROUP;
@@ -382,6 +382,7 @@ int main(int argc, char **argv)
 		  case 'V':
 			  version();
 			  exit(0);
+		  case 'h':
 		  default:
 			  usage();
 		}

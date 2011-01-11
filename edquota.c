@@ -128,9 +128,9 @@ int parse_options(int argc, char **argv)
 
 	quotatype = USRQUOTA;
 #if defined(RPC_SETQUOTA)
-	while ((ret = getopt_long(argc, argv, "ugrmntTVp:F:f:", long_opts, NULL)) != -1) {
+	while ((ret = getopt_long(argc, argv, "ughrmntTVp:F:f:", long_opts, NULL)) != -1) {
 #else
-	while ((ret = getopt_long(argc, argv, "ugtTVp:F:f:", long_opts, NULL)) != -1) {
+	while ((ret = getopt_long(argc, argv, "ughtTVp:F:f:", long_opts, NULL)) != -1) {
 #endif
 		switch (ret) {
 		  case 'p':
@@ -170,6 +170,7 @@ int parse_options(int argc, char **argv)
 		  case 'V':
 			  version();
 			  exit(0);
+		  case 'h':
 		  default:
 			  usage();
 		}
