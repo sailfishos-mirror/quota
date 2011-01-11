@@ -10,7 +10,7 @@ LDFLAGS       = @LDFLAGS@
 LDAPLIBS      = @LDAPLIBS@
 
 INSTALL       = @INSTALL@
-STRIP         = -s
+STRIP         = @STRIP@
 LN            = ln -sf
 ROOTDIR       =
 SUPER_OWNER   = root

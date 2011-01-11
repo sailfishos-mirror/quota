@@ -30,6 +30,16 @@ else
 	LDFLAGS="$LDFLAGS -static"
 fi
 
+dnl Strip binaries before installation
+AC_ARG_ENABLE(strip-binaries, [  --enable-strip-binaries=[yes/no] Strip binaries while installing them [default=yes].],
+	,
+	enable_strip="yes")
+if test "x$enable_strip" = "xyes"; then
+	STRIP="-s"
+else
+	STRIP=""
+fi
+
 dnl Checks for libraries.
 AC_ARG_ENABLE(ldapmail, [  --enable-ldapmail=[yes/no/try]       Enable ldap mail address lookups [default=no].],
 	,
@@ -253,5 +263,6 @@ AC_SUBST(LIBMALLOC)
 AC_SUBST(INSTMO)
 AC_SUBST(ROOTSBIN)
 AC_SUBST(CPPFLAGS)
+AC_SUBST(STRIP)
 
 AC_OUTPUT(Makefile)
