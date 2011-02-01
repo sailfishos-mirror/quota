@@ -1,5 +1,5 @@
-PROGS         = quotacheck quotaon quota quot repquota warnquota quotastats xqmstats edquota setquota convertquota rpc.rquotad @QUOTA_NETLINK_PROG@
-SOURCES       = bylabel.c common.c convertquota.c edquota.c pot.c quot.c quota.c quotacheck.c quotacheck_v1.c quotacheck_v2.c quotaio.c quotaio_rpc.c quotaio_v1.c quotaio_v2.c quotaio_tree.c quotaio_xfs.c quotaio_meta.c quotaio_generic.c quotaon.c quotaon_xfs.c quotaops.c quotastats.c quotasys.c repquota.c rquota_client.c rquota_server.c rquota_svc.c setquota.c warnquota.c xqmstats.c svc_socket.c
+PROGS         = quotacheck quotaon quota quot repquota warnquota quotastats xqmstats edquota setquota convertquota rpc.rquotad quotasync @QUOTA_NETLINK_PROG@
+SOURCES       = bylabel.c common.c convertquota.c edquota.c pot.c quot.c quota.c quotacheck.c quotacheck_v1.c quotacheck_v2.c quotaio.c quotaio_rpc.c quotaio_v1.c quotaio_v2.c quotaio_tree.c quotaio_xfs.c quotaio_meta.c quotaio_generic.c quotaon.c quotaon_xfs.c quotaops.c quotastats.c quotasys.c repquota.c rquota_client.c rquota_server.c rquota_svc.c setquota.c warnquota.c xqmstats.c svc_socket.c quotasync.c
 CFLAGS        = @CFLAGS@ -D_GNU_SOURCE -Wall -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64
 CPPFLAGS      = @CPPFLAGS@
 EXT2LIBS      = @EXT2LIBS@
@@ -94,7 +94,7 @@ install: all @INSTMO@
 	-mkdir -p $(ROOTDIR)$(mandir)/man8
 	-$(INSTALL) -m 755 -d $(ROOTDIR)$(includedir)/rpcsvc
 	-$(INSTALL) -m 644 rquota.h rquota.x $(ROOTDIR)$(includedir)/rpcsvc
-	-$(INSTALL) $(STRIP) -m $(DEF_SBIN_MODE) quota $(ROOTDIR)$(bindir)
+	-$(INSTALL) $(STRIP) -m $(DEF_SBIN_MODE) quota quotasync $(ROOTDIR)$(bindir)
 	-$(INSTALL) $(STRIP) -m $(DEF_SBIN_MODE) rpc.rquotad $(ROOTDIR)$(sbindir)
 ifneq ($(NETLINKLIBS),)
 	-$(INSTALL) $(STRIP) -m $(DEF_SBIN_MODE) quota_nld $(ROOTDIR)$(sbindir)
@@ -110,6 +110,8 @@ quotacheck: quotacheck.o quotacheck_v1.o quotacheck_v2.o quotaops.o $(LIBOBJS)
 	$(CC) $(LDFLAGS) -o $@ $^ $(EXT2LIBS)
 
 quota: quota.o quotaops.o $(LIBOBJS)
+
+quotasync: quotasync.o $(LIBOBJS)
 
 quot: quot.o $(LIBOBJS)
 
