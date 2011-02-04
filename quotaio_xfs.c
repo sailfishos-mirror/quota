@@ -151,7 +151,17 @@ static int xfs_commit_dquot(struct dquot *dquot, int flags)
 		return 0;
 
 	xfs_util2kerndqblk(&xdqblk, &dquot->dq_dqb);
-	xdqblk.d_fieldmask |= FS_DQ_LIMIT_MASK;
+	xdqblk.d_flags |= XFS_USRQUOTA(h) ? XFS_USER_QUOTA : XFS_GROUP_QUOTA;
+	xdqblk.d_id = id;
+	if (strcmp(h->qh_fstype, MNTTYPE_GFS2) == 0) {
+		if (flags & COMMIT_LIMITS) /* warn/limit */
+			xdqblk.d_fieldmask |= FS_DQ_BSOFT | FS_DQ_BHARD;
+		if (flags & COMMIT_USAGE) /* block usage */
+			xdqblk.d_fieldmask |= FS_DQ_BCOUNT;
+	} else {
+		xdqblk.d_fieldmask |= FS_DQ_LIMIT_MASK;
+	}
+
 	qcmd = QCMD(Q_XFS_SETQLIM, h->qh_type);
 	if (quotactl(qcmd, h->qh_quotadev, id, (void *)&xdqblk) < 0) {
 		;

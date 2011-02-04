@@ -105,6 +105,15 @@ typedef struct fs_disk_quota {
 #define FS_DQ_TIMER_MASK	(FS_DQ_BTIMER | FS_DQ_ITIMER | FS_DQ_RTBTIMER)
 
 /*
+ * Accounting values.  These can only be set for filesystem with
+ * non-transactional quotas that require quotacheck(8) in userspace.                   
+ */
+#define FS_DQ_BCOUNT            (1<<12)
+#define FS_DQ_ICOUNT            (1<<13)
+#define FS_DQ_RTBCOUNT          (1<<14)
+#define FS_DQ_ACCT_MASK         (FS_DQ_BCOUNT | FS_DQ_ICOUNT | FS_DQ_RTBCOUNT)
+
+/*
  * Various flags related to quotactl(2).  Only relevant to XFS filesystems.
  */
 #define XFS_QUOTA_UDQ_ACCT	(1<<0)	/* user quota accounting */

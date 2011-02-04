@@ -404,10 +404,6 @@ static void parse_options(int argcnt, char **argstr)
 		fputs(_("Bad number of arguments.\n"), stderr);
 		usage();
 	}
-	if (fmt == QF_XFS) {
-		fputs(_("XFS quota format needs no checking.\n"), stderr);
-		exit(0);
-	}
 	if (flags & FL_VERBOSE && flags & FL_DEBUG)
 		flags &= ~FL_VERBOSE;
 	if (!(flags & FL_ALL))
@@ -689,6 +685,9 @@ static int rename_files(struct mntent *mnt, int type)
 	int fd;
 #endif
 
+	if (cfmt == QF_XFS) /* No renaming for xfs/gfs2 */
+		return 0;
+
 	debug(FL_DEBUG, _("Renaming new files to proper names.\n"));
 	if (get_qf_name(mnt, type, cfmt, 0, &filename) < 0)
 		die(2, _("Cannot get name of old quotafile on %s.\n"), mnt->mnt_dir);
@@ -787,25 +786,42 @@ static int dump_to_file(struct mntent *mnt, int type)
 	struct dquot *dquot;
 	uint i;
 	struct quota_handle *h;
+	unsigned int commit = 0;
 
 	debug(FL_DEBUG, _("Dumping gathered data for %ss.\n"), type2name(type));
-	if (!(h = new_io(mnt, type, cfmt))) {
-		errstr(_("Cannot initialize IO on new quotafile: %s\n"),
-			strerror(errno));
-		return -1;
-	}
-	if (!(flags & FL_NEWFILE)) {
-		h->qh_info.dqi_bgrace = old_info[type].dqi_bgrace;
-		h->qh_info.dqi_igrace = old_info[type].dqi_igrace;
-		if (is_tree_qfmt(cfmt))
-			v2_merge_info(&h->qh_info, old_info + type);
-		mark_quotafile_info_dirty(h);
+	if (cfmt == QF_XFS) {
+		if (!(h = init_io(mnt, type, cfmt, IOI_READONLY))) {
+			errstr(_("Cannot initialize IO on xfs/gfs2 quotafile: %s\n"),
+			       strerror(errno));
+			return -1;
+		}
+	} else {
+		if (!(h = new_io(mnt, type, cfmt))) {
+			errstr(_("Cannot initialize IO on new quotafile: %s\n"),
+			       strerror(errno));
+			return -1;
+		}
+		if (!(flags & FL_NEWFILE)) {
+			h->qh_info.dqi_bgrace = old_info[type].dqi_bgrace;
+			h->qh_info.dqi_igrace = old_info[type].dqi_igrace;
+			if (is_tree_qfmt(cfmt))
+				v2_merge_info(&h->qh_info, old_info + type);
+			mark_quotafile_info_dirty(h);
+		}
 	}
 	for (i = 0; i < DQUOTHASHSIZE; i++)
 		for (dquot = dquot_hash[type][i]; dquot; dquot = dquot->dq_next) {
 			dquot->dq_h = h;
+			/* For XFS/GFS2, we don't bother with actually checking
+			 * what the usage value is in the internal quota file.
+			 * We simply attempt to update the usage for every quota
+			 * we find in the fs scan. The filesystem decides in the
+			 * quotactl handler whether to update the usage in the 
+			 * quota file or not.
+			 */
+			commit = cfmt == QF_XFS ? COMMIT_USAGE : COMMIT_ALL;
 			update_grace_times(dquot);
-			h->qh_ops->commit_dquot(dquot, COMMIT_ALL);
+			h->qh_ops->commit_dquot(dquot, commit);
 		}
 	if (end_io(h) < 0) {
 		errstr(_("Cannot finish IO on new quotafile: %s\n"), strerror(errno));
@@ -893,6 +909,14 @@ static void check_dir(struct mntent *mnt)
 		die(2, _("Mountpoint %s is not a directory?!\n"), mnt->mnt_dir);
 	cur_dev = st.st_dev;
 	files_done = dirs_done = 0;
+	/*
+	 * For gfs2, we scan the fs first and then tell the kernel about the new usage.
+	 * So, there's no need to load any information. We also don't remount the
+	 * filesystem read-only because for a clustering filesystem it won't stop
+	 * modifications from other nodes anyway.
+	 */
+	if (cfmt == QF_XFS)
+		goto start_scan;
 	if (ucheck)
 		if (process_file(mnt, USRQUOTA) < 0)
 			ucheck = 0;
@@ -923,6 +947,7 @@ Please stop all programs writing to filesystem or use -m flag to force checking.
 			remounted = 1;
 		debug(FL_DEBUG, _("Filesystem remounted read-only\n"));
 	}
+start_scan:
 	debug(FL_VERBOSE, _("Scanning %s [%s] "), mnt->mnt_fsname, mnt->mnt_dir);
 #if defined(EXT2_DIRECT)
 	if (!strcmp(mnt->mnt_type, MNTTYPE_EXT2) || !strcmp(mnt->mnt_type, MNTTYPE_EXT3) || !strcmp(mnt->mnt_type, MNTTYPE_NEXT3)) {
@@ -972,6 +997,10 @@ static int detect_filename_format(struct mntent *mnt, int type)
 	char namebuf[PATH_MAX];
 	int journal = 0;
 	int fmt;
+
+	if (strcmp(mnt->mnt_type, MNTTYPE_XFS) == 0 ||
+	    strcmp(mnt->mnt_type, MNTTYPE_GFS2) == 0)
+		return QF_XFS;
 
 	if (type == USRQUOTA) {
 		if ((option = hasmntopt(mnt, MNTOPT_USRQUOTA)))
@@ -1040,6 +1069,22 @@ jquota_err:
 	return -1;
 }
 
+static int compatible_fs_qfmt(char *fstype, int fmt)
+{
+	/* We never check XFS, NFS, and filesystems supporting VFS metaformat */
+	if (!strcmp(fstype, MNTTYPE_XFS) || nfs_fstype(fstype) ||
+	    meta_qf_fstype(fstype))
+		return 0;
+	/* In all other cases we can pick a format... */
+	if (fmt == -1)
+		return 1;
+	/* XFS format is supported only by GFS2 */
+	if (fmt == QF_XFS)
+		return !strcmp(fstype, MNTTYPE_GFS2);
+	/* Anything but GFS2 supports all other formats */
+	return !!strcmp(fstype, MNTTYPE_GFS2);
+}
+
 static void check_all(void)
 {
 	struct mntent *mnt;
@@ -1051,10 +1096,7 @@ static void check_all(void)
 	while ((mnt = get_next_mount())) {
 		if (flags & FL_ALL && flags & FL_NOROOT && !strcmp(mnt->mnt_dir, "/"))
 			continue;
-		if (!strcmp(mnt->mnt_type, MNTTYPE_XFS) ||
-		    !strcmp(mnt->mnt_type, MNTTYPE_GFS2) ||
-		    nfs_fstype(mnt->mnt_type) ||
-		    meta_qf_fstype(mnt->mnt_type)) {
+		if (!compatible_fs_qfmt(mnt->mnt_type, fmt)) {
 			debug(FL_DEBUG | FL_VERBOSE, _("Skipping %s [%s]\n"), mnt->mnt_fsname, mnt->mnt_dir);
 			continue;
 		}
