@@ -195,6 +195,10 @@ static int v1_new_io(struct quota_handle *h)
 	ddqblk.dqb_itime = MAX_IQ_TIME;
 	h->qh_info.dqi_bgrace = MAX_DQ_TIME;
 	h->qh_info.dqi_igrace = MAX_IQ_TIME;
+	h->qh_info.dqi_max_b_limit = ~(uint32_t)0;
+	h->qh_info.dqi_max_i_limit = ~(uint32_t)0;
+	h->qh_info.dqi_max_b_usage = ((uint64_t)(~(uint32_t)0)) << V1_DQBLK_SIZE_BITS;
+	h->qh_info.dqi_max_i_usage = ~(uint32_t)0;
 	lseek(h->qh_fd, 0, SEEK_SET);
 	if (write(h->qh_fd, &ddqblk, sizeof(ddqblk)) != sizeof(ddqblk))
 		return -1;
