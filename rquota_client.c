@@ -104,6 +104,35 @@ int rquota_err(int stat)
 	}
 }
 
+static int split_nfs_mount(char *devname, char **host, char **path)
+{
+	char *pathname;
+
+	/* NFS server name contained in brackets? */
+	if (*devname == '[') {
+		*host = devname + 1;
+		pathname = strchr(devname, ']');
+		if (!pathname || pathname[1] != ':')
+			return 0;
+		/* Autofs? */
+		if (pathname[2] == '(')
+			return 0;
+		*pathname = 0;
+		*path = pathname + 2;
+		return 1;
+	}
+	*host = devname;
+	pathname = strchr(devname, ':');
+	if (!pathname)
+		return 0;
+	/* Autofs? */
+	if (pathname[1] == '(')
+		return 0;
+	*pathname = 0;
+	*path = pathname + 1;
+	return 1;
+}
+
 /*
  * Collect the requested quota information from a remote host.
  */
@@ -128,13 +157,7 @@ int rpc_rquota_get(struct dquot *dquot)
 	 */
 	fsname_tmp = (char *)smalloc(strlen(dquot->dq_h->qh_quotadev) + 1);
 	strcpy(fsname_tmp, dquot->dq_h->qh_quotadev);
-	host = fsname_tmp;
-
-	/*
-	 * Strip off pathname on nfs mounted dir. Ignore entries of any
-	 * automounter.
-	 */
-	if ((pathname = strchr(fsname_tmp, ':')) == (char *)0 || *(pathname + 1) == '(') {
+	if (!split_nfs_mount(fsname_tmp, &host, &pathname)) {
 		free(fsname_tmp);
 		return -ENOENT;
 	}
@@ -247,16 +270,11 @@ int rpc_rquota_set(int qcmd, struct dquot *dquot)
 	 */
 	fsname_tmp = (char *)smalloc(strlen(dquot->dq_h->qh_quotadev) + 1);
 	strcpy(fsname_tmp, dquot->dq_h->qh_quotadev);
-	host = fsname_tmp;
-
-	/*
-	 * Strip off pathname on nfs mounted dir. Ignore entries of any
-	 * automounter.
-	 */
-	if ((pathname = strchr(fsname_tmp, ':')) == (char *)0 || *(pathname + 1) == '(')
+	if (!split_nfs_mount(fsname_tmp, &host, &pathname)) {
+		free(fsname_tmp);
 		return -ENOENT;
+	}
 
-	*pathname++ = '\0';
 	/* For NFSv4, we send the filesystem path without initial /. Server prepends proper
 	 * NFS pseudoroot automatically and uses this for detection of NFSv4 mounts. */
 	if ((dquot->dq_h->qh_io_flags & IOFL_NFS_MIXED_PATHS) &&
