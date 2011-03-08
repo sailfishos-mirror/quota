@@ -58,7 +58,7 @@ static void usage(void)
   setquota [-u|-g] %1$s[-F quotaformat] <-p protouser|protogroup> <user|group> -a|<filesystem>...\n\
   setquota [-u|-g] %1$s[-F quotaformat] -b [-c] -a|<filesystem>...\n\
   setquota [-u|-g] [-F quotaformat] -t <blockgrace> <inodegrace> -a|<filesystem>...\n\
-  setquota [-u|-g] [-F quotaformat] <user|group> -T <blockgrace> <inodegrace> -a|<filesystem>...\n\n\
+  setquota [-u|-g] %1$s[-F quotaformat] <user|group> -T <blockgrace> <inodegrace> -a|<filesystem>...\n\n\
 -u, --user                 set limits for user\n\
 -g, --group                set limits for group\n\
 -a, --all                  set limits for all filesystems\n\
@@ -372,14 +372,19 @@ static int batch_setlimits(struct quota_handle **handles)
 /* Set grace times */
 static int setgraces(struct quota_handle **handles)
 {
-	int i;
+	int i, ret = 0;
 
 	for (i = 0; handles[i]; i++) {
+		if (handles[i]->qh_ops->write_info) {
+			errstr(_("Setting grace period on %s is not supported.\n"), handles[i]->qh_quotadev);
+			ret = -1;
+			continue;
+		}
 		handles[i]->qh_info.dqi_bgrace = toset.dqb_btime;
 		handles[i]->qh_info.dqi_igrace = toset.dqb_itime;
 		mark_quotafile_info_dirty(handles[i]);
 	}
-	return 0;
+	return ret;
 }
 
 /* Set grace times for individual user */
