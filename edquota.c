@@ -80,8 +80,8 @@ void usage(void)
 #endif
 	errstr(_("Usage:\n\tedquota %1$s[-u] [-F formatname] [-p username] [-f filesystem] username ...\n\
 \tedquota %1$s-g [-F formatname] [-p groupname] [-f filesystem] groupname ...\n\
-\tedquota %1$s[-u|g] [-F formatname] [-f filesystem] -t\n\
-\tedquota %1$s[-u|g] [-F formatname] [-f filesystem] -T username|groupname ...\n"), rpcflag);
+\tedquota [-u|g] [-F formatname] [-f filesystem] -t\n\
+\tedquota [-u|g] [-F formatname] [-f filesystem] -T username|groupname ...\n"), rpcflag);
 	fputs(_("\n\
 -u, --user                    edit user data\n\
 -g, --group                   edit group data\n"), stderr);
@@ -181,6 +181,10 @@ int parse_options(int argc, char **argv)
 		usage();
 	if ((flags & (FL_EDIT_PERIOD | FL_EDIT_TIMES)) && protoname) {
 		errstr(_("Prototype name does not make sense when editing grace period or times.\n"));
+		usage();
+	}
+	if (flags & FL_REMOTE && (flags & (FL_EDIT_TIMES | FL_EDIT_PERIOD))) {
+		errstr(_("Cannot change grace times over RPC protocol.\n"));
 		usage();
 	}
 	return optind;

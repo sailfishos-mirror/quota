@@ -58,7 +58,7 @@ static void usage(void)
   setquota [-u|-g] %1$s[-F quotaformat] <-p protouser|protogroup> <user|group> -a|<filesystem>...\n\
   setquota [-u|-g] %1$s[-F quotaformat] -b [-c] -a|<filesystem>...\n\
   setquota [-u|-g] [-F quotaformat] -t <blockgrace> <inodegrace> -a|<filesystem>...\n\
-  setquota [-u|-g] %1$s[-F quotaformat] <user|group> -T <blockgrace> <inodegrace> -a|<filesystem>...\n\n\
+  setquota [-u|-g] [-F quotaformat] <user|group> -T <blockgrace> <inodegrace> -a|<filesystem>...\n\n\
 -u, --user                 set limits for user\n\
 -g, --group                set limits for group\n\
 -a, --all                  set limits for all filesystems\n\
@@ -200,6 +200,10 @@ static void parse_options(int argcnt, char **argstr)
 	}
 	if (flags & FL_BATCH && flags & FL_PROTO) {
 		errstr(_("Batch mode and prototype user cannot be used together.\n"));
+		usage();
+	}
+	if (flags & FL_RPC && (flags & (FL_GRACE | FL_INDIVIDUAL_GRACE))) {
+		errstr(_("Cannot set grace times over RPC protocol.\n"));
 		usage();
 	}
 	if (flags & FL_GRACE)
