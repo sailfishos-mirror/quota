@@ -272,6 +272,7 @@ void qtree_write_dquot(struct dquot *dquot)
 	lseek(dquot->dq_h->qh_fd, dquot->dq_dqb.u.v2_mdqb.dqb_off, SEEK_SET);
 	info->dqi_ops->mem2disk_dqblk(ddquot, dquot);
 	ret = write(dquot->dq_h->qh_fd, ddquot, info->dqi_entry_size);
+	free(ddquot);
 	if (ret != info->dqi_entry_size) {
 		if (ret > 0)
 			errno = ENOSPC;
@@ -421,11 +422,13 @@ struct dquot *qtree_read_dquot(struct quota_handle *h, qid_t id)
 		if (ret != info->dqi_entry_size) {
 			if (ret > 0)
 				errno = EIO;
+			free(ddquot);
 			die(2, _("Cannot read quota structure for id %u: %s\n"), dquot->dq_id,
 			    strerror(errno));
 		}
 		info->dqi_ops->disk2mem_dqblk(dquot, ddquot);
 	}
+	free(ddquot);
 	return dquot;
 }
 
