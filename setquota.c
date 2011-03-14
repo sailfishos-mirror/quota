@@ -379,7 +379,7 @@ static int setgraces(struct quota_handle **handles)
 	int i, ret = 0;
 
 	for (i = 0; handles[i]; i++) {
-		if (handles[i]->qh_ops->write_info) {
+		if (!handles[i]->qh_ops->write_info) {
 			errstr(_("Setting grace period on %s is not supported.\n"), handles[i]->qh_quotadev);
 			ret = -1;
 			continue;
