@@ -144,6 +144,7 @@ static void v2r1_mem2diskdqblk(void *dp, struct dquot *dquot)
 	d->dqb_itime = __cpu_to_le64(m->dqb_itime);
 	d->dqb_btime = __cpu_to_le64(m->dqb_btime);
 	d->dqb_id = __cpu_to_le32(dquot->dq_id);
+	d->dqb_pad = 0;     /* Initialize because of qtree_entry_unused() scan */
 	if (qtree_entry_unused(&dquot->dq_h->qh_info.u.v2_mdqi.dqi_qtree, dp))
 		d->dqb_itime = __cpu_to_le64(1);
 }
