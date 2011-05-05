@@ -53,9 +53,15 @@ static int meta_commit_dquot(struct dquot *dquot, int flags)
 	return vfs_set_dquot(dquot, flags);
 }
 
+static int meta_scan_dquots(struct quota_handle *h, int (*process_dquot)(struct dquot *dquot, char *dqname))
+{
+	return generic_scan_dquots(h, process_dquot, vfs_get_dquot);
+}
+
 struct quotafile_ops quotafile_ops_meta = {
 init_io:	meta_init_io,
 write_info:	meta_write_info,
 read_dquot:	meta_read_dquot,
 commit_dquot:	meta_commit_dquot,
+scan_dquots:	meta_scan_dquots,
 };

@@ -317,9 +317,9 @@ static void report(int type)
 	int i;
 
 	if (flags & FL_ALL)
-		handles = create_handle_list(0, NULL, type, fmt, IOI_READONLY | IOI_OPENFILE, MS_LOCALONLY | (flags & FL_NOAUTOFS ? MS_NO_AUTOFS : 0));
+		handles = create_handle_list(0, NULL, type, fmt, IOI_READONLY | IOI_INITSCAN, MS_LOCALONLY | (flags & FL_NOAUTOFS ? MS_NO_AUTOFS : 0));
 	else
-		handles = create_handle_list(mntcnt, mnt, type, fmt, IOI_READONLY | IOI_OPENFILE, MS_LOCALONLY | (flags & FL_NOAUTOFS ? MS_NO_AUTOFS : 0));
+		handles = create_handle_list(mntcnt, mnt, type, fmt, IOI_READONLY | IOI_INITSCAN, MS_LOCALONLY | (flags & FL_NOAUTOFS ? MS_NO_AUTOFS : 0));
 	for (i = 0; handles[i]; i++)
 		report_it(handles[i], type);
 	dispose_handle_list(handles);

@@ -43,6 +43,7 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 	int fd = -1, kernfmt;
 	struct quota_handle *h = smalloc(sizeof(struct quota_handle));
 	const char *mnt_fsname = NULL;
+	int nameflag;
 
 	if (!hasquota(mnt, type, 0))
 		goto out_handle;
@@ -110,44 +111,33 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 			errstr(_("Quota not supported by the filesystem.\n"));
 			goto out_handle;
 		}
-		if (flags & IOI_OPENFILE) {
-			errstr(_("Operation not supported for filesystems with hidden quota files!\n"));
-			goto out_handle;
-		}
 		h->qh_fd = -1;
 		h->qh_fmt = fmt;
 		goto set_ops;
 	}
 
+	nameflag = (!QIO_ENABLED(h) || flags & IOI_INITSCAN) ? NF_FORMAT : 0;
 	if (fmt == -1) {
 		/* Let's try any VFSv0 quota format... */
-		if (get_qf_name(mnt, type, QF_VFSV0,
-				(!QIO_ENABLED(h) || flags & IOI_OPENFILE) ? NF_FORMAT : 0,
-			  	&qfname) >= 0)
+		if (get_qf_name(mnt, type, QF_VFSV0, nameflag, &qfname) >= 0)
 			fmt = QF_VFSV0;
 		/* And then VFSv1 quota format... */
-		else if (get_qf_name(mnt, type, QF_VFSV1,
-				(!QIO_ENABLED(h) || flags & IOI_OPENFILE) ? NF_FORMAT : 0,
-			  	&qfname) >= 0)
+		else if (get_qf_name(mnt, type, QF_VFSV1, nameflag, &qfname) >= 0)
 			fmt = QF_VFSV1;
 		/* And then old quota format... */
-		else if (get_qf_name(mnt, type, QF_VFSOLD,
-                                (!QIO_ENABLED(h) || flags & IOI_OPENFILE) ? NF_FORMAT : 0,
-                                &qfname) >= 0)
+		else if (get_qf_name(mnt, type, QF_VFSOLD, nameflag, &qfname) >= 0)
 			fmt = QF_VFSOLD;
 		else {	/* Don't know... */
 			errstr(_("Cannot find any quota file to work on.\n"));
 			goto out_handle;
 		}
 	} else {
-		if (get_qf_name(mnt, type, fmt,
-				(!QIO_ENABLED(h) || flags & IOI_OPENFILE) ? NF_FORMAT : 0,
-			  	&qfname) < 0) {
+		if (get_qf_name(mnt, type, fmt, nameflag, &qfname) < 0) {
 			errstr(_("Quota file not found or has wrong format.\n"));
 			goto out_handle;
 		}
 	}
-	if (!QIO_ENABLED(h) || flags & IOI_OPENFILE) {	/* Need to open file? */
+	if (!QIO_ENABLED(h) || flags & IOI_INITSCAN) {	/* Need to open file? */
 		if (QIO_ENABLED(h)) {	/* Kernel uses same file? */
 			unsigned int cmd =
 				(kernel_iface == IFACE_GENERIC) ? Q_SYNC : Q_6_5_SYNC;

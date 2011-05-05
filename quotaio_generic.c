@@ -8,6 +8,9 @@
 
 #include <errno.h>
 #include <string.h>
+#include <pwd.h>
+#include <grp.h>
+#include <stdlib.h>
 #include <sys/types.h>
 
 #include "pot.h"
@@ -97,4 +100,64 @@ int vfs_set_dquot(struct dquot *dquot, int flags)
 		return -1;
 	}
 	return 0;
+}
+
+static int scan_one_dquot(struct dquot *dquot, int (*get_dquot)(struct dquot *))
+{
+	int ret;
+	struct util_dqblk *dqb = &dquot->dq_dqb;
+
+	memset(dqb, 0, sizeof(struct util_dqblk));
+	ret = get_dquot(dquot);
+	if (ret < 0)
+		return ret;
+	if (!dqb->dqb_bhardlimit && !dqb->dqb_bsoftlimit && !dqb->dqb_ihardlimit && !dqb->dqb_isoftlimit && !dqb->dqb_curinodes && !dqb->dqb_curspace)
+		return 1;
+	return 0;
+}
+
+/* Generic quota scanning using passwd... */
+int generic_scan_dquots(struct quota_handle *h,
+			int (*process_dquot)(struct dquot *dquot, char *dqname),
+			int (*get_dquot)(struct dquot *dquot))
+{
+	struct dquot *dquot = get_empty_dquot();
+	int ret = 0;
+
+	dquot->dq_h = h;
+	if (h->qh_type == USRQUOTA) {
+		struct passwd *usr;
+
+		setpwent();
+		while ((usr = getpwent()) != NULL) {
+			dquot->dq_id = usr->pw_uid;
+			ret = scan_one_dquot(dquot, get_dquot);
+			if (ret < 0)
+				break;
+			if (ret > 0)
+				continue;
+			ret = process_dquot(dquot, usr->pw_name);
+			if (ret < 0)
+				break;
+		}
+		endpwent();
+	} else if (h->qh_type == GRPQUOTA) {
+		struct group *grp;
+
+		setgrent();
+		while ((grp = getgrent()) != NULL) {
+			dquot->dq_id = grp->gr_gid;
+			ret = scan_one_dquot(dquot, get_dquot);
+			if (ret < 0)
+				break;
+			if (ret > 0)
+				continue;
+			ret = process_dquot(dquot, grp->gr_name);
+			if (ret < 0)
+				break;
+		}
+		endgrent();
+	}
+	free(dquot);
+	return ret;
 }

@@ -951,7 +951,7 @@ static void warn_quota(void)
 		wc_exit(1);
 
 	if (flags & FL_USER) {
-		handles = create_handle_list(0, NULL, USRQUOTA, -1, IOI_READONLY | IOI_OPENFILE, MS_LOCALONLY | (flags & FL_NOAUTOFS ? MS_NO_AUTOFS : 0));
+		handles = create_handle_list(0, NULL, USRQUOTA, -1, IOI_READONLY | IOI_INITSCAN, MS_LOCALONLY | (flags & FL_NOAUTOFS ? MS_NO_AUTOFS : 0));
 		if (!maildev[0] || !strcasecmp(maildev, "any"))
 			maildev_handle = NULL;
 		else
@@ -963,7 +963,7 @@ static void warn_quota(void)
 	if (flags & FL_GROUP) {
 		if (get_groupadmins() < 0)
 			wc_exit(1);
-		handles = create_handle_list(0, NULL, GRPQUOTA, -1, IOI_READONLY | IOI_OPENFILE, MS_LOCALONLY | (flags & FL_NOAUTOFS ? MS_NO_AUTOFS : 0));
+		handles = create_handle_list(0, NULL, GRPQUOTA, -1, IOI_READONLY | IOI_INITSCAN, MS_LOCALONLY | (flags & FL_NOAUTOFS ? MS_NO_AUTOFS : 0));
 		if (!maildev[0] || !strcasecmp(maildev, "any"))
 			maildev_handle = NULL;
 		else

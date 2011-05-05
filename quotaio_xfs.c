@@ -10,8 +10,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include <pwd.h>
-#include <grp.h>
 
 #include "pot.h"
 #include "common.h"
@@ -19,6 +17,7 @@
 #include "quotaio.h"
 #include "quotasys.h"
 #include "dqblk_xfs.h"
+#include "quotaio_generic.h"
 
 #define XFS_USRQUOTA(h)	((h)->qh_type == USRQUOTA && \
 			(h)->qh_info.u.xfs_mdqi.qs_flags & XFS_QUOTA_UDQ_ACCT)
@@ -175,24 +174,21 @@ static int xfs_commit_dquot(struct dquot *dquot, int flags)
 /*
  *	xfs_scan_dquots helper - processes a single dquot
  */
-static int xfs_scan_dquot(struct quota_handle *h,
-			  struct xfs_kern_dqblk *d,
-			  char *name, struct dquot *dq,
-			  int (*process_dquot) (struct dquot *dquot, char *dqname))
+static int xfs_get_dquot(struct dquot *dq)
 {
-	int qcmd = QCMD(Q_XFS_GETQUOTA, h->qh_type);
+	struct xfs_kern_dqblk d;
+	int qcmd = QCMD(Q_XFS_GETQUOTA, dq->dq_h->qh_type);
+	int ret;
 
-	memset(d, 0, sizeof(struct xfs_kern_dqblk));
-
-	if (quotactl(qcmd, h->qh_quotadev, dq->dq_id, (void *)d) < 0) {
-		return 0;
+	memset(&d, 0, sizeof(d));
+	ret = quotactl(qcmd, dq->dq_h->qh_quotadev, dq->dq_id, (void *)&d);
+	if (ret < 0) {
+		if (ret == -ENOENT)
+			return 0;
+		return ret;
 	}
-	if (d->d_blk_hardlimit == 0 &&
-	    d->d_blk_softlimit == 0 &&
-	    d->d_ino_hardlimit == 0 &&
-	    d->d_ino_softlimit == 0 && d->d_bcount == 0 && d->d_icount == 0) return 0;
-	xfs_kern2utildqblk(&dq->dq_dqb, d);
-	return process_dquot(dq, name);
+	xfs_kern2utildqblk(&dq->dq_dqb, &d);
+	return 0;
 }
 
 /*
@@ -200,42 +196,10 @@ static int xfs_scan_dquot(struct quota_handle *h,
  */
 static int xfs_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct dquot *dquot, char *dqname))
 {
-	struct dquot *dq;
-	struct xfs_kern_dqblk d;
-	int rd = 0;
-
 	if (!XFS_USRQUOTA(h) && !XFS_GRPQUOTA(h))
-		return rd;
+		return 0;
 
-	dq = get_empty_dquot();
-	dq->dq_h = h;
-	if (h->qh_type == USRQUOTA) {
-		struct passwd *usr;
-
-		setpwent();
-		while ((usr = getpwent()) != NULL) {
-			dq->dq_id = usr->pw_uid;
-			rd = xfs_scan_dquot(h, &d, usr->pw_name, dq, process_dquot);
-			if (rd < 0)
-				break;
-		}
-		endpwent();
-	}
-	else {			/* GRPQUOTA */
-		struct group *grp;
-
-		setgrent();
-		while ((grp = getgrent()) != NULL) {
-			dq->dq_id = grp->gr_gid;
-			rd = xfs_scan_dquot(h, &d, grp->gr_name, dq, process_dquot);
-			if (rd < 0)
-				break;
-		}
-		endgrent();
-	}
-
-	free(dq);
-	return rd;
+	return generic_scan_dquots(h, process_dquot, xfs_get_dquot);
 }
 
 /*

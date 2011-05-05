@@ -21,4 +21,10 @@ int vfs_get_dquot(struct dquot *dquot);
 /* Set dquot in kernel */
 int vfs_set_dquot(struct dquot *dquot, int flags);
 
+/* Generic routine for scanning dquots when quota format does not have
+ * better way */
+int generic_scan_dquots(struct quota_handle *h,
+			int (*process_dquot)(struct dquot *dquot, char *dqname),
+			int (*get_dquot)(struct dquot *dquot));
+
 #endif
