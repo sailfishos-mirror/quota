@@ -29,12 +29,12 @@
 #define ACT_FORMAT 1		/* Convert format from old to new */
 #define ACT_ENDIAN 2		/* Convert endianity */
 
-char *mntpoint;
+static char *mntpoint;
 char *progname;
-int ucv, gcv;
-struct quota_handle *qn;	/* Handle of new file */
-int action;			/* Action to be performed */
-int infmt, outfmt;
+static int ucv, gcv;
+static struct quota_handle *qn;	/* Handle of new file */
+static int action;			/* Action to be performed */
+static int infmt, outfmt;
 
 static void usage(void)
 {

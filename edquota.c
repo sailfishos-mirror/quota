@@ -66,12 +66,12 @@
 
 char *progname;
 
-int flags, quotatype;
-int fmt = -1;
-char *protoname;
-char *dirname;
+static int flags, quotatype;
+static int fmt = -1;
+static char *protoname;
+static char *dirname;
 
-void usage(void)
+static void usage(void)
 {
 #if defined(RPC_SETQUOTA)
 	char *rpcflag = "[-rm] ";
@@ -102,7 +102,7 @@ void usage(void)
 	exit(1);
 }
 
-int parse_options(int argc, char **argv)
+static int parse_options(int argc, char **argv)
 {
 	int ret;
 	struct option long_opts[] = {
@@ -190,7 +190,7 @@ int parse_options(int argc, char **argv)
 	return optind;
 }
 
-void copy_prototype(int argc, char **argv, struct quota_handle **handles)
+static void copy_prototype(int argc, char **argv, struct quota_handle **handles)
 {
 	int ret, protoid, id;
 	struct dquot *protoprivs, *curprivs, *pprivs, *cprivs;

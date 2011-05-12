@@ -38,11 +38,11 @@
 #define FL_NOAUTOFS 256	/* Ignore autofs mountpoints */
 #define FL_RAWGRACE 512	/* Print grace times in seconds since epoch */
 
-int flags, fmt = -1;
-char **mnt;
-int mntcnt;
-int cached_dquots;
-struct dquot dquot_cache[MAX_CACHE_DQUOTS];
+static int flags, fmt = -1;
+static char **mnt;
+static int mntcnt;
+static int cached_dquots;
+static struct dquot dquot_cache[MAX_CACHE_DQUOTS];
 char *progname;
 
 static void usage(void)

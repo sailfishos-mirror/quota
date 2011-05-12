@@ -76,10 +76,10 @@
 #define FL_SHOW_MNTPOINT 16384
 #define FL_SHOW_DEVICE 32768
 
-int flags, fmt = -1;
+static int flags, fmt = -1;
 char *progname;
 
-void usage(void)
+static void usage(void)
 {
 	errstr( "%s%s%s%s%s",
 		_("Usage: quota [-guqvswim] [-l | [-Q | -A]] [-F quotaformat]\n"),
@@ -112,7 +112,7 @@ void usage(void)
 	exit(1);
 }
 
-void heading(int type, qid_t id, char *name, char *tag)
+static void heading(int type, qid_t id, char *name, char *tag)
 {
 	char *spacehdr;
 
@@ -130,7 +130,7 @@ void heading(int type, qid_t id, char *name, char *tag)
 	}
 }
 
-void print_fs_location(struct dquot *q)
+static void print_fs_location(struct dquot *q)
 {
 	struct quota_handle *h = q->dq_h;
 
@@ -172,7 +172,7 @@ void print_fs_location(struct dquot *q)
 	}
 }
 
-int showquotas(int type, qid_t id, int mntcnt, char **mnt)
+static int showquotas(int type, qid_t id, int mntcnt, char **mnt)
 {
 	struct dquot *qlist, *q;
 	char *msgi, *msgb;

@@ -169,7 +169,7 @@ static void parse_options(int argc, char **argv)
  * good_client checks if an quota client should be allowed to
  * execute the requested rpc call.
  */
-int good_client(struct sockaddr_in *addr, ulong rq_proc)
+static int good_client(struct sockaddr_in *addr, ulong rq_proc)
 {
 #ifdef HOSTS_ACCESS
 	struct request_info req;

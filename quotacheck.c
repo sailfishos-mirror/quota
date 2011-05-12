@@ -62,24 +62,24 @@ struct dirs {
 #define BITS_SIZE 4		/* sizeof(bits) == 5 */
 #define BLIT_RATIO 10		/* Blit in just 1/10 of blit() calls */
 
-dev_t cur_dev;			/* Device we are working on */
-int files_done, dirs_done;
+static dev_t cur_dev;			/* Device we are working on */
+static int files_done, dirs_done;
 int flags, fmt = -1, cfmt;	/* Options from command line; Quota format to use spec. by user; Actual format to check */
-int uwant, gwant, ucheck, gcheck;	/* Does user want to check user/group quota; Do we check user/group quota? */
-char *mntpoint;			/* Mountpoint to check */
+static int uwant, gwant, ucheck, gcheck;	/* Does user want to check user/group quota; Do we check user/group quota? */
+static char *mntpoint;			/* Mountpoint to check */
 char *progname;
 struct util_dqinfo old_info[MAXQUOTAS];	/* Loaded infos */
 
-char extensions[MAXQUOTAS + 2][20] = INITQFNAMES;	/* Extensions depending on quota type */
-char *basenames[] = INITQFBASENAMES;	/* Names of quota files */
+static char extensions[MAXQUOTAS + 2][20] = INITQFNAMES;	/* Extensions depending on quota type */
+static char *basenames[] = INITQFBASENAMES;	/* Names of quota files */
 
 #ifdef DEBUG_MALLOC
-size_t malloc_mem = 0;
-size_t free_mem = 0;
+static size_t malloc_mem = 0;
+static size_t free_mem = 0;
 #endif
 
-struct dquot *dquot_hash[MAXQUOTAS][DQUOTHASHSIZE];
-struct dlinks *links_hash[MAXQUOTAS][DQUOTHASHSIZE];
+static struct dquot *dquot_hash[MAXQUOTAS][DQUOTHASHSIZE];
+static struct dlinks *links_hash[MAXQUOTAS][DQUOTHASHSIZE];
 
 /*
  * Ok check each memory allocation.

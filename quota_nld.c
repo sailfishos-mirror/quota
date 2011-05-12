@@ -62,8 +62,8 @@ static struct nla_policy quota_nl_warn_cmd_policy[QUOTA_NL_A_MAX+1] = {
 #define FL_NODAEMON 4
 #define FL_PRINTBELOW 8
 
-int flags;
-DBusConnection *dhandle;
+static int flags;
+static DBusConnection *dhandle;
 
 static const struct option options[] = {
 	{ "version", 0, NULL, 'V' },
@@ -75,7 +75,7 @@ static const struct option options[] = {
 	{ NULL, 0, NULL, 0 }
 };
 
-void show_help(void)
+static void show_help(void)
 {
 	errstr(_("Usage: %s [options]\nOptions are:\n\
  -h --help         shows this text\n\

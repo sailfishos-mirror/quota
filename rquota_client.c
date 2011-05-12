@@ -86,7 +86,7 @@ static inline void cliutil2netdqblk(struct sq_dqblk *n, struct util_dqblk *u)
 }
 
 /* Write appropriate error message */
-int rquota_err(int stat)
+static int rquota_err(int stat)
 {
 	switch (stat) {
 		case -1:

@@ -37,12 +37,12 @@
 #define FL_NO_MIXED_PATHS 512
 #define FL_CONTINUE_BATCH 1024
 
-int flags, fmt = -1;
-char **mnt;
+static int flags, fmt = -1;
+static char **mnt;
 char *progname;
-int mntcnt;
-qid_t protoid, id;
-struct util_dqblk toset;
+static int mntcnt;
+static qid_t protoid, id;
+static struct util_dqblk toset;
 
 /* Print usage information */
 static void usage(void)

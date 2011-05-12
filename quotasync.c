@@ -15,9 +15,9 @@
 #define FL_GROUP 2		/* sync group quotas */
 #define FL_ALL 4		/* sync quotas on all filesystems */
 
-int flags, fmt = -1;
-char **mnt;
-int mntcnt;
+static int flags, fmt = -1;
+static char **mnt;
+static int mntcnt;
 char *progname;
 
 static void usage(void)
@@ -79,7 +79,7 @@ static int sync_one(int type, char *dev)
 	return quotactl(qcmd, dev, 0, NULL);
 }
 
-int syncquotas(int type)
+static int syncquotas(int type)
 {
 	struct quota_handle **handles, *h;
 	int i, ret = 0;

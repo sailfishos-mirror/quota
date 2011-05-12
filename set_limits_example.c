@@ -7,7 +7,7 @@
 
 #include "pot.h"
 
-int copy_user_quota_limits(const char *block_device, uid_t from, uid_t to)
+static int copy_user_quota_limits(const char *block_device, uid_t from, uid_t to)
 {
 	struct dqblk dq;
 
@@ -30,7 +30,7 @@ int copy_user_quota_limits(const char *block_device, uid_t from, uid_t to)
 	}
 }
 
-int copy_group_quota_limits(const char *block_device, gid_t from, gid_t to)
+static int copy_group_quota_limits(const char *block_device, gid_t from, gid_t to)
 {
 	struct dqblk dq;
 

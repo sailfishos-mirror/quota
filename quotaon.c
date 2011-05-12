@@ -55,11 +55,11 @@
 #define FL_STAT 16
 #define FL_OFF 32
 
-int flags, fmt = -1;
+static int flags, fmt = -1;
 char *progname;
-char **mntpoints;
-int mntcnt;
-char *xarg = NULL;
+static char **mntpoints;
+static int mntcnt;
+static char *xarg = NULL;
 
 static void usage(void)
 {

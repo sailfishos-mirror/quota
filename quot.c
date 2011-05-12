@@ -56,8 +56,8 @@
 #include "quotasys.h"
 
 #define	TSIZE	500
-__uint64_t sizes[TSIZE];
-__uint64_t overflow;
+static __uint64_t sizes[TSIZE];
+static __uint64_t overflow;
 
 static int aflag;
 static int cflag;
