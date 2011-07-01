@@ -873,12 +873,12 @@ static int sub_quota_file(struct mntent *mnt, int qtype, int ftype)
 
 	debug(FL_DEBUG, _("Substracting space used by old %s quota file.\n"), type2name(ftype));
 	if (get_qf_name(mnt, ftype, cfmt, 0, &filename) < 0) {
-		debug(FL_VERBOSE, _("Old %s file not found. Usage will not be substracted.\n"), type2name(ftype));
+		debug(FL_VERBOSE, _("Old %s file name could not been determined. Usage will not be substracted.\n"), type2name(ftype));
 		return 0;
 	}
 
 	if (stat(filename, &st) < 0) {
-		debug(FL_VERBOSE, _("Cannot stat old %s quota file: %s\n"), type2name(ftype), strerror(errno));
+		debug(FL_VERBOSE, _("Cannot stat old %s quota file %s: %s. Usage will not be substracted.\n"), type2name(ftype), filename, strerror(errno));
 		free(filename);
 		return 0;
 	}
