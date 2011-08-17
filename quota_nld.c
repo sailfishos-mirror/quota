@@ -264,7 +264,12 @@ static void write_console_warning(struct quota_warning *warn)
 		}
 	}
 	if (!max_atime) {
-		errstr(_("Failed to find tty of user %llu to report warning to.\n"), (unsigned long long)warn->caused_id);
+		/*
+		 * This can happen quite easily so don't spam syslog with
+		 * the error
+		 */
+		if (flags & FL_NODAEMON)
+			errstr(_("Failed to find tty of user %llu to report warning to.\n"), (unsigned long long)warn->caused_id);
 		return;
 	}
 	fd = open(max_dev, O_WRONLY);
