@@ -396,7 +396,7 @@ int writeindividualtimes(struct dquot *qlist, int outfd, char *name, int quotaty
 		else if (q->dq_dqb.dqb_btime <= now)
 			strcpy(btimestr, _("0seconds"));
 		else
-			sprintf(btimestr, "%useconds", (unsigned)(q->dq_dqb.dqb_btime - now));
+			sprintf(btimestr, _("%useconds"), (unsigned)(q->dq_dqb.dqb_btime - now));
 		if (!q->dq_dqb.dqb_itime)
 			strcpy(itimestr, _("unset"));
 		else if (q->dq_dqb.dqb_itime <= now)

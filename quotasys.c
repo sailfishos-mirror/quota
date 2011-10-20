@@ -332,13 +332,13 @@ void time2str(time_t seconds, char *buf, int flags)
  */
 int str2timeunits(time_t num, char *unit, time_t *res)
 {
-	if (memcmp(unit, "second", 6) == 0)
+	if (!strcmp(unit, _("second")) || !strcmp(unit, _("seconds")))
 		*res = num;
-	else if (memcmp(unit, "minute", 6) == 0)
+	else if (!strcmp(unit, _("minute")) || !strcmp(unit, _("minutes")))
 		*res = num * 60;
-	else if (memcmp(unit, "hour", 4) == 0)
+	else if (!strcmp(unit, _("hour")) || !strcmp(unit, _("hours")))
 		*res = num * 60 * 60;
-	else if (memcmp(unit, "day", 3) == 0)
+	else if (!strcmp(unit, _("day")) || !strcmp(unit, _("days")))
 		*res = num * 24 * 60 * 60;
 	else
 		return -1;
