@@ -258,7 +258,6 @@ int writeprivs(struct dquot *qlist, int outfd, char *name, int quotatype)
 	if (!(fd = fdopen(dup(outfd), "w")))
 		die(1, _("Cannot duplicate descriptor of file to write to: %s\n"), strerror(errno));
 
-#if defined(ALT_FORMAT)
 	fprintf(fd, _("Disk quotas for %s %s (%cid %d):\n"),
 		type2name(quotatype), name, *type2name(quotatype), qlist->dq_id);
 
@@ -274,18 +273,6 @@ int writeprivs(struct dquot *qlist, int outfd, char *name, int quotatype)
 			(long long)q->dq_dqb.dqb_curinodes,
 			(long long)q->dq_dqb.dqb_isoftlimit, (long long)q->dq_dqb.dqb_ihardlimit);
 	}
-#else
-	fprintf(fd, _("Quotas for %s %s:\n"), type2name(quotatype), name);
-	for (q = qlist; q; q = q->dq_next) {
-		fprintf(fd, _("%s %d, limits (soft = %d, hard = %d)\n"),
-			q->dq_h->qh_quotadev, _("blocks in use:"),
-			(int)toqb(q->dq_dqb.dqb_curspace),
-			q->dq_dqb.dqb_bsoftlimit, q->dq_dqb.dqb_bhardlimit);
-		fprintf(fd, _("%s %d, limits (soft = %d, hard = %d)\n"),
-			_("\tinodes in use:"), q->dq_dqb.dqb_curinodes,
-			q->dq_dqb.dqb_isoftlimit, q->dq_dqb.dqb_ihardlimit);
-	}
-#endif
 	fclose(fd);
 	return 0;
 }
@@ -325,18 +312,12 @@ int readprivs(struct dquot *qlist, int infd)
 	int cnt;
 	long long blocks, bsoft, bhard, inodes, isoft, ihard;
 	struct dquot *q;
-
-#if defined(ALT_FORMAT)
 	char fsp[BUFSIZ], line[BUFSIZ];
-#else
-	char *fsp, line1[BUFSIZ], line2[BUFSIZ];
-#endif
 
 	lseek(infd, 0, SEEK_SET);
 	if (!(fd = fdopen(dup(infd), "r")))
 		die(1, _("Cannot duplicate descriptor of temp file: %s\n"), strerror(errno));
 
-#if defined(ALT_FORMAT)
 	/*
 	 * Discard title lines, then read lines to process.
 	 */
@@ -354,47 +335,6 @@ int readprivs(struct dquot *qlist, int infd)
 
 		merge_limits_to_list(qlist, fsp, blocks, bsoft, bhard, inodes, isoft, ihard);
 	}
-#else
-	/*
-	 * Discard title line, then read pairs of lines to process.
-	 */
-	fgets(line1, sizeof(line1), fd);
-	while (fgets(line1, sizeof(line1), fd) && fgets(line2, sizeof(line2), fd)) {
-		if (!(fsp = strtok(line1, " \t:"))) {
-			errstr(_("%s - bad format\n"), line1);
-			return -1;
-		}
-		if (!(cp = strtok(NULL, "\n"))) {
-			errstr(_("%s -  %s -- bad format\n"),
-				fsp, &fsp[strlen(fsp) + 1]);
-			return -1;
-		}
-
-		cnt = sscanf(cp, _(" blocks in use: %llu, limits (soft = %llu, hard = %llu)"),
-			     &blocks, &bsoft, &bhard);
-		if (cnt != 3) {
-			errstr(_("%s - %s -- bad format\n"),
-				fsp, cp);
-			return -1;
-		}
-
-		if (!(cp = strtok(line2, "\n"))) {
-			errstr(_("%s - %s -- bad format\n"),
-				fsp, line2);
-			return -1;
-		}
-
-		cnt = sscanf(cp, _("\tinodes in use: %llu, limits (soft = %llu, hard = %llu)"),
-			     &inodes, &isoft, &ihard);
-		if (cnt != 3) {
-			errstr(_("%s - %s -- bad format\n"),
-				fsp, line2);
-			return -1;
-		}
-
-		merge_limits_to_list(qlist, fsp, blocks, bsoft, bhard, inodes, isoft, ihard);
-	}
-#endif
 	fclose(fd);
 
 	/*
@@ -545,7 +485,6 @@ int writetimes(struct quota_handle **handles, int outfd)
 	if ((fd = fdopen(dup(outfd), "w")) == NULL)
 		die(1, _("Cannot duplicate descriptor of file to edit: %s\n"), strerror(errno));
 
-#if defined(ALT_FORMAT)
 	fprintf(fd, _("Grace period before enforcing soft limits for %ss:\n"),
 		type2name(handles[0]->qh_type));
 	fprintf(fd, _("Time units may be: days, hours, minutes, or seconds\n"));
@@ -556,17 +495,6 @@ int writetimes(struct quota_handle **handles, int outfd)
 		time2str(handles[i]->qh_info.dqi_igrace, itimebuf, 0);
 		fprintf(fd, "  %-12s %22s %22s\n", handles[i]->qh_quotadev, btimebuf, itimebuf);
 	}
-#else
-	fprintf(fd, _("Time units may be: days, hours, minutes, or seconds\n"));
-	fprintf(fd, _("Grace period before enforcing soft limits for %ss:\n"),
-		type2name(handles[0]->qh_type));
-	for (i = 0; handles[i]; i++) {
-		time2str(handles[i]->qh_info.dqi_bgrace, btimebuf, 0);
-		time2str(handles[i]->qh_info.dqi_igrace, itimebuf, 0);
-		fprintf(fd, _("block grace period: %s, file grace period: %s\n"),
-			handles[i]->qh_quotadev, btimebuf, itimebuf);
-	}
-#endif
 
 	fclose(fd);
 	return 0;
@@ -580,12 +508,7 @@ int readtimes(struct quota_handle **handles, int infd)
 	FILE *fd;
 	int itime, btime, i, cnt;
 	time_t iseconds, bseconds;
-
-#if defined(ALT_FORMAT)
 	char fsp[BUFSIZ], bunits[10], iunits[10], line[BUFSIZ];
-#else
-	char *fsp, bunits[10], iunits[10], line1[BUFSIZ];
-#endif
 
 	if (!handles[0])
 		return 0;
@@ -602,7 +525,6 @@ int readtimes(struct quota_handle **handles, int infd)
 		handles[i]->qh_info.dqi_igrace = MAX_IQ_TIME;
 		mark_quotafile_info_dirty(handles[i]);
 	}
-#if defined(ALT_FORMAT)
 	/*
 	 * Discard three title lines, then read lines to process.
 	 */
@@ -616,31 +538,6 @@ int readtimes(struct quota_handle **handles, int infd)
 			errstr(_("bad format:\n%s\n"), line);
 			return -1;
 		}
-#else
-	/*
-	 * Discard two title lines, then read lines to process.
-	 */
-	fgets(line1, sizeof(line1), fd);
-	fgets(line1, sizeof(line1), fd);
-
-	while (fgets(line1, sizeof(line1), fd)) {
-		if (!(fsp = strtok(line1, " \t:"))) {
-			errstr(_("%s - bad format\n"), line1);
-			return -1;
-		}
-		if (!(cp = strtok(NULL, "\n"))) {
-			errstr(_("%s - %s -- bad format\n"),
-				fsp, &fsp[strlen(fsp) + 1]);
-			return -1;
-		}
-		cnt = sscanf(cp, _(" block grace period: %d %s file grace period: %d %s"),
-			     &btime, bunits, &itime, iunits);
-		if (cnt != 4) {
-			errstr(_("%s - %s -- bad format\n"),
-				fsp, cp);
-			return -1;
-		}
-#endif
 		if (str2timeunits(btime, bunits, &bseconds) < 0 ||
 		    str2timeunits(itime, iunits, &iseconds) < 0) {
 			errstr(_("Bad time units. Units are 'second', 'minute', 'hour', and 'day'.\n"));
