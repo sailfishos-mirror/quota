@@ -147,7 +147,7 @@ setquota_rslt *setquotainfo(int lflags, caddr_t * argp, struct svc_req *rqstp)
 	} arguments;
 	struct util_dqblk dqblk;
 	struct dquot *dquot;
-	struct mntent *mnt;
+	struct mount_entry *mnt;
 	char pathname[PATH_MAX] = {0};
 	char *pathp = pathname;
 	int id, qcmd, type;
@@ -239,7 +239,7 @@ getquota_rslt *getquotainfo(int lflags, caddr_t * argp, struct svc_req * rqstp)
 		ext_getquota_args *ext_args;
 	} arguments;
 	struct dquot *dquot = NULL;
-	struct mntent *mnt;
+	struct mount_entry *mnt;
 	char pathname[PATH_MAX] = {0};
 	char *pathp = pathname;
 	int id, type;

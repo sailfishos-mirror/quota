@@ -22,7 +22,7 @@
  *	Ensure we don't attempt to go into a dodgey state.
  */
 
-static int xfs_state_check(int qcmd, int type, int flags, char *dev, int roothack, int xopts)
+static int xfs_state_check(int qcmd, int type, int flags, const char *dev, int roothack, int xopts)
 {
 	struct xfs_mem_dqinfo info;
 	int state;
@@ -132,7 +132,7 @@ static int xfs_state_check(int qcmd, int type, int flags, char *dev, int roothac
 	return -1;
 }
 
-static int xfs_onoff(char *dev, int type, int flags, int roothack, int xopts)
+static int xfs_onoff(const char *dev, int type, int flags, int roothack, int xopts)
 {
 	int qoff, qcmd, check;
 
@@ -153,7 +153,7 @@ static int xfs_onoff(char *dev, int type, int flags, int roothack, int xopts)
 	return 0;
 }
 
-static int xfs_delete(char *dev, int type, int flags, int roothack, int xopts)
+static int xfs_delete(const char *dev, int type, int flags, int roothack, int xopts)
 {
 	int qcmd, check;
 
@@ -178,15 +178,11 @@ static int xfs_delete(char *dev, int type, int flags, int roothack, int xopts)
  *	root filesystem.
  *	We are passed in the new requested state through "type" & "xarg".
  */
-int xfs_newstate(struct mntent *mnt, int type, char *xarg, int flags)
+int xfs_newstate(struct mount_entry *mnt, int type, char *xarg, int flags)
 {
 	int err = 1;
 	int xopts = 0;
 	int roothack = 0;
-	const char *dev = get_device_name(mnt->mnt_fsname);
-
-	if (!dev)
-		return err;
 
 #ifdef XFS_ROOTHACK
 	/*
@@ -194,11 +190,11 @@ int xfs_newstate(struct mntent *mnt, int type, char *xarg, int flags)
 	 * hack to allow enabling quota on the root filesystem without
 	 * having to specify it at mount time.
 	 */
-	if ((strcmp(mnt->mnt_dir, "/") == 0)) {
+	if ((strcmp(mnt->me_dir, "/") == 0)) {
 		struct xfs_mem_dqinfo info;
 		u_int16_t sbflags = 0;
 
-		if (!quotactl(QCMD(Q_XFS_GETQSTAT, type), dev, 0, (void *)&info))
+		if (!quotactl(QCMD(Q_XFS_GETQSTAT, type), mnt->me_devname, 0, (void *)&info))
 			sbflags = (info.qs_flags & 0xff00) >> 8;
 
 		if ((type == USRQUOTA && (sbflags & XFS_QUOTA_UDQ_ACCT)) &&
@@ -210,22 +206,21 @@ int xfs_newstate(struct mntent *mnt, int type, char *xarg, int flags)
 	if (xarg == NULL) {	/* only enfd on/off */
 		xopts |= (type == USRQUOTA) ? XFS_QUOTA_UDQ_ENFD :
 			XFS_QUOTA_GDQ_ENFD;
-		err = xfs_onoff((char *)dev, type, flags, roothack, xopts);
+		err = xfs_onoff(mnt->me_devname, type, flags, roothack, xopts);
 	}
 	else if (strcmp(xarg, "account") == 0) {
 		xopts |= (type == USRQUOTA) ? XFS_QUOTA_UDQ_ACCT : XFS_QUOTA_GDQ_ACCT;
-		err = xfs_onoff((char *)dev, type, flags, roothack, xopts);
+		err = xfs_onoff(mnt->me_devname, type, flags, roothack, xopts);
 	}
 	else if (strcmp(xarg, "enforce") == 0) {
 		xopts |= (type == USRQUOTA) ? XFS_QUOTA_UDQ_ENFD : XFS_QUOTA_GDQ_ENFD;
-		err = xfs_onoff((char *)dev, type, flags, roothack, xopts);
+		err = xfs_onoff(mnt->me_devname, type, flags, roothack, xopts);
 	}
 	else if (strcmp(xarg, "delete") == 0) {
 		xopts |= (type == USRQUOTA) ? XFS_USER_QUOTA : XFS_GROUP_QUOTA;
-		err = xfs_delete((char *)dev, type, flags, roothack, xopts);
+		err = xfs_delete(mnt->me_devname, type, flags, roothack, xopts);
 	}
 	else
 		die(1, _("Invalid argument \"%s\"\n"), xarg);
-	free((char *)dev);
 	return err;
 }

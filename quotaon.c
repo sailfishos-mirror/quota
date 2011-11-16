@@ -197,7 +197,7 @@ static int quotarsquashonoff(const char *quotadev, int type, int flags)
 /*
  *	Enable/disable VFS quota on given filesystem
  */
-static int quotaonoff(char *quotadev, char *quotadir, char *quotafile, int type, int fmt, int flags)
+static int quotaonoff(const char *quotadev, const char *quotadir, char *quotafile, int type, int fmt, int flags)
 {
 	int qcmd, kqf;
 
@@ -239,42 +239,31 @@ static int quotaonoff(char *quotadev, char *quotadir, char *quotafile, int type,
 /*
  *	Enable/disable quota/rootsquash on given filesystem (version 1)
  */
-static int v1_newstate(struct mntent *mnt, int type, char *file, int flags, int fmt)
+static int v1_newstate(struct mount_entry *mnt, int type, char *file, int flags, int fmt)
 {
 	int errs = 0;
-	const char *dev = get_device_name(mnt->mnt_fsname);
 
-	if (!dev)
-		return 1;
-	if ((flags & STATEFLAG_OFF) && hasmntopt(mnt, MNTOPT_RSQUASH))
-		errs += quotarsquashonoff(dev, type, flags);
-	errs += quotaonoff((char *)dev, mnt->mnt_dir, file, type, QF_VFSOLD, flags);
-	if ((flags & STATEFLAG_ON) && hasmntopt(mnt, MNTOPT_RSQUASH))
-		errs += quotarsquashonoff(dev, type, flags);
-	free((char *)dev);
+	if ((flags & STATEFLAG_OFF) && str_hasmntopt(mnt->me_opts, MNTOPT_RSQUASH))
+		errs += quotarsquashonoff(mnt->me_devname, type, flags);
+	errs += quotaonoff(mnt->me_devname, mnt->me_dir, file, type, QF_VFSOLD, flags);
+	if ((flags & STATEFLAG_ON) && str_hasmntopt(mnt->me_opts, MNTOPT_RSQUASH))
+		errs += quotarsquashonoff(mnt->me_devname, type, flags);
 	return errs;
 }
 
 /*
  *	Enable/disable quota on given filesystem (generic VFS quota)
  */
-static int v2_newstate(struct mntent *mnt, int type, char *file, int flags, int fmt)
+static int v2_newstate(struct mount_entry *mnt, int type, char *file, int flags, int fmt)
 {
-	const char *dev = get_device_name(mnt->mnt_fsname);
-	int errs = 0;
-
-	if (!dev)
-		return 1;
-	errs = quotaonoff((char *)dev, mnt->mnt_dir, file, type, fmt, flags);
-	free((char *)dev);
-	return errs;
+	return quotaonoff(mnt->me_devname, mnt->me_dir, file, type, fmt, flags);
 }
 
 /*
  *	For both VFS quota formats, need to pass in the quota file;
  *	for XFS quota manager, pass on the -x command line option.
  */
-static int newstate(struct mntent *mnt, int type, char *extra)
+static int newstate(struct mount_entry *mnt, int type, char *extra)
 {
 	int sflags, ret = 0;
 
@@ -282,26 +271,24 @@ static int newstate(struct mntent *mnt, int type, char *extra)
 	if (flags & FL_ALL)
 		sflags |= STATEFLAG_ALL;
 
-	if (!strcmp(mnt->mnt_type, MNTTYPE_GFS2)) {
+	if (!strcmp(mnt->me_type, MNTTYPE_GFS2)) {
 		errstr(_("Cannot change state of GFS2 quota.\n"));
 		return 1;
-	} else if (!strcmp(mnt->mnt_type, MNTTYPE_XFS)) {	/* XFS filesystem has special handling... */
+	} else if (!strcmp(mnt->me_type, MNTTYPE_XFS)) {	/* XFS filesystem has special handling... */
 		if (!kern_qfmt_supp(QF_XFS)) {
 			errstr(_("Cannot change state of XFS quota. It's not compiled in kernel.\n"));
 			return 1;
 		}
 		ret = xfs_newstate(mnt, type, extra, sflags);
 	}
-	else if (meta_qf_fstype(mnt->mnt_type)) {
-		if (!hasquota(mnt, type, 0))
-			return 0;
+	else if (mnt->me_qfmt[type] == QF_META) {
 		/* Must be non-empty because empty path is always invalid. */
 		ret = v2_newstate(mnt, type, ".", sflags, QF_VFSV0);
 	}
 	else {
 		int usefmt;
 
-		if (!hasquota(mnt, type, 0))
+		if (!me_hasquota(mnt, type))
 			return 0;
 		if (fmt == -1) {
 			if (get_qf_name(mnt, type, QF_VFSV0,
@@ -314,12 +301,12 @@ static int newstate(struct mntent *mnt, int type, char *extra)
 					NF_FORMAT, &extra) >= 0)
 				usefmt = QF_VFSOLD;
 			else {
-				errstr(_("Cannot find quota file on %s [%s] to turn quotas on/off.\n"), mnt->mnt_dir, mnt->mnt_fsname);
+				errstr(_("Cannot find quota file on %s [%s] to turn quotas on/off.\n"), mnt->me_dir, mnt->me_devname);
 				return 1;
 			}
 		} else {
 			if (get_qf_name(mnt, type, fmt, NF_FORMAT, &extra) < 0) {
-				errstr(_("Quota file on %s [%s] does not exist or has wrong format.\n"), mnt->mnt_dir, mnt->mnt_fsname);
+				errstr(_("Quota file on %s [%s] does not exist or has wrong format.\n"), mnt->me_dir, mnt->me_devname);
 				return 1;
 			}
 			usefmt = fmt;
@@ -334,23 +321,23 @@ static int newstate(struct mntent *mnt, int type, char *extra)
 }
 
 /* Print state of quota (on/off) */
-static int print_state(struct mntent *mnt, int type)
+static int print_state(struct mount_entry *mnt, int type)
 {
 	int on = 0;
 
-	if (!strcmp(mnt->mnt_type, MNTTYPE_XFS) ||
-	    !strcmp(mnt->mnt_type, MNTTYPE_GFS2)) {
+	if (!strcmp(mnt->me_type, MNTTYPE_XFS) ||
+	    !strcmp(mnt->me_type, MNTTYPE_GFS2)) {
 		if (kern_qfmt_supp(QF_XFS))
-			on = kern_quota_on(mnt->mnt_fsname, type, QF_XFS) != -1;
+			on = kern_quota_on(mnt, type, QF_XFS) != -1;
 	}
 	else if (kernel_iface == IFACE_GENERIC)
-		on = kern_quota_on(mnt->mnt_fsname, type, -1) != -1;
+		on = kern_quota_on(mnt, type, -1) != -1;
 	else if (kern_qfmt_supp(QF_VFSV0))
-		on = kern_quota_on(mnt->mnt_fsname, type, QF_VFSV0) != -1;
+		on = kern_quota_on(mnt, type, QF_VFSV0) != -1;
 	else if (kern_qfmt_supp(QF_VFSOLD))
-		on = kern_quota_on(mnt->mnt_fsname, type, QF_VFSOLD) != -1;
+		on = kern_quota_on(mnt, type, QF_VFSOLD) != -1;
 
-	printf(_("%s quota on %s (%s) is %s\n"), type2name(type), mnt->mnt_dir, mnt->mnt_fsname,
+	printf(_("%s quota on %s (%s) is %s\n"), type2name(type), mnt->me_dir, mnt->me_devname,
 	  on ? _("on") : _("off"));
 	
 	return on;
@@ -358,7 +345,7 @@ static int print_state(struct mntent *mnt, int type)
 
 int main(int argc, char **argv)
 {
-	struct mntent *mnt;
+	struct mount_entry *mnt;
 	int errs = 0;
 
 	gettexton();
@@ -380,9 +367,9 @@ int main(int argc, char **argv)
 	if (init_mounts_scan(mntcnt, mntpoints, MS_XFS_DISABLED | MS_LOCALONLY) < 0)
 		return 1;
 	while ((mnt = get_next_mount())) {
-		if (nfs_fstype(mnt->mnt_type)) {
+		if (nfs_fstype(mnt->me_type)) {
 			if (!(flags & FL_ALL))
-				errstr(_("%s: Quota cannot be turned on on NFS filesystem\n"), mnt->mnt_fsname);
+				errstr(_("%s: Quota cannot be turned on on NFS filesystem\n"), mnt->me_devname);
 			continue;
 		}
 

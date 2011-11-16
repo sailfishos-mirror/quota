@@ -243,7 +243,7 @@ static void remove_list(void)
 }
 
 /* Get size used by file */
-static loff_t getqsize(char *fname, struct stat *st)
+static loff_t getqsize(const char *fname, struct stat *st)
 {
 	static char ioctl_fail_warn;
 	int fd;
@@ -269,7 +269,7 @@ static loff_t getqsize(char *fname, struct stat *st)
 /*
  * Show a blitting cursor as means of visual progress indicator.
  */
-static inline void blit(char *msg)
+static inline void blit(const char *msg)
 {
 	static int bitc = 0;
 	static const char bits[] = "|/-\\";
@@ -413,7 +413,7 @@ static void parse_options(int argcnt, char **argstr)
 }
 
 #if defined(EXT2_DIRECT)
-static int ext2_direct_scan(char *device)
+static int ext2_direct_scan(const char *device)
 {
 	ext2_ino_t i_num;
 	ext2_filsys fs;
@@ -490,7 +490,7 @@ static int ext2_direct_scan(char *device)
  * of the files to the appropriate quotas. When we find a dir we recursivly call
  * ourself to scan that dir.
  */
-static int scan_dir(char *pathname)
+static int scan_dir(const char *pathname)
 {
 	struct dirs *dir_stack = NULL;
 	struct dirs *new_dir;
@@ -613,18 +613,18 @@ int ask_yn(char *q, int def)
 }
 
 /* Do checks and buffer quota file into memory */
-static int process_file(struct mntent *mnt, int type)
+static int process_file(struct mount_entry *mnt, int type)
 {
 	char *qfname = NULL;
 	int fd = -1, ret;
 
 	debug(FL_DEBUG, _("Going to check %s quota file of %s\n"), type2name(type),
-	      mnt->mnt_dir);
+	      mnt->me_dir);
 
-	if (kern_quota_on(mnt->mnt_fsname, type, cfmt) >= 0) {	/* Is quota enabled? */
+	if (kern_quota_on(mnt, type, cfmt) >= 0) {	/* Is quota enabled? */
 		if (!(flags & FL_FORCE)) {
 			if (flags & FL_INTERACTIVE) {
-				printf(_("Quota for %ss is enabled on mountpoint %s so quotacheck might damage the file.\n"), type2name(type), mnt->mnt_dir);
+				printf(_("Quota for %ss is enabled on mountpoint %s so quotacheck might damage the file.\n"), type2name(type), mnt->me_dir);
 				if (!ask_yn(_("Should I continue"), 0)) {
 					printf(_("As you wish... Canceling check of this file.\n"));
 					return -1;
@@ -633,17 +633,17 @@ static int process_file(struct mntent *mnt, int type)
 			else
 				die(6, _("Quota for %ss is enabled on mountpoint %s so quotacheck might damage the file.\n\
 Please turn quotas off or use -f to force checking.\n"),
-				    type2name(type), mnt->mnt_dir);
+				    type2name(type), mnt->me_dir);
 		}
 		/* At least sync quotas so damage will be smaller */
 		if (quotactl(QCMD((kernel_iface == IFACE_GENERIC)? Q_SYNC : Q_6_5_SYNC, type),
-			     mnt->mnt_fsname, 0, NULL) < 0)
-			die(4, _("Error while syncing quotas on %s: %s\n"), mnt->mnt_fsname, strerror(errno));
+			     mnt->me_devname, 0, NULL) < 0)
+			die(4, _("Error while syncing quotas on %s: %s\n"), mnt->me_devname, strerror(errno));
 	}
 
 	if (!(flags & FL_NEWFILE)) {	/* Need to buffer file? */
 		if (get_qf_name(mnt, type, cfmt, 0, &qfname) < 0) {
-			errstr(_("Cannot get quotafile name for %s\n"), mnt->mnt_fsname);
+			errstr(_("Cannot get quotafile name for %s\n"), mnt->me_devname);
 			return -1;
 		}
 		if ((fd = open(qfname, O_RDONLY)) < 0) {
@@ -675,7 +675,7 @@ Please turn quotas off or use -f to force checking.\n"),
 }
 
 /* Backup old quotafile and rename new one to right name */
-static int rename_files(struct mntent *mnt, int type)
+static int rename_files(struct mount_entry *mnt, int type)
 {
 	char *filename, newfilename[PATH_MAX];
 	struct stat st;
@@ -690,7 +690,7 @@ static int rename_files(struct mntent *mnt, int type)
 
 	debug(FL_DEBUG, _("Renaming new files to proper names.\n"));
 	if (get_qf_name(mnt, type, cfmt, 0, &filename) < 0)
-		die(2, _("Cannot get name of old quotafile on %s.\n"), mnt->mnt_dir);
+		die(2, _("Cannot get name of old quotafile on %s.\n"), mnt->me_dir);
 	if (stat(filename, &st) < 0) {	/* File doesn't exist? */
 		if (errno == ENOENT) {
 			debug(FL_DEBUG | FL_VERBOSE, _("Old file not found.\n"));
@@ -781,7 +781,7 @@ rename_new:
  * quota file. As quotafiles doesn't account to quotas we don't have to
  * bother about accounting new blocks for quota file
  */
-static int dump_to_file(struct mntent *mnt, int type)
+static int dump_to_file(struct mount_entry *mnt, int type)
 {
 	struct dquot *dquot;
 	uint i;
@@ -828,16 +828,16 @@ static int dump_to_file(struct mntent *mnt, int type)
 		return -1;
 	}
 	debug(FL_DEBUG, _("Data dumped.\n"));
-	if (kern_quota_on(mnt->mnt_fsname, type, cfmt) >= 0) {	/* Quota turned on? */
+	if (kern_quota_on(mnt, type, cfmt) >= 0) {	/* Quota turned on? */
 		char *filename;
 
 		if (get_qf_name(mnt, type, cfmt, NF_FORMAT, &filename) < 0)
-			errstr(_("Cannot find checked quota file for %ss on %s!\n"), type2name(type), mnt->mnt_fsname);
+			errstr(_("Cannot find checked quota file for %ss on %s!\n"), type2name(type), mnt->me_devname);
 		else {
 			if (quotactl(QCMD((kernel_iface == IFACE_GENERIC) ? Q_QUOTAOFF : Q_6_5_QUOTAOFF, type),
-				     mnt->mnt_fsname, 0, NULL) < 0)
+				     mnt->me_devname, 0, NULL) < 0)
 				errstr(_("Cannot turn %s quotas off on %s: %s\nKernel won't know about changes quotacheck did.\n"),
-					type2name(type), mnt->mnt_fsname, strerror(errno));
+					type2name(type), mnt->me_devname, strerror(errno));
 			else {
 				int ret;
 
@@ -845,12 +845,12 @@ static int dump_to_file(struct mntent *mnt, int type)
 				rename_files(mnt, type);
 
 				if (kernel_iface == IFACE_GENERIC)
-					ret = quotactl(QCMD(Q_QUOTAON, type), mnt->mnt_fsname, util2kernfmt(cfmt), filename);
+					ret = quotactl(QCMD(Q_QUOTAON, type), mnt->me_devname, util2kernfmt(cfmt), filename);
 				else
-					ret = quotactl(QCMD(Q_6_5_QUOTAON, type), mnt->mnt_fsname, 0, filename);
+					ret = quotactl(QCMD(Q_6_5_QUOTAON, type), mnt->me_devname, 0, filename);
 				if (ret < 0)
 					errstr(_("Cannot turn %s quotas on on %s: %s\nKernel won't know about changes quotacheck did.\n"),
-						type2name(type), mnt->mnt_fsname, strerror(errno));
+						type2name(type), mnt->me_devname, strerror(errno));
 			}
 			free(filename);
 		}
@@ -863,7 +863,7 @@ static int dump_to_file(struct mntent *mnt, int type)
 
 /* Substract space used by old quota file from usage.
  * Return non-zero in case of failure, zero otherwise. */
-static int sub_quota_file(struct mntent *mnt, int qtype, int ftype)
+static int sub_quota_file(struct mount_entry *mnt, int qtype, int ftype)
 {
 	char *filename;
 	struct stat st;
@@ -901,16 +901,16 @@ static int sub_quota_file(struct mntent *mnt, int qtype, int ftype)
 
 /* Buffer quotafile, run filesystem scan, dump quotafiles.
  * Return non-zero value in case of failure, zero otherwise. */
-static int check_dir(struct mntent *mnt)
+static int check_dir(struct mount_entry *mnt)
 {
 	struct stat st;
 	int remounted = 0;
 	int failed = 0;
 
-	if (lstat(mnt->mnt_dir, &st) < 0)
-		die(2, _("Cannot stat mountpoint %s: %s\n"), mnt->mnt_dir, strerror(errno));
+	if (lstat(mnt->me_dir, &st) < 0)
+		die(2, _("Cannot stat mountpoint %s: %s\n"), mnt->me_dir, strerror(errno));
 	if (!S_ISDIR(st.st_mode))
-		die(2, _("Mountpoint %s is not a directory?!\n"), mnt->mnt_dir);
+		die(2, _("Mountpoint %s is not a directory?!\n"), mnt->me_dir);
 	cur_dev = st.st_dev;
 	files_done = dirs_done = 0;
 	/*
@@ -932,10 +932,10 @@ static int check_dir(struct mntent *mnt)
 	if (!(flags & FL_NOREMOUNT)) {
 		/* Now we try to remount fs read-only to prevent races when scanning filesystem */
 		if (mount
-		    (NULL, mnt->mnt_dir, mnt->mnt_type, MS_MGC_VAL | MS_REMOUNT | MS_RDONLY,
+		    (NULL, mnt->me_dir, mnt->me_type, MS_MGC_VAL | MS_REMOUNT | MS_RDONLY,
 		     NULL) < 0 && !(flags & FL_FORCEREMOUNT)) {
 			if (flags & FL_INTERACTIVE) {
-				printf(_("Cannot remount filesystem mounted on %s read-only. Counted values might not be right.\n"), mnt->mnt_dir);
+				printf(_("Cannot remount filesystem mounted on %s read-only. Counted values might not be right.\n"), mnt->me_dir);
 				if (!ask_yn(_("Should I continue"), 0)) {
 					printf(_("As you wish... Canceling check of this file.\n"));
 					failed = -1;
@@ -944,7 +944,7 @@ static int check_dir(struct mntent *mnt)
 			}
 			else {
 				errstr(_("Cannot remount filesystem mounted on %s read-only so counted values might not be right.\n\
-Please stop all programs writing to filesystem or use -m flag to force checking.\n"), mnt->mnt_dir);
+Please stop all programs writing to filesystem or use -m flag to force checking.\n"), mnt->me_dir);
 				failed = -1;
 				goto out;
 			}
@@ -954,19 +954,19 @@ Please stop all programs writing to filesystem or use -m flag to force checking.
 		debug(FL_DEBUG, _("Filesystem remounted read-only\n"));
 	}
 start_scan:
-	debug(FL_VERBOSE, _("Scanning %s [%s] "), mnt->mnt_fsname, mnt->mnt_dir);
+	debug(FL_VERBOSE, _("Scanning %s [%s] "), mnt->me_devname, mnt->me_dir);
 #if defined(EXT2_DIRECT)
-	if (!strcmp(mnt->mnt_type, MNTTYPE_EXT2) || !strcmp(mnt->mnt_type, MNTTYPE_EXT3) || !strcmp(mnt->mnt_type, MNTTYPE_NEXT3)) {
-		if ((failed = ext2_direct_scan(mnt->mnt_fsname)) < 0)
+	if (!strcmp(mnt->me_type, MNTTYPE_EXT2) || !strcmp(mnt->me_type, MNTTYPE_EXT3) || !strcmp(mnt->me_type, MNTTYPE_NEXT3)) {
+		if ((failed = ext2_direct_scan(mnt->me_devname)) < 0)
 			goto out;
 	}
 	else {
 #else
-	if (mnt->mnt_dir) {
+	if (mnt->me_dir) {
 #endif
 		if (flags & FL_VERYVERBOSE)
 			putchar('\n');
-		if ((failed = scan_dir(mnt->mnt_dir)) < 0)
+		if ((failed = scan_dir(mnt->me_dir)) < 0)
 			goto out;
 	}
 	dirs_done++;
@@ -983,8 +983,8 @@ start_scan:
 	debug(FL_DEBUG | FL_VERBOSE, _("Checked %d directories and %d files\n"), dirs_done,
 	      files_done);
 	if (remounted) {
-		if (mount(NULL, mnt->mnt_dir, mnt->mnt_type, MS_MGC_VAL | MS_REMOUNT, NULL) < 0)
-			die(4, _("Cannot remount filesystem %s read-write. cannot write new quota files.\n"), mnt->mnt_dir);
+		if (mount(NULL, mnt->me_dir, mnt->me_type, MS_MGC_VAL | MS_REMOUNT, NULL) < 0)
+			die(4, _("Cannot remount filesystem %s read-write. cannot write new quota files.\n"), mnt->me_dir);
 		debug(FL_DEBUG, _("Filesystem remounted RW.\n"));
 	}
 	if (ucheck)
@@ -997,7 +997,7 @@ out:
 }
 
 /* Detect quota format from filename of present files */
-static int detect_filename_format(struct mntent *mnt, int type)
+static int detect_filename_format(struct mount_entry *mnt, int type)
 {
 	char *option;
 	struct stat statbuf;
@@ -1005,36 +1005,36 @@ static int detect_filename_format(struct mntent *mnt, int type)
 	int journal = 0;
 	int fmt;
 
-	if (strcmp(mnt->mnt_type, MNTTYPE_XFS) == 0 ||
-	    strcmp(mnt->mnt_type, MNTTYPE_GFS2) == 0)
+	if (strcmp(mnt->me_type, MNTTYPE_XFS) == 0 ||
+	    strcmp(mnt->me_type, MNTTYPE_GFS2) == 0)
 		return QF_XFS;
 
 	if (type == USRQUOTA) {
-		if ((option = hasmntopt(mnt, MNTOPT_USRQUOTA)))
+		if ((option = str_hasmntopt(mnt->me_opts, MNTOPT_USRQUOTA)))
 			option += strlen(MNTOPT_USRQUOTA);
-		else if (hasmntopt(mnt, MNTOPT_USRJQUOTA)) {
+		else if ((option = str_hasmntopt(mnt->me_opts, MNTOPT_USRJQUOTA))) {
 			journal = 1;
 			option += strlen(MNTOPT_USRJQUOTA);
 		}
-		else if ((option = hasmntopt(mnt, MNTOPT_QUOTA)))
+		else if ((option = str_hasmntopt(mnt->me_opts, MNTOPT_QUOTA)))
 			option += strlen(MNTOPT_QUOTA);
 	}
 	else {
-		if ((option = hasmntopt(mnt, MNTOPT_GRPQUOTA)))
+		if ((option = str_hasmntopt(mnt->me_opts, MNTOPT_GRPQUOTA)))
 			option += strlen(MNTOPT_GRPQUOTA);
-		else if (hasmntopt(mnt, MNTOPT_GRPJQUOTA)) {
+		else if ((option = str_hasmntopt(mnt->me_opts, MNTOPT_GRPJQUOTA))) {
 			journal = 1;
 			option += strlen(MNTOPT_GRPJQUOTA);
 		}
 	}
 	if (!option)
-		die(2, _("Cannot find quota option on filesystem %s with quotas!\n"), mnt->mnt_dir);
+		die(2, _("Cannot find quota option on filesystem %s with quotas!\n"), mnt->me_dir);
 	if (journal) {
 		char fmtbuf[64], *space;
 		
-		if (!(option = hasmntopt(mnt, MNTOPT_JQFMT))) {
+		if (!(option = str_hasmntopt(mnt->me_opts, MNTOPT_JQFMT))) {
 jquota_err:
-			errstr(_("Cannot detect quota format for journalled quota on %s\n"), mnt->mnt_dir);
+			errstr(_("Cannot detect quota format for journalled quota on %s\n"), mnt->me_dir);
 			return -1;
 		}
 		option += strlen(MNTOPT_JQFMT);
@@ -1053,7 +1053,7 @@ jquota_err:
 	}
 	else if (*option == '=')	/* If the file name is specified we can't detect quota format from it... */
 		return -1;
-	snprintf(namebuf, PATH_MAX, "%s/%s.%s", mnt->mnt_dir, basenames[QF_VFSV0], extensions[type]);
+	snprintf(namebuf, PATH_MAX, "%s/%s.%s", mnt->me_dir, basenames[QF_VFSV0], extensions[type]);
 	if (!stat(namebuf, &statbuf)) {
 		int fd = open(namebuf, O_RDONLY);
 		if (fd < 0)
@@ -1065,7 +1065,7 @@ jquota_err:
 	}
 	if (errno != ENOENT)
 		return -1;
-	snprintf(namebuf, PATH_MAX, "%s/%s.%s", mnt->mnt_dir, basenames[QF_VFSOLD], extensions[type]);
+	snprintf(namebuf, PATH_MAX, "%s/%s.%s", mnt->me_dir, basenames[QF_VFSOLD], extensions[type]);
 	if (!stat(namebuf, &statbuf))
 		return QF_VFSOLD;
 	/* Old quota files don't exist, just create VFSv0 format if available */
@@ -1128,7 +1128,7 @@ warn:
 /* Return 0 in case of success, non-zero otherwise. */
 static int check_all(void)
 {
-	struct mntent *mnt;
+	struct mount_entry *mnt;
 	int checked = 0;
 	static int warned;
 	int failed = 0;
@@ -1136,18 +1136,18 @@ static int check_all(void)
 	if (init_mounts_scan((flags & FL_ALL) ? 0 : 1, &mntpoint, 0) < 0)
 		die(2, _("Cannot initialize mountpoint scan.\n"));
 	while ((mnt = get_next_mount())) {
-		if (flags & FL_ALL && flags & FL_NOROOT && !strcmp(mnt->mnt_dir, "/"))
+		if (flags & FL_ALL && flags & FL_NOROOT && !strcmp(mnt->me_dir, "/"))
 			continue;
-		if (!compatible_fs_qfmt(mnt->mnt_type, fmt)) {
-			debug(FL_DEBUG | FL_VERBOSE, _("Skipping %s [%s]\n"), mnt->mnt_fsname, mnt->mnt_dir);
+		if (!compatible_fs_qfmt(mnt->me_type, fmt)) {
+			debug(FL_DEBUG | FL_VERBOSE, _("Skipping %s [%s]\n"), mnt->me_devname, mnt->me_dir);
 			continue;
 		}
 		cfmt = fmt;
-		if (uwant && hasquota(mnt, USRQUOTA, 0))
+		if (uwant && me_hasquota(mnt, USRQUOTA))
 			ucheck = 1;
 		else
 			ucheck = 0;
-		if (gwant && hasquota(mnt, GRPQUOTA, 0))
+		if (gwant && me_hasquota(mnt, GRPQUOTA))
 			gcheck = 1;
 		else
 			gcheck = 0;
@@ -1157,20 +1157,22 @@ static int check_all(void)
 			cfmt = detect_filename_format(mnt, ucheck ? USRQUOTA : GRPQUOTA);
 			if (cfmt == -1) {
 				errstr(_("Cannot guess format from filename on %s. Please specify format on commandline.\n"),
-					mnt->mnt_fsname);
+					mnt->me_devname);
 				failed = -1;
 				continue;
 			}
 			debug(FL_DEBUG, _("Detected quota format %s\n"), fmt2name(cfmt));
 		}
 
-		if (flags & FL_VERBOSE && !hasmntopt(mnt, MNTOPT_USRJQUOTA) &&
-		    !hasmntopt(mnt, MNTOPT_GRPJQUOTA) && !warned &&
-		    (!strcmp(mnt->mnt_type, MNTTYPE_EXT3) ||
-		     !strcmp(mnt->mnt_type, MNTTYPE_EXT4) ||
-		     !strcmp(mnt->mnt_type, MNTTYPE_NEXT3) ||
-		     !strcmp(mnt->mnt_type, MNTTYPE_EXT4DEV) ||
-		     !strcmp(mnt->mnt_type, MNTTYPE_REISER))) {
+		if (flags & FL_VERBOSE &&
+		    !str_hasmntopt(mnt->me_opts, MNTOPT_USRJQUOTA) &&
+		    !str_hasmntopt(mnt->me_opts, MNTOPT_GRPJQUOTA) &&
+		    !warned &&
+		    (!strcmp(mnt->me_type, MNTTYPE_EXT3) ||
+		     !strcmp(mnt->me_type, MNTTYPE_EXT4) ||
+		     !strcmp(mnt->me_type, MNTTYPE_NEXT3) ||
+		     !strcmp(mnt->me_type, MNTTYPE_EXT4DEV) ||
+		     !strcmp(mnt->me_type, MNTTYPE_REISER))) {
 			warned = 1;
 			warn_if_jquota_supported();
 		}

@@ -287,7 +287,7 @@ static int convert_dquot(struct dquot *dquot, char *name)
 	return 0;
 }
 
-static int rename_file(int type, int fmt, struct mntent *mnt)
+static int rename_file(int type, int fmt, struct mount_entry *mnt)
 {
 	char *qfname, namebuf[PATH_MAX];
 	int ret = 0;
@@ -307,19 +307,19 @@ static int rename_file(int type, int fmt, struct mntent *mnt)
 	return ret;
 }
 
-static int convert_format(int type, struct mntent *mnt)
+static int convert_format(int type, struct mount_entry *mnt)
 {
 	struct quota_handle *qo;
 	int ret = 0;
 	
 	if (!(qo = init_io(mnt, type, infmt, IOI_INITSCAN))) {
 		errstr(_("Cannot open old format file for %ss on %s\n"),
-			type2name(type), mnt->mnt_dir);
+			type2name(type), mnt->me_dir);
 		return -1;
 	}
 	if (!(qn = new_io(mnt, type, outfmt))) {
 		errstr(_("Cannot create file for %ss for new format on %s: %s\n"),
-			type2name(type), mnt->mnt_dir, strerror(errno));
+			type2name(type), mnt->me_dir, strerror(errno));
 		end_io(qo);
 		return -1;
 	}
@@ -332,7 +332,7 @@ static int convert_format(int type, struct mntent *mnt)
 	return ret;
 }
 
-static int convert_endian(int type, struct mntent *mnt)
+static int convert_endian(int type, struct mount_entry *mnt)
 {
 	int ret = 0;
 	int ofd;
@@ -341,7 +341,7 @@ static int convert_endian(int type, struct mntent *mnt)
 	if (get_qf_name(mnt, type, QF_VFSV0, NF_EXIST, &qfname) < 0)
 		return -1;
 	if ((ofd = open(qfname, O_RDONLY)) < 0) {
-		errstr(_("Cannot open old quota file on %s: %s\n"), mnt->mnt_dir, strerror(errno));
+		errstr(_("Cannot open old quota file on %s: %s\n"), mnt->me_dir, strerror(errno));
 		free(qfname);
 		return -1;
 	}
@@ -352,7 +352,7 @@ static int convert_endian(int type, struct mntent *mnt)
 	}
 	if (!(qn = new_io(mnt, type, QF_VFSV0))) {
 		errstr(_("Cannot create file for %ss for new format on %s: %s\n"),
-			type2name(type), mnt->mnt_dir, strerror(errno));
+			type2name(type), mnt->me_dir, strerror(errno));
 		close(ofd);
 		return -1;
 	}
@@ -369,7 +369,7 @@ static int convert_endian(int type, struct mntent *mnt)
 	return rename_file(type, QF_VFSV0, mnt);
 }
 
-static int convert_file(int type, struct mntent *mnt)
+static int convert_file(int type, struct mount_entry *mnt)
 {
 	switch (action) {
 		case ACT_FORMAT:
@@ -383,7 +383,7 @@ static int convert_file(int type, struct mntent *mnt)
 
 int main(int argc, char **argv)
 {
-	struct mntent *mnt;
+	struct mount_entry *mnt;
 	int ret = 0;
 	
 	gettexton();

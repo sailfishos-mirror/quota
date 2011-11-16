@@ -242,7 +242,7 @@ char *fmt2name(int fmt)
 /*
  *	Convert kernel to utility quota format number
  */
-int kern2utilfmt(int kernfmt)
+static int kern2utilfmt(int kernfmt)
 {
 	switch (kernfmt) {
 		case QFMT_VFS_OLD:
@@ -385,41 +385,27 @@ void number2str(unsigned long long num, char *buf, int format)
 }
 
 /*
+ *	Wrappers for mount options processing functions
+ */
+
+/*
  *	Check for XFS filesystem with quota accounting enabled
  */
-static int hasxfsquota(struct mntent *mnt, int type, int flags)
+static int hasxfsquota(const char *dev, struct mntent *mnt, int type, int flags)
 {
-	int ret = 0;
 	u_int16_t sbflags;
 	struct xfs_mem_dqinfo info;
-	const char *dev;
-	char *opt, *endopt;
 
 	if (flags & MS_XFS_DISABLED)
-		return 1;
-
-	dev = get_device_name(mnt->mnt_fsname);
-	if (!dev)
-		return 0;
-	/* Loopback mounted device with a loopback device in the arguments? */
-	if ((opt = hasmntopt(mnt, MNTOPT_LOOP)) && (opt = strchr(opt, '='))) {
-		free((char *)dev);
-		endopt = strchr(opt+1, ',');
-		if (!endopt)
-			dev = strdup(opt+1);
-		else
-			dev = strndup(opt+1, endopt-opt-1);
-		if (!dev)
-			return 0;
-	}
+		return QF_XFS;
 
 	memset(&info, 0, sizeof(struct xfs_mem_dqinfo));
 	if (!quotactl(QCMD(Q_XFS_GETQSTAT, type), dev, 0, (void *)&info)) {
 		sbflags = (info.qs_flags & 0xff00) >> 8;
 		if (type == USRQUOTA && (info.qs_flags & XFS_QUOTA_UDQ_ACCT))
-			ret = 1;
+			return QF_XFS;
 		else if (type == GRPQUOTA && (info.qs_flags & XFS_QUOTA_GDQ_ACCT))
-			ret = 1;
+			return QF_XFS;
 #ifdef XFS_ROOTHACK
 		/*
 		 * Old XFS filesystems (up to XFS 1.2 / Linux 2.5.47) had a
@@ -427,21 +413,58 @@ static int hasxfsquota(struct mntent *mnt, int type, int flags)
 		 * having to specify it at mount time.
 		 */
 		else if (strcmp(mnt->mnt_dir, "/"))
-			ret = 0;
+			return QF_ERROR;
 		else if (type == USRQUOTA && (sbflags & XFS_QUOTA_UDQ_ACCT))
-			ret = 1;
+			return QF_XFS;
 		else if (type == GRPQUOTA && (sbflags & XFS_QUOTA_GDQ_ACCT))
-			ret = 1;
+			return QF_XFS;
 #endif /* XFS_ROOTHACK */
 	}
-	free((char *)dev);
-	return ret;
+
+	return QF_ERROR;
+}
+
+static int hasvfsmetaquota(const char *dev, struct mntent *mnt, int type, int flags)
+{
+	uint32_t fmt;
+
+	if (!quotactl(QCMD(Q_GETFMT, type), dev, 0, (void *)&fmt))
+		return QF_META;
+	return QF_ERROR;
+}
+
+/* Return pointer to given mount option in mount option string */
+char *str_hasmntopt(const char *optstring, const char *opt)
+{
+	const char *p = optstring;
+	const char *s;
+	int len = strlen(opt);
+
+	do {
+		s = p;
+		while (*p && *p != ',' && *p != '=')
+			p++;
+		/* Found option? */
+		if (p - s == len && !strncmp(s, opt, len))
+			return (char *)s;
+		/* Skip mount option argument if there's any */
+		if (*p == '=') {
+			p++;
+			while (*p && *p != ',')
+				p++;
+		}
+		/* Skip separating ',' */
+		if (*p)
+			p++;
+	} while (*p);
+
+	return NULL;
 }
 
 /* Return if given option has nonempty argument */
-char *hasmntoptarg(struct mntent *mnt, char *opt)
+static char *hasmntoptarg(const char *optstring, const char *opt)
 {
-	char *p = hasmntopt(mnt, opt);
+	char *p = str_hasmntopt(optstring, opt);
 
 	if (!p)
 		return NULL;
@@ -451,27 +474,52 @@ char *hasmntoptarg(struct mntent *mnt, char *opt)
 	return NULL;
 }
 
+/* Copy out mount option argument to a buffer */
+static void copy_mntoptarg(char *buf, const char *optarg, int buflen)
+{
+	char *sep = strchr(optarg, ',');
+
+	if (!sep)
+		sstrncpy(buf, optarg, min(buflen, strlen(optarg) + 1));
+	else
+		sstrncpy(buf, optarg, min(buflen, sep - optarg + 1));
+}
+
 /*
  *	Check to see if a particular quota is to be enabled (filesystem mounted with proper option)
  */
-int hasquota(struct mntent *mnt, int type, int flags)
+static int hasquota(const char *dev, struct mntent *mnt, int type, int flags)
 {
-	if (hasmntopt(mnt, MNTOPT_NOQUOTA))
-		return 0;
-	
 	if (!strcmp(mnt->mnt_type, MNTTYPE_GFS2) ||
 	    !strcmp(mnt->mnt_type, MNTTYPE_XFS))
-		return hasxfsquota(mnt, type, flags);
-	if (nfs_fstype(mnt->mnt_type))	/* NFS always has quota or better there is no good way how to detect it */
-		return 1;
+		return hasxfsquota(dev, mnt, type, flags);
+	if (!strcmp(mnt->mnt_type, MNTTYPE_OCFS2))
+		return hasvfsmetaquota(dev, mnt, type, flags);
+	/*
+	 * For ext4 we check whether it has quota in system files and if not,
+	 * we fall back on checking standard quotas. Furthermore we cannot use
+	 * standard GETFMT quotactl because that does not distinguish between
+	 * quota in system file and quota in ordinary file.
+	 */
+	if (!strcmp(mnt->mnt_type, MNTTYPE_EXT4)) {
+		struct if_dqinfo kinfo;
 
-	if ((type == USRQUOTA) && (hasmntopt(mnt, MNTOPT_USRQUOTA) || hasmntoptarg(mnt, MNTOPT_USRJQUOTA)))
-		return 1;
-	if ((type == GRPQUOTA) && (hasmntopt(mnt, MNTOPT_GRPQUOTA) || hasmntoptarg(mnt, MNTOPT_GRPJQUOTA)))
-		return 1;
+		if (quotactl(QCMD(Q_GETINFO, type), dev, 0, (void *)&kinfo) == 0) {
+			if (kinfo.dqi_flags & DQF_SYS_FILE)
+				return QF_META;
+		}
+	}
+	/* NFS always has quota or better there is no good way how to detect it */
+	if (nfs_fstype(mnt->mnt_type))
+		return QF_RPC;
+
+	if ((type == USRQUOTA) && (hasmntopt(mnt, MNTOPT_USRQUOTA) || hasmntoptarg(mnt->mnt_opts, MNTOPT_USRJQUOTA)))
+		return QF_VFSUNKNOWN;
+	if ((type == GRPQUOTA) && (hasmntopt(mnt, MNTOPT_GRPQUOTA) || hasmntoptarg(mnt->mnt_opts, MNTOPT_GRPJQUOTA)))
+		return QF_VFSUNKNOWN;
 	if ((type == USRQUOTA) && hasmntopt(mnt, MNTOPT_QUOTA))
-		return 1;
-	return 0;
+		return QF_VFSUNKNOWN;
+	return -1;
 }
 
 /* Check whether quotafile for given format exists - return its name in namebuf */
@@ -513,36 +561,36 @@ static int check_fmtfile_ok(char *name, int type, int fmt, int flags)
  * 	otherwise return -1.
  *	Note that formats without quotafile *must* be detected prior to calling this function
  */
-int get_qf_name(struct mntent *mnt, int type, int fmt, int flags, char **filename)
+int get_qf_name(struct mount_entry *mnt, int type, int fmt, int flags, char **filename)
 {
 	char *option, *pathname, has_quota_file_definition = 0;
 	char qfullname[PATH_MAX];
 
 	qfullname[0] = 0;
-	if (type == USRQUOTA && (option = hasmntopt(mnt, MNTOPT_USRQUOTA))) {
+	if (type == USRQUOTA && (option = str_hasmntopt(mnt->me_opts, MNTOPT_USRQUOTA))) {
 		if (*(pathname = option + strlen(MNTOPT_USRQUOTA)) == '=')
 			has_quota_file_definition = 1;
 	}
-	else if (type == USRQUOTA && (option = hasmntoptarg(mnt, MNTOPT_USRJQUOTA))) {
+	else if (type == USRQUOTA && (option = hasmntoptarg(mnt->me_opts, MNTOPT_USRJQUOTA))) {
 		pathname = option;
 		has_quota_file_definition = 1;
-		sstrncpy(qfullname, mnt->mnt_dir, sizeof(qfullname));
+		sstrncpy(qfullname, mnt->me_dir, sizeof(qfullname));
 		sstrncat(qfullname, "/", sizeof(qfullname));
 	}
-	else if (type == GRPQUOTA && (option = hasmntopt(mnt, MNTOPT_GRPQUOTA))) {
+	else if (type == GRPQUOTA && (option = str_hasmntopt(mnt->me_opts, MNTOPT_GRPQUOTA))) {
 		pathname = option + strlen(MNTOPT_GRPQUOTA);
 		if (*pathname == '=') {
 			has_quota_file_definition = 1;
 			pathname++;
 		}
 	}
-	else if (type == GRPQUOTA && (option = hasmntoptarg(mnt, MNTOPT_GRPJQUOTA))) {
+	else if (type == GRPQUOTA && (option = hasmntoptarg(mnt->me_opts, MNTOPT_GRPJQUOTA))) {
 		pathname = option;
 		has_quota_file_definition = 1;
-		sstrncpy(qfullname, mnt->mnt_dir, sizeof(qfullname));
+		sstrncpy(qfullname, mnt->me_dir, sizeof(qfullname));
 		sstrncat(qfullname, "/", sizeof(qfullname));
 	}
-	else if (type == USRQUOTA && (option = hasmntopt(mnt, MNTOPT_QUOTA))) {
+	else if (type == USRQUOTA && (option = str_hasmntopt(mnt->me_opts, MNTOPT_QUOTA))) {
 		pathname = option + strlen(MNTOPT_QUOTA);
 		if (*pathname == '=') {
 			has_quota_file_definition = 1;
@@ -553,14 +601,11 @@ int get_qf_name(struct mntent *mnt, int type, int fmt, int flags, char **filenam
 		return -1;
 
 	if (has_quota_file_definition) {
-		if ((option = strchr(pathname, ','))) {
-			int tocopy = min(option - pathname + 1,
-					 sizeof(qfullname) - strlen(qfullname));
-			sstrncpy(qfullname + strlen(qfullname), pathname, tocopy);
-		} else
-			sstrncat(qfullname, pathname, sizeof(qfullname));
+		int len = strlen(qfullname);
+
+		copy_mntoptarg(qfullname + len, pathname, sizeof(qfullname) - len);
 	} else {
-		snprintf(qfullname, PATH_MAX, "%s/%s.%s", mnt->mnt_dir,
+		snprintf(qfullname, PATH_MAX, "%s/%s.%s", mnt->me_dir,
 			 basenames[fmt], extensions[type]);
 	}
 	if (check_fmtfile_ok(qfullname, type, fmt, flags)) {
@@ -579,7 +624,7 @@ int get_qf_name(struct mntent *mnt, int type, int fmt, int flags, char **filenam
 struct quota_handle **create_handle_list(int count, char **mntpoints, int type, int fmt,
 					 int ioflags, int mntflags)
 {
-	struct mntent *mnt;
+	struct mount_entry *mnt;
 	int gotmnt = 0;
 	static int hlist_allocated = 0;
 	static struct quota_handle **hlist = NULL;
@@ -613,18 +658,18 @@ add_entry:
 		else {
 			switch (fmt) {
 			case QF_RPC:
-				if (nfs_fstype(mnt->mnt_type))
+				if (nfs_fstype(mnt->me_type))
 					goto add_entry;
 				break;
 			case QF_XFS:
-				if (!strcmp(mnt->mnt_type, MNTTYPE_XFS) ||
-				    !strcmp(mnt->mnt_type, MNTTYPE_GFS2))
+				if (!strcmp(mnt->me_type, MNTTYPE_XFS) ||
+				    !strcmp(mnt->me_type, MNTTYPE_GFS2))
 					goto add_entry;
 				break;
 			default:
-				if (strcmp(mnt->mnt_type, MNTTYPE_XFS) &&
-				    strcmp(mnt->mnt_type, MNTTYPE_GFS2) &&
-				    !nfs_fstype(mnt->mnt_type))
+				if (strcmp(mnt->me_type, MNTTYPE_XFS) &&
+				    strcmp(mnt->me_type, MNTTYPE_GFS2) &&
+				    !nfs_fstype(mnt->me_type))
 					goto add_entry;
 				break;
 			}
@@ -818,13 +863,30 @@ static int xfs_kern_quota_on(const char *dev, int type)
 /*
  *	Check whether is quota turned on on given device for given type
  */
-int kern_quota_on(const char *dev, int type, int fmt)
+int kern_quota_on(struct mount_entry *mnt, int type, int fmt)
 {
+	if (mnt->me_qfmt[type] < 0)
+		return -1;
+	if (fmt == QF_RPC)
+		return -1;
+	if (mnt->me_qfmt[type] == QF_XFS) {
+		if ((fmt == -1 || fmt == QF_XFS) &&
+	    	    xfs_kern_quota_on(mnt->me_devname, type))	/* XFS quota format */
+			return QF_XFS;
+		return -1;
+	}
+	/* No more chances for XFS format to succeed... */
+	if (fmt == QF_XFS)
+		return -1;
+	/* Meta format is always enabled */
+	if (mnt->me_qfmt[type] == QF_META)
+		return QF_META;
+
 	/* Check whether quota is turned on... */
 	if (kernel_iface == IFACE_GENERIC) {
 		int actfmt;
 
-		if (quotactl(QCMD(Q_GETFMT, type), dev, 0,
+		if (quotactl(QCMD(Q_GETFMT, type), mnt->me_devname, 0,
 			     (void *)&actfmt) >= 0) {
 			actfmt = kern2utilfmt(actfmt);
 			if (actfmt >= 0)
@@ -832,15 +894,12 @@ int kern_quota_on(const char *dev, int type, int fmt)
 		}
 	} else {
 		if ((fmt == -1 || fmt == QF_VFSV0) &&
-		    v2_kern_quota_on(dev, type))	/* VFSv0 quota format */
+		    v2_kern_quota_on(mnt->me_devname, type))
 			return QF_VFSV0;
 		if ((fmt == -1 || fmt == QF_VFSOLD) &&
-		    v1_kern_quota_on(dev, type))	/* Old quota format */
+		    v1_kern_quota_on(mnt->me_devname, type))
 			return QF_VFSOLD;
 	}
-	if ((fmt == -1 || fmt == QF_XFS) &&
-	    xfs_kern_quota_on(dev, type))	/* XFS quota format */
-		return QF_XFS;
 	return -1;
 }
 
@@ -849,15 +908,6 @@ int kern_quota_on(const char *dev, int type, int fmt)
  *	mtab/fstab handling routines
  *
  */
-
-struct mount_entry {
-	char *me_type;		/* Type of filesystem for given entry */
-	char *me_opts;		/* Options of filesystem */
-	dev_t me_dev;		/* Device filesystem is mounted on */
-	ino_t me_ino;		/* Inode number of root of filesystem */
-	const char *me_devname;	/* Name of device (after pass through get_device_name()) */
-	const char *me_dir;	/* One of mountpoints of filesystem */
-};
 
 struct searched_dir {
 	int sd_dir;		/* Is searched dir mountpoint or in fact device? */
@@ -906,6 +956,8 @@ alloc:
 	allocated += ALLOC_ENTRIES_NUM;
 	while ((mnt = getmntent(mntf))) {
 		const char *devname;
+		char *opt;
+		int qfmt[MAXQUOTAS];
 
 		if (!(devname = get_device_name(mnt->mnt_fsname))) {
 			errstr(_("Cannot get device name for %s\n"), mnt->mnt_fsname);
@@ -936,10 +988,27 @@ alloc:
 			free((char *)devname);
 			continue;
 		}
+		if (hasmntopt(mnt, MNTOPT_NOQUOTA)) {
+			free((char *)devname);
+			continue;
+		}
+		if (hasmntopt(mnt, MNTOPT_BIND)) {
+			free((char *)devname);
+			continue;	/* We just ignore bind mounts... */
+		}
+		if ((opt = hasmntoptarg(mnt->mnt_opts, MNTOPT_LOOP))) {
+			char loopdev[PATH_MAX];
+
+			copy_mntoptarg(opt, loopdev, PATH_MAX);
+			free((char *)devname);
+			devname = sstrdup(loopdev);
+		}
 
 		/* Further we are not interested in mountpoints without quotas and
 		   we don't want to touch them */
-		if (!hasquota(mnt, USRQUOTA, flags) && !hasquota(mnt, GRPQUOTA, flags)) {
+		qfmt[USRQUOTA] = hasquota(devname, mnt, USRQUOTA, flags);
+		qfmt[GRPQUOTA] = hasquota(devname, mnt, GRPQUOTA, flags);
+		if (qfmt[USRQUOTA] < 0 && qfmt[GRPQUOTA] < 0) {
 			free((char *)devname);
 			continue;
 		}
@@ -967,50 +1036,12 @@ alloc:
 				free((char *)devname);
 				continue;
 			}
-			if (!S_ISBLK(st.st_mode) && !S_ISCHR(st.st_mode) && !S_ISREG(st.st_mode) && !S_ISDIR(st.st_mode)) {
-				unsupporteddev:
+			if (!S_ISBLK(st.st_mode) && !S_ISCHR(st.st_mode)) {
 				errstr(_("Device (%s) filesystem is mounted on unsupported device type. Skipping.\n"), devname);
 				free((char *)devname);
 				continue;
-			} else {
-				char *opt;
-				
-				if (hasmntopt(mnt, MNTOPT_BIND)) {
-					free((char *)devname);
-					continue;	/* We just ignore bind mounts... */
-				}
-				else if ((opt = hasmntopt(mnt, MNTOPT_LOOP))) {
-					char loopdev[PATH_MAX];
-					int i;
-
-					if (!(opt = strchr(opt, '='))) {
-						errstr(_("Cannot find device of loopback mount in options for %s. Skipping.\n"), devname);
-						free((char *)devname);
-						continue;
-					}
-					/* Copy the device name */
-					for (opt++, i = 0; *opt && i < sizeof(loopdev)-1 && *opt != ','; opt++, i++)
-						loopdev[i] = *opt;
-					loopdev[i] = 0;
-					if (stat(loopdev, &st) < 0) {	/* Can't stat loopback device? */
-						errstr(_("Cannot stat() loopback device %s: %s\n"), opt, strerror(errno));
-						free((char *)devname);
-						continue;
-					}
-					if (!S_ISBLK(st.st_mode)) {
-						errstr(_("Loopback device %s is not block device!\n"), opt);
-						free((char *)devname);
-						continue;
-					}
-					dev = st.st_rdev;
-					free((char *)devname);
-					devname = sstrdup(loopdev);
-				} else {
-					if (!S_ISBLK(st.st_mode) && !S_ISCHR(st.st_mode))
-						goto unsupporteddev;
-					dev = st.st_rdev;
-				}
 			}
+			dev = st.st_rdev;
 			for (i = 0; i < mnt_entries_cnt && mnt_entries[i].me_dev != dev; i++);
 		}
 		/* Cope with network filesystems or new mountpoint */
@@ -1040,7 +1071,9 @@ alloc:
 			mnt_entries[i].me_dev = dev;
 			mnt_entries[i].me_ino = st.st_ino;
 			mnt_entries[i].me_devname = devname;
-			mnt_entries[i].me_dir = sstrdup(mntpointbuf);
+			mnt_entries[i].me__dir = sstrdup(mntpointbuf);
+			mnt_entries[i].me_dir = NULL;
+			memcpy(&mnt_entries[i].me_qfmt, qfmt, sizeof(qfmt));
 			mnt_entries_cnt++;
 		}
 		else 
@@ -1059,7 +1092,7 @@ static const char *find_dir_mntpoint(struct stat *st)
 	for (i = 0; i < mnt_entries_cnt; i++)
 		if (mnt_entries[i].me_dev == st->st_dev) {
 			st->st_ino = mnt_entries[i].me_ino;
-			return mnt_entries[i].me_dir;
+			return mnt_entries[i].me__dir;
 		}
 	return NULL;
 }
@@ -1122,7 +1155,7 @@ static int process_dirs(int dcnt, char **dirs, int flags)
 						errstr(_("Cannot find mountpoint for device %s\n"), dirs[i]);
 					continue;
 				}
-				sstrncpy(mntpointbuf, mnt_entries[mentry].me_dir, PATH_MAX-1);
+				sstrncpy(mntpointbuf, mnt_entries[mentry].me__dir, PATH_MAX-1);
 			}
 			else {
 				errstr(_("Specified path %s is not directory nor device.\n"), dirs[i]);
@@ -1158,14 +1191,8 @@ int init_mounts_scan(int dcnt, char **dirs, int flags)
 /* Find next usable mountpoint when scanning all mountpoints */
 static int find_next_entry_all(int *pos)
 {
-	struct mntent mnt;
-
 	while (++act_checked < mnt_entries_cnt) {
-		mnt.mnt_fsname = (char *)mnt_entries[act_checked].me_devname;
-		mnt.mnt_type = mnt_entries[act_checked].me_type;
-		mnt.mnt_opts = mnt_entries[act_checked].me_opts;
-		mnt.mnt_dir = (char *)mnt_entries[act_checked].me_dir;
-		if (!hasmntopt(&mnt, MNTOPT_NOAUTO))
+		if (!str_hasmntopt(mnt_entries[act_checked].me_opts, MNTOPT_NOAUTO))
 			break;
 	}
 	if (act_checked >= mnt_entries_cnt)
@@ -1204,25 +1231,21 @@ restart:
 /*
  *	Return next directory from the list
  */
-struct mntent *get_next_mount(void)
+struct mount_entry *get_next_mount(void)
 {
-	static struct mntent mnt;
 	int mntpos;
 
 	if (!check_dirs_cnt) {	/* Scan all mountpoints? */
 		if (!find_next_entry_all(&mntpos))
 			return NULL;
-		mnt.mnt_dir = (char *)mnt_entries[mntpos].me_dir;
+		mnt_entries[mntpos].me_dir = mnt_entries[mntpos].me__dir;
 	}
 	else {
 		if (!find_next_entry_sel(&mntpos))
 			return NULL;
-		mnt.mnt_dir = (char *)check_dirs[act_checked].sd_name;
+		mnt_entries[mntpos].me_dir = check_dirs[act_checked].sd_name;
 	}
-	mnt.mnt_fsname = (char *)mnt_entries[mntpos].me_devname;
-	mnt.mnt_type = mnt_entries[mntpos].me_type;
-	mnt.mnt_opts = mnt_entries[mntpos].me_opts;
-	return &mnt;
+	return &mnt_entries[mntpos];
 }
 
 /*
@@ -1236,7 +1259,7 @@ void end_mounts_scan(void)
 		free(mnt_entries[i].me_type);
 		free(mnt_entries[i].me_opts);
 		free((char *)mnt_entries[i].me_devname);
-		free((char *)mnt_entries[i].me_dir);
+		free((char *)mnt_entries[i].me__dir);
 	}
 	free(mnt_entries);
 	mnt_entries = NULL;

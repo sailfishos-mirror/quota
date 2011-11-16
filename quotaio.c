@@ -37,19 +37,16 @@ struct disk_dqheader {
 /*
  *	Detect quota format and initialize quota IO
  */
-struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
+struct quota_handle *init_io(struct mount_entry *mnt, int type, int fmt, int flags)
 {
 	char *qfname = NULL;
 	int fd = -1, kernfmt;
 	struct quota_handle *h = smalloc(sizeof(struct quota_handle));
-	const char *mnt_fsname = NULL;
 	int nameflag;
 
-	if (!hasquota(mnt, type, 0))
+	if (!me_hasquota(mnt, type))
 		goto out_handle;
-	if (!(mnt_fsname = get_device_name(mnt->mnt_fsname)))
-		goto out_handle;
-	if (stat(mnt_fsname, &h->qh_stat) < 0)
+	if (stat(mnt->me_devname, &h->qh_stat) < 0)
 		memset(&h->qh_stat, 0, sizeof(struct stat));
 	h->qh_io_flags = 0;
 	if (flags & IOI_READONLY)
@@ -57,11 +54,10 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 	if (flags & IOI_NFS_MIXED_PATHS)
 		h->qh_io_flags |= IOFL_NFS_MIXED_PATHS;
 	h->qh_type = type;
-	sstrncpy(h->qh_quotadev, mnt_fsname, sizeof(h->qh_quotadev));
-	free((char *)mnt_fsname);
-	sstrncpy(h->qh_fstype, mnt->mnt_type, MAX_FSTYPE_LEN);
-	sstrncpy(h->qh_dir, mnt->mnt_dir, PATH_MAX);
-	if (nfs_fstype(mnt->mnt_type)) {	/* NFS filesystem? */
+	sstrncpy(h->qh_quotadev, mnt->me_devname, sizeof(h->qh_quotadev));
+	sstrncpy(h->qh_fstype, mnt->me_type, MAX_FSTYPE_LEN);
+	sstrncpy(h->qh_dir, mnt->me_dir, PATH_MAX);
+	if (nfs_fstype(mnt->me_type)) {	/* NFS filesystem? */
 		if (fmt != -1 && fmt != QF_RPC) {	/* User wanted some other format? */
 			errstr(_("Only RPC quota format is allowed on NFS filesystem.\n"));
 			goto out_handle;
@@ -82,8 +78,8 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 		goto out_handle;
 	}
 
-	if (!strcmp(mnt->mnt_type, MNTTYPE_XFS) ||	/* XFS filesystem? */
-	    !strcmp(mnt->mnt_type, MNTTYPE_GFS2)) {	/* XFS filesystem? */
+	if (!strcmp(mnt->me_type, MNTTYPE_XFS) ||	/* XFS filesystem? */
+	    !strcmp(mnt->me_type, MNTTYPE_GFS2)) {	/* XFS filesystem? */
 		if (fmt != -1 && fmt != QF_XFS) {	/* User wanted some other format? */
 			errstr(_("Only XFS quota format is allowed on XFS filesystem.\n"));
 			goto out_handle;
@@ -101,14 +97,14 @@ struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags)
 	}
 	if (kern_qfmt_supp(fmt)) {	/* Quota compiled and desired format available? */
 		/* Quota turned on? */
-		kernfmt = kern_quota_on(h->qh_quotadev, type, fmt);
+		kernfmt = kern_quota_on(mnt, type, fmt);
 		if (kernfmt >= 0) {
 			h->qh_io_flags |= IOFL_QUOTAON;
 			fmt = kernfmt;	/* Default is kernel used format */
 		}
 	}
 
-	if (meta_qf_fstype(mnt->mnt_type)) {
+	if (meta_qf_fstype(mnt->me_type) || mnt->me_qfmt[type] == QF_META) {
 		if (!QIO_ENABLED(h)) {
 			errstr(_("Quota not supported by the filesystem.\n"));
 			goto out_handle;
@@ -193,19 +189,28 @@ out_handle:
 /*
  *	Create new quotafile of specified format on given filesystem
  */
-struct quota_handle *new_io(struct mntent *mnt, int type, int fmt)
+struct quota_handle *new_io(struct mount_entry *mnt, int type, int fmt)
 {
 	char *qfname;
 	int fd;
 	struct quota_handle *h;
-	const char *mnt_fsname;
 	char namebuf[PATH_MAX];
 
 	if (fmt == -1)
 		fmt = QF_VFSV0;
-	else if (fmt == QF_RPC || fmt == QF_XFS || meta_qf_fstype(mnt->mnt_type)) {
+	else if (fmt == QF_RPC || fmt == QF_XFS) {
 		errstr(_("Creation of %s quota format is not supported.\n"),
 			fmt2name(fmt));
+		return NULL;
+	}
+	/*
+	 * For filesystems which never have quotas in quota files or for
+ 	 * filesystems which have quotas already stored in system files we
+	 * refuse to create anything.
+	 */
+ 	if (meta_qf_fstype(mnt->me_type) || mnt->me_qfmt[type] == QF_META) {
+		errstr(_("Quota on %s is stored in system files and must"
+			 " be manipulated by fs tools.\n"), mnt->me_dir);
 		return NULL;
 	}
 	if (get_qf_name(mnt, type, fmt, 0, &qfname) < 0)
@@ -218,16 +223,13 @@ struct quota_handle *new_io(struct mntent *mnt, int type, int fmt)
 			namebuf, strerror(errno));
 		return NULL;
 	}
-	if (!(mnt_fsname = get_device_name(mnt->mnt_fsname)))
-		goto out_fd;
 	h = smalloc(sizeof(struct quota_handle));
 
 	h->qh_fd = fd;
 	h->qh_io_flags = 0;
-	sstrncpy(h->qh_quotadev, mnt_fsname, sizeof(h->qh_quotadev));
-	sstrncpy(h->qh_fstype, mnt->mnt_type, MAX_FSTYPE_LEN);
-	sstrncpy(h->qh_dir, mnt->mnt_dir, PATH_MAX);
-	free((char *)mnt_fsname);
+	sstrncpy(h->qh_quotadev, mnt->me_devname, sizeof(h->qh_quotadev));
+	sstrncpy(h->qh_fstype, mnt->me_type, MAX_FSTYPE_LEN);
+	sstrncpy(h->qh_dir, mnt->me_dir, PATH_MAX);
 	h->qh_type = type;
 	h->qh_fmt = fmt;
 	memset(&h->qh_info, 0, sizeof(h->qh_info));

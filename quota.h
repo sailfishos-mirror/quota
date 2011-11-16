@@ -95,6 +95,8 @@ struct if_dqblk {
 #define IIF_FLAGS	4
 #define IIF_ALL		(IIF_BGRACE | IIF_IGRACE | IIF_FLAGS)
 
+#define DQF_SYS_FILE	0x10000		/* Quota stored in a system file */
+
 struct if_dqinfo {
 	u_int64_t dqi_bgrace;
 	u_int64_t dqi_igrace;

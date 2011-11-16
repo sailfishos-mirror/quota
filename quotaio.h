@@ -40,6 +40,7 @@
 #define QF_RPC 3		/* RPC should be used on given filesystem */
 #define QF_XFS 4		/* XFS quota format */
 #define QF_META 5		/* Quota files are hidden, we don't care about the format */
+#define QF_VFSUNKNOWN 6		/* Some VFS quotas, we didn't detect particular format yet */
 
 static inline int is_tree_qfmt(int fmt)
 {
@@ -164,11 +165,13 @@ static inline void mark_quotafile_info_dirty(struct quota_handle *h)
 #define QIO_ENABLED(h)	((h)->qh_io_flags & IOFL_QUOTAON)
 #define QIO_RO(h)	((h)->qh_io_flags & IOFL_RO)
 
+struct mount_entry;
+
 /* Check quota format used on specified medium and initialize it */
-struct quota_handle *init_io(struct mntent *mnt, int type, int fmt, int flags);
+struct quota_handle *init_io(struct mount_entry *mnt, int type, int fmt, int flags);
 
 /* Create new quotafile of specified format on given filesystem */
-struct quota_handle *new_io(struct mntent *mnt, int type, int fmt);
+struct quota_handle *new_io(struct mount_entry *mnt, int type, int fmt);
 
 /* Close quotafile */
 int end_io(struct quota_handle *h);

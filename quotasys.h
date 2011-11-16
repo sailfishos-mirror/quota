@@ -36,6 +36,17 @@
 /* Supported kernel interface */
 extern int kernel_iface;
 
+struct mount_entry {
+	char *me_type;		/* Type of filesystem for given entry */
+	char *me_opts;		/* Options of filesystem */
+	dev_t me_dev;		/* Device filesystem is mounted on */
+	ino_t me_ino;		/* Inode number of root of filesystem */
+	const char *me_devname;	/* Name of device (after pass through get_device_name()) */
+	const char *me__dir;	/* One mountpoint of a filesystem (strdup()ed) */
+	const char *me_dir;	/* Current mountpoint of a filesystem to process */
+	int me_qfmt[MAXQUOTAS];	/* Detected quota formats */
+};
+
 /*
  *	Exported functions
  */
@@ -95,18 +106,23 @@ void space2str(qsize_t, char *, int);
 /* Convert number to short printable form */
 void number2str(unsigned long long, char *, int);
 
-/* Check to see if particular quota is to be enabled */
-/* Recognizes MS_XFS_DISABLED flag */
-int hasquota(struct mntent *mnt, int type, int flags);
+/* Return pointer to given mount option in mount option string */
+char *str_hasmntopt(const char *optstring, const char *opt);
+
+/* Check to see if particular quota type is configured */
+static inline int me_hasquota(struct mount_entry *mnt, int type)
+{
+	return mnt->me_qfmt[type] >= 0;
+}
 
 /* Flags for get_qf_name() */
 #define NF_EXIST  1	/* Check whether file exists */
 #define NF_FORMAT 2	/* Check whether file is in proper format */
 /* Get quotafile name for given entry */
-int get_qf_name(struct mntent *mnt, int type, int fmt, int flags, char **filename);
+int get_qf_name(struct mount_entry *mnt, int type, int fmt, int flags, char **filename);
 
 /* Detect newest quota format with existing file */
-int detect_quota_files(struct mntent *mnt, int type, int fmt);
+int detect_quota_files(struct mount_entry *mnt, int type, int fmt);
 
 /* Create NULL-terminated list of handles for quotafiles for given mountpoints */
 struct quota_handle **create_handle_list(int count, char **mntpoints, int type, int fmt,
@@ -124,7 +140,7 @@ int devcmp_handles(struct quota_handle *a, struct quota_handle *b);
 void init_kernel_interface(void);
 
 /* Check whether is quota turned on on given device for given type */
-int kern_quota_on(const char *dev, int type, int fmt);
+int kern_quota_on(struct mount_entry *mnt, int type, int fmt);
 
 /* Return whether kernel is able to handle given format */
 int kern_qfmt_supp(int fmt);
@@ -141,7 +157,7 @@ int kern_qfmt_supp(int fmt);
 int init_mounts_scan(int dcnt, char **dirs, int flags);
 
 /* Return next mountpoint for scan */
-struct mntent *get_next_mount(void);
+struct mount_entry *get_next_mount(void);
 
 /* Free all structures associated with mountpoints scan */
 void end_mounts_scan(void);

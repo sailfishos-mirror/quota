@@ -73,8 +73,8 @@ char *progname;
 
 static void mounttable(void);
 static char *idname(__uint32_t, int);
-static void report(const char *, char *, int);
-static void creport(const char *, char *);
+static void report(const char *, const char *, int);
+static void creport(const char *, const char *);
 
 static void usage(void)
 {
@@ -139,20 +139,20 @@ int main(int argc, char **argv)
 static void mounttable(void)
 {
 	int doit = 0;
-	struct mntent *mntp;
+	struct mount_entry *mntp;
 
 	while ((mntp = get_next_mount())) {
 		/* Currently, only XFS is implemented... */
-		if (strcmp(mntp->mnt_type, MNTTYPE_XFS) == 0) {
-			checkXFS(mntp->mnt_fsname, mntp->mnt_dir);
+		if (strcmp(mntp->me_type, MNTTYPE_XFS) == 0) {
+			checkXFS(mntp->me_devname, mntp->me_dir);
 			doit = 1;
 		}
 		/* ...additional filesystems types here. */
 
 		if (doit) {
-			if (cflag) creport(mntp->mnt_fsname, mntp->mnt_dir);
-			if (!cflag && uflag) report(mntp->mnt_fsname, mntp->mnt_dir, 0);
-			if (!cflag && gflag) report(mntp->mnt_fsname, mntp->mnt_dir, 1);
+			if (cflag) creport(mntp->me_devname, mntp->me_dir);
+			if (!cflag && uflag) report(mntp->me_devname, mntp->me_dir, 0);
+			if (!cflag && gflag) report(mntp->me_devname, mntp->me_dir, 1);
 		}
 	}
 }
@@ -170,7 +170,7 @@ static int qcmp(du_t * p1, du_t * p2)
 	return 0;
 }
 
-static void creport(const char *file, char *fsdir)
+static void creport(const char *file, const char *fsdir)
 {
 	int i;
 	__uint64_t t = 0;
@@ -188,7 +188,7 @@ static void creport(const char *file, char *fsdir)
                (unsigned long long) (overflow + t));
 }
 
-static void report(const char *file, char *fsdir, int type)
+static void report(const char *file, const char *fsdir, int type)
 {
 	du_t *dp;
 
@@ -334,7 +334,7 @@ static void acctXFS(xfs_bstat_t *p)
 	}
 }
 
-static void checkXFS(const char *file, char *fsdir)
+static void checkXFS(const char *file, const char *fsdir)
 {
 	xfs_fsop_bulkreq_t bulkreq;
 	__u64 last = 0;

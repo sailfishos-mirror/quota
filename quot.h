@@ -106,7 +106,7 @@ typedef struct xfs_fsop_bulkreq {
 #endif
 
 #define NBSTAT  4069		/* XFS bulkstat inodes */
-static void checkXFS(const char *file, char *fsdir);
+static void checkXFS(const char *file, const char *fsdir);
 
 /*
  *	=== End of XFS specific types and definitions ===
