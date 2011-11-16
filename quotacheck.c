@@ -1092,6 +1092,39 @@ static int compatible_fs_qfmt(char *fstype, int fmt)
 	return !!strcmp(fstype, MNTTYPE_GFS2);
 }
 
+/* Parse kernel version and warn if not using journaled quotas */
+static void warn_if_jquota_supported(void)
+{
+	struct utsname stats;
+	int v;
+	char *errch;
+
+	if (uname(&stats) < 0) {
+		errstr(_("Cannot get system info: %s\n"), strerror(errno));
+		return;
+	}
+	if (strcmp(stats.sysname, "Linux"))
+		return;
+
+	v = strtol(stats.release, &errch, 10);
+	if (v < 2)
+		return;
+	if (v >= 3)
+		goto warn;
+	if (*errch != '.')
+		return;
+	v = strtol(errch + 1, &errch, 10);
+	if (*errch != '.' || v < 6)
+		return;
+	v = strtol(errch + 1, &errch, 10);
+	if (v < 11)
+		return;
+warn:
+	errstr(_("Your kernel probably supports journaled quota but you are "
+		 "not using it. Consider switching to journaled quota to avoid"
+		 " running quotacheck after an unclean shutdown.\n"));
+}
+
 /* Return 0 in case of success, non-zero otherwise. */
 static int check_all(void)
 {
@@ -1138,28 +1171,8 @@ static int check_all(void)
 		     !strcmp(mnt->mnt_type, MNTTYPE_NEXT3) ||
 		     !strcmp(mnt->mnt_type, MNTTYPE_EXT4DEV) ||
 		     !strcmp(mnt->mnt_type, MNTTYPE_REISER))) {
-			struct utsname stats;
-
-			/* Parse Linux kernel version and issue warning if not using
-			 * journaled quotas. */
 			warned = 1;
-			if (uname(&stats) < 0)
-				errstr(_("Cannot get system info: %s\n"),
-					strerror(errno));
-			else if (!strcmp(stats.sysname, "Linux")) {
-				int v;
-				char *errch;
-
-				v = strtol(stats.release, &errch, 10);
-				if (*errch == '.' && v >= 2) {
-					v = strtol(errch + 1, &errch, 10);
-					if (*errch == '.' && v >= 6) {
-						v = strtol(errch + 1, &errch, 10);
-						if (v >= 11)
-							errstr(_("Your kernel probably supports journaled quota but you are not using it. Consider switching to journaled quota to avoid running quotacheck after an unclean shutdown.\n"));
-					}
-				}
-			}
+			warn_if_jquota_supported();
 		}
 
 		checked++;
