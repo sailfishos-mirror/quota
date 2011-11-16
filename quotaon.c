@@ -248,8 +248,7 @@ static int v1_newstate(struct mntent *mnt, int type, char *file, int flags, int 
 		return 1;
 	if ((flags & STATEFLAG_OFF) && hasmntopt(mnt, MNTOPT_RSQUASH))
 		errs += quotarsquashonoff(dev, type, flags);
-	if (hasquota(mnt, type, 0))
-		errs += quotaonoff((char *)dev, mnt->mnt_dir, file, type, QF_VFSOLD, flags);
+	errs += quotaonoff((char *)dev, mnt->mnt_dir, file, type, QF_VFSOLD, flags);
 	if ((flags & STATEFLAG_ON) && hasmntopt(mnt, MNTOPT_RSQUASH))
 		errs += quotarsquashonoff(dev, type, flags);
 	free((char *)dev);
@@ -266,8 +265,7 @@ static int v2_newstate(struct mntent *mnt, int type, char *file, int flags, int 
 
 	if (!dev)
 		return 1;
-	if (hasquota(mnt, type, 0))
-		errs = quotaonoff((char *)dev, mnt->mnt_dir, file, type, fmt, flags);
+	errs = quotaonoff((char *)dev, mnt->mnt_dir, file, type, fmt, flags);
 	free((char *)dev);
 	return errs;
 }
