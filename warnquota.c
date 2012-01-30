@@ -939,7 +939,7 @@ static struct quota_handle *find_handle_dev(char *dev, struct quota_handle **han
 	return handles[i];
 }
 
-static void warn_quota(void)
+static void warn_quota(int fs_count, char **fs)
 {
 	struct quota_handle **handles;
 	struct configparams config;
@@ -951,7 +951,7 @@ static void warn_quota(void)
 		wc_exit(1);
 
 	if (flags & FL_USER) {
-		handles = create_handle_list(0, NULL, USRQUOTA, -1, IOI_READONLY | IOI_INITSCAN, MS_LOCALONLY | (flags & FL_NOAUTOFS ? MS_NO_AUTOFS : 0));
+		handles = create_handle_list(fs_count, fs, USRQUOTA, -1, IOI_READONLY | IOI_INITSCAN, MS_LOCALONLY | (flags & FL_NOAUTOFS ? MS_NO_AUTOFS : 0));
 		if (!maildev[0] || !strcasecmp(maildev, "any"))
 			maildev_handle = NULL;
 		else
@@ -963,7 +963,7 @@ static void warn_quota(void)
 	if (flags & FL_GROUP) {
 		if (get_groupadmins() < 0)
 			wc_exit(1);
-		handles = create_handle_list(0, NULL, GRPQUOTA, -1, IOI_READONLY | IOI_INITSCAN, MS_LOCALONLY | (flags & FL_NOAUTOFS ? MS_NO_AUTOFS : 0));
+		handles = create_handle_list(fs_count, fs, GRPQUOTA, -1, IOI_READONLY | IOI_INITSCAN, MS_LOCALONLY | (flags & FL_NOAUTOFS ? MS_NO_AUTOFS : 0));
 		if (!maildev[0] || !strcasecmp(maildev, "any"))
 			maildev_handle = NULL;
 		else
@@ -979,7 +979,7 @@ static void warn_quota(void)
 /* Print usage information */
 static void usage(void)
 {
-	errstr(_("Usage:\n  warnquota [-ugsid] [-F quotaformat] [-c configfile] [-q quotatabfile] [-a adminsfile]\n\n\
+	errstr(_("Usage:\n  warnquota [-ugsid] [-F quotaformat] [-c configfile] [-q quotatabfile] [-a adminsfile] [filesystem...]\n\n\
 -u, --user                      warn users\n\
 -g, --group                     warn groups\n\
 -s, --human-readable            send information in more human friendly units\n\
@@ -1073,7 +1073,7 @@ int main(int argc, char **argv)
 
 	parse_options(argc, argv);
 	init_kernel_interface();
-	warn_quota();
+	warn_quota(argc - optind, argc > optind ? argv + optind : NULL);
 
 	wc_exit(0);
 	return 0;

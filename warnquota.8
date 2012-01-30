@@ -17,12 +17,14 @@ warnquota \- send mail to users over quota
 ] [
 .B \-a
 .I adminsfile
+] [
+.I filesystem...
 ]
 .SH DESCRIPTION
 .B warnquota
-checks the disk quota for each local filesystem and mails a warning
-message to those users who have reached their softlimit.
-It is typically run via
+checks the disk quota for specified local filesystems (or for each local
+filesystem if none specified) and mails a warning message to those users who
+have reached their softlimit.  It is typically run via
 .BR cron (8).
 .TP
 .B -F, --format=\f2quotaformat\f1
