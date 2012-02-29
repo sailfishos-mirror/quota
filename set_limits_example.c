@@ -30,7 +30,7 @@ static int copy_user_quota_limits(const char *block_device, uid_t from, uid_t to
 	}
 }
 
-static int copy_group_quota_limits(const char *block_device, gid_t from, gid_t to)
+tatic int copy_group_quota_limits(const char *block_device, gid_t from, gid_t to)
 {
 	struct dqblk dq;
 
@@ -40,14 +40,14 @@ static int copy_group_quota_limits(const char *block_device, gid_t from, gid_t t
 		}
 		else {
 			errstr(
-				_("copy_group_quota_limits: Failed to set groupquota for uid %ld : %s\n"),
+				_("copy_group_quota_limits: Failed to set groupquota for gid %ld : %s\n"),
 				to, strerror(errno));
 			return (1);
 		}
 	}
 	else {
 		errstr(
-			_("copy_group_quota_limits: Failed to get groupquota for uid %ld : %s\n"),
+			_("copy_group_quota_limits: Failed to get groupquota for gid %ld : %s\n"),
 			from, strerror(errno));
 		return (1);
 	}

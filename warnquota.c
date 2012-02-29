@@ -327,7 +327,7 @@ static FILE *run_mailer(char *command)
 		default:
 			close(pipefd[0]);
 			if (!(f = fdopen(pipefd[1], "w")))
-				errstr(_("Cannot open pine: %s\n"), strerror(errno));
+				errstr(_("Cannot open pipe: %s\n"), strerror(errno));
 			return f;
 	}
 }
@@ -439,12 +439,12 @@ static int mail_user(struct offenderlist *offender, struct configparams *config)
 				cnt = ldap_count_entries(ldapconn, result);
 
 				if(cnt > 1) {
-					errstr(_("Multiple entries found for client %s, %d not sending mail.\n"), 
+					errstr(_("Multiple entries found for client %s (%d). Not sending mail.\n"), 
 						offender->offender_name, cnt);
 					return 0;
 				} else if(cnt == 0) {
-					errstr(_("Entry not found for client %s, %d not sending mail.\n"), 
-						offender->offender_name, cnt);
+					errstr(_("Entry not found for client %s. Not sending mail.\n"), 
+						offender->offender_name);
 					return 0;
 				} else {
 					/* get the attr */

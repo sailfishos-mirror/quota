@@ -65,7 +65,7 @@ static void usage(void)
 {
 	errstr(_("Usage:\n\t%s [-guvp] [-F quotaformat] [-x state] -a\n\
 \t%s [-guvp] [-F quotaformat] [-x state] filesys ...\n\n\
--a, --all                turn quotas %s for all filesystems\n\
+-a, --all                %s\n\
 -f, --off                turn quotas off\n\
 -u, --user               operate on user quotas\n\
 -g, --group              operate on group quotas\n\
@@ -75,7 +75,9 @@ static void usage(void)
 -v, --verbose            print more messages\n\
 -h, --help               display this help text and exit\n\
 -V, --version            display version information and exit\n"),
- progname, progname, strcmp(progname, "quotaon") ? _("off") : _("on"));
+ progname, progname,
+ strcmp(progname, "quotaon") ? _("turn quotas off for all filesystems") :
+			       _("turn quotas on for all filesystems"));
 	exit(1);
 }
 

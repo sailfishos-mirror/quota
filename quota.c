@@ -121,7 +121,7 @@ static void heading(int type, qid_t id, char *name, char *tag)
 	else
 		spacehdr = _("blocks");
 
-	printf(_("Disk quotas for %s %s (%cid %u): %s\n"), type2name(type),
+	printf(_("Disk quotas for %s %s (%cid %u): %s\n"), _(type2name(type)),
 	       name, *type2name(type), (uint) id, tag);
 	if (!(flags & FL_QUIET) && !tag[0]) {
 		printf("%15s%8s %7s%8s%8s%8s %7s%8s%8s\n", _("Filesystem"),

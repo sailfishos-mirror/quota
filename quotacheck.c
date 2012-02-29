@@ -125,7 +125,7 @@ static int store_dlinks(int type, ino_t i_num)
 	struct dlinks *lptr;
 	uint hash = hash_ino(i_num);
 
-	debug(FL_DEBUG, _("Adding hardlink for ino %llu\n"), (unsigned long long)i_num);
+	debug(FL_DEBUG, _("Adding hardlink for inode %llu\n"), (unsigned long long)i_num);
 
 	for (lptr = links_hash[type][hash]; lptr; lptr = lptr->next)
 		if (lptr->i_num == i_num)
@@ -432,12 +432,12 @@ static int ext2_direct_scan(const char *device)
 	}
 
 	if ((error = ext2fs_allocate_inode_bitmap(fs, "in-use inode map", &inode_used_map))) {
-		errstr(_("error (%d) while allocating inode file bitmap\n"), (int)error);
+		errstr(_("error (%d) while allocating file inode bitmap\n"), (int)error);
 		return -1;
 	}
 
 	if ((error = ext2fs_allocate_inode_bitmap(fs, "directory inode map", &inode_dir_map))) {
-		errstr(_("errstr (%d) while allocating inode directory bitmap\n"), (int)error);
+		errstr(_("errstr (%d) while allocating directory inode bitmap\n"), (int)error);
 		return -1;
 	}
 
@@ -525,7 +525,7 @@ static int scan_dir(const char *pathname)
 			blit(NULL);
 
 		if ((lstat(de->d_name, &st)) == -1) {
-			errstr(_("lstat Cannot stat `%s/%s': %s\nGuess you'd better run fsck first !\nexiting...\n"),
+			errstr(_("lstat: Cannot stat `%s/%s': %s\nGuess you'd better run fsck first !\nexiting...\n"),
 				pathname, de->d_name, strerror(errno));
 			goto out;
 		}
@@ -618,14 +618,14 @@ static int process_file(struct mount_entry *mnt, int type)
 	char *qfname = NULL;
 	int fd = -1, ret;
 
-	debug(FL_DEBUG, _("Going to check %s quota file of %s\n"), type2name(type),
+	debug(FL_DEBUG, _("Going to check %s quota file of %s\n"), _(type2name(type)),
 	      mnt->me_dir);
 
 	if (kern_quota_on(mnt, type, cfmt) >= 0) {	/* Is quota enabled? */
 		if (!(flags & FL_FORCE)) {
 			if (flags & FL_INTERACTIVE) {
-				printf(_("Quota for %ss is enabled on mountpoint %s so quotacheck might damage the file.\n"), type2name(type), mnt->me_dir);
-				if (!ask_yn(_("Should I continue"), 0)) {
+				printf(_("Quota for %ss is enabled on mountpoint %s so quotacheck might damage the file.\n"), _(type2name(type)), mnt->me_dir);
+				if (!ask_yn(_("Should I continue?"), 0)) {
 					printf(_("As you wish... Canceling check of this file.\n"));
 					return -1;
 				}
@@ -788,7 +788,7 @@ static int dump_to_file(struct mount_entry *mnt, int type)
 	struct quota_handle *h;
 	unsigned int commit = 0;
 
-	debug(FL_DEBUG, _("Dumping gathered data for %ss.\n"), type2name(type));
+	debug(FL_DEBUG, _("Dumping gathered data for %ss.\n"), _(type2name(type)));
 	if (cfmt == QF_XFS) {
 		if (!(h = init_io(mnt, type, cfmt, IOI_READONLY))) {
 			errstr(_("Cannot initialize IO on xfs/gfs2 quotafile: %s\n"),
@@ -832,12 +832,12 @@ static int dump_to_file(struct mount_entry *mnt, int type)
 		char *filename;
 
 		if (get_qf_name(mnt, type, cfmt, NF_FORMAT, &filename) < 0)
-			errstr(_("Cannot find checked quota file for %ss on %s!\n"), type2name(type), mnt->me_devname);
+			errstr(_("Cannot find checked quota file for %ss on %s!\n"), _(type2name(type)), mnt->me_devname);
 		else {
 			if (quotactl(QCMD((kernel_iface == IFACE_GENERIC) ? Q_QUOTAOFF : Q_6_5_QUOTAOFF, type),
 				     mnt->me_devname, 0, NULL) < 0)
 				errstr(_("Cannot turn %s quotas off on %s: %s\nKernel won't know about changes quotacheck did.\n"),
-					type2name(type), mnt->me_devname, strerror(errno));
+					_(type2name(type)), mnt->me_devname, strerror(errno));
 			else {
 				int ret;
 
@@ -850,7 +850,7 @@ static int dump_to_file(struct mount_entry *mnt, int type)
 					ret = quotactl(QCMD(Q_6_5_QUOTAON, type), mnt->me_devname, 0, filename);
 				if (ret < 0)
 					errstr(_("Cannot turn %s quotas on on %s: %s\nKernel won't know about changes quotacheck did.\n"),
-						type2name(type), mnt->me_devname, strerror(errno));
+						_(type2name(type)), mnt->me_devname, strerror(errno));
 			}
 			free(filename);
 		}
@@ -871,14 +871,14 @@ static int sub_quota_file(struct mount_entry *mnt, int qtype, int ftype)
 	struct dquot *d;
 	qid_t id;
 
-	debug(FL_DEBUG, _("Substracting space used by old %s quota file.\n"), type2name(ftype));
+	debug(FL_DEBUG, _("Substracting space used by old %s quota file.\n"), _(type2name(ftype)));
 	if (get_qf_name(mnt, ftype, cfmt, 0, &filename) < 0) {
-		debug(FL_VERBOSE, _("Old %s file name could not been determined. Usage will not be substracted.\n"), type2name(ftype));
+		debug(FL_VERBOSE, _("Old %s file name could not been determined. Usage will not be substracted.\n"), _(type2name(ftype)));
 		return 0;
 	}
 
 	if (stat(filename, &st) < 0) {
-		debug(FL_VERBOSE, _("Cannot stat old %s quota file %s: %s. Usage will not be substracted.\n"), type2name(ftype), filename, strerror(errno));
+		debug(FL_VERBOSE, _("Cannot stat old %s quota file %s: %s. Usage will not be substracted.\n"), _(type2name(ftype)), filename, strerror(errno));
 		free(filename);
 		return 0;
 	}
@@ -890,7 +890,7 @@ static int sub_quota_file(struct mount_entry *mnt, int qtype, int ftype)
 	else
 		id = st.st_gid;
 	if ((d = lookup_dquot(id, qtype)) == NODQUOT) {
-		errstr(_("Quota structure for %s owning quota file not present! Something is really wrong...\n"), type2name(qtype));
+		errstr(_("Quota structure for %s owning quota file not present! Something is really wrong...\n"), _(type2name(qtype)));
 		return -1;
 	}
 	d->dq_dqb.dqb_curinodes--;
@@ -936,7 +936,7 @@ static int check_dir(struct mount_entry *mnt)
 		     NULL) < 0 && !(flags & FL_FORCEREMOUNT)) {
 			if (flags & FL_INTERACTIVE) {
 				printf(_("Cannot remount filesystem mounted on %s read-only. Counted values might not be right.\n"), mnt->me_dir);
-				if (!ask_yn(_("Should I continue"), 0)) {
+				if (!ask_yn(_("Should I continue?"), 0)) {
 					printf(_("As you wish... Canceling check of this file.\n"));
 					failed = -1;
 					goto out;

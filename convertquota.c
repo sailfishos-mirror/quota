@@ -314,12 +314,12 @@ static int convert_format(int type, struct mount_entry *mnt)
 	
 	if (!(qo = init_io(mnt, type, infmt, IOI_INITSCAN))) {
 		errstr(_("Cannot open old format file for %ss on %s\n"),
-			type2name(type), mnt->me_dir);
+			_(type2name(type)), mnt->me_dir);
 		return -1;
 	}
 	if (!(qn = new_io(mnt, type, outfmt))) {
 		errstr(_("Cannot create file for %ss for new format on %s: %s\n"),
-			type2name(type), mnt->me_dir, strerror(errno));
+			_(type2name(type)), mnt->me_dir, strerror(errno));
 		end_io(qo);
 		return -1;
 	}

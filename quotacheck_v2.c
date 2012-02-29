@@ -193,7 +193,7 @@ static int buffer_entry(dqbuf_t buf, uint blk, int *corrupted, uint * lblk, int 
 					(long long)fdq->dqb_bsoftlimit, (long long)mdq.dqb_bsoftlimit,
 					(long long)fdq->dqb_ihardlimit, (long long)mdq.dqb_ihardlimit,
 					(long long)fdq->dqb_isoftlimit, (long long)mdq.dqb_isoftlimit);
-				if (ask_yn(_("Should I use new values"), 0)) {
+				if (ask_yn(_("Should I use new values?"), 0)) {
 					fdq->dqb_bhardlimit = mdq.dqb_bhardlimit;
 					fdq->dqb_bsoftlimit = mdq.dqb_bsoftlimit;
 					fdq->dqb_ihardlimit = mdq.dqb_ihardlimit;
