@@ -86,7 +86,7 @@ static int syncquotas(int type)
 
 	if (flags & FL_ALL) {
 		if (sync_one(type, NULL) < 0)
-			errstr(_("%s quota sync failed: %s\n"), type2name(type),
+			errstr(_("%s quota sync failed: %s\n"), _(type2name(type)),
 					strerror(errno));
 		return -1;
 	}
@@ -98,7 +98,7 @@ static int syncquotas(int type)
 		h = handles[i];
 		if (sync_one(type, h->qh_quotadev)) {
 			errstr(_("%s quota sync failed for %s: %s\n"),
-				type2name(type), h->qh_quotadev, strerror(errno));
+				_(type2name(type)), h->qh_quotadev, strerror(errno));
 			ret = -1;
 		}
 	}

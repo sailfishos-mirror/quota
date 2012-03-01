@@ -192,7 +192,7 @@ static void report(const char *file, const char *fsdir, int type)
 {
 	du_t *dp;
 
-	printf(_("%s (%s) %s:\n"), file, fsdir, type? "groups" : "users");
+	printf(_("%s (%s) %ss:\n"), file, fsdir, _(type2name(type)));
 	if (!qflag)
 		qsort(du[type], ndu[type], sizeof(du[type][0]), (int (*)(const void *, const void *))qcmp);
 	for (dp = du[type]; dp < &du[type][ndu[type]]; dp++) {

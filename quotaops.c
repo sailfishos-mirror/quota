@@ -259,7 +259,7 @@ int writeprivs(struct dquot *qlist, int outfd, char *name, int quotatype)
 		die(1, _("Cannot duplicate descriptor of file to write to: %s\n"), strerror(errno));
 
 	fprintf(fd, _("Disk quotas for %s %s (%cid %d):\n"),
-		type2name(quotatype), name, *type2name(quotatype), qlist->dq_id);
+		_(type2name(quotatype)), name, *type2name(quotatype), qlist->dq_id);
 
 	fprintf(fd,
 		_("  Filesystem                   blocks       soft       hard     inodes     soft     hard\n"));
@@ -384,7 +384,7 @@ int writeindividualtimes(struct dquot *qlist, int outfd, char *name, int quotaty
 		die(1, _("Cannot duplicate descriptor of file to write to: %s\n"), strerror(errno));
 
 	fprintf(fd, _("Times to enforce softlimit for %s %s (%cid %d):\n"),
-		type2name(quotatype), name, *type2name(quotatype), qlist->dq_id);
+		_(type2name(quotatype)), name, *type2name(quotatype), qlist->dq_id);
 	fprintf(fd, _("Time units may be: days, hours, minutes, or seconds\n"));
 	fprintf(fd,
 		_("  Filesystem                         block grace               inode grace\n"));
@@ -486,7 +486,7 @@ int writetimes(struct quota_handle **handles, int outfd)
 		die(1, _("Cannot duplicate descriptor of file to edit: %s\n"), strerror(errno));
 
 	fprintf(fd, _("Grace period before enforcing soft limits for %ss:\n"),
-		type2name(handles[0]->qh_type));
+		_(type2name(handles[0]->qh_type)));
 	fprintf(fd, _("Time units may be: days, hours, minutes, or seconds\n"));
 	fprintf(fd, _("  Filesystem             Block grace period     Inode grace period\n"));
 

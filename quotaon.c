@@ -212,7 +212,7 @@ static int quotaonoff(const char *quotadev, const char *quotadir, char *quotafil
 			errstr(_("quotactl on %s [%s]: %s\n"), quotadev, quotadir, strerror(errno));
 			return 1;
 		}
-		pinfo(_("%s [%s]: %s quotas turned off\n"), quotadev, quotadir, type2name(type));
+		pinfo(_("%s [%s]: %s quotas turned off\n"), quotadev, quotadir, _(type2name(type)));
 		return 0;
 	}
 	if (kernel_iface == IFACE_GENERIC) {
@@ -234,7 +234,7 @@ static int quotaonoff(const char *quotadev, const char *quotadir, char *quotafil
 			errstr(_("Quota format not supported in kernel.\n"));
 		return 1;
 	}
-	pinfo(_("%s [%s]: %s quotas turned on\n"), quotadev, quotadir, type2name(type));
+	pinfo(_("%s [%s]: %s quotas turned on\n"), quotadev, quotadir, _(type2name(type)));
 	return 0;
 }
 
@@ -339,7 +339,7 @@ static int print_state(struct mount_entry *mnt, int type)
 	else if (kern_qfmt_supp(QF_VFSOLD))
 		on = kern_quota_on(mnt, type, QF_VFSOLD) != -1;
 
-	printf(_("%s quota on %s (%s) is %s\n"), type2name(type), mnt->me_dir, mnt->me_devname,
+	printf(_("%s quota on %s (%s) is %s\n"), _(type2name(type)), mnt->me_dir, mnt->me_devname,
 	  on ? _("on") : _("off"));
 	
 	return on;

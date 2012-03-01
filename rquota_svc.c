@@ -455,26 +455,26 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 	if (!svc_register(transp, RQUOTAPROG, RQUOTAVERS, rquotaprog_1, IPPROTO_UDP)) {
-		errstr(_("unable to register (RQUOTAPROG, RQUOTAVERS, udp).\n"));
+		errstr(_("unable to register (RQUOTAPROG, RQUOTAVERS, UDP).\n"));
 		exit(1);
 	}
 	if (!svc_register(transp, RQUOTAPROG, EXT_RQUOTAVERS, rquotaprog_2, IPPROTO_UDP)) {
-		errstr(_("unable to register (RQUOTAPROG, EXT_RQUOTAVERS, udp).\n"));
+		errstr(_("unable to register (RQUOTAPROG, EXT_RQUOTAVERS, UDP).\n"));
 		exit(1);
 	}
 
 	sock = svctcp_socket(RQUOTAPROG, port, 1);
 	transp = svctcp_create(sock == -1 ? RPC_ANYSOCK : sock, 0, 0);
 	if (transp == NULL) {
-		errstr(_("cannot create tcp service.\n"));
+		errstr(_("cannot create TCP service.\n"));
 		exit(1);
 	}
 	if (!svc_register(transp, RQUOTAPROG, RQUOTAVERS, rquotaprog_1, IPPROTO_TCP)) {
-		errstr(_("unable to register (RQUOTAPROG, RQUOTAVERS, tcp).\n"));
+		errstr(_("unable to register (RQUOTAPROG, RQUOTAVERS, TCP).\n"));
 		exit(1);
 	}
 	if (!svc_register(transp, RQUOTAPROG, EXT_RQUOTAVERS, rquotaprog_2, IPPROTO_TCP)) {
-		errstr(_("unable to register (RQUOTAPROG, EXT_RQUOTAVERS, tcp).\n"));
+		errstr(_("unable to register (RQUOTAPROG, EXT_RQUOTAVERS, TCP).\n"));
 		exit(1);
 	}
 

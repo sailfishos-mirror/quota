@@ -409,7 +409,7 @@ static int setindivgraces(struct quota_handle **handles)
 			errstr(_("Not setting inode grace time on %s because softlimit is not exceeded.\n"), q->dq_h->qh_quotadev);
 	}
 	if (putprivs(curprivs, COMMIT_TIMES) == -1) {
-		errstr(_("cannot write times for %s. Maybe kernel does not support such operation?\n"), type2name(flags & FL_USER ? USRQUOTA : GRPQUOTA));
+		errstr(_("cannot write times for %s. Maybe kernel does not support such operation?\n"), _(type2name(flags & FL_USER ? USRQUOTA : GRPQUOTA)));
 		ret = -1;
 	}
 	freeprivs(curprivs);
