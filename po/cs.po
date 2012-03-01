@@ -1637,7 +1637,6 @@ msgstr "%s: root_squash na %s zapnuto\n"
 msgid "quotactl on %s [%s]: %s\n"
 msgstr "quotactl na %s [%s]: %s\n"
 
-# TODO: quotas attribute
 #: quotaon.c:213
 #, c-format
 msgid "%s [%s]: %s quotas turned off\n"
@@ -1661,7 +1660,6 @@ msgstr "Možná vytvořit nové kvótové soubory pomocí quotacheck(8)?\n"
 msgid "Quota format not supported in kernel.\n"
 msgstr "Formát kvóty není podporován jádrem.\n"
 
-# TODO: quotas attribute
 #: quotaon.c:235
 #, c-format
 msgid "%s [%s]: %s quotas turned on\n"
@@ -1687,7 +1685,6 @@ msgstr ""
 msgid "Quota file on %s [%s] does not exist or has wrong format.\n"
 msgstr "Kvótový soubor na %s [%s] neexistuje nebo má špatný formát.\n"
 
-# TODO: quota attribute
 #: quotaon.c:340
 #, c-format
 msgid "%s quota on %s (%s) is %s\n"
@@ -1717,7 +1714,6 @@ msgstr "%s: Kvótu nelze souborovém systému NFS zapnout.\n"
 msgid "quotactl() on %s: %s\n"
 msgstr "quotactl() na %s: %s\n"
 
-# TODO: quota attribute
 #: quotaon_xfs.c:62 quotaon_xfs.c:82
 #, c-format
 msgid "Enabling %s quota on root filesystem (reboot to take effect)\n"
@@ -1725,43 +1721,36 @@ msgstr ""
 "Zapíná se kvóta pro %s na kořenovém souborovém systému (aby se nastavení "
 "projevilo, je třeba rebootovat)\n"
 
-# TODO: quota attribute
 #: quotaon_xfs.c:66
 #, c-format
 msgid "Enable XFS %s quota accounting during mount\n"
 msgstr "Zapněte účtování kvót %s při připojení systému\n"
 
-# TODO: quota attribute
 #: quotaon_xfs.c:76
 #, c-format
 msgid "Cannot delete %s quota on %s - switch quota accounting off first\n"
 msgstr "Nelze smazat kvótu %s na %s – nejprve vypněte účtování kvót\n"
 
-# TODO: quota attribute
 #: quotaon_xfs.c:87
 #, c-format
 msgid "Enabling %s quota enforcement on %s\n"
 msgstr "Zapíná se vynucování kvót %s na %s\n"
 
-# TODO: quota attribute
 #: quotaon_xfs.c:90
 #, c-format
 msgid "Already accounting %s quota on %s\n"
 msgstr "Kvóty %s na %s se již počítají\n"
 
-# TODO: quota attribute
 #: quotaon_xfs.c:95
 #, c-format
 msgid "Disabling %s quota accounting on %s\n"
 msgstr "Vypíná se účtování kvót %s na %s\n"
 
-# TODO: internationalize first argument
 #: quotaon_xfs.c:99
 #, c-format
 msgid "Quota enforcement already disabled for %s on %s\n"
 msgstr "Vynucování kvót %s na %s již vypnuto\n"
 
-# TODO: internationalize first argument
 #: quotaon_xfs.c:108
 #, c-format
 msgid ""
@@ -1771,13 +1760,11 @@ msgstr ""
 "Kvótu %s nelze na %s smazat – nejprve je třeba vypnout vynucování a účtování "
 "kvót\n"
 
-# TODO: internationalize first argument
 #: quotaon_xfs.c:113
 #, c-format
 msgid "Enforcing %s quota already on %s\n"
 msgstr "Kvóta %s se na %s již vynucuje\n"
 
-# TODO: internationalize first argument
 #: quotaon_xfs.c:118
 #, c-format
 msgid "Cannot switch off %s quota accounting on %s when enforcement is on\n"
@@ -1802,13 +1789,11 @@ msgstr "Hledán neočekávaný stav XFS kvóty na %s\n"
 msgid "quotactl on %s: %s\n"
 msgstr "quotactl na %s: %s\n"
 
-# TODO: internationalize second argument
 #: quotaon_xfs.c:150
 #, c-format
 msgid "%s: %s quotas turned off\n"
 msgstr "%s: kvóty %s vypnuty\n"
 
-# TODO: internationalize second argument
 #: quotaon_xfs.c:152
 #, c-format
 msgid "%s: %s quotas turned on\n"
@@ -1819,7 +1804,6 @@ msgstr "%s: kvóty %s zapnuty\n"
 msgid "Failed to delete quota: %s\n"
 msgstr "Odstranění kvóty selhalo: %s\n"
 
-# TODO: internationalize second argument
 #: quotaon_xfs.c:171
 #, c-format
 msgid "%s: deleted %s quota blocks\n"
@@ -1874,7 +1858,6 @@ msgstr "%s nelze spustit\n"
 msgid "Cannot duplicate descriptor of file to write to: %s\n"
 msgstr "Deskriptor souboru nelze zmnožit pro zápis: %s\n"
 
-# TODO: internationalize first argument
 #: quotaops.c:261
 #, c-format
 msgid "Disk quotas for %s %s (%cid %d):\n"
@@ -1913,7 +1896,6 @@ msgstr ""
 "Chybný formát:\n"
 "%s\n"
 
-# TODO: internationalize first argument
 #: quotaops.c:386
 #, c-format
 msgid "Times to enforce softlimit for %s %s (%cid %d):\n"
@@ -1969,7 +1951,6 @@ msgstr ""
 msgid "Cannot duplicate descriptor of file to edit: %s\n"
 msgstr "Deskriptor editovaného souboru nelze zmnožit: %s\n"
 
-# TODO: Internationalize argumentargumentargumentargumentargument
 #: quotaops.c:488
 #, c-format
 msgid "Grace period before enforcing soft limits for %ss:\n"
@@ -2069,7 +2050,6 @@ msgstr ""
 "%s [-ug] -a | PŘÍPOJNÝ_BOD…\n"
 "\n"
 
-# TODO: quota attribute
 #: quotasync.c:89
 #, c-format
 msgid "%s quota sync failed: %s\n"
@@ -2315,7 +2295,6 @@ msgstr "%s (%s):\n"
 msgid "%d\t%llu\t%llu\n"
 msgstr "%d\t%llu\t%llu\n"
 
-# TODO: Internationalize third argument
 #: quot.c:195
 #, c-format
 msgid "%s (%s) %s:\n"
@@ -2419,7 +2398,6 @@ msgstr "místa"
 msgid "Block"
 msgstr "bloků"
 
-# TODO: Internationalize first argument
 #: repquota.c:296
 #, c-format
 msgid "*** Report for %s quotas on device %s\n"
@@ -2539,12 +2517,10 @@ msgstr ""
 msgid "cannot create udp service.\n"
 msgstr "UDP službu nelze vytvořit.\n"
 
-# TODO: Upper-case UDP
 #: rquota_svc.c:458
 msgid "unable to register (RQUOTAPROG, RQUOTAVERS, udp).\n"
 msgstr "Nelze zaregistrovat (RQUOTAPROG, RQUOTAVERS, UDP.)\n"
 
-# TODO: Upper-case UDP
 #: rquota_svc.c:462
 msgid "unable to register (RQUOTAPROG, EXT_RQUOTAVERS, udp).\n"
 msgstr "Nelze zaregistrovat (RQUOTAPROG, EXT_RQUOTAVERS, UDP).\n"
@@ -2553,12 +2529,10 @@ msgstr "Nelze zaregistrovat (RQUOTAPROG, EXT_RQUOTAVERS, UDP).\n"
 msgid "cannot create tcp service.\n"
 msgstr "TCP službu nelze vytvořit.\n"
 
-# TODO: Upper-case TCP
 #: rquota_svc.c:473
 msgid "unable to register (RQUOTAPROG, RQUOTAVERS, tcp).\n"
 msgstr "Nelze zaregistrovat (RQUOTAPROG, RQUOTAVERS, TCP).\n"
 
-# TODO: Upper-case TCP
 #: rquota_svc.c:477
 msgid "unable to register (RQUOTAPROG, EXT_RQUOTAVERS, tcp).\n"
 msgstr "Nelze zaregistrovat (RQUOTAPROG, EXT_RQUOTAVERS, TCP).\n"
@@ -2759,7 +2733,6 @@ msgstr ""
 "Doba odkladu iuzlů na %s nebude nastavena, protože měkký limit není "
 "překročen.\n"
 
-# TODO: Internationalize first argument
 #: setquota.c:412
 #, c-format
 msgid ""
