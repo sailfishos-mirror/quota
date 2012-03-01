@@ -12,11 +12,13 @@ typedef int64_t qsize_t;	/* Type in which we store size limitations */
 
 /*
  * Definitions for the default names of the quotas files.
+ * N_ is gettext magic for static strings
  */
+#define N_(x) (x)
 #define INITQFNAMES { \
-	"user",    /* USRQUOTA */ \
-	"group",   /* GRPQUOTA */ \
-	"undefined", \
+	N_("user"),    /* USRQUOTA */ \
+	N_("group"),   /* GRPQUOTA */ \
+	N_("undefined"), \
 }
 
 /*

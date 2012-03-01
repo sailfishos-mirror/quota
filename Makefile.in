@@ -58,7 +58,7 @@ realclean: clobber
 	-rm -f $(RPCSRC) po/*.mo
 
 pot:
-	xgettext -k_ -d pot *.c
+	xgettext -k_ -kN_ -d pot *.c *.h
 
 mo: po
 	for n in $(shell ls po/*.po); do \
