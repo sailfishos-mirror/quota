@@ -333,7 +333,11 @@ int main(int argc, char **argv)
 				continue;
 			}
 			close(tmpfd);
-			if ((tmpfd = open(tmpfil, O_RDONLY)) < 0)
+			/*
+			 * Open in rw mode because we can reuse the file for
+			 * editting next user as well.
+			 */
+			if ((tmpfd = open(tmpfil, O_RDWR)) < 0)
 				die(1, _("Cannot reopen!"));
 			if (readprivs(curprivs, tmpfd) < 0) {
 				errstr(_("Cannot read quotas from file.\n"));

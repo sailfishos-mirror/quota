@@ -1,4 +1,5 @@
 Changes in quota-tools from 4.00 to 4.01
+* fixed edquota(8) for more users (Jan Kara)
 * remove fixed limit on number of autofs mount points (Jan Kara)
 * add quota type names to message catalogue (Jan Kara)
 * typo fixes, message changes for easier i18n (Jan Kara)
