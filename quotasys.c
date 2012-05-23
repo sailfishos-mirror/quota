@@ -917,7 +917,6 @@ struct searched_dir {
 };
 
 #define ALLOC_ENTRIES_NUM 16	/* Allocate entries by this number */
-#define AUTOFS_DIR_MAX 64	/* Maximum number of autofs directories */
 
 static int mnt_entries_cnt;	/* Number of cached mountpoint entries */
 static struct mount_entry *mnt_entries;	/* Cached mounted filesystems */
@@ -934,8 +933,8 @@ static int cache_mnt_table(int flags)
 	int allocated = 0, i = 0;
 	dev_t dev = 0;
 	char mntpointbuf[PATH_MAX];
-	int autofsdircnt = 0;
-	char autofsdir[AUTOFS_DIR_MAX][PATH_MAX];
+	int autofsdircnt, autofsdir_allocated;
+	char **autofsdir;
 
 #ifdef ALT_MTAB
 	mntf = setmntent(ALT_MTAB, "r");
@@ -951,9 +950,14 @@ static int cache_mnt_table(int flags)
 		return -1;
 	}
 alloc:
+	/* Prepare table of mount entries */
 	mnt_entries = smalloc(sizeof(struct mount_entry) * ALLOC_ENTRIES_NUM);
 	mnt_entries_cnt = 0;
 	allocated += ALLOC_ENTRIES_NUM;
+	/* Prepare table of autofs mountpoints */
+	autofsdir = smalloc(sizeof(char *) * ALLOC_ENTRIES_NUM);
+	autofsdircnt = 0;
+	autofsdir_allocated = ALLOC_ENTRIES_NUM;
 	while ((mnt = getmntent(mntf))) {
 		const char *devname;
 		char *opt;
@@ -977,9 +981,14 @@ alloc:
 		}
 				
 		if (flags & MS_NO_AUTOFS && !strcmp(mnt->mnt_type, MNTTYPE_AUTOFS)) {	/* Autofs dir to remember? */
-			if (autofsdircnt == AUTOFS_DIR_MAX)
-				die(3, "Too many autofs mountpoints. Please contact <jack@suse.cz>\n");
-			snprintf(autofsdir[autofsdircnt++], PATH_MAX, "%s/", mnt->mnt_dir);
+			if (autofsdircnt == autofsdir_allocated) {
+				autofsdir_allocated += ALLOC_ENTRIES_NUM;
+				autofsdir = srealloc(autofsdir, autofsdir_allocated * sizeof(char *));
+			}
+			autofsdir[autofsdircnt] = smalloc(strlen(mnt->mnt_dir) + 2);
+			strcpy(autofsdir[autofsdircnt], mnt->mnt_dir);
+			strcat(autofsdir[autofsdircnt], "/");
+			autofsdircnt++;
 			free((char *)devname);
 			continue;
 		}
@@ -1081,6 +1090,9 @@ alloc:
 	}
 	endmntent(mntf);
 
+	for (i = 0; i < autofsdircnt; i++)
+		free(autofsdir[i]);
+	free(autofsdir);
 	return 0;
 }
 
