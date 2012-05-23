@@ -1,3 +1,20 @@
+Changes in quota-tools from 4.00 to 4.01
+* remove fixed limit on number of autofs mount points (Jan Kara)
+* add quota type names to message catalogue (Jan Kara)
+* typo fixes, message changes for easier i18n (Jan Kara)
+* created Czech translation (Petr Pisar)
+* store PID of quota_nld into lock file (Petr Pisar)
+* warnquota: Fix manpage formatting (Jan Kara)
+* warnquota: Allow specifying of filesystems to check (Jan Kara)
+* add support for quotas on ext4 in system files (Jan Kara)
+* quotaon: Remove duplicated check for hasquota() (Jan Kara)
+* quotacheck: Fix warning about journaled quota for 3.0 and newer kernels (Jan Kara)
+* edquota: Fix localication of time units (Jan Kara)
+* rip out ALTFORMAT config option (Jan Kara)
+* add support for dynamic RPC block to support larger quotas (Petr Pisar)
+* check set limits fit into the range supported by RPC transport (Petr Pisar)
+* do not report missing utmp record to syslog (Petr Pisar)
+
 Changes in quota-tools from 4.00-pre1 to 4.00
 * get_qf_name() does not check quota file presence (Petr Pisar)
 * report quotacheck failures by return code (Petr Pisar)
