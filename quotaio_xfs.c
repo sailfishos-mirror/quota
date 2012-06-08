@@ -183,9 +183,9 @@ static int xfs_get_dquot(struct dquot *dq)
 	memset(&d, 0, sizeof(d));
 	ret = quotactl(qcmd, dq->dq_h->qh_quotadev, dq->dq_id, (void *)&d);
 	if (ret < 0) {
-		if (ret == -ENOENT)
+		if (errno == ENOENT)
 			return 0;
-		return ret;
+		return -1;
 	}
 	xfs_kern2utildqblk(&dq->dq_dqb, &d);
 	return 0;
