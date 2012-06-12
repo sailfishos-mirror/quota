@@ -103,7 +103,7 @@ static int find_block_shift(qsize_t hard, qsize_t soft, qsize_t cur)
 		value = soft;
 	if (value < cur)
 		value = cur;
-	value >>= 32 + QUOTABLOCK_BITS;
+	value >>= 32;
 	for (shift = QUOTABLOCK_BITS; value; shift++)
 		value >>= 1;
 
@@ -116,13 +116,13 @@ static inline void servutil2netdqblk(struct rquota *n, struct util_dqblk *u)
 	int shift;
 
 	shift = find_block_shift(u->dqb_bhardlimit, u->dqb_bsoftlimit,
-		u->dqb_curspace);
+		toqb(u->dqb_curspace));
 	n->rq_bsize = 1 << shift;
-	n->rq_bhardlimit = (u->dqb_bhardlimit << QUOTABLOCK_BITS) >> shift;
-	n->rq_bsoftlimit = (u->dqb_bsoftlimit << QUOTABLOCK_BITS) >> shift;
+	n->rq_bhardlimit = u->dqb_bhardlimit >> (shift - QUOTABLOCK_BITS);
+	n->rq_bsoftlimit = u->dqb_bsoftlimit >> (shift - QUOTABLOCK_BITS);
 	n->rq_fhardlimit = u->dqb_ihardlimit;
 	n->rq_fsoftlimit = u->dqb_isoftlimit;
-	n->rq_curblocks = (u->dqb_curspace + n->rq_bsize - 1) >> shift;
+	n->rq_curblocks = toqb(u->dqb_curspace) >> (shift - QUOTABLOCK_BITS);
 	n->rq_curfiles = u->dqb_curinodes;
 
 	time(&now);
