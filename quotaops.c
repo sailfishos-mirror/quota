@@ -91,11 +91,11 @@ struct dquot *getprivs(qid_t id, struct quota_handle **handles, int quiet)
 {
 	struct dquot *q, *qtail = NULL, *qhead = NULL;
 	int i;
+	char name[MAXNAMELEN];
 #if defined(BSD_BEHAVIOUR)
 	int j, ngroups;
 	uid_t euid;
 	gid_t gidset[NGROUPS], *gidsetp;
-	char name[MAXNAMELEN];
 #endif
 
 	for (i = 0; handles[i]; i++) {
