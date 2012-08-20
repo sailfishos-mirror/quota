@@ -162,7 +162,6 @@ int rpc_rquota_get(struct dquot *dquot)
 		return -ENOENT;
 	}
 
-	*pathname++ = '\0';
 	/* For NFSv4, we send the filesystem path without initial /. Server prepends proper
 	 * NFS pseudoroot automatically and uses this for detection of NFSv4 mounts. */
 	if ((dquot->dq_h->qh_io_flags & IOFL_NFS_MIXED_PATHS) &&
