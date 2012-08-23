@@ -1,4 +1,8 @@
 Changes in quota-tools from 4.00 to 4.01
+* fix compilation failure with --enable-bsd_behaviour=no (Jan Kara)
+* fix quota(1) for NFS mountpoints (Jan Kara)
+* fix reporting of huge quota limits over rpc (Jan Kara)
+* fix repquota to report all users on XFS (Jan Kara)
 * fixed edquota(8) for more users (Jan Kara)
 * remove fixed limit on number of autofs mount points (Jan Kara)
 * add quota type names to message catalogue (Jan Kara)

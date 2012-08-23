@@ -249,7 +249,7 @@ else
 fi
 
 AC_DEFINE_UNQUOTED([COMPILE_OPTS], ["$COMPILE_OPTS"], [Configuration options])
-AC_DEFINE([PACKAGE_VERSION], ["4.00"], [Version of quota tools])
+AC_DEFINE([PACKAGE_VERSION], ["4.01"], [Version of quota tools])
 
 AC_SUBST(LIBMALLOC)
 AC_SUBST(INSTMO)
