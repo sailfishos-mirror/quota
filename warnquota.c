@@ -503,6 +503,7 @@ static int mail_user(struct offenderlist *offender, struct configparams *config)
 	if (should_cc(offender, config))
 		fprintf(fp, "Cc: %s\n", config->cc_to);
 	if ((config->charset)[0] != '\0') { /* are we supposed to set the encoding */
+		fprintf(fp, "MIME-Version: 1.0\n");
 		fprintf(fp, "Content-Type: text/plain; charset=%s\n", config->charset);
 		fprintf(fp, "Content-Disposition: inline\n");
 		fprintf(fp, "Content-Transfer-Encoding: 8bit\n");
