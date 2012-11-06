@@ -29,6 +29,8 @@
 #include <grp.h>
 #include <time.h>
 #include <getopt.h>
+#include <locale.h>
+#include <langinfo.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/utsname.h>
@@ -707,6 +709,7 @@ static int readconfigfile(const char *filename, struct configparams *config)
 	char *value;
 	char *pos;
 	int line, len, bufpos;
+	char *locale;
 
 	/* set default values */
 	sstrncpy(config->mail_cmd, MAIL_CMD, CNF_BUFFER);
@@ -716,6 +719,12 @@ static int readconfigfile(const char *filename, struct configparams *config)
 	sstrncpy(config->support, SUPPORT, CNF_BUFFER);
 	sstrncpy(config->phone, PHONE, CNF_BUFFER);
 	(config->charset)[0] = '\0';
+	setlocale(LC_ALL, NULL);
+	locale = setlocale(LC_MESSAGES, NULL);
+	if (locale && strcasecmp(locale, "posix") && strcasecmp(locale, "c")) {
+		locale = nl_langinfo(CODESET);
+		sstrncpy(config->charset, locale, CNF_BUFFER);
+	}
 	maildev[0] = 0;
 	config->user_signature = config->user_message = config->group_signature = config->group_message = NULL;
 	config->use_ldap_mail = 0;
