@@ -406,8 +406,6 @@ static int read_entry(qid_t *id, qsize_t *isoftlimit, qsize_t *ihardlimit, qsize
 		}
 		break;
 	}
-	*isoftlimit = is;
-	*ihardlimit = ih;
 	return 0;
 }
 

@@ -310,11 +310,11 @@ int readprivs(struct dquot *qlist, int infd)
 {
 	FILE *fd;
 	int cnt;
-	qsize_t blocks, bsoft, bhard;
-	long long inodes, isoft, ihard;
+	qsize_t blocks, bsoft, bhard, inodes, isoft, ihard;
 	struct dquot *q;
 	char fsp[BUFSIZ], line[BUFSIZ];
 	char blocksstring[BUFSIZ], bsoftstring[BUFSIZ], bhardstring[BUFSIZ];
+	char inodesstring[BUFSIZ], isoftstring[BUFSIZ], ihardstring[BUFSIZ];
 	const char *error;
 
 	lseek(infd, 0, SEEK_SET);
@@ -328,9 +328,9 @@ int readprivs(struct dquot *qlist, int infd)
 	fgets(line, sizeof(line), fd);
 
 	while (fgets(line, sizeof(line), fd)) {
-		cnt = sscanf(line, "%s %s %s %s %llu %llu %llu",
+		cnt = sscanf(line, "%s %s %s %s %s %s %s",
 			     fsp, blocksstring, bsoftstring, bhardstring,
-			     &inodes, &isoft, &ihard);
+			     inodesstring, isoftstring, ihardstring);
 
 		if (cnt != 7) {
 			errstr(_("Bad format:\n%s\n"), line);
@@ -352,6 +352,24 @@ int readprivs(struct dquot *qlist, int infd)
 		if (error) {
 			errstr(_("Bad block hard limit: %s: %s\n"),
 				bhardstring, error);
+			return -1;
+		}
+		error = str2number(inodesstring, &inodes);
+		if (error) {
+			errstr(_("Bad inode usage: %s: %s\n"),
+				inodesstring, error);
+			return -1;
+		}
+		error = str2number(isoftstring, &isoft);
+		if (error) {
+			errstr(_("Bad inode soft limit: %s: %s\n"),
+				isoftstring, error);
+			return -1;
+		}
+		error = str2number(ihardstring, &ihard);
+		if (error) {
+			errstr(_("Bad inode hard limit: %s: %s\n"),
+				ihardstring, error);
 			return -1;
 		}
 

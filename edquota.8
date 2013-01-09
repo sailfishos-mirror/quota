@@ -68,6 +68,10 @@ Block usage and limits are reported and interpereted as multiples of kibibyte
 (1024 bytes) blocks by default. Symbols K, M, G, and T can be appended to
 numeric value to express kibibytes, mebibytes, gibibytes, and tebibytes.
 .PP
+Inode usage and limits are interpreted literally. Symbols k, m, g, and t can
+be appended to numeric value to express multiples of 10^3, 10^6, 10^9, and
+10^12 inodes.
+.PP
 Users are permitted to exceed their soft limits for a grace period that
 may be specified per filesystem.  Once the grace period has expired, the
 soft limit is enforced as a hard limit.
