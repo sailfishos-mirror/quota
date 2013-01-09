@@ -64,6 +64,10 @@ is then invoked on the file.  The quotas may then be modified, new
 quotas added, etc.
 Setting a quota to zero indicates that no quota should be imposed.
 .PP
+Block usage and limits are reported and interpereted as multiples of kibibyte
+(1024 bytes) blocks by default. Symbols K, M, G, and T can be appended to
+numeric value to express kibibytes, mebibytes, gibibytes, and tebibytes.
+.PP
 Users are permitted to exceed their soft limits for a grace period that
 may be specified per filesystem.  Once the grace period has expired, the
 soft limit is enforced as a hard limit.

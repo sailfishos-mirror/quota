@@ -310,9 +310,12 @@ int readprivs(struct dquot *qlist, int infd)
 {
 	FILE *fd;
 	int cnt;
-	long long blocks, bsoft, bhard, inodes, isoft, ihard;
+	qsize_t blocks, bsoft, bhard;
+	long long inodes, isoft, ihard;
 	struct dquot *q;
 	char fsp[BUFSIZ], line[BUFSIZ];
+	char blocksstring[BUFSIZ], bsoftstring[BUFSIZ], bhardstring[BUFSIZ];
+	const char *error;
 
 	lseek(infd, 0, SEEK_SET);
 	if (!(fd = fdopen(dup(infd), "r")))
@@ -325,11 +328,30 @@ int readprivs(struct dquot *qlist, int infd)
 	fgets(line, sizeof(line), fd);
 
 	while (fgets(line, sizeof(line), fd)) {
-		cnt = sscanf(line, "%s %llu %llu %llu %llu %llu %llu",
-			     fsp, &blocks, &bsoft, &bhard, &inodes, &isoft, &ihard);
+		cnt = sscanf(line, "%s %s %s %s %llu %llu %llu",
+			     fsp, blocksstring, bsoftstring, bhardstring,
+			     &inodes, &isoft, &ihard);
 
 		if (cnt != 7) {
 			errstr(_("Bad format:\n%s\n"), line);
+			return -1;
+		}
+		error = str2space(blocksstring, &blocks);
+		if (error) {
+			errstr(_("Bad block usage: %s: %s\n"),
+				blocksstring, error);
+			return -1;
+		}
+		error = str2space(bsoftstring, &bsoft);
+		if (error) {
+			errstr(_("Bad block soft limit: %s: %s\n"),
+				bsoftstring, error);
+			return -1;
+		}
+		error = str2space(bhardstring, &bhard);
+		if (error) {
+			errstr(_("Bad block hard limit: %s: %s\n"),
+				bhardstring, error);
 			return -1;
 		}
 
