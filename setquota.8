@@ -182,6 +182,13 @@ Go through all filesystems with quota in
 .B /etc/mtab
 and perform setting.
 .PP
+.I block-softlimit
+and
+.I block-hardlimit
+are interpreted as multiples of kibibyte (1024 bytes) blocks by default.
+Symbols K, M, G, and T can be appended to numeric value to express kibibytes,
+mebibytes, gibibytes, and tebibytes.
+.PP
 To disable a quota, set the corresponding parameter to 0. To change quotas
 for several filesystems, invoke once for each filesystem.
 .PP

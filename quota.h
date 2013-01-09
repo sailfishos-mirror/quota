@@ -2,9 +2,11 @@
 #define GUARD_QUOTA_H
 
 #include <sys/types.h>
+#include <stdint.h>
 
 typedef u_int32_t qid_t;	/* Type in which we store ids in memory */
 typedef int64_t qsize_t;	/* Type in which we store size limitations */
+#define QSIZE_MAX INT64_MAX /* Maximum value storable in qsize_t */
 
 #define MAXQUOTAS 2
 #define USRQUOTA  0		/* element used for user quotas */

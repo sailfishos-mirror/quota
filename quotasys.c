@@ -367,6 +367,37 @@ void space2str(qsize_t space, char *buf, int format)
 }
 
 /*
+ * Convert block number with unit from string to quota blocks.
+ * Return NULL on success, static error message otherwise.
+ */
+const char *str2space(const char *string, qsize_t *space)
+{
+	char *unit;
+	unsigned long long int number;
+	int unit_shift;
+       
+	number = strtoull(string, &unit, 0);
+	if (ULLONG_MAX == number)
+		return _("Integer overflow while parsing space number.");
+
+	if (!unit || unit[0] == '\0' || !strcmp(unit, _("K")))
+		unit_shift = 0;
+	else if (!strcmp(unit, _("M")))
+		unit_shift = 10;
+	else if (!strcmp(unit, _("G")))
+		unit_shift = 20;
+	else if (!strcmp(unit, _("T")))
+		unit_shift = 30;
+	else
+		return _("Unknown space binary unit. "
+			"Valid units are K, M, G, T.");
+	if (number > (QSIZE_MAX >> unit_shift))
+		return _("Integer overflow while interpreting space unit.");
+	*space = number << unit_shift;
+	return NULL;
+}
+
+/*
  *  Convert number to some nice short form for printing
  */
 void number2str(unsigned long long num, char *buf, int format)

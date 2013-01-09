@@ -103,6 +103,9 @@ int str2timeunits(time_t, char *, time_t *);
 /* Convert number in quota blocks to short printable form */
 void space2str(qsize_t, char *, int);
 
+/* Convert block number with unit from string to quota blocks */
+const char *str2space(const char *string, qsize_t *space);
+
 /* Convert number to short printable form */
 void number2str(unsigned long long, char *, int);
 

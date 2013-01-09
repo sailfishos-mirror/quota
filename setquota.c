@@ -93,6 +93,19 @@ static qsize_t parse_unum(char *str, char *msg)
 	return ret;
 }
 
+/* Convert block size to number - print errstr message in case of failure */
+static qsize_t parse_blocksize(const char *str, const char *msg)
+{
+	qsize_t ret;
+	const char *error = str2space(str, &ret);
+
+	if (error) {
+		errstr(_("%s: %s: %s\n"), msg, str, error);
+		usage();
+	}
+	return ret;
+}
+
 /* Convert our flags to quota type */
 static inline int flag2type(int flags)
 {
@@ -226,8 +239,8 @@ static void parse_options(int argcnt, char **argstr)
 	if (!(flags & (FL_GRACE | FL_BATCH))) {
 		id = name2id(argstr[optind++], flag2type(flags), !!(flags & FL_NUMNAMES), NULL);
 		if (!(flags & (FL_GRACE | FL_INDIVIDUAL_GRACE | FL_PROTO))) {
-			toset.dqb_bsoftlimit = parse_unum(argstr[optind++], _("Bad block softlimit"));
-			toset.dqb_bhardlimit = parse_unum(argstr[optind++], _("Bad block hardlimit"));
+			toset.dqb_bsoftlimit = parse_blocksize(argstr[optind++], _("Bad block softlimit"));
+			toset.dqb_bhardlimit = parse_blocksize(argstr[optind++], _("Bad block hardlimit"));
 			toset.dqb_isoftlimit = parse_unum(argstr[optind++], _("Bad inode softlimit"));
 			toset.dqb_ihardlimit = parse_unum(argstr[optind++], _("Bad inode hardlimit"));
 		}
