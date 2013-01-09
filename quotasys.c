@@ -416,6 +416,38 @@ void number2str(unsigned long long num, char *buf, int format)
 }
 
 /*
+ * Convert inode number with unit from string to quota inodes.
+ * Return NULL on success, static error message otherwise.
+ */
+const char *str2number(const char *string, qsize_t *inodes)
+{
+	char *unit;
+	unsigned long long int number, multiple;
+       
+	number = strtoull(string, &unit, 0);
+	if (ULLONG_MAX == number)
+		return _("Integer overflow while parsing number.");
+
+	if (!unit || unit[0] == '\0')
+		multiple = 1;
+	else if (!strcmp(unit, _("k")))
+		multiple = 1000;
+	else if (!strcmp(unit, _("m")))
+		multiple = 1000000;
+	else if (!strcmp(unit, _("g")))
+		multiple = 1000000000;
+	else if (!strcmp(unit, _("t")))
+		multiple = 1000000000000ULL;
+	else
+		return _("Unknown decimal unit. "
+			"Valid units are k, m, g, t.");
+	if (number > QSIZE_MAX / multiple)
+		return _("Integer overflow while interpreting decimal unit.");
+	*inodes = number * multiple;
+	return NULL;
+}
+
+/*
  *	Wrappers for mount options processing functions
  */
 

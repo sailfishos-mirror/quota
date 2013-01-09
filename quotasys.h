@@ -109,6 +109,9 @@ const char *str2space(const char *string, qsize_t *space);
 /* Convert number to short printable form */
 void number2str(unsigned long long, char *, int);
 
+/* Convert inode number with unit from string to quota inodes. */
+const char *str2number(const char *string, qsize_t *inodes);
+
 /* Return pointer to given mount option in mount option string */
 char *str_hasmntopt(const char *optstring, const char *opt);
 

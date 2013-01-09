@@ -189,6 +189,12 @@ are interpreted as multiples of kibibyte (1024 bytes) blocks by default.
 Symbols K, M, G, and T can be appended to numeric value to express kibibytes,
 mebibytes, gibibytes, and tebibytes.
 .PP
+.I inode-softlimit
+and
+.I inode-hardlimit
+are interpreted literally. Symbols k, m, g, and t can be appended to numeric
+value to express multiples of 10^3, 10^6, 10^9, and 10^12 inodes.
+.PP
 To disable a quota, set the corresponding parameter to 0. To change quotas
 for several filesystems, invoke once for each filesystem.
 .PP

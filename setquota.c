@@ -106,6 +106,19 @@ static qsize_t parse_blocksize(const char *str, const char *msg)
 	return ret;
 }
 
+/* Convert inode count to number - print errstr message in case of failure */
+static qsize_t parse_inodecount(const char *str, const char *msg)
+{
+	qsize_t ret;
+	const char *error = str2number(str, &ret);
+
+	if (error) {
+		errstr(_("%s: %s: %s\n"), msg, str, error);
+		usage();
+	}
+	return ret;
+}
+
 /* Convert our flags to quota type */
 static inline int flag2type(int flags)
 {
@@ -241,8 +254,8 @@ static void parse_options(int argcnt, char **argstr)
 		if (!(flags & (FL_GRACE | FL_INDIVIDUAL_GRACE | FL_PROTO))) {
 			toset.dqb_bsoftlimit = parse_blocksize(argstr[optind++], _("Bad block softlimit"));
 			toset.dqb_bhardlimit = parse_blocksize(argstr[optind++], _("Bad block hardlimit"));
-			toset.dqb_isoftlimit = parse_unum(argstr[optind++], _("Bad inode softlimit"));
-			toset.dqb_ihardlimit = parse_unum(argstr[optind++], _("Bad inode hardlimit"));
+			toset.dqb_isoftlimit = parse_inodecount(argstr[optind++], _("Bad inode softlimit"));
+			toset.dqb_ihardlimit = parse_inodecount(argstr[optind++], _("Bad inode hardlimit"));
 		}
 		else if (flags & FL_PROTO)
 			protoid = name2id(protoname, flag2type(flags), !!(flags & FL_NUMNAMES), NULL);
@@ -319,7 +332,7 @@ static int read_entry(qid_t *id, qsize_t *isoftlimit, qsize_t *ihardlimit, qsize
 	static int line = 0;
 	char name[MAXNAMELEN+1];
 	char linebuf[MAXLINELEN], *chptr;
-	unsigned long is, ih;
+	char is[MAXNAMELEN+1], ih[MAXNAMELEN+1];
 	char bs[MAXNAMELEN+1], bh[MAXNAMELEN+1];
 	const char *error;
 	int ret;
@@ -339,7 +352,7 @@ static int read_entry(qid_t *id, qsize_t *isoftlimit, qsize_t *ihardlimit, qsize
 			chptr++;
 		if (*chptr == '\n')
 			continue;
-		ret = sscanf(chptr, "%s %s %s %lu %lu", name, bs, bh, &is, &ih);
+		ret = sscanf(chptr, "%s %s %s %s %s", name, bs, bh, is, ih);
 		if (ret != 5) {
 			errstr(_("Cannot parse input line %d.\n"), line);
 			if (!(flags & FL_CONTINUE_BATCH))
@@ -368,6 +381,24 @@ static int read_entry(qid_t *id, qsize_t *isoftlimit, qsize_t *ihardlimit, qsize
 		if (error) {
 			errstr(_("Unable to parse block hard limit '%s' "
 				    "on line %d: %s\n"), bh, line, error);
+			if (!(flags & FL_CONTINUE_BATCH))
+				die(1, _("Exitting.\n"));
+			errstr(_("Skipping line.\n"));
+			continue;
+		}
+		error = str2number(is, isoftlimit);
+		if (error) {
+			errstr(_("Unable to parse inode soft limit '%s' "
+				    "on line %d: %s\n"), is, line, error);
+			if (!(flags & FL_CONTINUE_BATCH))
+				die(1, _("Exitting.\n"));
+			errstr(_("Skipping line.\n"));
+			continue;
+		}
+		error = str2number(ih, ihardlimit);
+		if (error) {
+			errstr(_("Unable to parse inode hard limit '%s' "
+				    "on line %d: %s\n"), ih, line, error);
 			if (!(flags & FL_CONTINUE_BATCH))
 				die(1, _("Exitting.\n"));
 			errstr(_("Skipping line.\n"));
