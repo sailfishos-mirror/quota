@@ -319,7 +319,9 @@ static int read_entry(qid_t *id, qsize_t *isoftlimit, qsize_t *ihardlimit, qsize
 	static int line = 0;
 	char name[MAXNAMELEN+1];
 	char linebuf[MAXLINELEN], *chptr;
-	unsigned long is, ih, bs, bh;
+	unsigned long is, ih;
+	char bs[MAXNAMELEN+1], bh[MAXNAMELEN+1];
+	const char *error;
 	int ret;
 
 	while (1) {
@@ -337,7 +339,7 @@ static int read_entry(qid_t *id, qsize_t *isoftlimit, qsize_t *ihardlimit, qsize
 			chptr++;
 		if (*chptr == '\n')
 			continue;
-		ret = sscanf(chptr, "%s %lu %lu %lu %lu", name, &bs, &bh, &is, &ih);
+		ret = sscanf(chptr, "%s %s %s %lu %lu", name, bs, bh, &is, &ih);
 		if (ret != 5) {
 			errstr(_("Cannot parse input line %d.\n"), line);
 			if (!(flags & FL_CONTINUE_BATCH))
@@ -353,12 +355,28 @@ static int read_entry(qid_t *id, qsize_t *isoftlimit, qsize_t *ihardlimit, qsize
 			errstr(_("Skipping line.\n"));
 			continue;
 		}
+		error = str2space(bs, bsoftlimit);
+		if (error) {
+			errstr(_("Unable to parse block soft limit '%s' "
+				    "on line %d: %s\n"), bs, line, error);
+			if (!(flags & FL_CONTINUE_BATCH))
+				die(1, _("Exitting.\n"));
+			errstr(_("Skipping line.\n"));
+			continue;
+		}
+		error = str2space(bh, bhardlimit);
+		if (error) {
+			errstr(_("Unable to parse block hard limit '%s' "
+				    "on line %d: %s\n"), bh, line, error);
+			if (!(flags & FL_CONTINUE_BATCH))
+				die(1, _("Exitting.\n"));
+			errstr(_("Skipping line.\n"));
+			continue;
+		}
 		break;
 	}
 	*isoftlimit = is;
 	*ihardlimit = ih;
-	*bsoftlimit = bs;
-	*bhardlimit = bh;
 	return 0;
 }
 
