@@ -642,7 +642,7 @@ struct quota_handle **create_handle_list(int count, char **mntpoints, int type, 
 		die(2, _("Cannot initialize mountpoint scan.\n"));
 	while ((mnt = get_next_mount())) {
 #ifndef RPC
-		if (nfs_fstype(mnt->mnt_type))
+		if (nfs_fstype(mnt->me_type))
 			continue;
 #endif
 		if (fmt == -1 || count) {
