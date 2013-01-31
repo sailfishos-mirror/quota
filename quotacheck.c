@@ -828,6 +828,9 @@ static int dump_to_file(struct mount_entry *mnt, int type)
 		return -1;
 	}
 	debug(FL_DEBUG, _("Data dumped.\n"));
+	/* Moving of quota files doesn't apply to GFS2 or XFS */
+	if (cfmt == QF_XFS)
+		return 0;
 	if (kern_quota_on(mnt, type, cfmt) >= 0) {	/* Quota turned on? */
 		char *filename;
 
@@ -870,6 +873,10 @@ static int sub_quota_file(struct mount_entry *mnt, int qtype, int ftype)
 	loff_t qspace;
 	struct dquot *d;
 	qid_t id;
+
+	/* GFS2 and XFS do not have quota files. */
+	if (cfmt == QF_XFS)
+		return 0;
 
 	debug(FL_DEBUG, _("Substracting space used by old %s quota file.\n"), _(type2name(ftype)));
 	if (get_qf_name(mnt, ftype, cfmt, 0, &filename) < 0) {
