@@ -880,12 +880,12 @@ static int sub_quota_file(struct mount_entry *mnt, int qtype, int ftype)
 
 	debug(FL_DEBUG, _("Substracting space used by old %s quota file.\n"), _(type2name(ftype)));
 	if (get_qf_name(mnt, ftype, cfmt, 0, &filename) < 0) {
-		debug(FL_VERBOSE, _("Old %s file name could not been determined. Usage will not be subtracted.\n"), _(type2name(ftype)));
+		debug(FL_VERBOSE | FL_DEBUG, _("Old %s file name could not been determined. Usage will not be subtracted.\n"), _(type2name(ftype)));
 		return 0;
 	}
 
 	if (stat(filename, &st) < 0) {
-		debug(FL_VERBOSE, _("Cannot stat old %s quota file %s: %s. Usage will not be subtracted.\n"), _(type2name(ftype)), filename, strerror(errno));
+		debug(FL_VERBOSE | FL_DEBUG, _("Cannot stat old %s quota file %s: %s. Usage will not be subtracted.\n"), _(type2name(ftype)), filename, strerror(errno));
 		free(filename);
 		return 0;
 	}
@@ -961,7 +961,7 @@ Please stop all programs writing to filesystem or use -m flag to force checking.
 		debug(FL_DEBUG, _("Filesystem remounted read-only\n"));
 	}
 start_scan:
-	debug(FL_VERBOSE, _("Scanning %s [%s] "), mnt->me_devname, mnt->me_dir);
+	debug(FL_VERBOSE | FL_DEBUG, _("Scanning %s [%s] "), mnt->me_devname, mnt->me_dir);
 #if defined(EXT2_DIRECT)
 	if (!strcmp(mnt->me_type, MNTTYPE_EXT2) || !strcmp(mnt->me_type, MNTTYPE_EXT3) || !strcmp(mnt->me_type, MNTTYPE_NEXT3)) {
 		if ((failed = ext2_direct_scan(mnt->me_devname)) < 0)
@@ -977,7 +977,7 @@ start_scan:
 			goto out;
 	}
 	dirs_done++;
-	if (flags & FL_VERBOSE || flags & FL_VERYVERBOSE)
+	if (flags & FL_VERBOSE || flags & FL_DEBUG)
 		fputs(_("done\n"), stdout);
 	if (ucheck) {
 		failed |= sub_quota_file(mnt, USRQUOTA, USRQUOTA);
@@ -1171,7 +1171,7 @@ static int check_all(void)
 			debug(FL_DEBUG, _("Detected quota format %s\n"), fmt2name(cfmt));
 		}
 
-		if (flags & FL_VERBOSE &&
+		if (flags & (FL_VERBOSE | FL_DEBUG) &&
 		    !str_hasmntopt(mnt->me_opts, MNTOPT_USRJQUOTA) &&
 		    !str_hasmntopt(mnt->me_opts, MNTOPT_GRPJQUOTA) &&
 		    !warned &&
