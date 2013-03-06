@@ -20,7 +20,7 @@ static char **mnt;
 static int mntcnt;
 char *progname;
 
-static void usage(void)
+static void usage(int status)
 {
 	printf(_(
 "%1$s: Utility for syncing quotas.\n"
@@ -39,7 +39,7 @@ static void usage(void)
 "\n"
 		));
 	printf(_("Report bugs to <%s>.\n"), MY_EMAIL);
-	exit(1);
+	exit(status);
 }
 
 static void parse_options(int argcnt, char **argstr)
@@ -57,11 +57,12 @@ static void parse_options(int argcnt, char **argstr)
 	while ((ret = getopt_long(argcnt, argstr, "ahugV", long_opts, NULL)) != -1) {
 		switch (ret) {
 			case '?':
+				usage(EXIT_FAILURE);
 			case 'h':
-				usage();
+				usage(EXIT_SUCCESS);
 			case 'V':
 				version();
-				exit(0);
+				exit(EXIT_SUCCESS);
 			case 'u':
 				flags |= FL_USER;
 				break;
@@ -77,7 +78,7 @@ static void parse_options(int argcnt, char **argstr)
 	if ((flags & FL_ALL && optind != argcnt) ||
 	    (!(flags & FL_ALL) && optind == argcnt)) {
 		fputs(_("Bad number of arguments.\n"), stderr);
-		usage();
+		usage(EXIT_FAILURE);
 	}
 	if (!(flags & FL_ALL)) {
 		mnt = argstr + optind;
@@ -100,10 +101,12 @@ static int syncquotas(int type)
 	int i, ret = 0;
 
 	if (flags & FL_ALL) {
-		if (sync_one(type, NULL) < 0)
+		if (sync_one(type, NULL) < 0) {
 			errstr(_("%s quota sync failed: %s\n"), _(type2name(type)),
 					strerror(errno));
-		return -1;
+			ret = -1;
+		}
+		return ret;
 	}
 
 	handles = create_handle_list(mntcnt, mnt, type, fmt,
@@ -124,7 +127,7 @@ static int syncquotas(int type)
 
 int main(int argc, char **argv)
 {
-	int ret = 0;
+	int ret = EXIT_SUCCESS;
 
 	gettexton();
 	progname = basename(argv[0]);
@@ -134,9 +137,9 @@ int main(int argc, char **argv)
 
 	if (flags & FL_USER)
 		if (syncquotas(USRQUOTA))
-			ret = 1;
+			ret = EXIT_FAILURE;
 	if (flags & FL_GROUP)
 		if (syncquotas(GRPQUOTA))
-			ret = 1;
+			ret = EXIT_FAILURE;
 	return ret;
 }
