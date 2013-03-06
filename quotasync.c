@@ -22,8 +22,23 @@ char *progname;
 
 static void usage(void)
 {
-	errstr(_("Utility for syncing quotas.\nUsage:\n%s [-ug] -a | mntpoint...\n\n"), progname);
-	fprintf(stderr, _("Bugs to %s\n"), MY_EMAIL);
+	printf(_(
+"%1$s: Utility for syncing quotas.\n"
+"Usage: %1$s [-ug] mount-point...\n"
+"   or: %1$s [-ug] -a\n"
+"   or: %1$s -h | -V\n"
+"\n"
+		), progname);
+	printf(_(
+"Options:\n"
+"-u, --user     synchronize user quotas\n"
+"-g, --group    synchronize group quotas\n"
+"-a, --all      synchronize quotas for all mounted file systems\n"
+"-h, --help     display this help message and exit\n"
+"-V, --version  display version information and exit\n"
+"\n"
+		));
+	printf(_("Report bugs to <%s>.\n"), MY_EMAIL);
 	exit(1);
 }
 
