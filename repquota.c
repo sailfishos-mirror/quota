@@ -56,9 +56,10 @@ static void usage(void)
 -p, --raw-grace             print grace time in seconds since epoch\n\
 -n, --no-names              do not translate uid/gid to name\n\
 -i, --no-autofs             avoid autofs mountpoints\n\
--c, --batch-translation     translate big number of ids at once\n\
--C, --no-batch-translation  translate ids one by one\n\
+-c, --cache                 translate big number of ids at once\n\
+-C, --no-cache              translate ids one by one\n\
 -F, --format=formatname     report information for specific format\n\
+-a, --all                   report information for all mount points with quotas\n\
 -h, --help                  display this help message and exit\n\
 -V, --version               display version information and exit\n\n"), progname);
 	fprintf(stderr, _("Bugs to %s\n"), MY_EMAIL);

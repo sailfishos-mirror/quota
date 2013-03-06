@@ -102,7 +102,7 @@ static void usage(void)
 -i, --no-autofs           do not query autofs mountpoints\n\
 -F, --format=formatname   display quota of a specific format\n\
 -f, --filesystem-list     display quota information only for given filesystems\n\
--A, --nfs-all             display quota for all NFS mountpoints\n\
+-A, --all-nfs             display quota for all NFS mountpoints\n\
 -m, --no-mixed-pathnames  trim leading slashes from NFSv4 mountpoints\n\
     --show-mntpoint       show mount point of the file system in output\n\
     --hide-device         do not show file system device in output\n\
