@@ -334,42 +334,49 @@ int readprivs(struct dquot *qlist, int infd)
 
 		if (cnt != 7) {
 			errstr(_("Bad format:\n%s\n"), line);
+			fclose(fd);
 			return -1;
 		}
 		error = str2space(blocksstring, &blocks);
 		if (error) {
 			errstr(_("Bad block usage: %s: %s\n"),
 				blocksstring, error);
+			fclose(fd);
 			return -1;
 		}
 		error = str2space(bsoftstring, &bsoft);
 		if (error) {
 			errstr(_("Bad block soft limit: %s: %s\n"),
 				bsoftstring, error);
+			fclose(fd);
 			return -1;
 		}
 		error = str2space(bhardstring, &bhard);
 		if (error) {
 			errstr(_("Bad block hard limit: %s: %s\n"),
 				bhardstring, error);
+			fclose(fd);
 			return -1;
 		}
 		error = str2number(inodesstring, &inodes);
 		if (error) {
 			errstr(_("Bad inode usage: %s: %s\n"),
 				inodesstring, error);
+			fclose(fd);
 			return -1;
 		}
 		error = str2number(isoftstring, &isoft);
 		if (error) {
 			errstr(_("Bad inode soft limit: %s: %s\n"),
 				isoftstring, error);
+			fclose(fd);
 			return -1;
 		}
 		error = str2number(ihardstring, &ihard);
 		if (error) {
 			errstr(_("Bad inode hard limit: %s: %s\n"),
 				ihardstring, error);
+			fclose(fd);
 			return -1;
 		}
 
@@ -478,6 +485,7 @@ int readindividualtimes(struct dquot *qlist, int infd)
 		if (cnt != 3) {
 format_err:
 			errstr(_("bad format:\n%s\n"), line);
+			fclose(fd);
 			return -1;
 		}
 		if (!strcmp(btimestr, _("unset")))
@@ -488,6 +496,7 @@ format_err:
 			if (str2timeunits(btime, bunits, &bseconds) < 0) {
 units_err:
 				errstr(_("Bad time units. Units are 'second', 'minute', 'hour', and 'day'.\n"));
+				fclose(fd);
 				return -1;
 			}
 			bseconds += now;
@@ -576,11 +585,13 @@ int readtimes(struct quota_handle **handles, int infd)
 		cnt = sscanf(line, "%s %d %s %d %s", fsp, &btime, bunits, &itime, iunits);
 		if (cnt != 5) {
 			errstr(_("bad format:\n%s\n"), line);
+			fclose(fd);
 			return -1;
 		}
 		if (str2timeunits(btime, bunits, &bseconds) < 0 ||
 		    str2timeunits(itime, iunits, &iseconds) < 0) {
 			errstr(_("Bad time units. Units are 'second', 'minute', 'hour', and 'day'.\n"));
+			fclose(fd);
 			return -1;
 		}
 		for (i = 0; handles[i]; i++) {
