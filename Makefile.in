@@ -89,7 +89,6 @@ install: all @INSTMO@
 	-$(INSTALL) -m $(DEF_CONF_MODE) quotatab $(ROOTDIR)$(sysconfdir)
 	-$(INSTALL) -m $(DEF_CONF_MODE) quotagrpadmins $(ROOTDIR)$(sysconfdir)
 	-mkdir -p $(ROOTDIR)$(mandir)/man1
-	-mkdir -p $(ROOTDIR)$(mandir)/man2
 	-mkdir -p $(ROOTDIR)$(mandir)/man3
 	-mkdir -p $(ROOTDIR)$(mandir)/man8
 	-$(INSTALL) -m 755 -d $(ROOTDIR)$(includedir)/rpcsvc
@@ -100,7 +99,6 @@ ifneq ($(NETLINKLIBS),)
 	-$(INSTALL) $(STRIP) -m $(DEF_SBIN_MODE) quota_nld $(ROOTDIR)$(sbindir)
 endif
 	-$(INSTALL) -m $(DEF_MAN_MODE) *.1 $(ROOTDIR)$(mandir)/man1
-	-$(INSTALL) -m $(DEF_MAN_MODE) *.2 $(ROOTDIR)$(mandir)/man2
 	-$(INSTALL) -m $(DEF_MAN_MODE) *.3 $(ROOTDIR)$(mandir)/man3
 	-$(INSTALL) -m $(DEF_MAN_MODE) *.8 $(ROOTDIR)$(mandir)/man8
 
