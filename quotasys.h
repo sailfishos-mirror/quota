@@ -88,6 +88,12 @@ int name2fmt(char *str);
 /* Convert quota format number to name */
 char *fmt2name(int fmt);
 
+/* Convert output format name to number */
+int name2ofmt(char *str);
+
+/* Convert output format number to name */
+char *ofmt2name(int fmt);
+
 /* Convert utility to kernel format numbers */
 int util2kernfmt(int fmt);
 
@@ -167,5 +173,11 @@ struct mount_entry *get_next_mount(void);
 
 /* Free all structures associated with mountpoints scan */
 void end_mounts_scan(void);
+
+/* Quota output formats */
+#define QOF_ERROR	-1
+#define QOF_DEFAULT	0
+#define QOF_CSV		1
+#define QOF_XML		2
 
 #endif /* GUARD_QUOTASYS_H */

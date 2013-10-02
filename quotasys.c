@@ -37,6 +37,7 @@
 #define min(x,y) (((x) < (y)) ? (x) : (y))
 
 #define QFMT_NAMES 5
+#define QOFMT_NAMES 3
 
 static char extensions[MAXQUOTAS + 2][20] = INITQFNAMES;
 static char *basenames[] = INITQFBASENAMES;
@@ -45,6 +46,10 @@ static char *fmtnames[] = { "vfsold",
 			    "vfsv1",
 			    "rpc",
 			    "xfs",
+};
+static char *ofmtnames[] = { "default",
+			     "csv",
+			     "xml"
 };
 
 /*
@@ -238,6 +243,32 @@ char *fmt2name(int fmt)
 {
 	return fmtnames[fmt];
 }
+
+/*
+ *	Convert output format name to number
+ */
+int name2ofmt(char *str)
+{
+	int fmt;
+
+	for (fmt = 0; fmt < QOFMT_NAMES; fmt++)
+		if (!strcmp(str, ofmtnames[fmt]))
+			return fmt;
+	errstr(_("Unknown output format: %s\nSupported formats are:\n\
+  default - default\n\
+  csv     - comma-separated values\n\
+  xml     - simple XML\n"), str);
+	return QOF_ERROR;
+}
+
+/*
+ *	Convert output format number to name
+ */
+char *ofmt2name(int fmt)
+{
+	return ofmtnames[fmt];
+}
+
 
 /*
  *	Convert kernel to utility quota format number

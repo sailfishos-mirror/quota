@@ -127,6 +127,16 @@ Report quotas for groups.
 .TP
 .B -u, --user
 Report quotas for users. This is the default.
+.TP
+.B -O, --output=\f2format-name\f1
+Output quota report in the specified format.
+Possible format names are:
+.B default
+The default format, optimized for console viewing
+.B csv
+Comma-separated values, a text file with the columns delimited by commas
+.B xml
+Output is XML encoded, useful for processing with XSLT
 .LP
 Only the super-user may view quotas which are not their own.
 .SH FILES

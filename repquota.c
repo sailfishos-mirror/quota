@@ -38,7 +38,7 @@
 #define FL_NOAUTOFS 256	/* Ignore autofs mountpoints */
 #define FL_RAWGRACE 512	/* Print grace times in seconds since epoch */
 
-static int flags, fmt = -1;
+static int flags, fmt = -1, ofmt = QOF_DEFAULT;
 static char **mnt;
 static int mntcnt;
 static int cached_dquots;
@@ -47,7 +47,7 @@ char *progname;
 
 static void usage(void)
 {
-	errstr(_("Utility for reporting quotas.\nUsage:\n%s [-vugsi] [-c|C] [-t|n] [-F quotaformat] (-a | mntpoint)\n\n\
+	errstr(_("Utility for reporting quotas.\nUsage:\n%s [-vugsi] [-c|C] [-t|n] [-F quotaformat] [-O (default | xml | csv)] (-a | mntpoint)\n\n\
 -v, --verbose               display also users/groups without any usage\n\
 -u, --user                  display information about users\n\
 -g, --group                 display information about groups\n\
@@ -59,6 +59,7 @@ static void usage(void)
 -c, --cache                 translate big number of ids at once\n\
 -C, --no-cache              translate ids one by one\n\
 -F, --format=formatname     report information for specific format\n\
+-O, --output=format         format output as xml or csv\n\
 -a, --all                   report information for all mount points with quotas\n\
 -h, --help                  display this help message and exit\n\
 -V, --version               display version information and exit\n\n"), progname);
@@ -85,10 +86,11 @@ static void parse_options(int argcnt, char **argstr)
 		{ "no-cache", 0, NULL, 'C' },
 		{ "no-autofs", 0, NULL, 'i' },
 		{ "format", 1, NULL, 'F' },
+		{ "output", 1, NULL, 'O' },
 		{ NULL, 0, NULL, 0 }
 	};
 
-	while ((ret = getopt_long(argcnt, argstr, "VavughtspncCiF:", long_opts, NULL)) != -1) {
+	while ((ret = getopt_long(argcnt, argstr, "VavughtspncCiFO:", long_opts, NULL)) != -1) {
 		switch (ret) {
 			case '?':
 			case 'h':
@@ -131,6 +133,10 @@ static void parse_options(int argcnt, char **argstr)
 				if ((fmt = name2fmt(optarg)) == QF_ERROR)
 					exit(1);
 				break;
+			case 'O':
+				if ((ofmt = name2ofmt(optarg)) == QOF_ERROR)
+					exit(1);
+				break;
 			case 'n':
 				flags |= FL_NONAME;
 				break;
@@ -168,18 +174,29 @@ static char overlim(qsize_t usage, qsize_t softlim, qsize_t hardlim)
 	return '-';
 }
 
+/* Are we over soft or hard limit?  More descriptive */
+static char * overlimd(qsize_t usage, qsize_t softlim, qsize_t hardlim)
+{
+	if (usage > hardlim && hardlim)
+		return "hard";
+	else if (usage > softlim && softlim)
+		return "soft";
+	else
+		return "ok";
+}
+
 /* Print one quota entry */
 static void print(struct dquot *dquot, char *name)
 {
 	char pname[MAXNAMELEN];
 	char time[MAXTIMELEN];
 	char numbuf[3][MAXNUMLEN];
-	
 	struct util_dqblk *entry = &dquot->dq_dqb;
 
 	if (!entry->dqb_curspace && !entry->dqb_curinodes && !(flags & FL_VERBOSE))
 		return;
 	sstrncpy(pname, name, sizeof(pname));
+
 	if (flags & FL_TRUNCNAMES)
 		pname[PRINTNAMELEN] = 0;
 	if (entry->dqb_bsoftlimit && toqb(entry->dqb_curspace) >= entry->dqb_bsoftlimit)
@@ -195,10 +212,42 @@ static void print(struct dquot *dquot, char *name)
 	space2str(toqb(entry->dqb_curspace), numbuf[0], flags & FL_SHORTNUMS);
 	space2str(entry->dqb_bsoftlimit, numbuf[1], flags & FL_SHORTNUMS);
 	space2str(entry->dqb_bhardlimit, numbuf[2], flags & FL_SHORTNUMS);
-	printf("%-*s %c%c %7s %7s %7s %6s", PRINTNAMELEN, pname,
-	       overlim(qb2kb(toqb(entry->dqb_curspace)), qb2kb(entry->dqb_bsoftlimit), qb2kb(entry->dqb_bhardlimit)),
-	       overlim(entry->dqb_curinodes, entry->dqb_isoftlimit, entry->dqb_ihardlimit),
-	       numbuf[0], numbuf[1], numbuf[2], time);
+
+	if (ofmt == QOF_DEFAULT) {
+		printf("%-*s %c%c %7s %7s %7s %6s", PRINTNAMELEN, pname,
+		       overlim(qb2kb(toqb(entry->dqb_curspace)), qb2kb(entry->dqb_bsoftlimit), qb2kb(entry->dqb_bhardlimit)),
+		       overlim(entry->dqb_curinodes, entry->dqb_isoftlimit, entry->dqb_ihardlimit),
+		       numbuf[0], numbuf[1], numbuf[2], time);
+	} else if (ofmt == QOF_CSV) {
+		printf("%s,%s,%s,%s,%s,%s,%s", pname,
+			overlimd(qb2kb(toqb(entry->dqb_curspace)),
+				qb2kb(entry->dqb_bsoftlimit),
+				qb2kb(entry->dqb_bhardlimit)),
+			overlimd(entry->dqb_curinodes,
+				entry->dqb_isoftlimit,
+				entry->dqb_ihardlimit),
+			numbuf[0], numbuf[1], numbuf[2], time);
+	} else if (ofmt == QOF_XML) {
+		char *spacehdr;
+
+		if (flags & FL_SHORTNUMS)
+			spacehdr = "Space";
+		else
+			spacehdr = "Block";
+
+		printf(" <Quota user='%s'>\n\
+  <QuotaStatus %s='%s' inode='%s' />\n\
+  <%sLimits used='%s' soft='%s' hard='%s' grace='%s' />\n",
+			pname, spacehdr,
+			overlimd(qb2kb(toqb(entry->dqb_curspace)),
+				qb2kb(entry->dqb_bsoftlimit),
+				qb2kb(entry->dqb_bhardlimit)),
+			overlimd(entry->dqb_curinodes,
+				entry->dqb_isoftlimit,
+				entry->dqb_ihardlimit),
+			spacehdr, numbuf[0], numbuf[1], numbuf[2], time); 
+	}
+
 	if (entry->dqb_isoftlimit && entry->dqb_curinodes >= entry->dqb_isoftlimit)
 		if (flags & FL_RAWGRACE)
 			sprintf(time, "%llu", (unsigned long long)entry->dqb_itime);
@@ -212,7 +261,12 @@ static void print(struct dquot *dquot, char *name)
 	number2str(entry->dqb_curinodes, numbuf[0], flags & FL_SHORTNUMS);
 	number2str(entry->dqb_isoftlimit, numbuf[1], flags & FL_SHORTNUMS);
 	number2str(entry->dqb_ihardlimit, numbuf[2], flags & FL_SHORTNUMS);
-	printf(" %7s %5s %5s %6s\n", numbuf[0], numbuf[1], numbuf[2], time);
+	if (ofmt == QOF_DEFAULT)
+		printf(" %7s %5s %5s %6s\n", numbuf[0], numbuf[1], numbuf[2], time);
+	else if (ofmt == QOF_CSV)
+		printf(",%s,%s,%s,%s\n", numbuf[0], numbuf[1], numbuf[2], time);
+	else if (ofmt == QOF_XML)
+		printf("  <FileLimits used='%s' soft='%s' hard='%s' grace='%s' />\n </Quota>\n", numbuf[0], numbuf[1], numbuf[2], time);
 }
 
 /* Print all dquots in the cache */
@@ -288,28 +342,51 @@ static void report_it(struct quota_handle *h, int type)
 {
 	char bgbuf[MAXTIMELEN], igbuf[MAXTIMELEN];
 	char *spacehdr;
+	char *typestr;
 
-	if (flags & FL_SHORTNUMS)
-		spacehdr = _("Space");
+	if (type == USRQUOTA)
+		typestr = _("User");
 	else
-		spacehdr = _("Block");
+		typestr = _("Group");
 
-	printf(_("*** Report for %s quotas on device %s\n"), _(type2name(type)), h->qh_quotadev);
+	if (ofmt == QOF_DEFAULT )
+		printf(_("*** Report for %s quotas on device %s\n"), _(type2name(type)), h->qh_quotadev);
+	else if (ofmt == QOF_XML)
+		printf("<RepQuota type='%s' dev='%s'>\n", type2name(type), h->qh_quotadev);
+
 	time2str(h->qh_info.dqi_bgrace, bgbuf, TF_ROUND);
 	time2str(h->qh_info.dqi_igrace, igbuf, TF_ROUND);
-	printf(_("Block grace time: %s; Inode grace time: %s\n"), bgbuf, igbuf);
-	printf(_("                        %s limits                File limits\n"), spacehdr);
-	printf(_("%-9s       used    soft    hard  grace    used  soft  hard  grace\n"), (type == USRQUOTA)?_("User"):_("Group"));
-	printf("----------------------------------------------------------------------\n");
+
+	if (ofmt == QOF_DEFAULT) {
+		if (flags & FL_SHORTNUMS)
+			spacehdr = _("Space");
+		else
+			spacehdr = _("Block");
+		printf(_("Block grace time: %s; Inode grace time: %s\n"), bgbuf, igbuf);
+		printf(_("                        %s limits                File limits\n"), spacehdr);
+		printf(_("%-9s       used    soft    hard  grace    used  soft  hard  grace\n"), typestr);
+		printf("----------------------------------------------------------------------\n");
+	} else if (ofmt == QOF_XML) {
+		printf(" <BlockGraceTime>%s</BlockGraceTime>\n <InodeGraceTime>%s</InodeGraceTime>\n", bgbuf, igbuf);
+	} else if (ofmt == QOF_CSV) {
+		if (flags & FL_SHORTNUMS)
+			spacehdr = "Space";
+		else
+			spacehdr = "Block";
+		printf("%s,%sStatus,FileStatus,%sUsed,%sSoftLimit,%sHardLimit,%sGrace,FileUsed,FileSoftLimit,FileHardLimit,FileGrace\n",
+			typestr,spacehdr, spacehdr, spacehdr, spacehdr, spacehdr);
+	}
 
 	if (h->qh_ops->scan_dquots(h, output) < 0)
 		return;
 	dump_cached_dquots(type);
-	if (h->qh_ops->report) {
+	if (h->qh_ops->report && ofmt == QOF_DEFAULT) {
 		putchar('\n');
 		h->qh_ops->report(h, flags & FL_VERBOSE);
 		putchar('\n');
 	}
+	if (ofmt == QOF_XML)
+		printf("</RepQuota>\n");
 }
 
 static void report(int type)
@@ -333,6 +410,9 @@ int main(int argc, char **argv)
 
 	parse_options(argc, argv);
 	init_kernel_interface();
+
+	if (ofmt == QOF_XML)
+		printf("<?xml version=\"1.0\"?>\n");
 
 	if (flags & FL_USER)
 		report(USRQUOTA);
