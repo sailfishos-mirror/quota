@@ -58,7 +58,9 @@ Use
 .I adminsfile
 instead of
 .I /etc/quotagrpadmins
-as a file with administrators of the groups.
+as a file with administrators of the groups (see
+.BR quotagrpadmins (5)
+for syntax).
 .TP
 .B -u, --user
 check whether users are not exceeding quotas (default).
@@ -102,6 +104,7 @@ default set of users
 .PD
 .SH "SEE ALSO"
 .BR quota (1),
+.BR quotagrpadmins (5),
 .BR cron (8),
 .BR edquota (8).
 .SH AUTHORS

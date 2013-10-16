@@ -90,6 +90,7 @@ install: all @INSTMO@
 	-$(INSTALL) -m $(DEF_CONF_MODE) quotagrpadmins $(ROOTDIR)$(sysconfdir)
 	-mkdir -p $(ROOTDIR)$(mandir)/man1
 	-mkdir -p $(ROOTDIR)$(mandir)/man3
+	-mkdir -p $(ROOTDIR)$(mandir)/man5
 	-mkdir -p $(ROOTDIR)$(mandir)/man8
 	-$(INSTALL) -m 755 -d $(ROOTDIR)$(includedir)/rpcsvc
 	-$(INSTALL) -m 644 rquota.h rquota.x $(ROOTDIR)$(includedir)/rpcsvc
@@ -100,6 +101,7 @@ ifneq ($(NETLINKLIBS),)
 endif
 	-$(INSTALL) -m $(DEF_MAN_MODE) *.1 $(ROOTDIR)$(mandir)/man1
 	-$(INSTALL) -m $(DEF_MAN_MODE) *.3 $(ROOTDIR)$(mandir)/man3
+	-$(INSTALL) -m $(DEF_MAN_MODE) *.5 $(ROOTDIR)$(mandir)/man5
 	-$(INSTALL) -m $(DEF_MAN_MODE) *.8 $(ROOTDIR)$(mandir)/man8
 
 quotaon: quotaon.o quotaon_xfs.o $(LIBOBJS)
