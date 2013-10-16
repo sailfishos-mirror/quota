@@ -231,9 +231,9 @@ static void print(struct dquot *dquot, char *name)
 		char *spacehdr;
 
 		if (flags & FL_SHORTNUMS)
-			spacehdr = "Space";
+			spacehdr = "space";
 		else
-			spacehdr = "Block";
+			spacehdr = "block";
 
 		printf(" <Quota user='%s'>\n\
   <QuotaStatus %s='%s' inode='%s' />\n\
@@ -352,7 +352,7 @@ static void report_it(struct quota_handle *h, int type)
 	if (ofmt == QOF_DEFAULT )
 		printf(_("*** Report for %s quotas on device %s\n"), _(type2name(type)), h->qh_quotadev);
 	else if (ofmt == QOF_XML)
-		printf("<RepQuota type='%s' dev='%s'>\n", type2name(type), h->qh_quotadev);
+		printf("<Report type='%s' dev='%s'>\n", type2name(type), h->qh_quotadev);
 
 	time2str(h->qh_info.dqi_bgrace, bgbuf, TF_ROUND);
 	time2str(h->qh_info.dqi_igrace, igbuf, TF_ROUND);
@@ -386,7 +386,7 @@ static void report_it(struct quota_handle *h, int type)
 		putchar('\n');
 	}
 	if (ofmt == QOF_XML)
-		printf("</RepQuota>\n");
+		printf("</Report>\n");
 }
 
 static void report(int type)
@@ -412,13 +412,16 @@ int main(int argc, char **argv)
 	init_kernel_interface();
 
 	if (ofmt == QOF_XML)
-		printf("<?xml version=\"1.0\"?>\n");
+		printf("<?xml version=\"1.0\"?>\n<repquota>\n");
 
 	if (flags & FL_USER)
 		report(USRQUOTA);
 
 	if (flags & FL_GROUP)
 		report(GRPQUOTA);
+
+	if (ofmt == QOF_XML)
+		printf("</repquota>\n");
 
 	return 0;
 }

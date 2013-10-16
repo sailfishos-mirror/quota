@@ -487,7 +487,6 @@ const char *str2number(const char *string, qsize_t *inodes)
  */
 static int hasxfsquota(const char *dev, struct mntent *mnt, int type, int flags)
 {
-	u_int16_t sbflags;
 	struct xfs_mem_dqinfo info;
 
 	if (flags & MS_XFS_DISABLED)
@@ -495,7 +494,9 @@ static int hasxfsquota(const char *dev, struct mntent *mnt, int type, int flags)
 
 	memset(&info, 0, sizeof(struct xfs_mem_dqinfo));
 	if (!quotactl(QCMD(Q_XFS_GETQSTAT, type), dev, 0, (void *)&info)) {
-		sbflags = (info.qs_flags & 0xff00) >> 8;
+#ifdef XFS_ROOTHACK
+		int sbflags = (info.qs_flags & 0xff00) >> 8;
+#endif /* XFS_ROOTHACK */
 		if (type == USRQUOTA && (info.qs_flags & XFS_QUOTA_UDQ_ACCT))
 			return QF_XFS;
 		else if (type == GRPQUOTA && (info.qs_flags & XFS_QUOTA_GDQ_ACCT))
