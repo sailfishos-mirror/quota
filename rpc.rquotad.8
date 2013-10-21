@@ -1,12 +1,27 @@
 .TH RQUOTAD 8
 .SH NAME
-rquotad, rpc.rquotad \- remote quota server
+rpc.rquotad \- remote quota server
 .SH SYNOPSIS
-.B rpc.rquotad
+.B /usr/sbin/rpc.rquotad
 [
-.B \-sSFI
+.BR \-FI
 ] [
-.B \-p \f2port\f1
+.B \-p
+.I port
+] [
+.B \-s
+|
+.B \-S
+] [
+.B \-x
+.I path
+]
+.LP
+.B /usr/sbin/rpc.rquotad
+[
+.B \-h
+|
+.B \-V
 ]
 .SH DESCRIPTION
 .LP
@@ -17,7 +32,7 @@ rquotad, rpc.rquotad \- remote quota server
 .IX  "quotas"  "rquotad daemon"  ""  "\fLrquotad\fP \(em remote quota server"
 .IX  "filesystem"  "rquotad daemon"  ""  "\fLrquotad\fP \(em remote quota server"
 .IX  "remote procedure call services"  "rquotad"  ""  "\fLrquotad\fP \(em remote quota server"
-.B rquotad
+.B rpc.rquotad
 is an
 .BR rpc (3)
 server which returns quotas for a user of a local filesystem
@@ -44,8 +59,10 @@ daemon is normally started at boot time from the
 system startup scripts.
 .SH OPTIONS
 .TP
+.B \-h, \-\-help
+Show program usage and exit.
 .B \-V, \-\-version
-Shows version of quota tools.
+Show version of quota tools.
 .TP
 .B \-s, \-\-no-setquota
 Don't allow setting of quotas (default). This option is available only
