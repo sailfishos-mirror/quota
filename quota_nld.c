@@ -26,6 +26,7 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <signal.h>
+#include <sys/stat.h>
 #include <asm/types.h>
 
 #include <linux/netlink.h>
