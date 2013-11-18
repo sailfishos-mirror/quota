@@ -26,7 +26,10 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <signal.h>
+#include <asm/types.h>
 
+#include <linux/netlink.h>
+#include <netlink/socket.h>
 #include <netlink/genl/genl.h>
 #include <netlink/genl/ctrl.h>
 
@@ -168,33 +171,45 @@ static int quota_nl_parser(struct nl_msg *msg, void *arg)
 	return 0;
 }
 
-static struct nl_handle *init_netlink(void)
+static struct nl_sock *init_netlink(void)
 {
-	struct nl_handle *handle;
-	int ret, family;
+	struct nl_sock *sock;
+	int ret, mc_family;
 
-	handle = nl_handle_alloc();
-	if (!handle)
-		die(2, _("Cannot allocate netlink handle!\n"));
-	nl_disable_sequence_check(handle);
-	ret = genl_connect(handle);
-	if (ret < 0)
-		die(2, _("Cannot connect to netlink socket: %s\n"), strerror(-ret));
-	family = genl_ctrl_resolve(handle, "VFS_DQUOT");
-	if (ret < 0)
-		die(2, _("Cannot resolve quota netlink name: %s\n"), strerror(-ret));
+	sock = nl_socket_alloc();
+	if (!sock)
+		die(2, _("Cannot allocate netlink socket!\n"));
+	nl_socket_disable_seq_check(sock);
 
-	ret = nl_socket_add_membership(handle, family);
-	if (ret < 0)
-		die(2, _("Cannot join quota multicast group: %s\n"), strerror(-ret));
-
-	ret = nl_socket_modify_cb(handle, NL_CB_VALID, NL_CB_CUSTOM,
+	ret = nl_socket_modify_cb(sock, NL_CB_VALID, NL_CB_CUSTOM,
 			quota_nl_parser, NULL);
 	if (ret < 0)
 		die(2, _("Cannot register callback for"
 			 " netlink messages: %s\n"), strerror(-ret));
 
-	return handle;
+	ret = genl_connect(sock);
+	if (ret < 0)
+		die(2, _("Cannot connect to netlink socket: %s\n"), strerror(-ret));
+
+	mc_family = genl_ctrl_resolve_grp(sock, "VFS_DQUOT", "events");
+	if (mc_family < 0) {
+		/*
+		 * Using family id for multicasting is wrong but I messed up
+		 * kernel netlink interface by using family id as a multicast
+		 * group id in kernel so we have to carry this code to keep
+		 * compatibility with older kernels.
+		 */
+		mc_family = genl_ctrl_resolve(sock, "VFS_DQUOT");
+		if (mc_family < 0)
+			die(2, _("Cannot resolve quota netlink name: %s\n"),
+			    strerror(-mc_family));
+	}
+
+	ret = nl_socket_add_membership(sock, mc_family);
+	if (ret < 0)
+		die(2, _("Cannot join quota multicast group: %s\n"), strerror(-ret));
+
+	return sock;
 }
 
 static DBusConnection *init_dbus(void)
@@ -363,12 +378,12 @@ out:
 		dbus_message_unref(msg);
 }
 
-static void run(struct nl_handle *nhandle)
+static void run(struct nl_sock *nsock)
 {
 	int ret;
 
 	while (1) {
-		ret = nl_recvmsgs_default(nhandle);
+		ret = nl_recvmsgs_default(nsock);
 		if (ret < 0)
 			errstr(_("Failed to read or parse quota netlink"
 				" message: %s\n"), strerror(-ret));
@@ -455,13 +470,13 @@ static void use_pid_file(void)
 
 int main(int argc, char **argv)
 {
-	struct nl_handle *nhandle;
+	struct nl_sock *nsock;
 
 	gettexton();
 	progname = basename(argv[0]);
 	parse_options(argc, argv);
 
-	nhandle = init_netlink();
+	nsock = init_netlink();
 	if (!(flags & FL_NODBUS))
 		dhandle = init_dbus();
 	if (!(flags & FL_NODAEMON)) {
@@ -469,6 +484,6 @@ int main(int argc, char **argv)
 		daemon(0, 0);
 		use_pid_file();
 	}
-	run(nhandle);
+	run(nsock);
 	return 0;
 }
