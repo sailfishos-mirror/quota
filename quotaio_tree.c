@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <asm/byteorder.h>
+#include <endian.h>
 
 #include "pot.h"
 #include "common.h"
@@ -109,7 +109,7 @@ static void put_free_dqblk(struct quota_handle *h, dqbuf_t buf, uint blk)
 
 	dh->dqdh_next_free = htole32(info->dqi_free_blk);
 	dh->dqdh_prev_free = htole32(0);
-	dh->dqdh_entries = __cpu_to_le16(0);
+	dh->dqdh_entries = htole16(0);
 	info->dqi_free_blk = blk;
 	mark_quotafile_info_dirty(h);
 	write_blk(h, blk, buf);
@@ -192,7 +192,7 @@ static uint find_free_dqentry(struct quota_handle *h, struct dquot *dquot, int *
 	}
 	if (le16toh(dh->dqdh_entries) + 1 >= qtree_dqstr_in_blk(info))	/* Block will be full? */
 		remove_free_dqentry(h, buf, blk);
-	dh->dqdh_entries = __cpu_to_le16(le16toh(dh->dqdh_entries) + 1);
+	dh->dqdh_entries = htole16(le16toh(dh->dqdh_entries) + 1);
 	/* Find free structure in block */
 	ddquot = buf + sizeof(struct qt_disk_dqdbheader);
 	for (i = 0;
@@ -292,7 +292,7 @@ static void free_dqentry(struct quota_handle *h, struct dquot *dquot, uint blk)
 		    (uint) (dquot->dq_dqb.u.v2_mdqb.dqb_off >> QT_BLKSIZE_BITS));
 	read_blk(h, blk, buf);
 	dh = (struct qt_disk_dqdbheader *)buf;
-	dh->dqdh_entries = __cpu_to_le16(le16toh(dh->dqdh_entries) - 1);
+	dh->dqdh_entries = htole16(le16toh(dh->dqdh_entries) - 1);
 	if (!le16toh(dh->dqdh_entries)) {	/* Block got free? */
 		remove_free_dqentry(h, buf, blk);
 		put_free_dqblk(h, buf, blk);
