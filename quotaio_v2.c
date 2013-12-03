@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <asm/byteorder.h>
+#include <endian.h>
 
 #include "pot.h"
 #include "common.h"
@@ -55,18 +55,18 @@ static void v2r0_disk2memdqblk(struct dquot *dquot, void *dp)
 	struct util_dqblk *m = &dquot->dq_dqb;
 	struct v2r0_disk_dqblk *d = dp, empty;
 
-	dquot->dq_id = __le32_to_cpu(d->dqb_id);
-	m->dqb_ihardlimit = __le32_to_cpu(d->dqb_ihardlimit);
-	m->dqb_isoftlimit = __le32_to_cpu(d->dqb_isoftlimit);
-	m->dqb_bhardlimit = __le32_to_cpu(d->dqb_bhardlimit);
-	m->dqb_bsoftlimit = __le32_to_cpu(d->dqb_bsoftlimit);
-	m->dqb_curinodes = __le32_to_cpu(d->dqb_curinodes);
-	m->dqb_curspace = __le64_to_cpu(d->dqb_curspace);
-	m->dqb_itime = __le64_to_cpu(d->dqb_itime);
-	m->dqb_btime = __le64_to_cpu(d->dqb_btime);
+	dquot->dq_id = le32toh(d->dqb_id);
+	m->dqb_ihardlimit = le32toh(d->dqb_ihardlimit);
+	m->dqb_isoftlimit = le32toh(d->dqb_isoftlimit);
+	m->dqb_bhardlimit = le32toh(d->dqb_bhardlimit);
+	m->dqb_bsoftlimit = le32toh(d->dqb_bsoftlimit);
+	m->dqb_curinodes = le32toh(d->dqb_curinodes);
+	m->dqb_curspace = le64toh(d->dqb_curspace);
+	m->dqb_itime = le64toh(d->dqb_itime);
+	m->dqb_btime = le64toh(d->dqb_btime);
 
 	memset(&empty, 0, sizeof(struct v2r0_disk_dqblk));
-	empty.dqb_itime = __cpu_to_le64(1);
+	empty.dqb_itime = htole64(1);
 	if (!memcmp(&empty, dp, sizeof(struct v2r0_disk_dqblk)))
 		m->dqb_itime = 0;
 }
@@ -80,17 +80,17 @@ static void v2r0_mem2diskdqblk(void *dp, struct dquot *dquot)
 	struct v2r0_disk_dqblk *d = dp;
 	struct qtree_mem_dqinfo *info = &dquot->dq_h->qh_info.u.v2_mdqi.dqi_qtree;
 
-	d->dqb_ihardlimit = __cpu_to_le32(m->dqb_ihardlimit);
-	d->dqb_isoftlimit = __cpu_to_le32(m->dqb_isoftlimit);
-	d->dqb_bhardlimit = __cpu_to_le32(m->dqb_bhardlimit);
-	d->dqb_bsoftlimit = __cpu_to_le32(m->dqb_bsoftlimit);
-	d->dqb_curinodes = __cpu_to_le32(m->dqb_curinodes);
-	d->dqb_curspace = __cpu_to_le64(m->dqb_curspace);
-	d->dqb_itime = __cpu_to_le64(m->dqb_itime);
-	d->dqb_btime = __cpu_to_le64(m->dqb_btime);
-	d->dqb_id = __cpu_to_le32(dquot->dq_id);
+	d->dqb_ihardlimit = htole32(m->dqb_ihardlimit);
+	d->dqb_isoftlimit = htole32(m->dqb_isoftlimit);
+	d->dqb_bhardlimit = htole32(m->dqb_bhardlimit);
+	d->dqb_bsoftlimit = htole32(m->dqb_bsoftlimit);
+	d->dqb_curinodes = htole32(m->dqb_curinodes);
+	d->dqb_curspace = htole64(m->dqb_curspace);
+	d->dqb_itime = htole64(m->dqb_itime);
+	d->dqb_btime = htole64(m->dqb_btime);
+	d->dqb_id = htole32(dquot->dq_id);
 	if (qtree_entry_unused(info, dp))
-		d->dqb_itime = __cpu_to_le64(1);
+		d->dqb_itime = htole64(1);
 }
 
 static int v2r0_is_id(void *dp, struct dquot *dquot)
@@ -100,7 +100,7 @@ static int v2r0_is_id(void *dp, struct dquot *dquot)
 
 	if (qtree_entry_unused(info, dp))
 		return 0;
-	return __le32_to_cpu(d->dqb_id) == dquot->dq_id;
+	return le32toh(d->dqb_id) == dquot->dq_id;
 }
 
 /*
@@ -111,18 +111,18 @@ static void v2r1_disk2memdqblk(struct dquot *dquot, void *dp)
 	struct util_dqblk *m = &dquot->dq_dqb;
 	struct v2r1_disk_dqblk *d = dp, empty;
 
-	dquot->dq_id = __le32_to_cpu(d->dqb_id);
-	m->dqb_ihardlimit = __le64_to_cpu(d->dqb_ihardlimit);
-	m->dqb_isoftlimit = __le64_to_cpu(d->dqb_isoftlimit);
-	m->dqb_bhardlimit = __le64_to_cpu(d->dqb_bhardlimit);
-	m->dqb_bsoftlimit = __le64_to_cpu(d->dqb_bsoftlimit);
-	m->dqb_curinodes = __le64_to_cpu(d->dqb_curinodes);
-	m->dqb_curspace = __le64_to_cpu(d->dqb_curspace);
-	m->dqb_itime = __le64_to_cpu(d->dqb_itime);
-	m->dqb_btime = __le64_to_cpu(d->dqb_btime);
+	dquot->dq_id = le32toh(d->dqb_id);
+	m->dqb_ihardlimit = le64toh(d->dqb_ihardlimit);
+	m->dqb_isoftlimit = le64toh(d->dqb_isoftlimit);
+	m->dqb_bhardlimit = le64toh(d->dqb_bhardlimit);
+	m->dqb_bsoftlimit = le64toh(d->dqb_bsoftlimit);
+	m->dqb_curinodes = le64toh(d->dqb_curinodes);
+	m->dqb_curspace = le64toh(d->dqb_curspace);
+	m->dqb_itime = le64toh(d->dqb_itime);
+	m->dqb_btime = le64toh(d->dqb_btime);
 
 	memset(&empty, 0, sizeof(struct v2r1_disk_dqblk));
-	empty.dqb_itime = __cpu_to_le64(1);
+	empty.dqb_itime = htole64(1);
 	if (!memcmp(&empty, dp, sizeof(struct v2r1_disk_dqblk)))
 		m->dqb_itime = 0;
 }
@@ -135,18 +135,18 @@ static void v2r1_mem2diskdqblk(void *dp, struct dquot *dquot)
 	struct util_dqblk *m = &dquot->dq_dqb;
 	struct v2r1_disk_dqblk *d = dp;
 
-	d->dqb_ihardlimit = __cpu_to_le64(m->dqb_ihardlimit);
-	d->dqb_isoftlimit = __cpu_to_le64(m->dqb_isoftlimit);
-	d->dqb_bhardlimit = __cpu_to_le64(m->dqb_bhardlimit);
-	d->dqb_bsoftlimit = __cpu_to_le64(m->dqb_bsoftlimit);
-	d->dqb_curinodes = __cpu_to_le64(m->dqb_curinodes);
-	d->dqb_curspace = __cpu_to_le64(m->dqb_curspace);
-	d->dqb_itime = __cpu_to_le64(m->dqb_itime);
-	d->dqb_btime = __cpu_to_le64(m->dqb_btime);
-	d->dqb_id = __cpu_to_le32(dquot->dq_id);
+	d->dqb_ihardlimit = htole64(m->dqb_ihardlimit);
+	d->dqb_isoftlimit = htole64(m->dqb_isoftlimit);
+	d->dqb_bhardlimit = htole64(m->dqb_bhardlimit);
+	d->dqb_bsoftlimit = htole64(m->dqb_bsoftlimit);
+	d->dqb_curinodes = htole64(m->dqb_curinodes);
+	d->dqb_curspace = htole64(m->dqb_curspace);
+	d->dqb_itime = htole64(m->dqb_itime);
+	d->dqb_btime = htole64(m->dqb_btime);
+	d->dqb_id = htole32(dquot->dq_id);
 	d->dqb_pad = 0;     /* Initialize because of qtree_entry_unused() scan */
 	if (qtree_entry_unused(&dquot->dq_h->qh_info.u.v2_mdqi.dqi_qtree, dp))
-		d->dqb_itime = __cpu_to_le64(1);
+		d->dqb_itime = htole64(1);
 }
 
 static int v2r1_is_id(void *dp, struct dquot *dquot)
@@ -156,7 +156,7 @@ static int v2r1_is_id(void *dp, struct dquot *dquot)
 
 	if (qtree_entry_unused(info, dp))
 		return 0;
-	return __le32_to_cpu(d->dqb_id) == dquot->dq_id;
+	return le32toh(d->dqb_id) == dquot->dq_id;
 }
 
 static struct qtree_fmt_operations v2r0_fmt_ops = {
@@ -176,12 +176,12 @@ static struct qtree_fmt_operations v2r1_fmt_ops = {
  */
 static inline void v2_disk2memdqinfo(struct util_dqinfo *m, struct v2_disk_dqinfo *d)
 {
-	m->dqi_bgrace = __le32_to_cpu(d->dqi_bgrace);
-	m->dqi_igrace = __le32_to_cpu(d->dqi_igrace);
-	m->u.v2_mdqi.dqi_flags = __le32_to_cpu(d->dqi_flags) & V2_DQF_MASK;
-	m->u.v2_mdqi.dqi_qtree.dqi_blocks = __le32_to_cpu(d->dqi_blocks);
-	m->u.v2_mdqi.dqi_qtree.dqi_free_blk = __le32_to_cpu(d->dqi_free_blk);
-	m->u.v2_mdqi.dqi_qtree.dqi_free_entry = __le32_to_cpu(d->dqi_free_entry);
+	m->dqi_bgrace = le32toh(d->dqi_bgrace);
+	m->dqi_igrace = le32toh(d->dqi_igrace);
+	m->u.v2_mdqi.dqi_flags = le32toh(d->dqi_flags) & V2_DQF_MASK;
+	m->u.v2_mdqi.dqi_qtree.dqi_blocks = le32toh(d->dqi_blocks);
+	m->u.v2_mdqi.dqi_qtree.dqi_free_blk = le32toh(d->dqi_free_blk);
+	m->u.v2_mdqi.dqi_qtree.dqi_free_entry = le32toh(d->dqi_free_entry);
 }
 
 /*
@@ -189,12 +189,12 @@ static inline void v2_disk2memdqinfo(struct util_dqinfo *m, struct v2_disk_dqinf
  */
 static inline void v2_mem2diskdqinfo(struct v2_disk_dqinfo *d, struct util_dqinfo *m)
 {
-	d->dqi_bgrace = __cpu_to_le32(m->dqi_bgrace);
-	d->dqi_igrace = __cpu_to_le32(m->dqi_igrace);
-	d->dqi_flags = __cpu_to_le32(m->u.v2_mdqi.dqi_flags & V2_DQF_MASK);
-	d->dqi_blocks = __cpu_to_le32(m->u.v2_mdqi.dqi_qtree.dqi_blocks);
-	d->dqi_free_blk = __cpu_to_le32(m->u.v2_mdqi.dqi_qtree.dqi_free_blk);
-	d->dqi_free_entry = __cpu_to_le32(m->u.v2_mdqi.dqi_qtree.dqi_free_entry);
+	d->dqi_bgrace = htole32(m->dqi_bgrace);
+	d->dqi_igrace = htole32(m->dqi_igrace);
+	d->dqi_flags = htole32(m->u.v2_mdqi.dqi_flags & V2_DQF_MASK);
+	d->dqi_blocks = htole32(m->u.v2_mdqi.dqi_qtree.dqi_blocks);
+	d->dqi_free_blk = htole32(m->u.v2_mdqi.dqi_qtree.dqi_free_blk);
+	d->dqi_free_entry = htole32(m->u.v2_mdqi.dqi_qtree.dqi_free_entry);
 }
 
 /* Convert kernel quotablock format to utility one */
@@ -250,14 +250,14 @@ static int v2_check_file(int fd, int type, int fmt)
 	else
 		return 0;
 
-	if (__le32_to_cpu(h.dqh_magic) != file_magics[type]) {
-		if (__be32_to_cpu(h.dqh_magic) == file_magics[type])
+	if (le32toh(h.dqh_magic) != file_magics[type]) {
+		if (be32toh(h.dqh_magic) == file_magics[type])
 			die(3, _("Your quota file is stored in wrong endianity. Please use convertquota(8) to convert it.\n"));
 		return 0;
 	}
-	if (__le32_to_cpu(h.dqh_version) > known_versions[type])
+	if (le32toh(h.dqh_version) > known_versions[type])
 		return 0;
-	if (version != __le32_to_cpu(h.dqh_version))
+	if (version != le32toh(h.dqh_version))
 		return 0;
 	return 1;
 }
@@ -303,9 +303,9 @@ static int v2_init_io(struct quota_handle *h)
 		if (!QIO_ENABLED(h))
 			v2_disk2memdqinfo(&h->qh_info, &ddqinfo);
 		else	/* We need just the number of blocks */
-			h->qh_info.u.v2_mdqi.dqi_qtree.dqi_blocks = __le32_to_cpu(ddqinfo.dqi_blocks);
+			h->qh_info.u.v2_mdqi.dqi_qtree.dqi_blocks = le32toh(ddqinfo.dqi_blocks);
 
-		if (__le32_to_cpu(header.dqh_version) == 0) {
+		if (le32toh(header.dqh_version) == 0) {
 			h->qh_info.u.v2_mdqi.dqi_qtree.dqi_entry_size = sizeof(struct v2r0_disk_dqblk);
 			h->qh_info.u.v2_mdqi.dqi_qtree.dqi_ops = &v2r0_fmt_ops;
 			h->qh_info.dqi_max_b_limit = ~(uint32_t)0;
@@ -345,8 +345,8 @@ static int v2_new_io(struct quota_handle *h)
 		return -1;
 
 	/* Write basic quota header */
-	ddqheader.dqh_magic = __cpu_to_le32(file_magics[h->qh_type]);
-	ddqheader.dqh_version = __cpu_to_le32(version);
+	ddqheader.dqh_magic = htole32(file_magics[h->qh_type]);
+	ddqheader.dqh_version = htole32(version);
 	lseek(h->qh_fd, 0, SEEK_SET);
 	if (write(h->qh_fd, &ddqheader, sizeof(ddqheader)) != sizeof(ddqheader))
 		return -1;

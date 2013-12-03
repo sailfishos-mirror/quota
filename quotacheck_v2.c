@@ -12,7 +12,7 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include <asm/byteorder.h>
+#include <endian.h>
 
 #include "pot.h"
 #include "common.h"
@@ -67,10 +67,10 @@ static int check_info(char *filename, int fd, int type)
 		return -1;
 	}
 
-	blocks = __le32_to_cpu(dinfo.dqi_blocks);
-	freeblk = __le32_to_cpu(dinfo.dqi_free_blk);
-	freeent = __le32_to_cpu(dinfo.dqi_free_entry);
-	dflags = __le32_to_cpu(dinfo.dqi_flags);
+	blocks = le32toh(dinfo.dqi_blocks);
+	freeblk = le32toh(dinfo.dqi_free_blk);
+	freeent = le32toh(dinfo.dqi_free_entry);
+	dflags = le32toh(dinfo.dqi_flags);
 	filesize = lseek(fd, 0, SEEK_END);
 	if (check_blkref(freeblk, blocks) < 0 || dflags & ~V2_DQF_MASK ||
 	    check_blkref(freeent, blocks) < 0 || (filesize + QT_BLKSIZE - 1) >> QT_BLKSIZE_BITS != blocks) {
@@ -86,8 +86,8 @@ static int check_info(char *filename, int fd, int type)
 		       old_info[type].u.v2_mdqi.dqi_qtree.dqi_blocks);
 	}
 	else {
-		old_info[type].dqi_bgrace = __le32_to_cpu(dinfo.dqi_bgrace);
-		old_info[type].dqi_igrace = __le32_to_cpu(dinfo.dqi_igrace);
+		old_info[type].dqi_bgrace = le32toh(dinfo.dqi_bgrace);
+		old_info[type].dqi_igrace = le32toh(dinfo.dqi_igrace);
 		old_info[type].u.v2_mdqi.dqi_qtree.dqi_blocks = blocks;
 		old_info[type].u.v2_mdqi.dqi_flags = dflags;
 	}
@@ -133,23 +133,23 @@ static void blk_corrupted(int *corrupted, uint * lblk, uint blk, char *fmtstr, .
 /* Convert dist quota format to utility one - copy just needed fields */
 static void v2r0_disk2utildqblk(struct util_dqblk *u, struct v2r0_disk_dqblk *d)
 {
-	u->dqb_ihardlimit = __le32_to_cpu(d->dqb_ihardlimit);
-	u->dqb_isoftlimit = __le32_to_cpu(d->dqb_isoftlimit);
-	u->dqb_bhardlimit = __le32_to_cpu(d->dqb_bhardlimit);
-	u->dqb_bsoftlimit = __le32_to_cpu(d->dqb_bsoftlimit);
-	u->dqb_itime = __le64_to_cpu(d->dqb_itime);
-	u->dqb_btime = __le64_to_cpu(d->dqb_btime);
+	u->dqb_ihardlimit = le32toh(d->dqb_ihardlimit);
+	u->dqb_isoftlimit = le32toh(d->dqb_isoftlimit);
+	u->dqb_bhardlimit = le32toh(d->dqb_bhardlimit);
+	u->dqb_bsoftlimit = le32toh(d->dqb_bsoftlimit);
+	u->dqb_itime = le64toh(d->dqb_itime);
+	u->dqb_btime = le64toh(d->dqb_btime);
 }
 
 /* Convert dist quota format to utility one - copy just needed fields */
 static void v2r1_disk2utildqblk(struct util_dqblk *u, struct v2r1_disk_dqblk *d)
 {
-	u->dqb_ihardlimit = __le64_to_cpu(d->dqb_ihardlimit);
-	u->dqb_isoftlimit = __le64_to_cpu(d->dqb_isoftlimit);
-	u->dqb_bhardlimit = __le64_to_cpu(d->dqb_bhardlimit);
-	u->dqb_bsoftlimit = __le64_to_cpu(d->dqb_bsoftlimit);
-	u->dqb_itime = __le64_to_cpu(d->dqb_itime);
-	u->dqb_btime = __le64_to_cpu(d->dqb_btime);
+	u->dqb_ihardlimit = le64toh(d->dqb_ihardlimit);
+	u->dqb_isoftlimit = le64toh(d->dqb_isoftlimit);
+	u->dqb_bhardlimit = le64toh(d->dqb_bhardlimit);
+	u->dqb_bsoftlimit = le64toh(d->dqb_bsoftlimit);
+	u->dqb_itime = le64toh(d->dqb_itime);
+	u->dqb_btime = le64toh(d->dqb_btime);
 }
 
 /* Put one entry info memory */
@@ -163,10 +163,10 @@ static int buffer_entry(dqbuf_t buf, uint blk, int *corrupted, uint * lblk, int 
 
 	if (detected_versions[type] == 0) {
 		v2r0_disk2utildqblk(&mdq, (struct v2r0_disk_dqblk *)ddq);
-		id = __le32_to_cpu(((struct v2r0_disk_dqblk *)ddq)->dqb_id);
+		id = le32toh(((struct v2r0_disk_dqblk *)ddq)->dqb_id);
 	} else {
 		v2r1_disk2utildqblk(&mdq, (struct v2r1_disk_dqblk *)ddq);
-		id = __le32_to_cpu(((struct v2r1_disk_dqblk *)ddq)->dqb_id);
+		id = le32toh(((struct v2r1_disk_dqblk *)ddq)->dqb_id);
 	}
 
 	cd = lookup_dquot(id, type);
@@ -271,12 +271,12 @@ static int check_data_blk(int fd, uint blk, int type, uint blocks, int * corrupt
 
 	SET_BLK(blk);
 	check_read_blk(fd, blk, buf);
-	if (check_blkref(__le32_to_cpu(head->dqdh_next_free), blocks) < 0)
+	if (check_blkref(le32toh(head->dqdh_next_free), blocks) < 0)
 		blk_corrupted(corrupted, lblk, blk, _("Illegal free block reference to block %u"),
-			      __le32_to_cpu(head->dqdh_next_free));
-	if (__le16_to_cpu(head->dqdh_entries) > qtree_dqstr_in_blk(info))
+			      le32toh(head->dqdh_next_free));
+	if (le16toh(head->dqdh_entries) > qtree_dqstr_in_blk(info))
 		blk_corrupted(corrupted, lblk, blk, _("Corrupted number of used entries (%u)"),
-			      (uint) __le16_to_cpu(head->dqdh_entries));
+			      (uint) le16toh(head->dqdh_entries));
 	for (i = 0; i < qtree_dqstr_in_blk(info); i++)
 		if (!qtree_entry_unused(info, dd + i * info->dqi_entry_size))
 			if (buffer_entry(buf, blk, corrupted, lblk, i, type) < 0) {
@@ -299,15 +299,15 @@ static int check_tree_blk(int fd, uint blk, int depth, int type, uint blocks, in
 	check_read_blk(fd, blk, buf);
 	for (i = 0; i < QT_BLKSIZE >> 2; i++)
 		if (depth < QT_TREEDEPTH - 1) {
-			if (check_tree_ref(blk, __le32_to_cpu(r[i]), blocks, 1, corrupted, lblk) >= 0 &&
-			    __le32_to_cpu(r[i]))	/* Isn't block OK? */
-				if (check_tree_blk(fd, __le32_to_cpu(r[i]), depth + 1, type, blocks, corrupted, lblk) < 0) {
+			if (check_tree_ref(blk, le32toh(r[i]), blocks, 1, corrupted, lblk) >= 0 &&
+			    le32toh(r[i]))	/* Isn't block OK? */
+				if (check_tree_blk(fd, le32toh(r[i]), depth + 1, type, blocks, corrupted, lblk) < 0) {
 					freedqbuf(buf);
 					return -1;
 				}
 		}
-		else if (check_tree_ref(blk, __le32_to_cpu(r[i]), blocks, 0, corrupted, lblk) >= 0 && __le32_to_cpu(r[i]))
-			if (!GET_BLK(__le32_to_cpu(r[i])) && check_data_blk(fd, __le32_to_cpu(r[i]), type, blocks, corrupted, lblk) < 0) {
+		else if (check_tree_ref(blk, le32toh(r[i]), blocks, 0, corrupted, lblk) >= 0 && le32toh(r[i]))
+			if (!GET_BLK(le32toh(r[i])) && check_data_blk(fd, le32toh(r[i]), type, blocks, corrupted, lblk) < 0) {
 				freedqbuf(buf);
 				return -1;
 			}
@@ -325,13 +325,13 @@ int v2_detect_version(char *filename, int fd, int type)
 	err = read(fd, &head, sizeof(head));
 	if (err < 0 || err != sizeof(head))
 		return -1;
-	if (__le32_to_cpu(head.dqh_magic) != magics[type] ||
-	    __le32_to_cpu(head.dqh_version) > known_versions[type]) {
+	if (le32toh(head.dqh_magic) != magics[type] ||
+	    le32toh(head.dqh_version) > known_versions[type]) {
 		errstr(_("Quota file %s has corrupted headers. You have to specify quota format on command line.\n"),
 			filename);
 		return -1;
 	}
-	ver = __le32_to_cpu(head.dqh_version);
+	ver = le32toh(head.dqh_version);
 	if (ver == 0)
 		return QF_VFSV0;
 	return QF_VFSV1;
@@ -353,21 +353,21 @@ static int check_header(char *filename, int fd, int type, int version)
 			filename);
 		return -1;
 	}
-	if (__le32_to_cpu(head.dqh_magic) != magics[type] ||
-	    __le32_to_cpu(head.dqh_version) > known_versions[type]) {
+	if (le32toh(head.dqh_magic) != magics[type] ||
+	    le32toh(head.dqh_version) > known_versions[type]) {
 		errstr(_("WARNING - Quota file %s has corrupted headers\n"),
 			filename);
 	}
-	if (__le32_to_cpu(head.dqh_version) != version) {
+	if (le32toh(head.dqh_version) != version) {
 		errstr(_("Quota file format version %d does not match the one "
 			 "specified on command line (%d). Quota file header "
 			 "may be corrupted.\n"),
-		       __le32_to_cpu(head.dqh_version), version);
+		       le32toh(head.dqh_version), version);
 		if (!ask_yn(_("Continue checking assuming version from command line?"), 1))
 			return -1;
 		detected_versions[type] = version;
 	} else
-		detected_versions[type] = __le32_to_cpu(head.dqh_version);
+		detected_versions[type] = le32toh(head.dqh_version);
 
 	debug(FL_DEBUG, _("Headers checked.\n"));
 	return 0;

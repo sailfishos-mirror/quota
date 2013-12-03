@@ -15,7 +15,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/file.h>
-#include <asm/byteorder.h>
+#include <endian.h>
 
 #include "pot.h"
 #include "bylabel.h"

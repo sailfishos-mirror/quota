@@ -15,7 +15,7 @@
 #include <errno.h>
 #include <getopt.h>
 
-#include <asm/byteorder.h>
+#include <endian.h>
 
 #include "pot.h"
 #include "common.h"
@@ -137,14 +137,14 @@ typedef char *dqbuf_t;
 
 static inline void endian_disk2memdqblk(struct util_dqblk *m, struct v2r0_disk_dqblk *d)
 {
-	m->dqb_ihardlimit = __be32_to_cpu(d->dqb_ihardlimit);
-	m->dqb_isoftlimit = __be32_to_cpu(d->dqb_isoftlimit);
-	m->dqb_bhardlimit = __be32_to_cpu(d->dqb_bhardlimit);
-	m->dqb_bsoftlimit = __be32_to_cpu(d->dqb_bsoftlimit);
-	m->dqb_curinodes = __be32_to_cpu(d->dqb_curinodes);
-	m->dqb_curspace = __be64_to_cpu(d->dqb_curspace);
-	m->dqb_itime = __be64_to_cpu(d->dqb_itime);
-	m->dqb_btime = __be64_to_cpu(d->dqb_btime);
+	m->dqb_ihardlimit = be32toh(d->dqb_ihardlimit);
+	m->dqb_isoftlimit = be32toh(d->dqb_isoftlimit);
+	m->dqb_bhardlimit = be32toh(d->dqb_bhardlimit);
+	m->dqb_bsoftlimit = be32toh(d->dqb_bsoftlimit);
+	m->dqb_curinodes = be32toh(d->dqb_curinodes);
+	m->dqb_curspace = be64toh(d->dqb_curspace);
+	m->dqb_itime = be64toh(d->dqb_itime);
+	m->dqb_btime = be64toh(d->dqb_btime);
 }
 
 /* Is given dquot empty? */
@@ -186,7 +186,7 @@ static void endian_report_block(int fd, uint blk, char *bitmap)
 			memset(&dquot, 0, sizeof(dquot));
 			dquot.dq_h = qn;
 			endian_disk2memdqblk(&dquot.dq_dqb, ddata + i);
-			dquot.dq_id = __be32_to_cpu(ddata[i].dqb_id);
+			dquot.dq_id = be32toh(ddata[i].dqb_id);
 			if (qn->qh_ops->commit_dquot(&dquot, COMMIT_ALL) < 0)
 				errstr(_("Cannot commit dquot for id %u: %s\n"),
 					(uint)dquot.dq_id, strerror(errno));
@@ -203,14 +203,14 @@ static void endian_report_tree(int fd, uint blk, int depth, char *bitmap)
 	read_blk(fd, blk, buf);
 	if (depth == QT_TREEDEPTH - 1) {
 		for (i = 0; i < QT_BLKSIZE >> 2; i++) {
-			blk = __be32_to_cpu(ref[i]);
+			blk = be32toh(ref[i]);
 			if (blk && !get_bit(bitmap, blk))
 				endian_report_block(fd, blk, bitmap);
 		}
 	}
 	else {
 		for (i = 0; i < QT_BLKSIZE >> 2; i++)
-			if ((blk = __be32_to_cpu(ref[i])))
+			if ((blk = be32toh(ref[i])))
 				endian_report_tree(fd, blk, depth + 1, bitmap);
 	}
 	freedqbuf(buf);
@@ -239,7 +239,7 @@ static int endian_check_header(int fd, int type)
 		errstr(_("Cannot read header of old quotafile.\n"));
 		return -1;
 	}
-	if (__be32_to_cpu(head.dqh_magic) != file_magics[type] || __be32_to_cpu(head.dqh_version) > known_versions[type]) {
+	if (be32toh(head.dqh_magic) != file_magics[type] || be32toh(head.dqh_version) > known_versions[type]) {
 		errstr(_("Bad file magic or version (probably not quotafile with bad endianity).\n"));
 		return -1;
 	}
@@ -254,9 +254,9 @@ static int endian_load_info(int fd, int type)
 		errstr(_("Cannot read information about old quotafile.\n"));
 		return -1;
 	}
-	qn->qh_info.u.v2_mdqi.dqi_flags = __be32_to_cpu(dinfo.dqi_flags);
-	qn->qh_info.dqi_bgrace = __be32_to_cpu(dinfo.dqi_bgrace);
-	qn->qh_info.dqi_igrace = __be32_to_cpu(dinfo.dqi_igrace);
+	qn->qh_info.u.v2_mdqi.dqi_flags = be32toh(dinfo.dqi_flags);
+	qn->qh_info.dqi_bgrace = be32toh(dinfo.dqi_bgrace);
+	qn->qh_info.dqi_igrace = be32toh(dinfo.dqi_igrace);
 	return 0;
 }
 
