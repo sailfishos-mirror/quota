@@ -23,6 +23,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/vfs.h>
+#include <stdint.h>
 
 #include "pot.h"
 #include "bylabel.h"
@@ -320,6 +321,18 @@ void difftime2str(time_t seconds, char *buf)
 		return;
 	}
 	time2str(seconds - now, buf, TF_ROUND);
+}
+
+/*
+ * Round difference of two time_t values into int32_t
+ */
+int32_t difftime2net(time_t later, time_t sooner)
+{
+	if ((later - sooner) > INT32_MAX)
+		return INT32_MAX;
+	if ((later - sooner) < INT32_MIN)
+		return INT32_MIN;
+	return (later - sooner);
 }
 
 /*

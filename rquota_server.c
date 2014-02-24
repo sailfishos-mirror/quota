@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <syslog.h>
 #include <time.h>
+#include <stdint.h>
 
 #include "mntopt.h"
 #include "quotaops.h"
@@ -82,11 +83,11 @@ static inline void servnet2utildqblk(struct util_dqblk *u, sq_dqblk * n)
 	u->dqb_curspace = ((qsize_t)n->rq_curblocks) << RPC_DQBLK_SIZE_BITS;
 	u->dqb_curinodes = n->rq_curfiles;
 	if (n->rq_btimeleft)
-		u->dqb_btime = n->rq_btimeleft + now;
+		u->dqb_btime = (int32_t)n->rq_btimeleft + now;
 	else
 		u->dqb_btime = 0;
 	if (n->rq_ftimeleft)
-		u->dqb_itime = n->rq_ftimeleft + now;
+		u->dqb_itime = (int32_t)n->rq_ftimeleft + now;
 	else
 		u->dqb_itime = 0;
 }
@@ -127,11 +128,11 @@ static inline void servutil2netdqblk(struct rquota *n, struct util_dqblk *u)
 
 	time(&now);
 	if (u->dqb_btime)
-		n->rq_btimeleft = u->dqb_btime - now;
+		n->rq_btimeleft = difftime2net(u->dqb_btime, now);
 	else
 		n->rq_btimeleft = 0;
 	if (u->dqb_itime)
-		n->rq_ftimeleft = u->dqb_itime - now;
+		n->rq_ftimeleft = difftime2net(u->dqb_itime, now);
 	else
 		n->rq_ftimeleft = 0;
 }

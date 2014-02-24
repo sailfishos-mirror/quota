@@ -32,11 +32,13 @@
 #include <string.h>
 #include <signal.h>
 #include <time.h>
+#include <stdint.h>
 
 #include "mntopt.h"
 #include "rquota.h"
 #include "common.h"
 #include "quotaio.h"
+#include "quotasys.h"
 
 #if defined(RPC)
 
@@ -54,11 +56,11 @@ static inline void clinet2utildqblk(struct util_dqblk *u, struct rquota *n)
 	u->dqb_curspace = ((qsize_t)n->rq_curblocks) * n->rq_bsize;
 	time(&now);
 	if (n->rq_btimeleft)
-		u->dqb_btime = n->rq_btimeleft + now;
+		u->dqb_btime = (int32_t)n->rq_btimeleft + now;
 	else
 		u->dqb_btime = 0;
 	if (n->rq_ftimeleft)
-		u->dqb_itime = n->rq_ftimeleft + now;
+		u->dqb_itime = (int32_t)n->rq_ftimeleft + now;
 	else
 		u->dqb_itime = 0;
 }
@@ -76,11 +78,11 @@ static inline void cliutil2netdqblk(struct sq_dqblk *n, struct util_dqblk *u)
 	n->rq_curblocks = toqb(u->dqb_curspace);
 	n->rq_curfiles = u->dqb_curinodes;
 	if (u->dqb_btime)
-		n->rq_btimeleft = u->dqb_btime - now;
+		n->rq_btimeleft = difftime2net(u->dqb_btime, now);
 	else
 		n->rq_btimeleft = 0;
 	if (u->dqb_itime)
-		n->rq_ftimeleft = u->dqb_itime - now;
+		n->rq_ftimeleft = difftime2net(u->dqb_itime, now);
 	else
 		n->rq_ftimeleft = 0;
 }

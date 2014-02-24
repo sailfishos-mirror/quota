@@ -8,6 +8,7 @@
 #define GUARD_QUOTASYS_H
 
 #include <sys/types.h>
+#include <inttypes.h>
 #include "mntopt.h"
 #include "quota.h"
 
@@ -99,6 +100,9 @@ int util2kernfmt(int fmt);
 
 /* Convert time difference between given time and current time to printable form */
 void difftime2str(time_t, char *);
+
+/* Round difference of two time_t values into int32_t */
+int32_t difftime2net(time_t later, time_t sooner);
 
 /* Convert time to printable form */
 void time2str(time_t, char *, int);
