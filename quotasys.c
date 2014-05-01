@@ -376,6 +376,7 @@ int str2timeunits(time_t num, char *unit, time_t *res)
 	return 0;
 }
 
+#define DIV_ROUND_UP(x, d) (((x) + d - 1) / d)
 /*
  * Convert number in quota blocks to some nice short form for printing
  */
@@ -383,18 +384,26 @@ void space2str(qsize_t space, char *buf, int format)
 {
 	int i;
 	char suffix[8] = " MGT";
+	qsize_t aspace = space >= 0 ? space : -space;
 
 	space = qb2kb(space);
 	if (format) {
-		for (i = 3; i > 0; i--)
-			if (space >= (1LL << (QUOTABLOCK_BITS*i))*100) {
-				sprintf(buf, "%llu%c", (unsigned long long)(space+(1 << (QUOTABLOCK_BITS*i))-1) >> (QUOTABLOCK_BITS*i), suffix[i]);
+		for (i = 3; i > 0; i--) {
+			long long unit = 1LL << (QUOTABLOCK_BITS*i);
+
+			if (aspace >= unit * 100) {
+				int sign = aspace != space ? -1 : 1;
+
+				sprintf(buf, "%lld%c", (long long)
+					DIV_ROUND_UP(aspace, unit) * sign,
+					suffix[i]);
 				return;
 			}
-		sprintf(buf, "%lluK", (unsigned long long)space);
+		}
+		sprintf(buf, "%lldK", (long long)space);
 		return;
 	}
-	sprintf(buf, "%llu", (unsigned long long)space);
+	sprintf(buf, "%lld", (long long)space);
 }
 
 /*
@@ -404,11 +413,11 @@ void space2str(qsize_t space, char *buf, int format)
 const char *str2space(const char *string, qsize_t *space)
 {
 	char *unit;
-	unsigned long long int number;
+	long long int number;
 	int unit_shift;
        
-	number = strtoull(string, &unit, 0);
-	if (ULLONG_MAX == number)
+	number = strtoll(string, &unit, 0);
+	if (number == LLONG_MAX || number == LLONG_MIN)
 		return _("Integer overflow while parsing space number.");
 
 	if (!unit || unit[0] == '\0' || !strcmp(unit, _("K")))
@@ -422,7 +431,8 @@ const char *str2space(const char *string, qsize_t *space)
 	else
 		return _("Unknown space binary unit. "
 			"Valid units are K, M, G, T.");
-	if (number > (QSIZE_MAX >> unit_shift))
+	if (number > (QSIZE_MAX >> unit_shift) ||
+	    number < -(QSIZE_MAX >> unit_shift))
 		return _("Integer overflow while interpreting space unit.");
 	*space = number << unit_shift;
 	return NULL;
@@ -431,19 +441,23 @@ const char *str2space(const char *string, qsize_t *space)
 /*
  *  Convert number to some nice short form for printing
  */
-void number2str(unsigned long long num, char *buf, int format)
+void number2str(long long num, char *buf, int format)
 {
 	int i;
 	unsigned long long div;
 	char suffix[8] = " kmgt";
+	long long anum = num >= 0 ? num : -num;
 
 	if (format)
 		for (i = 4, div = 1000000000000LL; i > 0; i--, div /= 1000)
 			if (num >= 100*div) {
-				sprintf(buf, "%llu%c", (num+div-1) / div, suffix[i]);
+				int sign = num != anum ? -1 : 1;
+
+				sprintf(buf, "%lld%c", (num+div-1) / div * sign,
+					suffix[i]);
 				return;
 			}
-	sprintf(buf, "%llu", num);
+	sprintf(buf, "%lld", num);
 }
 
 /*
@@ -453,10 +467,10 @@ void number2str(unsigned long long num, char *buf, int format)
 const char *str2number(const char *string, qsize_t *inodes)
 {
 	char *unit;
-	unsigned long long int number, multiple;
+	long long int number, multiple;
        
-	number = strtoull(string, &unit, 0);
-	if (ULLONG_MAX == number)
+	number = strtoll(string, &unit, 0);
+	if (number == LLONG_MAX || number == LLONG_MIN)
 		return _("Integer overflow while parsing number.");
 
 	if (!unit || unit[0] == '\0')
@@ -472,7 +486,8 @@ const char *str2number(const char *string, qsize_t *inodes)
 	else
 		return _("Unknown decimal unit. "
 			"Valid units are k, m, g, t.");
-	if (number > QSIZE_MAX / multiple)
+	if (number > QSIZE_MAX / multiple ||
+	    -number < QSIZE_MAX / multiple)
 		return _("Integer overflow while interpreting decimal unit.");
 	*inodes = number * multiple;
 	return NULL;
