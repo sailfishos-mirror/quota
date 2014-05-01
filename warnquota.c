@@ -386,6 +386,93 @@ static void format_print(FILE *fp, char *fmt, char *name)
 	fputs(lastch, fp);
 }
 
+static char *lookup_user(struct configparams *config, char *user)
+{
+#ifdef USE_LDAP_MAIL_LOOKUP
+       	char searchbuf[256];
+	LDAPMessage *result, *entry;
+	BerElement     *ber = NULL;
+	struct berval  **bvals = NULL;
+	int ret, cnt;
+	char *a;
+	char *to = NULL;
+
+	if (!config->use_ldap_mail)
+		return sstrdup(user);
+
+	if (ldapconn == NULL && config->ldap_is_setup == 0) {
+		/* need init */
+		if (setup_ldap(config)) {
+			errstr(_("Could not setup ldap connection.\n"));
+			return NULL;
+		}
+		config->ldap_is_setup = 1;
+	}
+
+	if (ldapconn == NULL) {
+		/*
+		 * ldap was never setup correctly so just use
+		 * the offender_name
+		 */
+		return sstrdup(user);
+	}
+
+	/* search for the offender_name in ldap */
+	snprintf(searchbuf, 256, "(%s=%s)", config->ldap_search_attr, user);
+	ret = ldap_search_ext_s(ldapconn,
+		config->ldap_basedn, LDAP_SCOPE_SUBTREE,
+		searchbuf, NULL, 0, NULL, NULL, NULL,
+		0, &result);
+
+	ret = ldap_search_s(ldapconn, config->ldap_basedn, LDAP_SCOPE_SUBTREE,
+		searchbuf, NULL, 0, &result);
+
+	if (ret < 0) {
+		errstr(_("Error with %s.\n"), user);
+		ldap_perror(ldapconn, "ldap_search");
+		return NULL;
+	}
+		
+	cnt = ldap_count_entries(ldapconn, result);
+	if (cnt > 1) {
+		errstr(_("Multiple entries found for client %s (%d).\n"),
+		       user, cnt);
+		return NULL;
+	} else if (cnt == 0) {
+		errstr(_("Entry not found for client %s.\n"), user);
+		return NULL;
+	}
+	/* get the attr */
+	entry = ldap_first_entry(ldapconn, result);
+	for (a = ldap_first_attribute(ldapconn, entry, &ber); a != NULL;
+	     a = ldap_next_attribute(ldapconn, entry, ber)) {
+		if (strcasecmp(a, config->ldap_mail_attr) == 0) {
+			bvals = ldap_get_values_len(ldapconn, entry, a);
+			if (bvals == NULL) {
+				errstr(_("Could not get values for %s.\n"), 
+				       user);
+				return NULL;
+			}
+			to = sstrdup(bvals[0]->bv_val);
+			break;
+		} 
+	} 
+
+	ber_bvecfree(bvals);
+	if (to == NULL) {
+		/* 
+		 * use just the name and default domain as we didn't find the
+		 * attribute we wanted in this entry
+		 */
+		to = smalloc(strlen(user) + strlen(config->default_domain) + 1);
+		sprintf(to, "%s@%s", user, config->default_domain);
+	}
+	return to;
+#else
+	return sstrdup(user);
+#endif
+}
+
 static int mail_user(struct offenderlist *offender, struct configparams *config)
 {
 	struct usage *lptr;
@@ -395,95 +482,11 @@ static int mail_user(struct offenderlist *offender, struct configparams *config)
 	char numbuf[3][MAXNUMLEN];
 	struct util_dqblk *dqb;
 	char *to = NULL;
-#ifdef USE_LDAP_MAIL_LOOKUP
-       	char searchbuf[256];
-	LDAPMessage *result, *entry;
-	BerElement     *ber = NULL;
-	struct berval  **bvals = NULL;
-	int ret;
-	char *a;
-#endif
 
 	if (offender->offender_type == USRQUOTA) {
-#ifdef USE_LDAP_MAIL_LOOKUP
-		if(config->use_ldap_mail != 0) {
-			if((ldapconn == NULL) && (config->ldap_is_setup == 0)) {
-				/* need init */
-				if(setup_ldap(config)) {
-					errstr(_("Could not setup ldap connection, returning.\n"));
-					return -1;
-				}
-				config->ldap_is_setup = 1;
-			}
-
-			if(ldapconn == NULL) {
-				/* ldap was never setup correctly so just use the offender_name */
-				to = sstrdup(offender->offender_name);
-			} else {
-				/* search for the offender_name in ldap */
-				snprintf(searchbuf, 256, "(%s=%s)", config->ldap_search_attr, 
-					offender->offender_name);
-#ifdef USE_LDAP_23
-				ret = ldap_search_ext_s(ldapconn, config->ldap_basedn, 
-					LDAP_SCOPE_SUBTREE, searchbuf,
-					NULL, 0, NULL, NULL, NULL, 0, &result);
-#else
-				ret = ldap_search_s(ldapconn, config->ldap_basedn, 
-					LDAP_SCOPE_SUBTREE, searchbuf,
-					NULL, 0, &result);
-#endif
-				if(ret < 0) {
-					errstr(_("Error with %s.\n"), offender->offender_name);
-					ldap_perror(ldapconn, "ldap_search");
-					return 0;
-				}
-					
-				cnt = ldap_count_entries(ldapconn, result);
-
-				if(cnt > 1) {
-					errstr(_("Multiple entries found for client %s (%d). Not sending mail.\n"), 
-						offender->offender_name, cnt);
-					return 0;
-				} else if(cnt == 0) {
-					errstr(_("Entry not found for client %s. Not sending mail.\n"), 
-						offender->offender_name);
-					return 0;
-				} else {
-					/* get the attr */
-					entry = ldap_first_entry(ldapconn, result);
-					for(a = ldap_first_attribute(ldapconn, entry, &ber); a != NULL;
-						a = ldap_next_attribute( ldapconn, entry, ber)) {
-						if(strcasecmp(a, config->ldap_mail_attr) == 0) {
-							bvals = ldap_get_values_len(ldapconn, entry, a);
-							if(bvals == NULL) {
-								errstr(_("Could not get values for %s.\n"), 
-									offender->offender_name);
-								return 0;
-							}
-							to = sstrdup(bvals[0]->bv_val);
-							break;
-						} 
-					} 
-
-					ber_bvecfree(bvals);
-					if(to == NULL) {
-						/* 
-						 * use just the name and default domain as we didn't find the
-						 * attribute we wanted in this entry
-						 */
-						to = malloc(strlen(offender->offender_name)+
-							strlen(config->default_domain)+1);
-						sprintf(to, "%s@%s", offender->offender_name,
-							config->default_domain);
-					}
-				}
-			}
-		} else {
-			to = sstrdup(offender->offender_name);
-		}
-#else
-		to = sstrdup(offender->offender_name);
-#endif
+		to = lookup_user(config, offender->offender_name);
+		if (!to)
+			return -1;
 	} else {
 		struct adminstable *admin;
 
@@ -494,7 +497,7 @@ static int mail_user(struct offenderlist *offender, struct configparams *config)
 		to = sstrdup(admin->adminname);
 	}
 	if (!(fp = run_mailer(config->mail_cmd))) {
-		if(to)
+		if (to)
 			free(to);
 		return -1;
 	}
@@ -502,8 +505,14 @@ static int mail_user(struct offenderlist *offender, struct configparams *config)
 	fprintf(fp, "Reply-To: %s\n", config->support);
 	fprintf(fp, "Subject: %s\n", config->subject);
 	fprintf(fp, "To: %s\n", to);
-	if (should_cc(offender, config))
-		fprintf(fp, "Cc: %s\n", config->cc_to);
+	if (should_cc(offender, config)) {
+		char *cc_to = lookup_user(config, config->cc_to);
+
+		if (cc_to) {
+			fprintf(fp, "Cc: %s\n", config->cc_to);
+			free(cc_to);
+		}
+	}
 	if ((config->charset)[0] != '\0') { /* are we supposed to set the encoding */
 		fprintf(fp, "MIME-Version: 1.0\n");
 		fprintf(fp, "Content-Type: text/plain; charset=%s\n", config->charset);
