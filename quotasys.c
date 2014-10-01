@@ -459,17 +459,19 @@ void number2str(long long num, char *buf, int format)
 	int i;
 	unsigned long long div;
 	char suffix[8] = " kmgt";
-	long long anum = num >= 0 ? num : -num;
 
-	if (format)
+	if (format) {
+		long long anum = num >= 0 ? num : -num;
+		int sign = num != anum ? -1 : 1;
+
 		for (i = 4, div = 1000000000000LL; i > 0; i--, div /= 1000)
-			if (num >= 100*div) {
-				int sign = num != anum ? -1 : 1;
-
-				sprintf(buf, "%lld%c", (num+div-1) / div * sign,
+			if (anum >= 100*div) {
+				sprintf(buf, "%lld%c",
+					DIV_ROUND_UP(anum, div) * sign,
 					suffix[i]);
 				return;
 			}
+	}
 	sprintf(buf, "%lld", num);
 }
 
@@ -500,7 +502,7 @@ const char *str2number(const char *string, qsize_t *inodes)
 		return _("Unknown decimal unit. "
 			"Valid units are k, m, g, t.");
 	if (number > QSIZE_MAX / multiple ||
-	    -number < QSIZE_MAX / multiple)
+	    number < -(QSIZE_MAX / multiple))
 		return _("Integer overflow while interpreting decimal unit.");
 	*inodes = number * multiple;
 	return NULL;
