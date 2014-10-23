@@ -148,6 +148,8 @@ int rpc_rquota_get(struct dquot *dquot)
 	} args;
 	char *fsname_tmp, *host, *pathname;
 	struct timeval timeout = { 2, 0 };
+	int rquotaprog_not_registered = 0;
+	int ret;
 
 	/*
 	 * Initialize with NULL.
@@ -206,8 +208,11 @@ int rpc_rquota_get(struct dquot *dquot)
 		auth_destroy(clnt->cl_auth);
 		clnt_destroy(clnt);
 	}
-	else
+	else {
 		result = NULL;
+		if (rpc_createerr.cf_stat == RPC_PROGNOTREGISTERED)
+			rquotaprog_not_registered = 1;
+	}
 
 	if (result == NULL || !result->status) {
 		if (dquot->dq_h->qh_type == USRQUOTA) {
@@ -244,11 +249,21 @@ int rpc_rquota_get(struct dquot *dquot)
 				 */
 				auth_destroy(clnt->cl_auth);
 				clnt_destroy(clnt);
+			} else {
+				result = NULL;
+				if (rpc_createerr.cf_stat == RPC_PROGNOTREGISTERED)
+					    rquotaprog_not_registered = 1;
 			}
 		}
 	}
 	free(fsname_tmp);
-	return rquota_err(result?result->status:-1);
+	if (result)
+		ret = result->status;
+	else if (rquotaprog_not_registered)
+		ret = Q_NOQUOTA;
+	else
+		ret = -1;
+	return rquota_err(ret);
 }
 
 /*
@@ -265,6 +280,8 @@ int rpc_rquota_set(int qcmd, struct dquot *dquot)
 	} args;
 	char *fsname_tmp, *host, *pathname;
 	struct timeval timeout = { 2, 0 };
+	int rquotaprog_not_registered = 0;
+	int ret;
 
 	/* RPC limits values to 32b variables. Prevent value wrapping. */
 	if (check_dquot_range(dquot) < 0)
@@ -321,8 +338,11 @@ int rpc_rquota_set(int qcmd, struct dquot *dquot)
 		auth_destroy(clnt->cl_auth);
 		clnt_destroy(clnt);
 	}
-	else
+	else {
 		result = NULL;
+		if (rpc_createerr.cf_stat == RPC_PROGNOTREGISTERED)
+			rquotaprog_not_registered = 1;
+	}
 
 	if (result == NULL || !result->status) {
 		if (dquot->dq_h->qh_type == USRQUOTA) {
@@ -361,11 +381,21 @@ int rpc_rquota_set(int qcmd, struct dquot *dquot)
 				 */
 				auth_destroy(clnt->cl_auth);
 				clnt_destroy(clnt);
+			} else {
+				result = NULL;
+				if (rpc_createerr.cf_stat == RPC_PROGNOTREGISTERED)
+					rquotaprog_not_registered = 1;
 			}
 		}
 	}
 	free(fsname_tmp);
-	return rquota_err(result?result->status:-1);
+	if (result)
+		ret = result->status;
+	else if (rquotaprog_not_registered)
+		ret = Q_NOQUOTA;
+	else
+		ret = -1;
+	return rquota_err(ret);
 #endif
 	return -1;
 }
