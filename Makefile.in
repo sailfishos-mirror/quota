@@ -55,7 +55,7 @@ clobber: clean
 	-rm -f $(PROGS) Makefile config.status config.cache config.log config.h
 
 realclean: clobber
-	-rm -f $(RPCSRC) po/*.mo
+	-rm -f $(RPCSRC) po/*.mo *.rej *.orig *~
 
 pot:
 	xgettext -k_ -kN_ -d pot *.c *.h

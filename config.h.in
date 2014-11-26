@@ -1,8 +1,5 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
-/* Alternative file format of edquota */
-#undef ALT_FORMAT
-
 /* File with mounted filesystems */
 #undef ALT_MTAB
 
@@ -65,6 +62,9 @@
 
 /* Define to the one symbol short name of this package. */
 #undef PACKAGE_TARNAME
+
+/* Define to the home page for this package. */
+#undef PACKAGE_URL
 
 /* Version of quota tools */
 #undef PACKAGE_VERSION
