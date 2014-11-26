@@ -24,8 +24,6 @@
 #define IOI_INITSCAN	0x2	/* Prepare handle for scanning dquots */
 #define IOI_NFS_MIXED_PATHS	0x4	/* Trim leading / from NFSv4 mountpoints */
 
-#define KERN_KNOWN_QUOTA_VERSION (6*10000 + 5*100 + 1)
-
 /* Interface versions */
 #define IFACE_VFSOLD 1
 #define IFACE_VFSV0 2
