@@ -1,3 +1,44 @@
+Changes in quota-tools from 4.01 to 4.02
+* Remove KERN_KNOWN_QUOTA_VERSION (Jan Kara)
+* Skip NFS mounts without rquotad RPC service silently (Petr Písař)
+* Fix handling of space and inode values (Jan Kara)
+* Update polish translation (Jakub Bogusz)
+* warnquota: Use LDAP for looking up CC value as well (Jan Kara)
+* Prevent from grace period overflow in RPC transport (Petr Písař)
+* Do not document location of quotaon and quotaoff (Petr Písař)
+* Properly handle signed space and inode values (Jan Kara)
+* respect CFLAGS in linking command wrt #446281 (Julian Ospald)
+* Explain in quota(1) manpage what 'blocks' in the output mean (Jan Kara)
+* __cpu_to_le16 --> htole16 (Cristian Rodríguez)
+* Use libc byteswapping routines not kernel ones (Cristian Rodríguez)
+* quota_nld: Fix compilation warning (Jan Kara)
+* quota_nld: Fix usage of netlink multicast groups (Jan Kara)
+* Improve rpc.rquota(8) manual page (Petr Písař)
+* Add warnquota.conf(5) manual page (Petr Písař)
+* Add quotatab(5) manual page (Petr Písař)
+* Add quotagrpadmins(5) manual page (Petr Písař)
+* Silent a set-but-not-used warning about sbflags (Petr Písař)
+* Add support for CVS and XML output formats to repquota(8) (Jan Kara)
+* Remove installation of manpages into section 2 (Carsten Grohmann)
+* Close FILE handles on error (Petr Písař)
+* Add AC_PREREQ to configure.in (Theodore Ts'o)
+* Fix various usage mistakes (Petr Písař)
+* Correct quotasync exit code (Petr Písař)
+* Complete quotasync usage (Petr Písař)
+* Add quotasync(1) manual page (Petr Písař)
+* quotacheck: Make sure -d provides at least as much information as -v (Jan Kara)
+* Do not fiddle with quota files on XFS and GFS (Petr Písař)
+* Recognize units at inode limits by edquota (Petr Písař)
+* Recognize units at inode limits by setquota (Petr Písař)
+* Recognize units at block limits by edquota (Petr Písař)
+* Recognize block limit units on setquota standard input (Petr Písař)
+* Recognize units at block limits by setquota (Petr Písař)
+* Fix compilation without RPC support (Jan Kara)
+* Make group warning message more official (Petr Písař)
+* Updated Czech translation (Petr Písař)
+* warnquota: Use current locale as default charset (Jan Kara)
+* warnquota: Add MIME-Version header (Jan Kara)
+
 Changes in quota-tools from 4.00 to 4.01
 * fix compilation failure with --enable-bsd_behaviour=no (Jan Kara)
 * fix quota(1) for NFS mountpoints (Jan Kara)
@@ -512,7 +553,7 @@ Changes in quota-tools from 1.70 to 2.00
 
 * Added numeric option to quota and setquota to allow to set quota for users/groups not
   in the localy known through name-services.
-  (Modified the patches send by Oscar Mart�n <oscar@cdrtcampos.es>)
+  (Modified the patches send by Oscar Martín <oscar@cdrtcampos.es>)
 
 Changes in quota-tools from 1.65 to 1.70
 
