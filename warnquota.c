@@ -177,16 +177,16 @@ static int setup_ldap(struct configparams *config)
 	struct berval cred = { .bv_val = config->ldap_bindpw,
 			       .bv_len = strlen(config->ldap_bindpw) };
 
-	ldap_initialize(&ldapconn, config->ldap_uri);
+	ret = ldap_initialize(&ldapconn, config->ldap_uri);
 
-	if(ldapconn == NULL) {
-		ldap_perror(ldapconn, "ldap_init");
+	if (ret != LDAP_SUCCESS) {
+		errstr(_("ldap_initialize() failed: %s\n"), ldap_err2string(ret));
 		return -1;
 	}
 
 	ret = ldap_sasl_bind_s(ldapconn, config->ldap_binddn, LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL);
 	if(ret < 0) {
-		ldap_perror(ldapconn, "ldap_bind");
+		errstr(_("ldap_sasl_bind_s() failed: %s\n"), ldap_err2string(ret));
 		return -1;
 	}
 	return 0;
@@ -402,7 +402,7 @@ static char *lookup_user(struct configparams *config, char *user)
 
 	if (ret < 0) {
 		errstr(_("Error with %s.\n"), user);
-		ldap_perror(ldapconn, "ldap_search");
+		errstr(_("ldap_search_ext_s() failed: %s\n"), ldap_err2string(ret));
 		return NULL;
 	}
 		
@@ -978,7 +978,7 @@ static void usage(void)
 -a, --admins-file=admins-file   non-default admins file\n\
 -h, --help                      display this help message and exit\n\
 -v, --version                   display version information and exit\n\n"));
-	fprintf(stderr, _("Bugs to %s\n"), PACKAGE_BUGREPORT);
+	errstr(_("Bugs to %s\n"), PACKAGE_BUGREPORT);
 	wc_exit(1);
 }
  
