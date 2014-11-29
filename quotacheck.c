@@ -28,7 +28,7 @@
 #include <sys/mount.h>
 #include <sys/utsname.h>
 
-#if defined(HAVE_EXT2_INCLUDE)
+#ifdef EXT2_DIRECT
 #include <linux/types.h>
 #include <ext2fs/ext2fs.h>
 #endif
@@ -41,10 +41,6 @@
 #include "bylabel.h"
 #include "quotacheck.h"
 #include "quotaops.h"
-
-#ifndef HAVE_EXT2_INO_T
-typedef ino_t ext2_ino_t;
-#endif
 
 #define LINKSHASHSIZE 16384	/* Size of hashtable for hardlinked inodes */
 #define DQUOTHASHSIZE 32768	/* Size of hashtable for dquots from file */
@@ -680,7 +676,7 @@ static int rename_files(struct mount_entry *mnt, int type)
 	char *filename, newfilename[PATH_MAX];
 	struct stat st;
 	mode_t mode = S_IRUSR | S_IWUSR;
-#ifdef HAVE_EXT2_INCLUDE
+#ifdef EXT2_DIRECT
 	long ext2_flags = -1;
 	int fd;
 #endif
@@ -702,7 +698,7 @@ static int rename_files(struct mount_entry *mnt, int type)
 		return -1;
 	}
 	mode = st.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO);
-#ifdef HAVE_EXT2_INCLUDE
+#ifdef EXT2_DIRECT
 	if ((fd = open(filename, O_RDONLY)) < 0) {
 		if (errno == ENOENT) {
 			debug(FL_DEBUG | FL_VERBOSE, _("Old file found removed during check!\n"));
@@ -760,7 +756,7 @@ rename_new:
 		free(filename);
 		return -1;
 	}
-#ifdef HAVE_EXT2_INCLUDE
+#ifdef EXT2_DIRECT
 	if (ext2_flags != -1) {
 		if ((fd = open(filename, O_RDONLY)) < 0) {
 			errstr(_("Cannot open new quota file %s: %s\n"), filename, strerror(errno));

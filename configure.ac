@@ -111,8 +111,6 @@ AS_IF([test "x$enable_ext2direct" != "xno"], [
         ])
     ])
     AS_IF([test "x$build_ext2direct" != "xno"], [
-        AC_DEFINE([HAVE_EXT2_INO_T], 1, [ext2fs.h defines ext2_ino_t])
-        AC_DEFINE([HAVE_EXT2_INCLUDE], 1, [Header files for e2fslib])
         AC_DEFINE([EXT2_DIRECT], 1, [Scanning of ext? filesystems using e2fslib])
         COMPILE_OPTS="$COMPILE_OPTS EXT2_DIRECT"
     ])
