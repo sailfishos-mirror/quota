@@ -7,8 +7,10 @@ configure
 install-sh
 missing
 *~
+*.swp
 *.bak
 config.h
+config.h.in
 config.log
 config.guess
 config.rpath
