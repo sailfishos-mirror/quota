@@ -4,6 +4,7 @@ docdir = $(datadir)/doc/@PACKAGE@
 doc_DATA = \
 	README.mailserver \
 	README.ldap-support \
+	set_limits_example.c \
 	doc/quotadoc.sgml \
 	doc/quotas.ms \
 	doc/quotas.preformated \
