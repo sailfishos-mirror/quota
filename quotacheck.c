@@ -315,7 +315,7 @@ static void usage(void)
 -a, --all                 check all filesystems\n\
 -h, --help                display this message and exit\n\
 -V, --version             display version information and exit\n\n"), progname);
-	printf(_("Bugs to %s\n"), MY_EMAIL);
+	printf(_("Bugs to %s\n"), PACKAGE_BUGREPORT);
 	exit(1);
 }
 
@@ -736,7 +736,7 @@ static int rename_files(struct mount_entry *mnt, int type)
 		/* Make backingup safe */
 		sstrncat(newfilename, "~", PATH_MAX);
 		if (newfilename[strlen(newfilename) - 1] != '~')
-			die(8, _("Name of quota file too long. Contact %s.\n"), MY_EMAIL);
+			die(8, _("Name of quota file too long. Contact %s.\n"), PACKAGE_BUGREPORT);
 		if (rename(filename, newfilename) < 0) {
 			errstr(_("Cannot rename old quotafile %s to %s: %s\n"),
 				filename, newfilename, strerror(errno));

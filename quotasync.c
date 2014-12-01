@@ -7,6 +7,7 @@
 #include <getopt.h>
 
 #include "pot.h"
+#include "config.h"
 #include "common.h"
 #include "quotasys.h"
 #include "quotaio.h"
@@ -38,7 +39,7 @@ static void usage(int status)
 "-V, --version  display version information and exit\n"
 "\n"
 		));
-	printf(_("Report bugs to <%s>.\n"), MY_EMAIL);
+	printf(_("Report bugs to <%s>.\n"), PACKAGE_BUGREPORT);
 	exit(status);
 }
 

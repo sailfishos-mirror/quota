@@ -45,7 +45,7 @@ static void usage(void)
 -f, --convert-format oldfmt,newfmt  convert from old to VFSv0 quota format\n\
 -h, --help                          show this help text and exit\n\
 -V, --version                       output version information and exit\n\n"), progname);
-	errstr(_("Bugs to %s\n"), MY_EMAIL);
+	errstr(_("Bugs to %s\n"), PACKAGE_BUGREPORT);
 	exit(1);
 }
 

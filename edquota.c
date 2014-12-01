@@ -98,7 +98,7 @@ static void usage(void)
 -T, --edit-times              edit grace time of a user/group\n\
 -h, --help                    display this help text and exit\n\
 -V, --version                 display version information and exit\n\n"), stderr);
-	fprintf(stderr, _("Bugs to: %s\n"), MY_EMAIL);
+	fprintf(stderr, _("Bugs to: %s\n"), PACKAGE_BUGREPORT);
 	exit(1);
 }
 

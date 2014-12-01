@@ -63,7 +63,7 @@ static void usage(void)
 -a, --all                   report information for all mount points with quotas\n\
 -h, --help                  display this help message and exit\n\
 -V, --version               display version information and exit\n\n"), progname);
-	fprintf(stderr, _("Bugs to %s\n"), MY_EMAIL);
+	fprintf(stderr, _("Bugs to %s\n"), PACKAGE_BUGREPORT);
 	exit(1);
 }
 

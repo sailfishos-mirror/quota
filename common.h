@@ -13,8 +13,6 @@
 # endif
 #endif
 
-#define MY_EMAIL "jack@suse.cz"
-
 /* Name of current program for error reporting */
 extern char *progname;
 

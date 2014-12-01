@@ -165,50 +165,26 @@ static void wc_exit(int ex_stat)
 {
 #ifdef USE_LDAP_MAIL_LOOKUP
 	if(ldapconn != NULL)
-#ifdef USE_LDAP_23
 		ldap_unbind_ext(ldapconn, NULL, NULL);
-#else
-		ldap_unbind(ldapconn);
-#endif
 #endif
 	exit(ex_stat);
 }
 
 #ifdef USE_LDAP_MAIL_LOOKUP
-#ifdef NEED_LDAP_PERROR
-static void ldap_perror(LDAP *ld, LDAP_CONST char *s)
-{
-	int err;
-
-	ldap_get_option(ld, LDAP_OPT_RESULT_CODE, &err);
-	errstr(_("%s: %s\n"), s, ldap_err2string(err));
-}
-#endif
-
 static int setup_ldap(struct configparams *config)
 {
 	int ret;
-#ifdef USE_LDAP_23
 	struct berval cred = { .bv_val = config->ldap_bindpw,
 			       .bv_len = strlen(config->ldap_bindpw) };
-#endif
 
-#ifdef USE_LDAP_23
 	ldap_initialize(&ldapconn, config->ldap_uri);
-#else
-	ldapconn = ldap_init(config->ldap_host, config->ldap_port);
-#endif
 
 	if(ldapconn == NULL) {
 		ldap_perror(ldapconn, "ldap_init");
 		return -1;
 	}
 
-#ifdef USE_LDAP_23
 	ret = ldap_sasl_bind_s(ldapconn, config->ldap_binddn, LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL);
-#else
-	ret = ldap_bind_s(ldapconn, config->ldap_binddn, config->ldap_bindpw, LDAP_AUTH_SIMPLE);
-#endif
 	if(ret < 0) {
 		ldap_perror(ldapconn, "ldap_bind");
 		return -1;
@@ -423,9 +399,6 @@ static char *lookup_user(struct configparams *config, char *user)
 		config->ldap_basedn, LDAP_SCOPE_SUBTREE,
 		searchbuf, NULL, 0, NULL, NULL, NULL,
 		0, &result);
-
-	ret = ldap_search_s(ldapconn, config->ldap_basedn, LDAP_SCOPE_SUBTREE,
-		searchbuf, NULL, 0, &result);
 
 	if (ret < 0) {
 		errstr(_("Error with %s.\n"), user);
@@ -872,15 +845,10 @@ cc_parse_err:
 #ifdef USE_LDAP_MAIL_LOOKUP
 	if (config->use_ldap_mail)
 	{
-#ifdef USE_LDAP_23
 		if (!config->ldap_uri[0]) {
 			snprintf(config->ldap_uri, CNF_BUFFER, "ldap://%s:%d", config->ldap_host, config->ldap_port);
 			errstr(_("LDAP library version >= 2.3 detected. Please use LDAP_URI instead of hostname and port.\nGenerated URI %s\n"), config->ldap_uri);
 		}
-#else
-		if (config->ldap_uri[0])
-			die(1, _("LDAP library does not support ldap_initialize() but URI is specified."));
-#endif
 	}
 #endif
 	fclose(fp);
@@ -1010,7 +978,7 @@ static void usage(void)
 -a, --admins-file=admins-file   non-default admins file\n\
 -h, --help                      display this help message and exit\n\
 -v, --version                   display version information and exit\n\n"));
-	fprintf(stderr, _("Bugs to %s\n"), MY_EMAIL);
+	fprintf(stderr, _("Bugs to %s\n"), PACKAGE_BUGREPORT);
 	wc_exit(1);
 }
  
