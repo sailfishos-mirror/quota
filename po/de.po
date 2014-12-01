@@ -6,11 +6,12 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: quota-tools\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-21 12:18+0100\n"
+"Report-Msgid-Bugs-To: jack@suse.cz\n"
+"POT-Creation-Date: 2014-11-29 11:20+0100\n"
 "PO-Revision-Date: 2010-02-21 13:10+0100\n"
 "Last-Translator: Michael Bunk <mb@computer-leipzig.com>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language-Team: German <translation-team-de@lists.sourceforge.net>\n"
+"Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -32,16 +33,8 @@ msgstr "Fehler bei Prüfung des Gerätenamens: %s\n"
 msgid "Quota utilities version %s.\n"
 msgstr "Quota-Hilfsprogramme Version %s.\n"
 
-#: common.c:125
-#, c-format
-msgid "Compiled with:%s\n"
-msgstr "Compiliert mit:%s\n"
-
-#: common.c:126
-#: convertquota.c:48
-#: quotacheck.c:318
-#: repquota.c:64
-#: warnquota.c:996
+#: common.c:125 convertquota.c:48 quotacheck.c:314 repquota.c:66
+#: warnquota.c:981
 #, c-format
 msgid "Bugs to %s\n"
 msgstr "Fehler an %s\n"
@@ -67,21 +60,22 @@ msgstr ""
 "\n"
 "-u, --user                          Eine Nutzerquotadatei umwandeln\n"
 "-g, --group                         Eine Gruppenquotadatei umwandel\n"
-"-e, --convert-endian                Quotadatei in richtige Bytereihenfolge umwandeln\n"
-"-f, --convert-format oldfmt,newfmt  Aus altem Format in das  VFSv0-Quotaformat umwandeln\n"
+"-e, --convert-endian                Quotadatei in richtige Bytereihenfolge "
+"umwandeln\n"
+"-f, --convert-format oldfmt,newfmt  Aus altem Format in das  VFSv0-"
+"Quotaformat umwandeln\n"
 "-h, --help                          Diesen Hilfetext anzeigen und beenden\n"
-"-V, --version                       Versionsinformation ausgeben und beenden\n"
+"-V, --version                       Versionsinformation ausgeben und "
+"beenden\n"
 "\n"
 
 #: convertquota.c:97
 msgid "You have to specify source and target format of conversion.\n"
-msgstr "Für Konvertierungen müssen Sie das Quell- und das Zielformat angeben.\n"
+msgstr ""
+"Für Konvertierungen müssen Sie das Quell- und das Zielformat angeben.\n"
 
-#: convertquota.c:112
-#: quotacheck.c:404
-#: quotaon.c:133
-#: repquota.c:141
-#: setquota.c:217
+#: convertquota.c:112 quotacheck.c:400 quotaon.c:137 quotasync.c:81
+#: repquota.c:148 setquota.c:247
 msgid "Bad number of arguments.\n"
 msgstr "Falsche Anzahl an Argumenten.\n"
 
@@ -89,15 +83,12 @@ msgstr "Falsche Anzahl an Argumenten.\n"
 msgid "You have to specify action to perform.\n"
 msgstr "Sie müssen die auszuführende Aktion angeben.\n"
 
-#: convertquota.c:166
-#: quotacheck_v2.c:241
-#: quotaio_tree.c:58
+#: convertquota.c:166 quotacheck_v2.c:241 quotaio_tree.c:58
 #, c-format
 msgid "Cannot read block %u: %s\n"
 msgstr "Kann Block nicht lesen %u: %s\n"
 
-#: convertquota.c:191
-#: convertquota.c:283
+#: convertquota.c:191 convertquota.c:283
 #, c-format
 msgid "Cannot commit dquot for id %u: %s\n"
 msgstr "Kann dquot für id %u nicht speichern: %s\n"
@@ -107,8 +98,11 @@ msgid "Cannot read header of old quotafile.\n"
 msgstr "Kann Kopfinformation einer Quotadatei alten Formats nicht lesen.\n"
 
 #: convertquota.c:243
-msgid "Bad file magic or version (probably not quotafile with bad endianity).\n"
-msgstr "Falsche Magische Bytefolge oder Version (wahrscheinlich keine Quotadatei mit falscher Bytereihenfolge).\n"
+msgid ""
+"Bad file magic or version (probably not quotafile with bad endianity).\n"
+msgstr ""
+"Falsche Magische Bytefolge oder Version (wahrscheinlich keine Quotadatei mit "
+"falscher Bytereihenfolge).\n"
 
 #: convertquota.c:254
 msgid "Cannot read information about old quotafile.\n"
@@ -118,8 +112,7 @@ msgstr "Kann Information über Quotadatei im alten Format nicht lesen.\n"
 msgid "Cannot get name of new quotafile.\n"
 msgstr "Kann Namen der Quotadatei im neuen Format nicht bekommen.\n"
 
-#: convertquota.c:302
-#: quotacheck.c:752
+#: convertquota.c:302 quotacheck.c:749
 #, c-format
 msgid "Cannot rename new quotafile %s to name %s: %s\n"
 msgstr "Kann neue Quotadatei %s nicht in %s umbenennen: %s\n"
@@ -129,8 +122,7 @@ msgstr "Kann neue Quotadatei %s nicht in %s umbenennen: %s\n"
 msgid "Cannot open old format file for %ss on %s\n"
 msgstr "Kann Quotadatei alten Formats nicht für %ss in %s öffnen\n"
 
-#: convertquota.c:321
-#: convertquota.c:354
+#: convertquota.c:321 convertquota.c:354
 #, c-format
 msgid "Cannot create file for %ss for new format on %s: %s\n"
 msgstr "Kann Datei für %ss im neuen Format auf %s nicht anlegen: %s\n"
@@ -145,19 +137,24 @@ msgid "Unknown action should be performed.\n"
 msgstr "Unbekannte Aktion sollte ausgeführt werden.\n"
 
 #: edquota.c:81
-#, c-format
+#, fuzzy, c-format
 msgid ""
 "Usage:\n"
-"\tedquota %1$s[-u] [-F formatname] [-p username] [-f filesystem] username ...\n"
-"\tedquota %1$s-g [-F formatname] [-p groupname] [-f filesystem] groupname ...\n"
-"\tedquota %1$s[-u|g] [-F formatname] [-f filesystem] -t\n"
-"\tedquota %1$s[-u|g] [-F formatname] [-f filesystem] -T username|groupname ...\n"
+"\tedquota %1$s[-u] [-F formatname] [-p username] [-f filesystem] "
+"username ...\n"
+"\tedquota %1$s-g [-F formatname] [-p groupname] [-f filesystem] "
+"groupname ...\n"
+"\tedquota [-u|g] [-F formatname] [-f filesystem] -t\n"
+"\tedquota [-u|g] [-F formatname] [-f filesystem] -T username|groupname ...\n"
 msgstr ""
 "Verwendung:\n"
-"\tedquota %1$s[-u] [-F formatname] [-p benutzername] [-f dateisystem] benutzername ...\n"
-"\tedquota %1$s-g [-F formatname] [-p gruppenname] [-f dateisystem] gruppenname ...\n"
+"\tedquota %1$s[-u] [-F formatname] [-p benutzername] [-f dateisystem] "
+"benutzername ...\n"
+"\tedquota %1$s-g [-F formatname] [-p gruppenname] [-f dateisystem] "
+"gruppenname ...\n"
 "\tedquota %1$s[-u|g] [-F formatname] [-f dateisystem] -t\n"
-"\tedquota %1$s[-u|g] [-F formatname] [-f dateisystem] -T benutzername|gruppenname ...\n"
+"\tedquota %1$s[-u|g] [-F formatname] [-f dateisystem] -T benutzername|"
+"gruppenname ...\n"
 
 #: edquota.c:85
 msgid ""
@@ -175,7 +172,8 @@ msgid ""
 "-m, --no-mixed-pathnames      trim leading slashes from NFSv4 mountpoints\n"
 msgstr ""
 "-r, --remote                  entferne Quota bearbeiten (über RPC)\n"
-"-m, --no-mixed-pathnames      entferne führende Schrägstriche von NFSv4-Mountpunkten\n"
+"-m, --no-mixed-pathnames      entferne führende Schrägstriche von NFSv4-"
+"Mountpunkten\n"
 
 #: edquota.c:92
 msgid ""
@@ -191,93 +189,104 @@ msgid ""
 "\n"
 msgstr ""
 "-F, --format=formatname       Quotas eines bestimmten Formats bearbeiten\n"
-"-p, --prototype=name          Kopiere Daten von einem Vorlagenutzer/einer Vorlagegruppe\n"
-"    --always-resolve          Versuche stets, einen Namen aufzulösen, auch wenn er\n"
+"-p, --prototype=name          Kopiere Daten von einem Vorlagenutzer/einer "
+"Vorlagegruppe\n"
+"    --always-resolve          Versuche stets, einen Namen aufzulösen, auch "
+"wenn er\n"
 "                              nur aus Ziffern besteht\n"
-"-f, --filesystem=filesystem   Bearbeite nur Daten eines bestimmten Dateisystems\n"
+"-f, --filesystem=filesystem   Bearbeite nur Daten eines bestimmten "
+"Dateisystems\n"
 "-t, --edit-period             Bearbeite Standard-Gnadenfrist\n"
-"-T, --edit-times              Bearbeite Gradenfrist eines Nutzers/einer Gruppe\n"
-"-h, --help                    Zeige diesen Hilfetext and und beende das Programm\n"
-"-V, --version                 Zeige Versionsinformationen and und beende das Programm\n"
+"-T, --edit-times              Bearbeite Gradenfrist eines Nutzers/einer "
+"Gruppe\n"
+"-h, --help                    Zeige diesen Hilfetext and und beende das "
+"Programm\n"
+"-V, --version                 Zeige Versionsinformationen and und beende das "
+"Programm\n"
 "\n"
 
-#: edquota.c:101
-#: quota.c:107
-#: setquota.c:79
+#: edquota.c:101 quota.c:111 setquota.c:79
 #, c-format
 msgid "Bugs to: %s\n"
 msgstr "Fehler an: %s\n"
 
-#: edquota.c:182
-msgid "Prototype name does not make sense when editing grace period or times.\n"
-msgstr "Die Angabe eines Vorlagenamens macht keinen Sinn, wenn Gnadenfrist oder Standard-Gnadenfrist bearbeitet werden soll.\n"
+#: edquota.c:183
+msgid ""
+"Prototype name does not make sense when editing grace period or times.\n"
+msgstr ""
+"Die Angabe eines Vorlagenamens macht keinen Sinn, wenn Gnadenfrist oder "
+"Standard-Gnadenfrist bearbeitet werden soll.\n"
 
-#: edquota.c:200
+#: edquota.c:187
+#, fuzzy
+msgid "Cannot change grace times over RPC protocol.\n"
+msgstr "Kann Gnadenfristen nicht in Datei ablegen.\n"
+
+#: edquota.c:205
 #, c-format
 msgid "Cannot get quota information for user %s\n"
 msgstr "Kann Quota-Informationen für Nutzer %s nicht erhalten\n"
 
-#: edquota.c:206
+#: edquota.c:211
 msgid "fsname mismatch\n"
 msgstr "Dateisystemname paßt nicht\n"
 
-#: edquota.c:248
+#: edquota.c:253
 msgid "No filesystems with quota detected.\n"
 msgstr "Keine Dateisysteme mit Quotainformationen gefunden.\n"
 
-#: edquota.c:264
+#: edquota.c:269
 #, c-format
 msgid "Cannot create temporary file: %s\n"
 msgstr "Kann temporäre Datei nicht anlegen: %s\n"
 
-#: edquota.c:269
+#: edquota.c:274
 #, c-format
 msgid "Cannot change owner of temporary file: %s\n"
 msgstr "Kann Eigentümer einer temporären Datei nicht ändern: %s\n"
 
-#: edquota.c:276
+#: edquota.c:281
 msgid "Cannot write grace times to file.\n"
 msgstr "Kann Gnadenfristen nicht in Datei ablegen.\n"
 
-#: edquota.c:280
+#: edquota.c:285
 msgid "Error while editing grace times.\n"
 msgstr "Fehler beim Bearbeiten von Gnadenfristen.\n"
 
-#: edquota.c:284
+#: edquota.c:289
 msgid "Failed to parse grace times file.\n"
 msgstr "Konnte Gnadenfristendatei nicht parsen.\n"
 
-#: edquota.c:293
-#: edquota.c:319
+#: edquota.c:298 edquota.c:324
 #, c-format
 msgid "Cannot get quota information for user %s.\n"
 msgstr "Kann Quota-Informationen für Nutzer %s nicht erhalten.\n"
 
-#: edquota.c:295
+#: edquota.c:300
 msgid "Cannot write individual grace times to file.\n"
 msgstr "Kann einzelne Gnadenfristen nicht in Datei schreiben.\n"
 
-#: edquota.c:300
+#: edquota.c:305
 msgid "Error while editing individual grace times.\n"
 msgstr "Fehler bei Bearbeitung einzelner Gnadenfristen.\n"
 
-#: edquota.c:305
+#: edquota.c:310
 msgid "Cannot read individual grace times from file.\n"
 msgstr "Kann einzelne Gnadenfristen nicht aus Datei lesen.\n"
 
-#: edquota.c:321
+#: edquota.c:326
 msgid "Cannot write quotas to file.\n"
 msgstr "Kann Quotainformationen nicht in Datei schreiben.\n"
 
-#: edquota.c:326
+#: edquota.c:331
 msgid "Error while editing quotas.\n"
 msgstr "Fehler beim Bearbeiten von Quotas.\n"
 
-#: edquota.c:332
+#: edquota.c:341
 msgid "Cannot reopen!"
 msgstr "Kann Datei nicht zum wiederholten Male öffnen!"
 
-#: edquota.c:334
+#: edquota.c:343
 msgid "Cannot read quotas from file.\n"
 msgstr "Kann Quotas nicht aus Datei lesen.\n"
 
@@ -291,19 +300,17 @@ msgstr "Verwendung: %s [-acfugvViTq] [Dateisystem...]\n"
 msgid "%s (%s):\n"
 msgstr "%s (%s):\n"
 
-#: quot.c:182
-#: quot.c:186
+#: quot.c:182 quot.c:186
 #, c-format
 msgid "%d\t%llu\t%llu\n"
 msgstr "%d\t%llu\t%llu\n"
 
 #: quot.c:195
-#, c-format
-msgid "%s (%s) %s:\n"
+#, fuzzy, c-format
+msgid "%s (%s) %ss:\n"
 msgstr "%s (%s) %s:\n"
 
-#: quot.c:203
-#: quot.c:205
+#: quot.c:203 quot.c:205
 #, c-format
 msgid "%8llu    "
 msgstr "%8llu    "
@@ -338,30 +345,34 @@ msgstr "Kann nicht öffnen %s: %s\n"
 msgid "XFS_IOC_FSBULKSTAT ioctl failed: %s\n"
 msgstr "XFS_IOC_FSBULKSTAT ioctl-Aufruf fehlgeschlagen: %s\n"
 
-#: quota.c:83
+#: quota.c:85
 msgid "Usage: quota [-guqvswim] [-l | [-Q | -A]] [-F quotaformat]\n"
 msgstr "Verwendung: quota [-guqvswim] [-l | [-Q | -A]] [-F quotaformat]\n"
 
-#: quota.c:84
-msgid "\tquota [-qvswim] [-l | [-Q | -A]] [-F quotaformat] -u username ...\n"
-msgstr "\tquota [-qvswim] [-l | [-Q | -A]] [-F Quotaformat] -u Benutzername ...\n"
-
-#: quota.c:85
-msgid "\tquota [-qvswim] [-l | [-Q | -A]] [-F quotaformat] -g groupname ...\n"
-msgstr "\tquota [-qvswim] [-l | [-Q | -A]] [-F Quotaformat] -g Gruppenname ...\n"
-
 #: quota.c:86
+msgid "\tquota [-qvswim] [-l | [-Q | -A]] [-F quotaformat] -u username ...\n"
+msgstr ""
+"\tquota [-qvswim] [-l | [-Q | -A]] [-F Quotaformat] -u Benutzername ...\n"
+
+#: quota.c:87
+msgid "\tquota [-qvswim] [-l | [-Q | -A]] [-F quotaformat] -g groupname ...\n"
+msgstr ""
+"\tquota [-qvswim] [-l | [-Q | -A]] [-F Quotaformat] -g Gruppenname ...\n"
+
+#: quota.c:88
 msgid "\tquota [-qvswugQm] [-F quotaformat] -f filesystem ...\n"
 msgstr "\tquota [-qvswugQm] [-F Quotaformat] -f Dateisystem ...\n"
 
-#: quota.c:87
+#: quota.c:89
+#, fuzzy
 msgid ""
 "\n"
 "-u, --user                display quota for user\n"
 "-g, --group               display quota for group\n"
 "-q, --quiet               print more terse message\n"
 "-v, --verbose             print more verbose message\n"
-"-s, --human-readable      display numbers in human friendly units (MB, GB...)\n"
+"-s, --human-readable      display numbers in human friendly units (MB, "
+"GB...)\n"
 "    --always-resolve      always try to translate name to id, even if it is\n"
 "\t\t\t  composed of only digits\n"
 "-w, --no-wrap             do not wrap long lines\n"
@@ -371,9 +382,12 @@ msgid ""
 "                          not respond\n"
 "-i, --no-autofs           do not query autofs mountpoints\n"
 "-F, --format=formatname   display quota of a specific format\n"
-"-f, --filesystem-list     display quota information only for given filesystems\n"
-"-A, --nfs-all             display quota for all NFS mountpoints\n"
+"-f, --filesystem-list     display quota information only for given "
+"filesystems\n"
+"-A, --all-nfs             display quota for all NFS mountpoints\n"
 "-m, --no-mixed-pathnames  trim leading slashes from NFSv4 mountpoints\n"
+"    --show-mntpoint       show mount point of the file system in output\n"
+"    --hide-device         do not show file system device in output\n"
 "-h, --help                display this help message and exit\n"
 "-V, --version             display version information and exit\n"
 "\n"
@@ -383,8 +397,10 @@ msgstr ""
 "-g, --group               Quota für Gruppe anzeigen\n"
 "-q, --quiet               Kürzere Nachricht ausgeben\n"
 "-v, --verbose             Ausführlichere Nachricht ausgeben\n"
-"-s, --human-readable      Zeige Zahlen in menschenfreundlichen Einheiten an (MB, GB...)\n"
-"    --always-resolve      Versuche immer, Namen in Benutzerids umzuwandeln, sogar wenn\n"
+"-s, --human-readable      Zeige Zahlen in menschenfreundlichen Einheiten an "
+"(MB, GB...)\n"
+"    --always-resolve      Versuche immer, Namen in Benutzerids umzuwandeln, "
+"sogar wenn\n"
 "\t\t\t  der Name nur aus Ziffern besteht\n"
 "-w, --no-wrap             Lange Zeilen nicht umbrechen\n"
 "-p, --raw-grace           Gnadenfrist in Sekunden seit der Epoche ausgeben\n"
@@ -393,98 +409,96 @@ msgstr ""
 "                          nicht antwortet\n"
 "-i, --no-autofs           Autofs-Mountpunkte nicht abfragen\n"
 "-F, --format=formatname   Quotas für ein bestimmtes Format anzeigen\n"
-"-f, --filesystem-list     Quota-Informationen nur für die gegebenen Dateisysteme anzeigen\n"
+"-f, --filesystem-list     Quota-Informationen nur für die gegebenen "
+"Dateisysteme anzeigen\n"
 "-A, --nfs-all             Quotas für alle NFS-Mountpunkte ausgeben\n"
-"-m, --no-mixed-pathnames  Entferne führende Schrägstriche von NFSv4-Mountpunkten\n"
+"-m, --no-mixed-pathnames  Entferne führende Schrägstriche von NFSv4-"
+"Mountpunkten\n"
 "-h, --help                Diese Hilfenachricht ausgeben und beenden\n"
 "-V, --version             Versionsinformation ausgeben und beenden\n"
 "\n"
 
-#: quota.c:116
+#: quota.c:120
 msgid "space"
 msgstr "Platz"
 
-#: quota.c:118
+#: quota.c:122
 msgid "blocks"
 msgstr "Blöcke"
 
-#: quota.c:120
+#: quota.c:124
 #, c-format
 msgid "Disk quotas for %s %s (%cid %u): %s\n"
 msgstr "Dateisystemquotas für %s %s (%cid %u): %s\n"
 
-#: quota.c:123
+#: quota.c:127
 msgid "Filesystem"
 msgstr "Dateisystem"
 
-#: quota.c:124
-#: quota.c:125
+#: quota.c:128 quota.c:129
 msgid "quota"
 msgstr "Quota"
 
-#: quota.c:124
-#: quota.c:125
+#: quota.c:128 quota.c:129
 msgid "limit"
 msgstr "Limit"
 
-#: quota.c:124
-#: quota.c:125
+#: quota.c:128 quota.c:129
 msgid "grace"
 msgstr "Gnadenfrist"
 
-#: quota.c:125
+#: quota.c:129
 msgid "files"
 msgstr "Dateien"
 
-#: quota.c:155
+#: quota.c:201
 msgid "File limit reached on"
 msgstr "Dateilimit erreicht auf"
 
-#: quota.c:161
+#: quota.c:207
 msgid "In file grace period on"
 msgstr "In der Dateignadenfrist auf"
 
-#: quota.c:165
+#: quota.c:211
 msgid "Over file quota on"
 msgstr "Über dem Dateiquota auf"
 
-#: quota.c:171
+#: quota.c:217
 msgid "Block limit reached on"
 msgstr "Blocklimit erreicht auf"
 
-#: quota.c:177
+#: quota.c:223
 msgid "In block grace period on"
 msgstr "In der Blockgnadenfrist auf"
 
-#: quota.c:181
+#: quota.c:227
 msgid "Over block quota on"
 msgstr "Über dem Blockquota auf"
 
-#: quota.c:243
-#: quotasys.c:324
+#: quota.c:290 quotasys.c:320
 msgid "none"
 msgstr "kein"
 
-#: quota.c:339
+#: quota.c:396
 #, c-format
 msgid "Warning: Ignoring -%c when filesystem list specified.\n"
 msgstr "Warnung: Ignoriere -%c, wenn eine Dateisystemliste angegeben wurde.\n"
 
-#: quota.c:346
+#: quota.c:403
 msgid "No filesystem specified.\n"
 msgstr "Kein Dateisystem angegeben.\n"
 
-#: quota.c:354
+#: quota.c:411
 #, c-format
 msgid "Gid set allocation (%d): %s\n"
 msgstr "Gid-set-Speicheranforderung (ngroups=%d): %s\n"
 
-#: quota.c:360
+#: quota.c:417
 #, c-format
 msgid "getgroups(): %s\n"
 msgstr "getgroups(): %s\n"
 
-#: quota_nld.c:80
+#: quota_nld.c:85
 #, c-format
 msgid ""
 "Usage: %s [options]\n"
@@ -492,7 +506,8 @@ msgid ""
 " -h --help         shows this text\n"
 " -V --version      shows version information\n"
 " -C --no-console   do not try to write messages to console\n"
-" -b --print-below  write to console also information about getting below hard/soft limits\n"
+" -b --print-below  write to console also information about getting below "
+"hard/soft limits\n"
 " -D --no-dbus      do not try to write messages to DBUS\n"
 " -F --foreground   run daemon in foreground\n"
 msgstr ""
@@ -501,25 +516,25 @@ msgstr ""
 " -h --help         Zeigt diesen Text\n"
 " -V --version      Zeigt Versionsinformation\n"
 " -C --no-console   Versuche, keine Nachrichten auf die Konsole auszugeben\n"
-" -b --print-below  Auch Nachrichten auf Konsole ausgeben, wenn weiche oder harte Limits unterschritten werden\n"
+" -b --print-below  Auch Nachrichten auf Konsole ausgeben, wenn weiche oder "
+"harte Limits unterschritten werden\n"
 " -D --no-dbus      Versuche nicht, Nachrichten an DBUS zu schicken\n"
 " -F --foreground   Lasse den Dämon im Vordergrund laufen\n"
 
-#: quota_nld.c:114
-#: rquota_svc.c:162
+#: quota_nld.c:119 rquota_svc.c:160
 #, c-format
 msgid "Unknown option '%c'.\n"
 msgstr "Unbekannte Option '%c'.\n"
 
-#: quota_nld.c:120
+#: quota_nld.c:125
 msgid "No possible destination for messages. Nothing to do.\n"
 msgstr "Kein mögliches Ziel für Nachrichten.  Nichts zu tun.\n"
 
-#: quota_nld.c:146
+#: quota_nld.c:151
 msgid "Error parsing netlink message.\n"
 msgstr "Fehler beim Parsen einer Netlink-Nachricht.\n"
 
-#: quota_nld.c:153
+#: quota_nld.c:158
 msgid ""
 "Unknown format of kernel netlink message!\n"
 "Maybe your quota tools are too old?\n"
@@ -527,143 +542,182 @@ msgstr ""
 "Unbekanntes Format einer Netlink-Nachricht vom Kernel!\n"
 "Vielleicht sind Ihre Quota-Tools zu alt?\n"
 
-#: quota_nld.c:177
-msgid "Cannot allocate netlink handle!\n"
+#: quota_nld.c:182
+#, fuzzy
+msgid "Cannot allocate netlink socket!\n"
 msgstr "Kann keinen Speicher für ein Netlink-Handle reservieren!\n"
 
-#: quota_nld.c:181
-#, c-format
-msgid "Cannot connect to netlink socket: %s\n"
-msgstr "Kann nicht zum Netlink-Socket verbinden: %s\n"
-
-#: quota_nld.c:184
-#, c-format
-msgid "Cannot resolve quota netlink name: %s\n"
-msgstr "Kann Quota-Netlink-Namen nicht auflösen: %s\n"
-
 #: quota_nld.c:188
-#, c-format
-msgid "Cannot join quota multicast group: %s\n"
-msgstr "Kann mich Quota-Muticast-Gruppe nicht anschließen: %s\n"
-
-#: quota_nld.c:193
 #, c-format
 msgid "Cannot register callback for netlink messages: %s\n"
 msgstr "Kann Callbackfunktion für Netlink-Nachrichten nicht registrieren: %s\n"
 
-#: quota_nld.c:207
+#: quota_nld.c:193
+#, c-format
+msgid "Cannot connect to netlink socket: %s\n"
+msgstr "Kann nicht zum Netlink-Socket verbinden: %s\n"
+
+#: quota_nld.c:205
+#, c-format
+msgid "Cannot resolve quota netlink name: %s\n"
+msgstr "Kann Quota-Netlink-Namen nicht auflösen: %s\n"
+
+#: quota_nld.c:211
+#, c-format
+msgid "Cannot join quota multicast group: %s\n"
+msgstr "Kann mich Quota-Muticast-Gruppe nicht anschließen: %s\n"
+
+#: quota_nld.c:224
 #, c-format
 msgid "Cannot connect to system DBUS: %s\n"
 msgstr "Kann nicht zum System-DBUS verbinden: %s\n"
 
-#: quota_nld.c:267
+#: quota_nld.c:289
 #, c-format
 msgid "Failed to find tty of user %llu to report warning to.\n"
-msgstr "Konnte TTY von Nutzer %llu nicht finden, um eine Warnung dorthin auszugeben.\n"
+msgstr ""
+"Konnte TTY von Nutzer %llu nicht finden, um eine Warnung dorthin "
+"auszugeben.\n"
 
-#: quota_nld.c:272
+#: quota_nld.c:294
 #, c-format
 msgid "Failed to open tty %s of user %llu to report warning.\n"
-msgstr "Konnte TTY %s von Nutzer %llu nicht öffnen, um eine Warnung auszugeben.\n"
+msgstr ""
+"Konnte TTY %s von Nutzer %llu nicht öffnen, um eine Warnung auszugeben.\n"
 
-#: quota_nld.c:278
+#: quota_nld.c:300
 msgid "Warning"
 msgstr "Warnung"
 
-#: quota_nld.c:281
+#: quota_nld.c:303
 msgid "Error"
 msgstr "Fehler"
 
-#: quota_nld.c:283
+#: quota_nld.c:305
 msgid "Info"
 msgstr "Info"
 
-#: quota_nld.c:286
+#: quota_nld.c:308
 msgid "file limit reached"
 msgstr "Dateilimit erreicht"
 
-#: quota_nld.c:289
+#: quota_nld.c:311
 msgid "file quota exceeded too long"
 msgstr "Dateiquota zu lange überschritten"
 
-#: quota_nld.c:292
+#: quota_nld.c:314
 msgid "file quota exceeded"
 msgstr "Dateiquota überschritten"
 
-#: quota_nld.c:295
+#: quota_nld.c:317
 msgid "block limit reached"
 msgstr "Blocklimit erreicht"
 
-#: quota_nld.c:298
+#: quota_nld.c:320
 msgid "block quota exceeded too long"
 msgstr "Blockquota zu lange überschritten"
 
-#: quota_nld.c:301
+#: quota_nld.c:323
 msgid "block quota exceeded"
 msgstr "Blockquota überschritten"
 
-#: quota_nld.c:304
+#: quota_nld.c:326
 msgid "got below file limit"
 msgstr "Dateilimit unterschritten"
 
-#: quota_nld.c:307
+#: quota_nld.c:329
 msgid "got below file quota"
 msgstr "Dateiquota unterschritten"
 
-#: quota_nld.c:310
+#: quota_nld.c:332
 msgid "got below block limit"
 msgstr "Blocklimit unterschritten"
 
-#: quota_nld.c:313
+#: quota_nld.c:335
 msgid "got below block quota"
 msgstr "Blockquota unterschritten"
 
-#: quota_nld.c:316
+#: quota_nld.c:338
 msgid "unknown quota warning"
 msgstr "Unbekannte Block-Quota-Warnung"
 
-#: quota_nld.c:320
+#: quota_nld.c:342
 #, c-format
 msgid "Failed to write quota message for user %llu to %s: %s\n"
 msgstr "Konnte Quotanachricht für Nutzer %llu an %s nicht schreiben: %s\n"
 
-#: quota_nld.c:333
+#: quota_nld.c:355
 msgid "Cannot create DBUS message: No enough memory.\n"
 msgstr "Kann DBUS-Nachricht nicht erzeugen: Nicht genug Speicher.\n"
 
-#: quota_nld.c:351
+#: quota_nld.c:373
 msgid "Failed to write message to dbus: No enough memory.\n"
 msgstr "Konnte Nachricht nicht an DBUS schreiben: Nicht genug Speicher.\n"
 
-#: quota_nld.c:367
+#: quota_nld.c:389
 #, c-format
 msgid "Failed to read or parse quota netlink message: %s\n"
 msgstr "Konnte Quota-Netlink-Nachricht nicht lesen oder parsen: %s\n"
 
-#: quotacheck.c:96
+#: quota_nld.c:400
+msgid "Undefined program name.\n"
+msgstr ""
+
+#: quota_nld.c:405
+#, fuzzy
+msgid "Not enough memory to build PID file name.\n"
+msgstr "Nicht genug Speicher.\n"
+
+#: quota_nld.c:424
+#, fuzzy, c-format
+msgid "Could not open PID file '%s': %s\n"
+msgstr "Kann Datei nicht öffnen %s: %s\n"
+
+#: quota_nld.c:430
+#, fuzzy, c-format
+msgid "Could not write daemon's PID into '%s'.\n"
+msgstr "Konnte keine Werte für %s bekommen.\n"
+
+#: quota_nld.c:437
+#, fuzzy, c-format
+msgid "Could not close PID file '%s'.\n"
+msgstr "Konnte keine Werte für %s bekommen.\n"
+
+#: quota_nld.c:467
+msgid "Could not register PID file removal on SIGTERM.\n"
+msgstr ""
+
+#: quota_nld.c:469
+#, c-format
+msgid "Could not store my PID %jd.\n"
+msgstr ""
+
+#: quotacheck.c:92
 msgid "Not enough memory.\n"
 msgstr "Nicht genug Speicher.\n"
 
-#: quotacheck.c:128
-#, c-format
-msgid "Adding hardlink for ino %llu\n"
+#: quotacheck.c:124
+#, fuzzy, c-format
+msgid "Adding hardlink for inode %llu\n"
 msgstr "Füge Hardlink für I-Node %llu hinzu\n"
 
-#: quotacheck.c:171
+#: quotacheck.c:167
 #, c-format
 msgid "Adding dquot structure type %s for %d\n"
 msgstr "Füge dquot-Strukturtyp %s für %d hinzu\n"
 
-#: quotacheck.c:257
+#: quotacheck.c:253
 #, c-format
 msgid "Cannot open file %s: %s\n"
 msgstr "Kann Datei nicht öffnen %s: %s\n"
 
-#: quotacheck.c:262
+#: quotacheck.c:258
 msgid "Cannot get exact used space... Results might be inaccurate.\n"
-msgstr "Kann genau verwendeten Platz nicht bestimmen... Die Ergebnisse können ungenau sein.\n"
+msgstr ""
+"Kann genau verwendeten Platz nicht bestimmen... Die Ergebnisse können "
+"ungenau sein.\n"
 
-#: quotacheck.c:300
+#: quotacheck.c:296
 #, c-format
 msgid ""
 "Utility for checking and repairing quota files.\n"
@@ -695,70 +749,70 @@ msgstr ""
 "-g, --group               Gruppendateien prüfen\n"
 "-c, --create-files        Neue Quotadateien erzeugen\n"
 "-b, --backup              Sicherungskopien alter Quotadateien erzeugen\n"
-"-f, --force               Prüfung erzwingen, sogar wenn Quotas aktiviert sind\n"
+"-f, --force               Prüfung erzwingen, sogar wenn Quotas aktiviert "
+"sind\n"
 "-i, --interactive         interaktiver Modus\n"
-"-n, --use-first-dquot     Verwende die erste Kopie einer \"duplicated structure\"\n"
+"-n, --use-first-dquot     Verwende die erste Kopie einer \"duplicated "
+"structure\"\n"
 "-v, --verbose             gib mehr Informationen aus\n"
 "-d, --debug               gib noch mehr Informationen aus\n"
 "-m, --no-remount          Dateisystem nicht als nur-lesbar neu mounten\n"
-"-M, --try-remount         Versuche, das Dateisystem als nur-lesbar zu mounten,\n"
+"-M, --try-remount         Versuche, das Dateisystem als nur-lesbar zu "
+"mounten,\n"
 "                          aber setze fort, wenn das fehlschlägt\n"
-"-R, --exclude-root        Das Root-Dateisystem nicht prüfen, wenn alle Dateisysteme geprüft werden\n"
+"-R, --exclude-root        Das Root-Dateisystem nicht prüfen, wenn alle "
+"Dateisysteme geprüft werden\n"
 "-F, --format=formatname   Quotadateien eines bestimmten Formats prüfen\n"
 "-a, --all                 Prüfe alle Dateisysteme\n"
 "-h, --help                Zeige diese Nachricht an und beende\n"
 "-V, --version             Zeige Versionsinformation und beende\n"
 "\n"
 
-#: quotacheck.c:408
-msgid "XFS quota format needs no checking.\n"
-msgstr "XFS-Quotaformat erfordert keine Prüfung.\n"
-
-#: quotacheck.c:434
+#: quotacheck.c:426
 #, c-format
 msgid "error (%d) while opening %s\n"
 msgstr "Fehler (%d) beim Öffnen von %s\n"
 
-#: quotacheck.c:439
-#, c-format
-msgid "error (%d) while allocating inode file bitmap\n"
+#: quotacheck.c:431
+#, fuzzy, c-format
+msgid "error (%d) while allocating file inode bitmap\n"
 msgstr "Fehler (%d) bei Speicherreservierung für I-Node-Datei-Bittabelle\n"
 
-#: quotacheck.c:444
-#, c-format
-msgid "errstr (%d) while allocating inode directory bitmap\n"
+#: quotacheck.c:436
+#, fuzzy, c-format
+msgid "errstr (%d) while allocating directory inode bitmap\n"
 msgstr "Fehler (%d) bei Speicheranforderung für Inode-Verzeichnis-Bitmap\n"
 
-#: quotacheck.c:449
+#: quotacheck.c:441
 #, c-format
 msgid "error (%d) while opening inode scan\n"
 msgstr "Fehler (%d) beim Öffnen des \"Inode-Scans\"\n"
 
-#: quotacheck.c:454
+#: quotacheck.c:446
 #, c-format
 msgid "error (%d) while starting inode scan\n"
 msgstr "Fehler (%d) beim Start des Inode-Scans\n"
 
-#: quotacheck.c:460
+#: quotacheck.c:454
 #, c-format
 msgid "Found i_num %ld, blocks %ld\n"
 msgstr "i_num %ld, Blöcke %ld gefunden\n"
 
-#: quotacheck.c:466
+#: quotacheck.c:460
 msgid "High uid detected.\n"
 msgstr "Hohe uid festgestellt.\n"
 
-#: quotacheck.c:482
+#: quotacheck.c:476
 #, c-format
 msgid "Something weird happened while scanning. Error %d\n"
 msgstr "Etwas seltsames ist beim Scannnen passiert.  Fehler %d\n"
 
-#: quotacheck.c:506
+#: quotacheck.c:500
 #, c-format
 msgid "Cannot stat directory %s: %s\n"
 msgstr "Kann Verzeichnisinformationen nicht abrufen %s: %s\n"
 
-#: quotacheck.c:518
+#: quotacheck.c:512
 #, c-format
 msgid ""
 "\n"
@@ -767,10 +821,10 @@ msgstr ""
 "\n"
 "Kann Verzeichnis öffnen %s: %s\n"
 
-#: quotacheck.c:530
-#, c-format
+#: quotacheck.c:524
+#, fuzzy, c-format
 msgid ""
-"lstat Cannot stat `%s/%s': %s\n"
+"lstat: Cannot stat `%s/%s': %s\n"
 "Guess you'd better run fsck first !\n"
 "exiting...\n"
 msgstr ""
@@ -778,21 +832,21 @@ msgstr ""
 "Ich denke, du solltest besser erst fsck laufen lassen !\n"
 "Beende...\n"
 
-#: quotacheck.c:541
+#: quotacheck.c:535
 #, c-format
 msgid "pushd %s/%s\n"
 msgstr "pushd %s/%s\n"
 
-#: quotacheck.c:557
+#: quotacheck.c:551
 #, c-format
 msgid "\tAdding %s size %lld ino %d links %d uid %u gid %u\n"
 msgstr "\tAdding %s size %lld ino %d links %d uid %u gid %u\n"
 
-#: quotacheck.c:567
+#: quotacheck.c:561
 msgid "Scanning stored directories from directory stack\n"
 msgstr "Scanne auf dem Verzeichnisstapel gespeicherte Verzeichnisse\n"
 
-#: quotacheck.c:571
+#: quotacheck.c:565
 #, c-format
 msgid ""
 "popd %s\n"
@@ -801,159 +855,168 @@ msgstr ""
 "popd %s\n"
 "Entering directory %s\n"
 
-#: quotacheck.c:583
+#: quotacheck.c:577
 #, c-format
 msgid "Leaving %s\n"
 msgstr "Leaving %s\n"
 
-#: quotacheck.c:623
+#: quotacheck.c:617
 #, c-format
 msgid "Going to check %s quota file of %s\n"
 msgstr "Going to check %s quota file of %s\n"
 
-#: quotacheck.c:629
+#: quotacheck.c:623
 #, c-format
-msgid "Quota for %ss is enabled on mountpoint %s so quotacheck might damage the file.\n"
-msgstr "Quota für %ss ist am Mountpunkt %s aktiviert, dh. quotacheck könnte die Datei beschädigen.\n"
+msgid ""
+"Quota for %ss is enabled on mountpoint %s so quotacheck might damage the "
+"file.\n"
+msgstr ""
+"Quota für %ss ist am Mountpunkt %s aktiviert, dh. quotacheck könnte die "
+"Datei beschädigen.\n"
 
-#: quotacheck.c:630
-#: quotacheck.c:909
-msgid "Should I continue"
+#: quotacheck.c:624 quotacheck.c:942
+#, fuzzy
+msgid "Should I continue?"
 msgstr "Soll ich fortsetzten"
 
-#: quotacheck.c:631
-#: quotacheck.c:910
+#: quotacheck.c:625 quotacheck.c:943
 #, c-format
 msgid "As you wish... Canceling check of this file.\n"
 msgstr "WIe du wünschst... breche Prüfung dieser Datei ab.\n"
 
-#: quotacheck.c:636
+#: quotacheck.c:630
 #, c-format
 msgid ""
-"Quota for %ss is enabled on mountpoint %s so quotacheck might damage the file.\n"
+"Quota for %ss is enabled on mountpoint %s so quotacheck might damage the "
+"file.\n"
 "Please turn quotas off or use -f to force checking.\n"
 msgstr ""
-"Quota für %ss ist bei Mountpunkte %s aktiviert, dh. quotacheck könnte die Datei beschädigen.\n"
-"Bitte deaktivieren sie Quotas oder verwenden sie -f, um die Prüfung zu erzwingen.\n"
+"Quota für %ss ist bei Mountpunkte %s aktiviert, dh. quotacheck könnte die "
+"Datei beschädigen.\n"
+"Bitte deaktivieren sie Quotas oder verwenden sie -f, um die Prüfung zu "
+"erzwingen.\n"
 
-#: quotacheck.c:643
+#: quotacheck.c:637
 #, c-format
 msgid "Error while syncing quotas on %s: %s\n"
 msgstr "Fehler beim Syncen der Quotas auf Dateisystem %s: %s\n"
 
-#: quotacheck.c:648
+#: quotacheck.c:642
 #, c-format
 msgid "Cannot get quotafile name for %s\n"
 msgstr "Kann Quotadateinamen für %s nicht erhalten\n"
 
-#: quotacheck.c:653
-#: quotaio.c:151
-#: quotasys.c:539
+#: quotacheck.c:647 quotaio.c:150 quotasys.c:677
 #, c-format
 msgid "Cannot open quotafile %s: %s\n"
 msgstr "Kann Quotadatei nicht öffnen %s: %s\n"
 
-#: quotacheck.c:690
+#: quotacheck.c:687
 msgid "Renaming new files to proper names.\n"
 msgstr "Benenne neue Dateien mit letztendlichen Namen.\n"
 
-#: quotacheck.c:692
+#: quotacheck.c:689
 #, c-format
 msgid "Cannot get name of old quotafile on %s.\n"
 msgstr "Kann Namen der alten Quotadatei auf Dateisystem %s nicht bekommen.\n"
 
-#: quotacheck.c:695
+#: quotacheck.c:692
 msgid "Old file not found.\n"
 msgstr "Alte Datei nicht gefunden.\n"
 
-#: quotacheck.c:698
+#: quotacheck.c:695
 #, c-format
 msgid "Error while searching for old quota file %s: %s\n"
 msgstr "Fehler beim Suchen nach der alten Quotadatei %s: %s\n"
 
-#: quotacheck.c:707
+#: quotacheck.c:704
 msgid "Old file found removed during check!\n"
 msgstr "Die alte gefundene Datei wurde während der Prüfung entfernt!\n"
 
-#: quotacheck.c:710
+#: quotacheck.c:707
 #, c-format
 msgid "Error while opening old quota file %s: %s\n"
 msgstr "Fehler beim Öffnen der alten Quotadatei %s: %s\n"
 
-#: quotacheck.c:716
+#: quotacheck.c:713
 #, c-format
 msgid "EXT2_IOC_GETFLAGS failed: %s\n"
 msgstr "EXT2_IOC_GETFLAGS fehlgeschlagen: %s\n"
 
-#: quotacheck.c:720
+#: quotacheck.c:717
 #, c-format
 msgid "Quota file %s has IMMUTABLE flag set. Clearing.\n"
 msgstr "Quotadatei %s hat das IMMUTABLE-Flag gesetzt.  Lösche es.\n"
 
-#: quotacheck.c:723
+#: quotacheck.c:720
 #, c-format
 msgid "Failed to remove IMMUTABLE flag from quota file %s: %s\n"
 msgstr "Konnte IMMUTABLE-Flag in der Quotadatei nicht löschen %s: %s\n"
 
-#: quotacheck.c:732
+#: quotacheck.c:729
 #, c-format
 msgid "Renaming old quotafile to %s~\n"
 msgstr "Benenne alte Quotadatei in %s~ um\n"
 
-#: quotacheck.c:738
+#: quotacheck.c:735
 #, c-format
 msgid "Name of quota file too long. Contact %s.\n"
 msgstr "Name der Quotadatei zu lang.  Kontaktiere %s.\n"
 
-#: quotacheck.c:740
+#: quotacheck.c:737
 #, c-format
 msgid "Cannot rename old quotafile %s to %s: %s\n"
 msgstr "Kann alte Quotadatei %s nicht in %s umbenennen: %s\n"
 
-#: quotacheck.c:746
+#: quotacheck.c:743
 msgid "Renaming new quotafile\n"
 msgstr "Benenne neue Quotadatei um\n"
 
-#: quotacheck.c:758
+#: quotacheck.c:755
 #, c-format
 msgid "Cannot change permission of %s: %s\n"
 msgstr "Kann Zugriffsrechte von %s nicht ändern: %s\n"
 
-#: quotacheck.c:765
+#: quotacheck.c:762
 #, c-format
 msgid "Cannot open new quota file %s: %s\n"
 msgstr "Kann neue Quotadatei %s nicht öffnen: %s\n"
 
-#: quotacheck.c:770
+#: quotacheck.c:767
 #, c-format
 msgid "Warning: Cannot set EXT2 flags on %s: %s\n"
 msgstr "Warnung: Kann EXT2-Flags für %s nicht setzen: %s\n"
 
-#: quotacheck.c:789
+#: quotacheck.c:787
 #, c-format
 msgid "Dumping gathered data for %ss.\n"
 msgstr "Gebe gesammelte Daten für %ss aus.\n"
 
-#: quotacheck.c:791
+#: quotacheck.c:790
+#, fuzzy, c-format
+msgid "Cannot initialize IO on xfs/gfs2 quotafile: %s\n"
+msgstr "Kann IO für neue Quotadatei nicht initialisieren: %s\n"
+
+#: quotacheck.c:796
 #, c-format
 msgid "Cannot initialize IO on new quotafile: %s\n"
 msgstr "Kann IO für neue Quotadatei nicht initialisieren: %s\n"
 
-#: quotacheck.c:809
+#: quotacheck.c:823
 #, c-format
 msgid "Cannot finish IO on new quotafile: %s\n"
 msgstr "Kann IO an neuer Quotadatei nicht beenden: %s\n"
 
-#: quotacheck.c:812
+#: quotacheck.c:826
 msgid "Data dumped.\n"
 msgstr "Daten ausgegeben.\n"
 
-#: quotacheck.c:817
+#: quotacheck.c:834
 #, c-format
 msgid "Cannot find checked quota file for %ss on %s!\n"
 msgstr "Kann geprüfte Quotadatei für %ss auf %s nicht finden!\n"
 
-#: quotacheck.c:821
+#: quotacheck.c:838
 #, c-format
 msgid ""
 "Cannot turn %s quotas off on %s: %s\n"
@@ -962,7 +1025,7 @@ msgstr ""
 "Kann Quotas vom Typ %s auf %s nicht deaktivieren: %s\n"
 "Der Kernel wird nichts von quotachecks Änderungen mitbekommen.\n"
 
-#: quotacheck.c:834
+#: quotacheck.c:851
 #, c-format
 msgid ""
 "Cannot turn %s quotas on on %s: %s\n"
@@ -971,126 +1034,161 @@ msgstr ""
 "Kann Quotas vom Typ %s auf %s nicht aktivieren: %s\n"
 "Der Kernel wird nichts von quotachecks Änderungen mitbekommen.\n"
 
-#: quotacheck.c:855
+#: quotacheck.c:877
 #, c-format
 msgid "Substracting space used by old %s quota file.\n"
-msgstr "Subtrahiere den Platz, den die alte Quotadatei für Quotas vom Typ %s verwendet.\n"
-
-#: quotacheck.c:857
-#, c-format
-msgid "Old %s file not found. Usage will not be substracted.\n"
-msgstr "Alte Quotadatei für Quotas vom Typ %s nicht gefunden.  Verwendung wird nicht subtrahiert werden.\n"
-
-#: quotacheck.c:862
-#, c-format
-msgid "Cannot stat old %s quota file: %s\n"
-msgstr "Kann stat() für alte %s-Quotadatei aufrufen: %s\n"
-
-#: quotacheck.c:874
-#, c-format
-msgid "Quota structure for %s owning quota file not present! Something is really wrong...\n"
-msgstr "Quota-Datenstruktur in Quotadatei für Typ %s nicht vorhanden! Etwas ist wirklich nicht in Ordnung...\n"
+msgstr ""
+"Subtrahiere den Platz, den die alte Quotadatei für Quotas vom Typ %s "
+"verwendet.\n"
 
 #: quotacheck.c:879
+#, fuzzy, c-format
+msgid ""
+"Old %s file name could not been determined. Usage will not be subtracted.\n"
+msgstr ""
+"Alte Quotadatei für Quotas vom Typ %s nicht gefunden.  Verwendung wird nicht "
+"subtrahiert werden.\n"
+
+#: quotacheck.c:884
+#, fuzzy, c-format
+msgid "Cannot stat old %s quota file %s: %s. Usage will not be subtracted.\n"
+msgstr ""
+"Alte Quotadatei für Quotas vom Typ %s nicht gefunden.  Verwendung wird nicht "
+"subtrahiert werden.\n"
+
+#: quotacheck.c:896
+#, c-format
+msgid ""
+"Quota structure for %s owning quota file not present! Something is really "
+"wrong...\n"
+msgstr ""
+"Quota-Datenstruktur in Quotadatei für Typ %s nicht vorhanden! Etwas ist "
+"wirklich nicht in Ordnung...\n"
+
+#: quotacheck.c:901
 #, c-format
 msgid "Substracted %lu bytes.\n"
 msgstr "%lu Bytes subtrahiert.\n"
 
-#: quotacheck.c:889
+#: quotacheck.c:914
 #, c-format
 msgid "Cannot stat mountpoint %s: %s\n"
 msgstr "Kann stat() für Mountpunkt %s nicht aufrufen: %s\n"
 
-#: quotacheck.c:891
+#: quotacheck.c:916
 #, c-format
 msgid "Mountpoint %s is not a directory?!\n"
 msgstr "Mountpunkt %s ist kein Verzeichnis?!\n"
 
-#: quotacheck.c:908
-#, c-format
-msgid "Cannot remount filesystem mounted on %s read-only. Counted values might not be right.\n"
-msgstr "Kann das Dateisystem auf %s nicht als nur-lesbar ummounten.  Gezählte Werte könnten falsch sein.\n"
-
-#: quotacheck.c:915
+#: quotacheck.c:941
 #, c-format
 msgid ""
-"Cannot remount filesystem mounted on %s read-only so counted values might not be right.\n"
-"Please stop all programs writing to filesystem or use -m flag to force checking.\n"
+"Cannot remount filesystem mounted on %s read-only. Counted values might not "
+"be right.\n"
 msgstr ""
-"Kann das Dateisystem auf %s nicht als nur-lesbar ummounten.  Gezählte Werte könnten falsch sein.\n"
-"Bitte beenden sie alle Programme, die auf das Dateisystem schreiben oder verwenden sie -m, um die Prüfung zu erzwingen.\n"
+"Kann das Dateisystem auf %s nicht als nur-lesbar ummounten.  Gezählte Werte "
+"könnten falsch sein.\n"
 
-#: quotacheck.c:922
+#: quotacheck.c:949
+#, c-format
+msgid ""
+"Cannot remount filesystem mounted on %s read-only so counted values might "
+"not be right.\n"
+"Please stop all programs writing to filesystem or use -m flag to force "
+"checking.\n"
+msgstr ""
+"Kann das Dateisystem auf %s nicht als nur-lesbar ummounten.  Gezählte Werte "
+"könnten falsch sein.\n"
+"Bitte beenden sie alle Programme, die auf das Dateisystem schreiben oder "
+"verwenden sie -m, um die Prüfung zu erzwingen.\n"
+
+#: quotacheck.c:957
 msgid "Filesystem remounted read-only\n"
 msgstr "Dateisystem als nur-lesbar umgemountet\n"
 
-#: quotacheck.c:924
+#: quotacheck.c:960
 #, c-format
 msgid "Scanning %s [%s] "
 msgstr "Prüfe %s [%s] "
 
-#: quotacheck.c:941
+#: quotacheck.c:977
 msgid "done\n"
 msgstr "fertig\n"
 
-#: quotacheck.c:950
+#: quotacheck.c:986
 #, c-format
 msgid "Checked %d directories and %d files\n"
 msgstr "%d Verzeichnisse und %d Dateien geprüft\n"
 
-#: quotacheck.c:954
+#: quotacheck.c:990
 #, c-format
-msgid "Cannot remount filesystem %s read-write. cannot write new quota files.\n"
-msgstr "Kann Dateisystem %s nicht als les- und schreibbar ummounten.  Kann neue Quotadateien nicht schreiben.\n"
+msgid ""
+"Cannot remount filesystem %s read-write. cannot write new quota files.\n"
+msgstr ""
+"Kann Dateisystem %s nicht als les- und schreibbar ummounten.  Kann neue "
+"Quotadateien nicht schreiben.\n"
 
-#: quotacheck.c:955
+#: quotacheck.c:991
 msgid "Filesystem remounted RW.\n"
 msgstr "Dateisystem als les- und schreibbar umgemountet.\n"
 
-#: quotacheck.c:993
+#: quotacheck.c:1034
 #, c-format
 msgid "Cannot find quota option on filesystem %s with quotas!\n"
 msgstr "Kann die Quotaoption auf dem Dateisystem %s mit Quotas nicht finden!\n"
 
-#: quotacheck.c:999
+#: quotacheck.c:1040
 #, c-format
 msgid "Cannot detect quota format for journalled quota on %s\n"
 msgstr "Kann das Quotaformat für das Journalquota auf %s nicht feststellen\n"
 
-#: quotacheck.c:1048
-#: quotasys.c:632
-msgid "Cannot initialize mountpoint scan.\n"
-msgstr "Kann die Mountpunkt-Prüfung nicht initialisieren.\n"
-
-#: quotacheck.c:1054
-#, c-format
-msgid "Skipping %s [%s]\n"
-msgstr "Überspringe %s [%s]\n"
-
-#: quotacheck.c:1071
-#, c-format
-msgid "Cannot guess format from filename on %s. Please specify format on commandline.\n"
-msgstr "Kann das Format nicht aus dem Dateinamen auf Dateisysetm %s ableiten.  Bitte geben sie das Format auf der Kommandozeile an.\n"
-
-#: quotacheck.c:1075
-#, c-format
-msgid "Detected quota format %s\n"
-msgstr "Quotaformat %s erkannt\n"
-
-#: quotacheck.c:1090
+#: quotacheck.c:1106
 #, c-format
 msgid "Cannot get system info: %s\n"
 msgstr "Kann Syseminformationen nicht abrufen: %s\n"
 
-#: quotacheck.c:1102
-msgid "Your kernel probably supports journaled quota but you are not using it. Consider switching to journaled quota to avoid running quotacheck after an unclean shutdown.\n"
-msgstr "Ihr Kernel unterstützt wahrscheinlich Journalquotas, aber sie verwenden sie nicht.  Vielleicht sollten sie auf Journalquotas umsteigen, um nicht mehr quotacheck nach jedem unsauberen Herunterfahren ausführen zu müssen.\n"
-
-#: quotacheck.c:1113
-msgid "Cannot find filesystem to check or filesystem not mounted with quota option.\n"
-msgstr "Kann kein Dateisystem zum Prüfen finden oder Dateisystem nicht mit der Quota-Option gemountet.\n"
-
 #: quotacheck.c:1126
+msgid ""
+"Your kernel probably supports journaled quota but you are not using it. "
+"Consider switching to journaled quota to avoid running quotacheck after an "
+"unclean shutdown.\n"
+msgstr ""
+"Ihr Kernel unterstützt wahrscheinlich Journalquotas, aber sie verwenden sie "
+"nicht.  Vielleicht sollten sie auf Journalquotas umsteigen, um nicht mehr "
+"quotacheck nach jedem unsauberen Herunterfahren ausführen zu müssen.\n"
+
+#: quotacheck.c:1140 quotasys.c:767
+msgid "Cannot initialize mountpoint scan.\n"
+msgstr "Kann die Mountpunkt-Prüfung nicht initialisieren.\n"
+
+#: quotacheck.c:1145
+#, c-format
+msgid "Skipping %s [%s]\n"
+msgstr "Überspringe %s [%s]\n"
+
+#: quotacheck.c:1162
+#, c-format
+msgid ""
+"Cannot guess format from filename on %s. Please specify format on "
+"commandline.\n"
+msgstr ""
+"Kann das Format nicht aus dem Dateinamen auf Dateisysetm %s ableiten.  Bitte "
+"geben sie das Format auf der Kommandozeile an.\n"
+
+#: quotacheck.c:1167
+#, c-format
+msgid "Detected quota format %s\n"
+msgstr "Quotaformat %s erkannt\n"
+
+#: quotacheck.c:1188
+msgid ""
+"Cannot find filesystem to check or filesystem not mounted with quota "
+"option.\n"
+msgstr ""
+"Kann kein Dateisystem zum Prüfen finden oder Dateisystem nicht mit der Quota-"
+"Option gemountet.\n"
+
+#: quotacheck.c:1206
 #, c-format
 msgid ""
 "Allocated %d bytes memory\n"
@@ -1122,8 +1220,12 @@ msgstr "Kann ersten Eintrag aus der Quotadatei %s nicht lesen: %s\n"
 
 #: quotacheck_v1.c:72
 #, c-format
-msgid "WARNING - Quotafile %s was probably truncated. Cannot save quota settings...\n"
-msgstr "WARNUNG - Quotadatei %s wurde wahrscheinlich abgeschnitten.  Kann Quotaeinstellungen nicht retten...\n"
+msgid ""
+"WARNING - Quotafile %s was probably truncated. Cannot save quota "
+"settings...\n"
+msgstr ""
+"WARNUNG - Quotadatei %s wurde wahrscheinlich abgeschnitten.  Kann "
+"Quotaeinstellungen nicht retten...\n"
 
 #: quotacheck_v1.c:78
 msgid "First entry loaded.\n"
@@ -1140,8 +1242,12 @@ msgstr "Kann Information nicht aus Quotadatei %s lesen: %s\n"
 
 #: quotacheck_v2.c:65
 #, c-format
-msgid "WARNING - Quota file %s was probably truncated. Cannot save quota settings...\n"
-msgstr "WARNUNG - Quotadatei %s wurde wahrscheinlich abgeschnitten.  Kann Quotaeinstellungen nicht retten...\n"
+msgid ""
+"WARNING - Quota file %s was probably truncated. Cannot save quota "
+"settings...\n"
+msgstr ""
+"WARNUNG - Quotadatei %s wurde wahrscheinlich abgeschnitten.  Kann "
+"Quotaeinstellungen nicht retten...\n"
 
 #: quotacheck_v2.c:77
 msgid "WARNING - Quota file info was corrupted.\n"
@@ -1184,22 +1290,35 @@ msgstr "Doppelte Einträge."
 
 #: quotacheck_v2.c:183
 #, c-format
-msgid "Found more structures for ID %u. Using values: BHARD: %lld BSOFT: %lld IHARD: %lld ISOFT: %lld\n"
-msgstr "Mehrere Strukturen für Id %u gefunden. Verwende Werte: BHARD: %lld BSOFT: %lld IHARD: %lld ISOFT: %lld\n"
+msgid ""
+"Found more structures for ID %u. Using values: BHARD: %lld BSOFT: %lld "
+"IHARD: %lld ISOFT: %lld\n"
+msgstr ""
+"Mehrere Strukturen für Id %u gefunden. Verwende Werte: BHARD: %lld BSOFT: "
+"%lld IHARD: %lld ISOFT: %lld\n"
 
 #: quotacheck_v2.c:191
 #, c-format
-msgid "Found more structures for ID %u. Values: BHARD: %lld/%lld BSOFT: %lld/%lld IHARD: %lld/%lld ISOFT: %lld/%lld\n"
-msgstr "Mehrere Strukturen für Id %u gefunden. Werte: BHARD: %lld/%lld BSOFT: %lld/%lld IHARD: %lld/%lld ISOFT: %lld/%lld\n"
+msgid ""
+"Found more structures for ID %u. Values: BHARD: %lld/%lld BSOFT: %lld/%lld "
+"IHARD: %lld/%lld ISOFT: %lld/%lld\n"
+msgstr ""
+"Mehrere Strukturen für Id %u gefunden. Werte: BHARD: %lld/%lld BSOFT: %lld/"
+"%lld IHARD: %lld/%lld ISOFT: %lld/%lld\n"
 
 #: quotacheck_v2.c:196
-msgid "Should I use new values"
+#, fuzzy
+msgid "Should I use new values?"
 msgstr "Soll ich neue Werte verwenden"
 
 #: quotacheck_v2.c:206
 #, c-format
-msgid "ID %u has more structures. User intervention needed (use -i for interactive mode or -n for automatic answer).\n"
-msgstr "Id %u hat mehrere Strukturen.  Benutzereingriff erforderlich (verwende -i für interaktiven Modus oder -n für automatische Antworten).\n"
+msgid ""
+"ID %u has more structures. User intervention needed (use -i for interactive "
+"mode or -n for automatic answer).\n"
+msgstr ""
+"Id %u hat mehrere Strukturen.  Benutzereingriff erforderlich (verwende -i "
+"für interaktiven Modus oder -n für automatische Antworten).\n"
 
 #: quotacheck_v2.c:243
 #, c-format
@@ -1228,8 +1347,12 @@ msgstr "Ungültige Anzahl verwendeter Einträge (%u)"
 
 #: quotacheck_v2.c:330
 #, c-format
-msgid "Quota file %s has corrupted headers. You have to specify quota format on command line.\n"
-msgstr "Kopfinformationen der Quotadatei %s sind zerstört.  Bitte geben sie das Format auf der Kommandozeile an.\n"
+msgid ""
+"Quota file %s has corrupted headers. You have to specify quota format on "
+"command line.\n"
+msgstr ""
+"Kopfinformationen der Quotadatei %s sind zerstört.  Bitte geben sie das "
+"Format auf der Kommandozeile an.\n"
 
 #: quotacheck_v2.c:346
 msgid "Checking quotafile headers...\n"
@@ -1242,8 +1365,12 @@ msgstr "Kann Kopfinformationen aus Quotadatei %s nicht lesen: %s\n"
 
 #: quotacheck_v2.c:352
 #, c-format
-msgid "WARNING -  Quotafile %s was probably truncated. Cannot save quota settings...\n"
-msgstr "WARNUNG - Quotadatei %s wurde wahrscheinlich abgeschnitten.  Kann Quotaeinstellungen nicht retten...\n"
+msgid ""
+"WARNING -  Quotafile %s was probably truncated. Cannot save quota "
+"settings...\n"
+msgstr ""
+"WARNUNG - Quotadatei %s wurde wahrscheinlich abgeschnitten.  Kann "
+"Quotaeinstellungen nicht retten...\n"
 
 #: quotacheck_v2.c:358
 #, c-format
@@ -1252,8 +1379,13 @@ msgstr "WARNUNG - Quotadatei %s hat ungültige Kopfinformationen\n"
 
 #: quotacheck_v2.c:362
 #, c-format
-msgid "Quota file format version %d does not match the one specified on command line (%d). Quota file header may be corrupted.\n"
-msgstr "Quotadateiformatversion %d stimmt nicht mit der Version überein, die auf der Kommandozeile angegeben wurde (%d).  Quotadateikopf könnte inkonsistent sein.\n"
+msgid ""
+"Quota file format version %d does not match the one specified on command "
+"line (%d). Quota file header may be corrupted.\n"
+msgstr ""
+"Quotadateiformatversion %d stimmt nicht mit der Version überein, die auf der "
+"Kommandozeile angegeben wurde (%d).  Quotadateikopf könnte inkonsistent "
+"sein.\n"
 
 #: quotacheck_v2.c:366
 msgid "Continue checking assuming version from command line?"
@@ -1285,7 +1417,7 @@ msgstr "WARNUNG - Einige Daten könnten wegen der Zerstörung geändert werden.\
 msgid "Not found any corrupted blocks. Congratulations.\n"
 msgstr "Keine zerstörten Blöcke gefunden.  Gratulation.\n"
 
-#: quotaio.c:64
+#: quotaio.c:62
 msgid "Only RPC quota format is allowed on NFS filesystem.\n"
 msgstr "Nur das RPC-Quotaformat ist bei NFS-Dateisystemen erlaubt.\n"
 
@@ -1295,78 +1427,104 @@ msgstr "RPC-Quotaformat nicht mit einkompiliert.\n"
 
 #: quotaio.c:77
 msgid "RPC quota format specified for non-NFS filesystem.\n"
-msgstr "Es wurde das RPC-Quotaformat für ein Nicht-NFS-Dateisystemen angegeben.\n"
+msgstr ""
+"Es wurde das RPC-Quotaformat für ein Nicht-NFS-Dateisystemen angegeben.\n"
 
-#: quotaio.c:83
+#: quotaio.c:84
 msgid "Only XFS quota format is allowed on XFS filesystem.\n"
 msgstr "Nur das XFS-Quotaformat ist auf XFS-Dateisystemen erlaubt.\n"
 
-#: quotaio.c:94
+#: quotaio.c:95
 msgid "XFS quota allowed only on XFS filesystem.\n"
 msgstr "XFS-Quotaformat nur auf XFS-Dateisystemen erlaubt.\n"
 
-#: quotaio.c:108
+#: quotaio.c:109
 msgid "Quota not supported by the filesystem.\n"
 msgstr "Das Dateisystem unterstützt keine Quotas.\n"
 
-#: quotaio.c:112
-msgid "Operation not supported for filesystems with hidden quota files!\n"
-msgstr "Operation bei Dateisystemen mit versteckten Quotadateien nicht unterstützt!\n"
-
-#: quotaio.c:137
+#: quotaio.c:129
 msgid "Cannot find any quota file to work on.\n"
 msgstr "Kann keine Quotadatei finden, um sie zu bearbeiten.\n"
 
-#: quotaio.c:144
+#: quotaio.c:134
 msgid "Quota file not found or has wrong format.\n"
 msgstr "Quotadatei nicht gefunden oder hat falsches Format.\n"
 
-#: quotaio.c:176
+#: quotaio.c:144
+#, c-format
+msgid "Cannot sync quotas on device %s: %s\n"
+msgstr "Kann Quotas auf Gerät %s nicht synchronisieren: %s\n"
+
+#: quotaio.c:175
 #, c-format
 msgid "Cannot initialize quota on %s: %s\n"
 msgstr "Kann Quotas auf %s nicht initialisieren: %s\n"
 
-#: quotaio.c:204
+#: quotaio.c:202
 #, c-format
 msgid "Creation of %s quota format is not supported.\n"
 msgstr "Erzeugung des %s-Quotaformats wird nicht unterstützt.\n"
 
-#: quotaio.c:214
+#: quotaio.c:212
+#, c-format
+msgid ""
+"Quota on %s is stored in system files and must be manipulated by fs tools.\n"
+msgstr ""
+
+#: quotaio.c:222
 #, c-format
 msgid "Cannot create new quotafile %s: %s\n"
 msgstr "Kann neue Quotadatei %s nicht anlegen: %s\n"
 
-#: quotaio_generic.c:51
+#: quotaio.c:296
+#, fuzzy, c-format
+msgid ""
+"Trying to set quota limits out of range supported by quota format on %s.\n"
+msgstr "Versuche Quota in eine nur-lesbare Quotadatei auf %s zu schreiben\n"
+
+#: quotaio.c:302
+#, fuzzy, c-format
+msgid ""
+"Trying to set quota usage out of range supported by quota format on %s.\n"
+msgstr "Versuche Quota in eine nur-lesbare Quotadatei auf %s zu schreiben\n"
+
+#: quotaio_generic.c:54
 #, c-format
 msgid "Cannot get info for %s quota file from kernel on %s: %s\n"
-msgstr "Kann Informationen für %s-Quotadatei auf %s nicht vom Kernel bekommen: %s\n"
+msgstr ""
+"Kann Informationen für %s-Quotadatei auf %s nicht vom Kernel bekommen: %s\n"
 
-#: quotaio_generic.c:69
+#: quotaio_generic.c:72
 #, c-format
 msgid "Cannot set info for %s quota file from kernel on %s: %s\n"
-msgstr "Kann Informationen für %s-Quotadatei vom Kernel auf %s nicht setzen: %s\n"
+msgstr ""
+"Kann Informationen für %s-Quotadatei vom Kernel auf %s nicht setzen: %s\n"
 
-#: quotaio_generic.c:81
+#: quotaio_generic.c:84
 #, c-format
 msgid "Cannot get quota for %s %d from kernel on %s: %s\n"
 msgstr "Kann Quota für %s %d vom Kernel auf %s nicht bekommen: %s\n"
 
-#: quotaio_generic.c:96
+#: quotaio_generic.c:99
 #, c-format
 msgid "Cannot set quota for %s %d from kernel on %s: %s\n"
 msgstr "Kann Quota für %s %d vom Kernel auf %s nicht setzen: %s\n"
 
 #: quotaio_meta.c:22
 msgid "Metadata init_io called when kernel support is not enabled.\n"
-msgstr "Metadata init_io aufgerufen, obwohl Kernelunterstützung dafür nicht aktiviert.\n"
+msgstr ""
+"Metadata init_io aufgerufen, obwohl Kernelunterstützung dafür nicht "
+"aktiviert.\n"
 
 #: quotaio_meta.c:26
-msgid "Metadata init_io called when kernel does not support generic quota interface!\n"
-msgstr "Metadata init_io aufgerufen, obwohl Kernel die allgemeine Quotaschnittstelle nicht unterstützt!\n"
+msgid ""
+"Metadata init_io called when kernel does not support generic quota "
+"interface!\n"
+msgstr ""
+"Metadata init_io aufgerufen, obwohl Kernel die allgemeine Quotaschnittstelle "
+"nicht unterstützt!\n"
 
-#: quotaio_rpc.c:58
-#: quotaio_v1.c:300
-#: quotaio_v2.c:447
+#: quotaio_rpc.c:76 quotaio_v1.c:308 quotaio_v2.c:464
 #, c-format
 msgid "Trying to write quota to readonly quotafile on %s\n"
 msgstr "Versuche Quota in eine nur-lesbare Quotadatei auf %s zu schreiben\n"
@@ -1378,7 +1536,8 @@ msgstr "Kann Block nicht schreiben (%u): %s\n"
 
 #: quotaio_tree.c:94
 msgid "Cannot allocate new quota block (out of disk space).\n"
-msgstr "Kann keinen neune Quotablock belegen (kein Festplattenspeicherplatz mehr).\n"
+msgstr ""
+"Kann keinen neune Quotablock belegen (kein Festplattenspeicherplatz mehr).\n"
 
 #: quotaio_tree.c:202
 msgid "find_free_dqentry(): Data block full but it shouldn't.\n"
@@ -1394,56 +1553,60 @@ msgstr "Füge schon vorhandenen Quotaeintrag ein (Block %u).\n"
 msgid "Cannot write quota (id %u): %s\n"
 msgstr "Kann Quota nicht schreiben (Id %u): %s\n"
 
-#: quotaio_tree.c:278
+#: quotaio_tree.c:279
 #, c-format
 msgid "Quota write failed (id %u): %s\n"
 msgstr "Quotaschreiben fehlgeschlagen (Id %u): %s\n"
 
-#: quotaio_tree.c:290
+#: quotaio_tree.c:291
 #, c-format
 msgid "Quota structure has offset to other block (%u) than it should (%u).\n"
-msgstr "Quotastruktur hat Versatz (offset) zu einem anderen Block (%u) als sie sollte (%u).\n"
+msgstr ""
+"Quotastruktur hat Versatz (offset) zu einem anderen Block (%u) als sie "
+"sollte (%u).\n"
 
-#: quotaio_tree.c:366
+#: quotaio_tree.c:367
 #, c-format
 msgid "Quota for id %u referenced but not present.\n"
 msgstr "Quota für Id %u referenziert aber nicht vorhanden.\n"
 
-#: quotaio_tree.c:424
+#: quotaio_tree.c:426
 #, c-format
 msgid "Cannot read quota structure for id %u: %s\n"
 msgstr "Kann Quotastruktur für Id %u nicht lesen: %s\n"
 
-#: quotaio_tree.c:465
+#: quotaio_tree.c:468
 #, c-format
 msgid ""
-"Illegal reference (%u >= %u) in %s quota file on %s. Quota file is probably corrupted.\n"
+"Illegal reference (%u >= %u) in %s quota file on %s. Quota file is probably "
+"corrupted.\n"
 "Please run quotacheck(8) and try again.\n"
 msgstr ""
-"Ungültige Referenz (%u >= %u) in %s-Quotadatei auf %s. Quotadatei ist wahrscheinlich defekt.\n"
+"Ungültige Referenz (%u >= %u) in %s-Quotadatei auf %s. Quotadatei ist "
+"wahrscheinlich defekt.\n"
 "Bitte lassen sie quotacheck(8) laufen und versuchen sie es nochmal.\n"
 
-#: quotaio_v1.c:206
+#: quotaio_v1.c:214
 #, c-format
 msgid "Trying to write info to readonly quotafile on %s.\n"
-msgstr "Versuche Information in eine nur-lesbare Quotadatei auf %s zu schreiben.\n"
+msgstr ""
+"Versuche Information in eine nur-lesbare Quotadatei auf %s zu schreiben.\n"
 
-#: quotaio_v1.c:354
-#: quotaio_v2.c:490
-#, c-format
-msgid "Cannot sync quotas on device %s: %s\n"
-msgstr "Kann Quotas auf Gerät %s nicht synchronisieren: %s\n"
+#: quotaio_v2.c:255
+msgid ""
+"Your quota file is stored in wrong endianity. Please use convertquota(8) to "
+"convert it.\n"
+msgstr ""
+"Ihre Quotadatei ist in der falschen Bytereihenfolge gespeichert.  Bitte "
+"konvertieren sie sie mit convertquota(8).\n"
 
-#: quotaio_v2.c:254
-msgid "Your quota file is stored in wrong endianity. Please use convertquota(8) to convert it.\n"
-msgstr "Ihre Quotadatei ist in der falschen Bytereihenfolge gespeichert.  Bitte konvertieren sie sie mit convertquota(8).\n"
-
-#: quotaio_v2.c:371
+#: quotaio_v2.c:388
 #, c-format
 msgid "Trying to write info to readonly quotafile on %s\n"
-msgstr "Versuche Information in eine nur-lesbare Quotadatei auf %s zu schreiben\n"
+msgstr ""
+"Versuche Information in eine nur-lesbare Quotadatei auf %s zu schreiben\n"
 
-#: quotaio_v2.c:501
+#: quotaio_v2.c:518
 #, c-format
 msgid ""
 "Statistics:\n"
@@ -1458,53 +1621,48 @@ msgstr ""
 "Enträge: %u\n"
 "Durchschnittlich verwendet: %f\n"
 
-#: quotaio_xfs.c:243
+#: quotaio_xfs.c:217
 #, c-format
 msgid "*** Status for %s quotas on device %s\n"
 msgstr "*** Status für %s-Quotas auf Gerät %s\n"
 
-#: quotaio_xfs.c:245
-#: quotaio_xfs.c:260
+#: quotaio_xfs.c:219 quotaio_xfs.c:234
 msgid "ON"
 msgstr "AN"
 
-#: quotaio_xfs.c:245
-#: quotaio_xfs.c:260
+#: quotaio_xfs.c:219 quotaio_xfs.c:234
 msgid "OFF"
 msgstr "AUS"
 
-#: quotaio_xfs.c:247
-#: quotaio_xfs.c:251
+#: quotaio_xfs.c:221 quotaio_xfs.c:225
 #, c-format
 msgid "Accounting: %s; Enforcement: %s\n"
 msgstr "Kontierung: %s; Vollstreckung: %s\n"
 
-#: quotaio_xfs.c:263
-#: quotaio_xfs.c:267
+#: quotaio_xfs.c:237 quotaio_xfs.c:241
 #, c-format
 msgid "Accounting [ondisk]: %s; Enforcement [ondisk]: %s\n"
-msgstr "Kontierung [auf Datenträger]: %s; Vollstreckung [auf Datenträger]: %s\n"
+msgstr ""
+"Kontierung [auf Datenträger]: %s; Vollstreckung [auf Datenträger]: %s\n"
 
-#: quotaio_xfs.c:276
-#: quotaio_xfs.c:285
+#: quotaio_xfs.c:250 quotaio_xfs.c:259
 #, c-format
 msgid "Inode: none\n"
 msgstr "Inode: keines\n"
 
-#: quotaio_xfs.c:278
-#: quotaio_xfs.c:287
+#: quotaio_xfs.c:252 quotaio_xfs.c:261
 #, c-format
 msgid "Inode: #%llu (%llu blocks, %u extents)\n"
 msgstr "Inode: #%llu (%llu Blöcke, %u Extents)\n"
 
-#: quotaon.c:65
-#, c-format
+#: quotaon.c:66
+#, fuzzy, c-format
 msgid ""
 "Usage:\n"
 "\t%s [-guvp] [-F quotaformat] [-x state] -a\n"
 "\t%s [-guvp] [-F quotaformat] [-x state] filesys ...\n"
 "\n"
-"-a, --all                turn quotas on for all filesystems\n"
+"-a, --all                %s\n"
 "-f, --off                turn quotas off\n"
 "-u, --user               operate on user quotas\n"
 "-g, --group              operate on group quotas\n"
@@ -1530,109 +1688,132 @@ msgstr ""
 "-h, --help               zeige diesen Hilfetext und beende\n"
 "-V, --version            zeige Versionsinformation und beende\n"
 
-#: quotaon.c:137
+#: quotaon.c:79
+msgid "turn quotas off for all filesystems"
+msgstr ""
+
+#: quotaon.c:80
+#, fuzzy
+msgid "turn quotas on for all filesystems"
+msgstr "XFS-Quotaformat nur auf XFS-Dateisystemen erlaubt.\n"
+
+#: quotaon.c:141
 msgid "Cannot turn on/off quotas via RPC.\n"
 msgstr "Kann Quotas via RPC nicht an-/ausschalten.\n"
 
-#: quotaon.c:171
+#: quotaon.c:188
 #, c-format
 msgid "set root_squash on %s: %s\n"
 msgstr "Setze root_squash auf %s: %s\n"
 
-#: quotaon.c:175
+#: quotaon.c:192
 #, c-format
 msgid "%s: %s root_squash turned off\n"
 msgstr "%s: %s root_squash abgeschalten\n"
 
-#: quotaon.c:177
+#: quotaon.c:194
 #, c-format
 msgid "%s: %s root_squash turned on\n"
 msgstr "%s: %s root_squash angeschalten\n"
 
-#: quotaon.c:195
+#: quotaon.c:212
 #, c-format
 msgid "quotactl on %s [%s]: %s\n"
 msgstr "quotactl auf %s [%s]: %s\n"
 
-#: quotaon.c:199
+#: quotaon.c:215
 #, c-format
 msgid "%s [%s]: %s quotas turned off\n"
 msgstr "%s [%s]: %s Quotas abgeschalten\n"
 
-#: quotaon.c:212
+#: quotaon.c:228
 #, c-format
 msgid "cannot find %s on %s [%s]\n"
 msgstr "Kann %s auf %s [%s] nicht finden\n"
 
-#: quotaon.c:214
+#: quotaon.c:230
 #, c-format
 msgid "using %s on %s [%s]: %s\n"
 msgstr "verwende %s auf %s [%s]: %s\n"
 
-#: quotaon.c:216
+#: quotaon.c:232
 msgid "Maybe create new quota files with quotacheck(8)?\n"
 msgstr "Vielleicht sollten sie neue Quotadateien mit quotacheck(8) erzeugen?\n"
 
-#: quotaon.c:218
+#: quotaon.c:234
 msgid "Quota format not supported in kernel.\n"
 msgstr "Quotaformat wird vom Kernel nicht unterstützt.\n"
 
-#: quotaon.c:222
+#: quotaon.c:237
 #, c-format
 msgid "%s [%s]: %s quotas turned on\n"
 msgstr "%s [%s]: %s Quotas angeschalten\n"
 
-#: quotaon.c:278
-msgid "Cannot change state of XFS quota. It's not compiled in kernel.\n"
-msgstr "Kann Zustand des XFS-Quotas nicht ändern.  Unterstützung dafür wurde nicht in den Kernel einkompiliert.\n"
+#: quotaon.c:277
+#, fuzzy
+msgid "Cannot change state of GFS2 quota.\n"
+msgstr "Kann Namen der Quotadatei im neuen Format nicht bekommen.\n"
 
-#: quotaon.c:308
+#: quotaon.c:281
+msgid "Cannot change state of XFS quota. It's not compiled in kernel.\n"
+msgstr ""
+"Kann Zustand des XFS-Quotas nicht ändern.  Unterstützung dafür wurde nicht "
+"in den Kernel einkompiliert.\n"
+
+#: quotaon.c:306
 #, c-format
 msgid "Cannot find quota file on %s [%s] to turn quotas on/off.\n"
-msgstr "Kann Quotadatei auf %s [%s] nicht finden, um Quotas zu (de-)aktivieren.\n"
+msgstr ""
+"Kann Quotadatei auf %s [%s] nicht finden, um Quotas zu (de-)aktivieren.\n"
 
-#: quotaon.c:313
+#: quotaon.c:311
 #, c-format
 msgid "Quota file on %s [%s] does not exist or has wrong format.\n"
 msgstr "Quotadatei auf %s [%s] existiert nicht oder hat falsches Format.\n"
 
-#: quotaon.c:343
+#: quotaon.c:342
 #, c-format
 msgid "%s quota on %s (%s) is %s\n"
 msgstr "%s-Quota auf %s (%s) ist %s\n"
 
-#: quotaon.c:344
+#: quotaon.c:343
 msgid "on"
 msgstr "an"
 
-#: quotaon.c:344
+#: quotaon.c:343
 msgid "off"
 msgstr "aus"
 
-#: quotaon.c:360
+#: quotaon.c:359
 #, c-format
 msgid "Name must be quotaon or quotaoff not %s\n"
 msgstr "Name muss entweder quotaon oder quotaoff sein, aber nicht %s\n"
 
-#: quotaon.c:366
+#: quotaon.c:365
 #, c-format
 msgid "Required format %s not supported by kernel.\n"
 msgstr "Erforderliches Format %s wird nicht vom Kernel unterstützt.\n"
 
-#: quotaon.c:368
+#: quotaon.c:367
 msgid "Warning: No quota format detected in the kernel.\n"
 msgstr "Warnung: Kein Quotaformat im Kernel festgestellt.\n"
+
+#: quotaon.c:374
+#, fuzzy, c-format
+msgid "%s: Quota cannot be turned on on NFS filesystem\n"
+msgstr "XFS-Quotaformat nur auf XFS-Dateisystemen erlaubt.\n"
 
 #: quotaon_xfs.c:36
 #, c-format
 msgid "quotactl() on %s: %s\n"
 msgstr "quotactl() auf %s: %s\n"
 
-#: quotaon_xfs.c:62
-#: quotaon_xfs.c:82
+#: quotaon_xfs.c:62 quotaon_xfs.c:82
 #, c-format
 msgid "Enabling %s quota on root filesystem (reboot to take effect)\n"
-msgstr "Aktiviere %s-Quota auf dem root-Dateisystem (starten sie neu, damit diese Änderung wirksam wird)\n"
+msgstr ""
+"Aktiviere %s-Quota auf dem root-Dateisystem (starten sie neu, damit diese "
+"Änderung wirksam wird)\n"
 
 #: quotaon_xfs.c:66
 #, c-format
@@ -1642,7 +1823,9 @@ msgstr "Aktiviere XFS-%s-Quota-Kontierung während des Mountens\n"
 #: quotaon_xfs.c:76
 #, c-format
 msgid "Cannot delete %s quota on %s - switch quota accounting off first\n"
-msgstr "Kann %s-Quota auf %s nicht löschen - deaktivieren sie zuerst Quotakontierung\n"
+msgstr ""
+"Kann %s-Quota auf %s nicht löschen - deaktivieren sie zuerst "
+"Quotakontierung\n"
 
 #: quotaon_xfs.c:87
 #, c-format
@@ -1666,8 +1849,12 @@ msgstr "Quotavollstreckung schon deaktiviert für %s auf %s\n"
 
 #: quotaon_xfs.c:108
 #, c-format
-msgid "Cannot delete %s quota on %s - switch quota enforcement and accounting off first\n"
-msgstr "Kann %s-Quota auf %s nicht löschen - schalten sie Quotavollstreckuckung und -kontierung zuerst ab\n"
+msgid ""
+"Cannot delete %s quota on %s - switch quota enforcement and accounting off "
+"first\n"
+msgstr ""
+"Kann %s-Quota auf %s nicht löschen - schalten sie Quotavollstreckuckung und -"
+"kontierung zuerst ab\n"
 
 #: quotaon_xfs.c:113
 #, c-format
@@ -1677,7 +1864,9 @@ msgstr "Vollstreckung der %s-Quota schon aktiv auf %s\n"
 #: quotaon_xfs.c:118
 #, c-format
 msgid "Cannot switch off %s quota accounting on %s when enforcement is on\n"
-msgstr "Kann %s-Quota-Kontierung nicht abschalten auf %s, wenn Vollstreckung aktiv ist\n"
+msgstr ""
+"Kann %s-Quota-Kontierung nicht abschalten auf %s, wenn Vollstreckung aktiv "
+"ist\n"
 
 #: quotaon_xfs.c:124
 msgid "and accounting "
@@ -1713,12 +1902,12 @@ msgstr "%s: %s-Quotas aktiv\n"
 msgid "Failed to delete quota: %s\n"
 msgstr "Konnte Quota nicht löschen: %s\n"
 
-#: quotaon_xfs.c:172
+#: quotaon_xfs.c:171
 #, c-format
 msgid "%s: deleted %s quota blocks\n"
 msgstr "%s: %s-Quota-Blöcke gelöscht\n"
 
-#: quotaon_xfs.c:233
+#: quotaon_xfs.c:224
 #, c-format
 msgid "Invalid argument \"%s\"\n"
 msgstr "Ungültiges Argument \"%s\"\n"
@@ -1760,60 +1949,43 @@ msgstr "Zu viele Parameter für den Editor.\n"
 #: quotaops.c:240
 #, c-format
 msgid "Cannot exec %s\n"
-msgstr "Kann 'exec %' nicht ausführen\n"
+msgstr "Kann 'exec %s nicht ausführen\n"
 
-#: quotaops.c:259
-#: quotaops.c:444
+#: quotaops.c:259 quotaops.c:431
 #, c-format
 msgid "Cannot duplicate descriptor of file to write to: %s\n"
 msgstr "Kann Dateideskriptor nicht zum Schreiben duplizieren: %s\n"
 
-#: quotaops.c:262
+#: quotaops.c:261
 #, c-format
 msgid "Disk quotas for %s %s (%cid %d):\n"
 msgstr "Datenträgerquotas für %s %s (%cid %d):\n"
 
-#: quotaops.c:266
+#: quotaops.c:265
 #, c-format
-msgid "  Filesystem                   blocks       soft       hard     inodes     soft     hard\n"
-msgstr "  Dateisystem                  Blöcke       weich      hart     Inodes     weich    hart\n"
+msgid ""
+"  Filesystem                   blocks       soft       hard     inodes     "
+"soft     hard\n"
+msgstr ""
+"  Dateisystem                  Blöcke       weich      hart     Inodes     "
+"weich    hart\n"
 
-#: quotaops.c:278
-#, c-format
-msgid "Quotas for %s %s:\n"
-msgstr "Quotas für %s %s:\n"
-
-#: quotaops.c:280
-#: quotaops.c:284
-#, c-format
-msgid "%s %d, limits (soft = %d, hard = %d)\n"
-msgstr "%s %d, Limits (weich = %d, hart = %d)\n"
-
-#: quotaops.c:281
-msgid "blocks in use:"
-msgstr "Blöcke verwendet:"
-
-#: quotaops.c:285
-msgid "\tinodes in use:"
-msgstr "\tInodes verwendet:"
-
-#: quotaops.c:311
+#: quotaops.c:298
 #, c-format
 msgid "WARNING - %s: cannot change current block allocation\n"
 msgstr "WARNUNG - %s: Kann aktuelle Blockbelegung nicht ändern\n"
 
-#: quotaops.c:314
+#: quotaops.c:301
 #, c-format
 msgid "WARNING - %s: cannot change current inode allocation\n"
 msgstr "WARNUNG - %s: Kann aktuelle Inodebelegung nicht ändern\n"
 
-#: quotaops.c:337
-#: quotaops.c:486
+#: quotaops.c:322 quotaops.c:473
 #, c-format
 msgid "Cannot duplicate descriptor of temp file: %s\n"
 msgstr "Kann Dateideskriptor einer temporären Datei nicht duplizieren: %s\n"
 
-#: quotaops.c:351
+#: quotaops.c:336
 #, c-format
 msgid ""
 "Bad format:\n"
@@ -1822,75 +1994,70 @@ msgstr ""
 "Falsches Format:\n"
 "%s\n"
 
-#: quotaops.c:364
-#: quotaops.c:628
-#, c-format
-msgid "%s - bad format\n"
-msgstr "%s - falsches Format\n"
+#: quotaops.c:342
+#, fuzzy, c-format
+msgid "Bad block usage: %s: %s\n"
+msgstr "Fehlerhafte Angabe für %s: %s\n"
 
-#: quotaops.c:368
-#, c-format
-msgid "%s -  %s -- bad format\n"
-msgstr "%s -  %s -- falsches Format\n"
+#: quotaops.c:349
+#, fuzzy, c-format
+msgid "Bad block soft limit: %s: %s\n"
+msgstr "weiches Blocklimit"
 
-#: quotaops.c:373
-#, c-format
-msgid " blocks in use: %llu, limits (soft = %llu, hard = %llu)"
-msgstr " Blöcke verwendet: %llu, Limits (weich = %llu, hart = %llu)"
+#: quotaops.c:356
+#, fuzzy, c-format
+msgid "Bad block hard limit: %s: %s\n"
+msgstr "hartes Blocklimit"
 
-#: quotaops.c:376
-#: quotaops.c:382
-#: quotaops.c:390
-#: quotaops.c:632
-#: quotaops.c:639
-#, c-format
-msgid "%s - %s -- bad format\n"
-msgstr "%s - %s -- falsches Format\n"
+#: quotaops.c:363
+#, fuzzy, c-format
+msgid "Bad inode usage: %s: %s\n"
+msgstr "Fehlerhafte Angabe für %s: %s\n"
 
-#: quotaops.c:387
-#, c-format
-msgid "\tinodes in use: %llu, limits (soft = %llu, hard = %llu)"
-msgstr "\tInodes verwendet: %llu, Limits (weich = %llu, hart = %llu)"
+#: quotaops.c:370
+#, fuzzy, c-format
+msgid "Bad inode soft limit: %s: %s\n"
+msgstr "weiches Inodelimit"
 
-#: quotaops.c:446
+#: quotaops.c:377
+#, fuzzy, c-format
+msgid "Bad inode hard limit: %s: %s\n"
+msgstr "hartes Inodelimit"
+
+#: quotaops.c:433
 #, c-format
 msgid "Times to enforce softlimit for %s %s (%cid %d):\n"
-msgstr "Gnadenfristen, bis weiche Limits durchgesetzt werden für %s %s (%cid %d):\n"
+msgstr ""
+"Gnadenfristen, bis weiche Limits durchgesetzt werden für %s %s (%cid %d):\n"
 
-#: quotaops.c:448
-#: quotaops.c:551
-#: quotaops.c:560
+#: quotaops.c:435 quotaops.c:539
 #, c-format
 msgid "Time units may be: days, hours, minutes, or seconds\n"
 msgstr "Zeiteinheiten dürfen sein: days, hours, minutes, oder seconds\n"
 
-#: quotaops.c:450
+#: quotaops.c:437
 #, c-format
-msgid "  Filesystem                         block grace               inode grace\n"
-msgstr "  Dateisystem                        Blockgnadenfrist           Inodegnadenfrist\n"
+msgid ""
+"  Filesystem                         block grace               inode grace\n"
+msgstr ""
+"  Dateisystem                        Blockgnadenfrist           "
+"Inodegnadenfrist\n"
 
-#: quotaops.c:455
-#: quotaops.c:461
-#: quotaops.c:503
-#: quotaops.c:515
-#: setquota.c:241
-#: setquota.c:247
+#: quotaops.c:442 quotaops.c:448 quotaops.c:491 quotaops.c:504 setquota.c:271
+#: setquota.c:277
 msgid "unset"
 msgstr "nicht festgelegt"
 
-#: quotaops.c:457
-#: quotaops.c:463
+#: quotaops.c:444 quotaops.c:450
 msgid "0seconds"
 msgstr "0seconds"
 
-#: quotaops.c:465
-#: quotasys.c:356
+#: quotaops.c:446 quotaops.c:452 quotasys.c:364
 #, c-format
 msgid "%useconds"
 msgstr "%useconds"
 
-#: quotaops.c:500
-#: quotaops.c:616
+#: quotaops.c:487 quotaops.c:587
 #, c-format
 msgid ""
 "bad format:\n"
@@ -1899,123 +2066,156 @@ msgstr ""
 "falsches Format:\n"
 "%s\n"
 
-#: quotaops.c:510
-#: quotaops.c:646
+#: quotaops.c:498 quotaops.c:593
 msgid "Bad time units. Units are 'second', 'minute', 'hour', and 'day'.\n"
-msgstr "Fehlerhafte Zeiteinheiten. Einheiten sind 'second', 'minute', 'hour' und 'day'.\n"
+msgstr ""
+"Fehlerhafte Zeiteinheiten. Einheiten sind 'second', 'minute', 'hour' und "
+"'day'.\n"
 
-#: quotaops.c:546
+#: quotaops.c:535
 #, c-format
 msgid "Cannot duplicate descriptor of file to edit: %s\n"
-msgstr "Kann Dateideskriptor der zu bearbeitenden Datei nicht duplizieren: %s\n"
+msgstr ""
+"Kann Dateideskriptor der zu bearbeitenden Datei nicht duplizieren: %s\n"
 
-#: quotaops.c:549
-#: quotaops.c:561
+#: quotaops.c:537
 #, c-format
 msgid "Grace period before enforcing soft limits for %ss:\n"
 msgstr "Gnadenfrist bevor die weichen Limits durchgesetzt werden für %ss:\n"
 
-#: quotaops.c:552
+#: quotaops.c:540
 #, c-format
 msgid "  Filesystem             Block grace period     Inode grace period\n"
 msgstr "  Dateisystem            Blockgnadenfrist       Inodegnadenfrist\n"
 
 #: quotaops.c:566
 #, c-format
-msgid "block grace period: %s, file grace period: %s\n"
-msgstr "Blockgnadenfrist: %s, Dateignadenfrist: %s\n"
-
-#: quotaops.c:594
-#, c-format
 msgid "Cannot reopen temp file: %s\n"
 msgstr "Kann temporäre Datei nicht neu öffnen: %s\n"
 
-#: quotaops.c:636
-#, c-format
-msgid " block grace period: %d %s file grace period: %d %s"
-msgstr " Blockgnadenfrist: %d %s Dateignadenfrist: %d %s"
-
-#: quotastats.c:50
+#: quotastats.c:48
 #, c-format
 msgid "Cannot read stat file %s: %s\n"
 msgstr "Kann 'stat'-Datei %s nicht lesen: %s\n"
 
-#: quotastats.c:85
+#: quotastats.c:83
 #, c-format
 msgid "Error while getting quota statistics from kernel: %s\n"
 msgstr "Fehler beim Holen von Quotastatistiken vom Kernel: %s\n"
 
-#: quotastats.c:89
+#: quotastats.c:87
 #, c-format
 msgid "Error while getting old quota statistics from kernel: %s\n"
 msgstr "Fehler beim Holen von alten Quotastatistiken vom Kernel: %s\n"
 
-#: quotastats.c:103
+#: quotastats.c:101
 #, c-format
 msgid "Kernel quota version: old\n"
 msgstr "Kernel Quota Version: alt\n"
 
-#: quotastats.c:105
+#: quotastats.c:103
 #, c-format
 msgid "Kernel quota version: %u.%u.%u\n"
 msgstr "Kernel Quota Version: %u.%u.%u\n"
 
-#: quotastats.c:106
+#: quotastats.c:104
 #, c-format
 msgid "Number of dquot lookups: %ld\n"
 msgstr "Anzahl an dquot-Nachschlagungen: %ld\n"
 
-#: quotastats.c:107
+#: quotastats.c:105
 #, c-format
 msgid "Number of dquot drops: %ld\n"
 msgstr "Anzahl an dquot-Löschungen: %ld\n"
 
-#: quotastats.c:108
+#: quotastats.c:106
 #, c-format
 msgid "Number of dquot reads: %ld\n"
 msgstr "Anzahl an dquot-Lesevorgängen: %ld\n"
 
-#: quotastats.c:109
+#: quotastats.c:107
 #, c-format
 msgid "Number of dquot writes: %ld\n"
 msgstr "Anzahl an dquot-Schreibvorgängen: %ld\n"
 
-#: quotastats.c:110
+#: quotastats.c:108
 #, c-format
 msgid "Number of quotafile syncs: %ld\n"
 msgstr "Anzahl an Quotadatei-Synchronisierungen: %ld\n"
 
-#: quotastats.c:111
+#: quotastats.c:109
 #, c-format
 msgid "Number of dquot cache hits: %ld\n"
 msgstr "Anzahl an dquot-Cachetreffern: %ld\n"
 
-#: quotastats.c:112
+#: quotastats.c:110
 #, c-format
 msgid "Number of allocated dquots: %ld\n"
 msgstr "Anzahl an belegten dquot-Datenstrukturen: %ld\n"
 
-#: quotastats.c:113
+#: quotastats.c:111
 #, c-format
 msgid "Number of free dquots: %ld\n"
 msgstr "Anzahl freier dquot-Datenstrukturen: %ld\n"
 
-#: quotastats.c:114
+#: quotastats.c:112
 #, c-format
 msgid "Number of in use dquot entries (user/group): %ld\n"
 msgstr "Anzahl verwendeter dquot-Einträge (Benutzer/Gruppen): %ld\n"
 
-#: quotasys.c:130
+#: quotasync.c:27
+#, c-format
+msgid ""
+"%1$s: Utility for syncing quotas.\n"
+"Usage: %1$s [-ug] mount-point...\n"
+"   or: %1$s [-ug] -a\n"
+"   or: %1$s -h | -V\n"
+"\n"
+msgstr ""
+
+#: quotasync.c:34
+#, fuzzy, c-format
+msgid ""
+"Options:\n"
+"-u, --user     synchronize user quotas\n"
+"-g, --group    synchronize group quotas\n"
+"-a, --all      synchronize quotas for all mounted file systems\n"
+"-h, --help     display this help message and exit\n"
+"-V, --version  display version information and exit\n"
+"\n"
+msgstr ""
+"-t, --edit-period          Bearbeite Standard-Gnadenfrist\n"
+"-T, --edit-times           Bearbeite Gnadenfristen für Benutzer/Gruppe\n"
+"-h, --help                 Zeige diese Hilfe und beende\n"
+"-V, --version              Zeige Versionsinformationen und beende\n"
+"\n"
+
+#: quotasync.c:42
+#, fuzzy, c-format
+msgid "Report bugs to <%s>.\n"
+msgstr "Fehler an %s\n"
+
+#: quotasync.c:106
+#, fuzzy, c-format
+msgid "%s quota sync failed: %s\n"
+msgstr "%s-Quota auf %s (%s) ist %s\n"
+
+#: quotasync.c:119
+#, fuzzy, c-format
+msgid "%s quota sync failed for %s: %s\n"
+msgstr "quotactl auf %s: %s\n"
+
+#: quotasys.c:100
 #, c-format
 msgid "user %s does not exist.\n"
 msgstr "Benutzer %s existiert nicht.\n"
 
-#: quotasys.c:159
+#: quotasys.c:129
 #, c-format
 msgid "group %s does not exist.\n"
 msgstr "Gruppe %s existiert nicht.\n"
 
-#: quotasys.c:261
+#: quotasys.c:231
 #, c-format
 msgid ""
 "Unknown quota format: %s\n"
@@ -2034,110 +2234,204 @@ msgstr ""
 "  rpc - verwende RPC-Aufrufe\n"
 "  xfs - XFS-Quotaformat\n"
 
-#: quotasys.c:344
+#: quotasys.c:258
+#, c-format
+msgid ""
+"Unknown output format: %s\n"
+"Supported formats are:\n"
+"  default - default\n"
+"  csv     - comma-separated values\n"
+"  xml     - simple XML\n"
+msgstr ""
+
+#: quotasys.c:352
 #, c-format
 msgid "%ddays"
 msgstr "%ddays"
 
-#: quotasys.c:346
+#: quotasys.c:354
 #, c-format
 msgid "%02d:%02d"
 msgstr "%02d:%02d"
 
-#: quotasys.c:358
+#: quotasys.c:366
 #, c-format
 msgid "%uminutes"
 msgstr "%uminutes"
 
-#: quotasys.c:360
+#: quotasys.c:368
 #, c-format
 msgid "%uhours"
 msgstr "%uhours"
 
-#: quotasys.c:362
+#: quotasys.c:370
 #, c-format
 msgid "%udays"
 msgstr "%udays"
 
-#: quotasys.c:522
+#: quotasys.c:379
+#, fuzzy
+msgid "second"
+msgstr "0seconds"
+
+#: quotasys.c:379
+#, fuzzy
+msgid "seconds"
+msgstr "0seconds"
+
+#: quotasys.c:381
+#, fuzzy
+msgid "minute"
+msgstr "%uminutes"
+
+#: quotasys.c:381
+#, fuzzy
+msgid "minutes"
+msgstr "%uminutes"
+
+#: quotasys.c:383
+#, fuzzy
+msgid "hour"
+msgstr "%uhours"
+
+#: quotasys.c:383
+#, fuzzy
+msgid "hours"
+msgstr "%uhours"
+
+#: quotasys.c:385
+#, fuzzy
+msgid "day"
+msgstr "%ddays"
+
+#: quotasys.c:385
+#, fuzzy
+msgid "days"
+msgstr "%ddays"
+
+#: quotasys.c:434
+msgid "Integer overflow while parsing space number."
+msgstr ""
+
+#: quotasys.c:436
+msgid "K"
+msgstr ""
+
+#: quotasys.c:438
+msgid "M"
+msgstr ""
+
+#: quotasys.c:440
+msgid "G"
+msgstr ""
+
+#: quotasys.c:442
+msgid "T"
+msgstr ""
+
+#: quotasys.c:445
+msgid "Unknown space binary unit. Valid units are K, M, G, T."
+msgstr ""
+
+#: quotasys.c:449
+msgid "Integer overflow while interpreting space unit."
+msgstr ""
+
+#: quotasys.c:489
+msgid "Integer overflow while parsing number."
+msgstr ""
+
+#: quotasys.c:493
+msgid "k"
+msgstr ""
+
+#: quotasys.c:495
+msgid "m"
+msgstr ""
+
+#: quotasys.c:497
+msgid "g"
+msgstr ""
+
+#: quotasys.c:499
+msgid "t"
+msgstr ""
+
+#: quotasys.c:502
+msgid "Unknown decimal unit. Valid units are k, m, g, t."
+msgstr ""
+
+#: quotasys.c:506
+msgid "Integer overflow while interpreting decimal unit."
+msgstr ""
+
+#: quotasys.c:660
 #, c-format
 msgid "Cannot stat quota file %s: %s\n"
 msgstr "Kann Informationen über Quotadatei %s nicht abrufen: %s\n"
 
-#: quotasys.c:668
+#: quotasys.c:806
 msgid "Not all specified mountpoints are using quota.\n"
 msgstr "Nicht alle angegebenen Mountpunkte verwenden Quotas.\n"
 
-#: quotasys.c:682
+#: quotasys.c:820
 #, c-format
 msgid "Error while releasing file on %s\n"
 msgstr "Fehler bei Dateifreigabe auf %s\n"
 
-#: quotasys.c:741
+#: quotasys.c:879
 #, c-format
 msgid "Cannot create set for sigaction(): %s\n"
 msgstr "Kann Menge für sigaction() nicht erzeugen: %s\n"
 
-#: quotasys.c:744
+#: quotasys.c:882
 #, c-format
 msgid "Cannot set signal handler: %s\n"
 msgstr "Kann Signalbehandler nicht setzen: %s\n"
 
-#: quotasys.c:794
+#: quotasys.c:935
 #, c-format
 msgid "Cannot reset signal handler: %s\n"
 msgstr "Kann Signalbehandler nicht zurücksetzen: %s\n"
 
-#: quotasys.c:928
+#: quotasys.c:1074
 msgid "Cannot open any file with mount points.\n"
 msgstr "Kann keine Datei mit Einhängepunkten öffnen.\n"
 
-#: quotasys.c:939
+#: quotasys.c:1092
 #, c-format
 msgid "Cannot get device name for %s\n"
 msgstr "Kann Gerätenamen für %s nicht bekommen\n"
 
-#: quotasys.c:976
+#: quotasys.c:1151
 #, c-format
 msgid "Cannot resolve mountpoint path %s: %s\n"
 msgstr "Kann Mountpunkt-Pfad %s nicht auflösen: %s\n"
 
-#: quotasys.c:982
+#: quotasys.c:1157
 #, c-format
 msgid "Cannot statfs() %s: %s\n"
 msgstr "statfs() für %s fehlgeschlagen: %s\n"
 
-#: quotasys.c:994
+#: quotasys.c:1169
 #, c-format
 msgid "Cannot stat() mounted device %s: %s\n"
 msgstr "stat() für eingebundenes Gerät %s fehlgeschlagen: %s\n"
 
-#: quotasys.c:1000
+#: quotasys.c:1174
 #, c-format
-msgid "Device (%s) filesystem is mounted on unsupported device type. Skipping.\n"
-msgstr "Gerät (%s): Dateisystem ist auf einem nicht unterstützten Gerätetyp eingehängt. Überspringe.\n"
+msgid ""
+"Device (%s) filesystem is mounted on unsupported device type. Skipping.\n"
+msgstr ""
+"Gerät (%s): Dateisystem ist auf einem nicht unterstützten Gerätetyp "
+"eingehängt. Überspringe.\n"
 
-#: quotasys.c:1015
-#, c-format
-msgid "Cannot find device of loopback mount in options for %s. Skipping.\n"
-msgstr "Kann Gerät des Loopback-Mounts in den Optionen für %s nicht finden. Überspringe.\n"
-
-#: quotasys.c:1024
-#, c-format
-msgid "Cannot stat() loopback device %s: %s\n"
-msgstr "stat() für Loopbackgerät %s fehlgeschlagen: %s\n"
-
-#: quotasys.c:1029
-#, c-format
-msgid "Loopback device %s is not block device!\n"
-msgstr "Loopbackgerät %s ist kein Blockgerät!\n"
-
-#: quotasys.c:1047
+#: quotasys.c:1184
 #, c-format
 msgid "Cannot stat() mountpoint %s: %s\n"
 msgstr "stat() für Einhängepunkt %s fehlgeschlagen: %s\n"
 
-#: quotasys.c:1111
+#: quotasys.c:1253
 #, c-format
 msgid ""
 "Cannot find a device with %s.\n"
@@ -2146,7 +2440,7 @@ msgstr ""
 "Kann kein Gerät mit %s finden.\n"
 "Überspringe...\n"
 
-#: quotasys.c:1115
+#: quotasys.c:1257
 #, c-format
 msgid ""
 "Cannot stat() a mountpoint with %s: %s\n"
@@ -2155,7 +2449,7 @@ msgstr ""
 "stat() für Einhängepunkt %s fehlgeschlagen: %s\n"
 "Überspringe...\n"
 
-#: quotasys.c:1123
+#: quotasys.c:1265
 #, c-format
 msgid ""
 "Cannot stat() given mountpoint %s: %s\n"
@@ -2164,53 +2458,60 @@ msgstr ""
 "stat() für Einhängepunkt %s fehlgeschlagen: %s\n"
 "Überspringe...\n"
 
-#: quotasys.c:1133
+#: quotasys.c:1275
 #, c-format
 msgid "Cannot find a filesystem mountpoint for directory %s\n"
 msgstr "Kann keinen Dateisystem-Einhängepunkt für Verzeichnis %s finden\n"
 
-#: quotasys.c:1139
+#: quotasys.c:1281
 #, c-format
 msgid "Cannot resolve path %s: %s\n"
 msgstr "Kann Pfad %s nicht auflösen: %s\n"
 
-#: quotasys.c:1150
+#: quotasys.c:1292
 #, c-format
 msgid "Cannot find mountpoint for device %s\n"
 msgstr "Kann Einhängepunkt für Gerät %s nicht finden\n"
 
-#: quotasys.c:1156
+#: quotasys.c:1298
 #, c-format
 msgid "Specified path %s is not directory nor device.\n"
 msgstr "Angegebener Pfad %s ist weder ein Verzeichnis noch ein Gerät.\n"
 
-#: quotasys.c:1164
+#: quotasys.c:1306
 msgid "No correct mountpoint specified.\n"
 msgstr "Es wurde kein korrekter Einhängepunkt angegeben.\n"
 
-#: quotasys.c:1225
+#: quotasys.c:1361
 #, c-format
 msgid "Mountpoint (or device) %s not found or has no quota enabled.\n"
-msgstr "Einhängepunkt oder Gerät %s nicht gefunden oder hat keine aktivierten Quotas.\n"
+msgstr ""
+"Einhängepunkt oder Gerät %s nicht gefunden oder hat keine aktivierten "
+"Quotas.\n"
 
 #: repquota.c:50
-#, c-format
+#, fuzzy, c-format
 msgid ""
 "Utility for reporting quotas.\n"
 "Usage:\n"
-"%s [-vugsi] [-c|C] [-t|n] [-F quotaformat] (-a | mntpoint)\n"
+"%s [-vugsi] [-c|C] [-t|n] [-F quotaformat] [-O (default | xml | csv)] (-a | "
+"mntpoint)\n"
 "\n"
 "-v, --verbose               display also users/groups without any usage\n"
 "-u, --user                  display information about users\n"
 "-g, --group                 display information about groups\n"
-"-s, --human-readable        show numbers in human friendly units (MB, GB, ...)\n"
-"-t, --truncate-names        truncate names to 8 characters\n"
+"-s, --human-readable        show numbers in human friendly units (MB, "
+"GB, ...)\n"
+"-t, --truncate-names        truncate names to 9 characters\n"
 "-p, --raw-grace             print grace time in seconds since epoch\n"
 "-n, --no-names              do not translate uid/gid to name\n"
 "-i, --no-autofs             avoid autofs mountpoints\n"
-"-c, --batch-translation     translate big number of ids at once\n"
-"-C, --no-batch-translation  translate ids one by one\n"
+"-c, --cache                 translate big number of ids at once\n"
+"-C, --no-cache              translate ids one by one\n"
 "-F, --format=formatname     report information for specific format\n"
+"-O, --output=format         format output as xml or csv\n"
+"-a, --all                   report information for all mount points with "
+"quotas\n"
 "-h, --help                  display this help message and exit\n"
 "-V, --version               display version information and exit\n"
 "\n"
@@ -2219,66 +2520,72 @@ msgstr ""
 "Verwendung:\n"
 "%s [-vugsi] [-c|C] [-t|n] [-F quotaformat] (-a | mntpoint)\n"
 "\n"
-"-v, --verbose               Zeige auch Benutzer/Gruppen ohne Quotaverwendung\n"
+"-v, --verbose               Zeige auch Benutzer/Gruppen ohne "
+"Quotaverwendung\n"
 "-u, --user                  Zeige Informationen über Benutzer\n"
 "-g, --group                 Zeige Informationen über Gruppen\n"
-"-s, --human-readable        Zeige Zahlen in menschenfreundlichen Einheiten (MB, GB, ...)\n"
+"-s, --human-readable        Zeige Zahlen in menschenfreundlichen Einheiten "
+"(MB, GB, ...)\n"
 "-t, --truncate-names        Beschneide Namen auf 8 Zeichen\n"
-"-p, --raw-grace             Zeige Gnadenfrist in Sekunden seit Beginn der UNIX-Epoche\n"
+"-p, --raw-grace             Zeige Gnadenfrist in Sekunden seit Beginn der "
+"UNIX-Epoche\n"
 "-n, --no-names              Keine Übersetzung von Uids/Gids zu Namen\n"
 "-i, --no-autofs             Vermeide autofs-Einhängepunkte\n"
 "-c, --batch-translation     Übersetze große Mengen an Ids auf einmal\n"
 "-C, --no-batch-translation  Übersetze Ids einzeln\n"
-"-F, --format=formatname     Berichte Informationen für ein bestimmtes Format\n"
+"-F, --format=formatname     Berichte Informationen für ein bestimmtes "
+"Format\n"
 "-h, --help                  Zeige diese Hilfenachnicht und beende\n"
 "-V, --version               Zeige Versionsinformation und beende\n"
 "\n"
 
-#: repquota.c:145
+#: repquota.c:152
 msgid "Repquota cannot report through RPC calls.\n"
 msgstr "Repquota funktioniert nicht über RPC.\n"
 
-#: repquota.c:149
+#: repquota.c:156
 msgid "Specified both -n and -t but only one of them can be used.\n"
-msgstr "Sowohl -n als auch -t wurden angegeben, aber nur eines von beiden kann verwendet werden.\n"
+msgstr ""
+"Sowohl -n als auch -t wurden angegeben, aber nur eines von beiden kann "
+"verwendet werden.\n"
 
-#: repquota.c:292
-msgid "Space"
-msgstr "Platz"
+#: repquota.c:348
+msgid "User"
+msgstr "Benutzer"
 
-#: repquota.c:294
-msgid "Block"
-msgstr "Block"
+#: repquota.c:350
+msgid "Group"
+msgstr "Gruppe"
 
-#: repquota.c:296
+#: repquota.c:353
 #, c-format
 msgid "*** Report for %s quotas on device %s\n"
 msgstr "*** Report für %s Quotas auf Gerät %s\n"
 
-#: repquota.c:299
+#: repquota.c:362
+msgid "Space"
+msgstr "Platz"
+
+#: repquota.c:364
+msgid "Block"
+msgstr "Block"
+
+#: repquota.c:365
 #, c-format
 msgid "Block grace time: %s; Inode grace time: %s\n"
 msgstr "Blockgnadenfrist: %s; Inodegnadenfrist: %s\n"
 
-#: repquota.c:300
+#: repquota.c:366
 #, c-format
 msgid "                        %s limits                File limits\n"
 msgstr "                        %s Limits                Dateilimits\n"
 
-#: repquota.c:301
+#: repquota.c:367
 #, c-format
 msgid "%-9s       used    soft    hard  grace    used  soft  hard  grace\n"
 msgstr "%-9s       belegt  weich   hart  Gnade   belegt weich hart  Gnade\n"
 
-#: repquota.c:301
-msgid "User"
-msgstr "Benutzer"
-
-#: repquota.c:301
-msgid "Group"
-msgstr "Gruppe"
-
-#: rquota_svc.c:90
+#: rquota_svc.c:88
 #, c-format
 msgid ""
 "Usage: %s [options]\n"
@@ -2299,11 +2606,12 @@ msgstr ""
 " -F --foreground       Startet den Quota-Service im Vordergrund\n"
 " -I --autofs           Einhängepunkte vom Automounter nicht ignorieren\n"
 " -p --port <port>      Lausche auf gegebenem Port\n"
-" -s --no-setquota      Deaktiviert entfernte Aufrufe für setquota (Voreinstellung)\n"
+" -s --no-setquota      Deaktiviert entfernte Aufrufe für setquota "
+"(Voreinstellung)\n"
 " -S --setquota         Aktivierte entfernte Aufrufe für setquota\n"
 " -x --xtab <path>      Daeipfad zu alternativer NFSD-export-Tabelle\n"
 
-#: rquota_svc.c:101
+#: rquota_svc.c:99
 #, c-format
 msgid ""
 "Usage: %s [options]\n"
@@ -2324,37 +2632,36 @@ msgstr ""
 " -p --port <port>      Lausche auf gegebenem Port\n"
 " -x --xtab <path>      Daeipfad zu alternativer NFSD-export-Tabelle\n"
 
-#: rquota_svc.c:148
+#: rquota_svc.c:146
 #, c-format
 msgid "Illegal port number: %s\n"
 msgstr "Illegale Portnummer: %s\n"
 
-#: rquota_svc.c:155
+#: rquota_svc.c:153
 #, c-format
 msgid "Cannot access the specified xtab file %s: %s\n"
 msgstr "Kann auf angegebene xtab-Datei %s nicht zugreifen: %s\n"
 
-#: rquota_svc.c:185
+#: rquota_svc.c:183
 #, c-format
 msgid "host %s attempted to call setquota when disabled\n"
 msgstr "Rechner %s versuchte setquota aufzurufen, während es deaktiviert ist\n"
 
-#: rquota_svc.c:192
+#: rquota_svc.c:190
 #, c-format
 msgid "host %s attempted to call setquota from port >= 1024\n"
 msgstr "Rechner %s hat versucht, setquota von einem Port >= 1024 aufzurufen\n"
 
-#: rquota_svc.c:207
+#: rquota_svc.c:205
 #, c-format
 msgid "Denied access to host %s\n"
 msgstr "Zugang verweigert für Rechner %s\n"
 
-#: rquota_svc.c:295
-#: rquota_svc.c:381
+#: rquota_svc.c:293 rquota_svc.c:379
 msgid "unable to free arguments\n"
 msgstr "Unfähig Argumente freizugeben\n"
 
-#: rquota_svc.c:404
+#: rquota_svc.c:402
 #, c-format
 msgid ""
 "Warning: Cannot open export table %s: %s\n"
@@ -2363,64 +2670,79 @@ msgstr ""
 "Warnung: Kann Exporttabelle %s nicht öffnen: %s\n"
 "Verwende '/' als Pseudodateisystemwurzel.\n"
 
-#: rquota_svc.c:456
+#: rquota_svc.c:454
 msgid "cannot create udp service.\n"
 msgstr "Kann keinen UDP-Dienst erzeugen.\n"
 
-#: rquota_svc.c:460
-msgid "unable to register (RQUOTAPROG, RQUOTAVERS, udp).\n"
+#: rquota_svc.c:458
+#, fuzzy
+msgid "unable to register (RQUOTAPROG, RQUOTAVERS, UDP).\n"
 msgstr "Registrierung fehlgeschlagen (RQUOTAPROG, RQUOTAVERS, udp).\n"
 
-#: rquota_svc.c:464
-msgid "unable to register (RQUOTAPROG, EXT_RQUOTAVERS, udp).\n"
+#: rquota_svc.c:462
+#, fuzzy
+msgid "unable to register (RQUOTAPROG, EXT_RQUOTAVERS, UDP).\n"
 msgstr "Registrierung fehlgeschlagen (RQUOTAPROG, EXT_RQUOTAVERS, udp).\n"
 
-#: rquota_svc.c:471
-msgid "cannot create tcp service.\n"
-msgstr "Kann keinen TCP-Dienst erzeugen.\n"
+#: rquota_svc.c:469
+#, fuzzy
+msgid "cannot create TCP service.\n"
+msgstr "Kann keinen UDP-Dienst erzeugen.\n"
 
-#: rquota_svc.c:475
-msgid "unable to register (RQUOTAPROG, RQUOTAVERS, tcp).\n"
-msgstr "Registrierung fehlgeschlagen (RQUOTAPROG, RQUOTAVERS, tcp).\n"
+#: rquota_svc.c:473
+#, fuzzy
+msgid "unable to register (RQUOTAPROG, RQUOTAVERS, TCP).\n"
+msgstr "Registrierung fehlgeschlagen (RQUOTAPROG, RQUOTAVERS, udp).\n"
 
-#: rquota_svc.c:479
-msgid "unable to register (RQUOTAPROG, EXT_RQUOTAVERS, tcp).\n"
-msgstr "Registrierung fehlgeschlagen (RQUOTAPROG, EXT_RQUOTAVERS, tcp).\n"
+#: rquota_svc.c:477
+#, fuzzy
+msgid "unable to register (RQUOTAPROG, EXT_RQUOTAVERS, TCP).\n"
+msgstr "Registrierung fehlgeschlagen (RQUOTAPROG, EXT_RQUOTAVERS, udp).\n"
 
-#: rquota_svc.c:488
+#: rquota_svc.c:486
 msgid "svc_run returned\n"
 msgstr "svc_run ist zurückgekehrt\n"
 
 #: set_limits_example.c:20
 #, c-format
 msgid "copy_user_quota_limits: Failed to set userquota for uid %ld : %s\n"
-msgstr "copy_user_quota_limits: Benutzerquota für uid %ld setzen fehlgeschlagen: %s\n"
+msgstr ""
+"copy_user_quota_limits: Benutzerquota für uid %ld setzen fehlgeschlagen: %s\n"
 
 #: set_limits_example.c:27
 #, c-format
 msgid "copy_user_quota_limits: Failed to get userquota for uid %ld : %s\n"
-msgstr "copy_user_quota_limits: Benutzerquota für uid %ld holen fehlgeschlagen: %s\n"
+msgstr ""
+"copy_user_quota_limits: Benutzerquota für uid %ld holen fehlgeschlagen: %s\n"
 
 #: set_limits_example.c:43
-#, c-format
-msgid "copy_group_quota_limits: Failed to set groupquota for uid %ld : %s\n"
-msgstr "copy_group_quota_limits: Gruppenquota für uid (gid?) %ld setzen fehlgeschlagen: %s\n"
+#, fuzzy, c-format
+msgid "copy_group_quota_limits: Failed to set groupquota for gid %ld : %s\n"
+msgstr ""
+"copy_group_quota_limits: Gruppenquota für uid (gid?) %ld setzen "
+"fehlgeschlagen: %s\n"
 
 #: set_limits_example.c:50
-#, c-format
-msgid "copy_group_quota_limits: Failed to get groupquota for uid %ld : %s\n"
-msgstr "copy_group_quota_limits: Gruppenquota für uid (gid?) %ld holen fehlgeschlagen: %s\n"
+#, fuzzy, c-format
+msgid "copy_group_quota_limits: Failed to get groupquota for gid %ld : %s\n"
+msgstr ""
+"copy_group_quota_limits: Gruppenquota für uid (gid?) %ld holen "
+"fehlgeschlagen: %s\n"
 
 #: setquota.c:55
 #, c-format
 msgid ""
 "Usage:\n"
 "  setquota [-u|-g] %1$s[-F quotaformat] <user|group>\n"
-"\t<block-softlimit> <block-hardlimit> <inode-softlimit> <inode-hardlimit> -a|<filesystem>...\n"
-"  setquota [-u|-g] %1$s[-F quotaformat] <-p protouser|protogroup> <user|group> -a|<filesystem>...\n"
+"\t<block-softlimit> <block-hardlimit> <inode-softlimit> <inode-hardlimit> -a|"
+"<filesystem>...\n"
+"  setquota [-u|-g] %1$s[-F quotaformat] <-p protouser|protogroup> <user|"
+"group> -a|<filesystem>...\n"
 "  setquota [-u|-g] %1$s[-F quotaformat] -b [-c] -a|<filesystem>...\n"
-"  setquota [-u|-g] [-F quotaformat] -t <blockgrace> <inodegrace> -a|<filesystem>...\n"
-"  setquota [-u|-g] [-F quotaformat] <user|group> -T <blockgrace> <inodegrace> -a|<filesystem>...\n"
+"  setquota [-u|-g] [-F quotaformat] -t <blockgrace> <inodegrace> -a|"
+"<filesystem>...\n"
+"  setquota [-u|-g] [-F quotaformat] <user|group> -T <blockgrace> "
+"<inodegrace> -a|<filesystem>...\n"
 "\n"
 "-u, --user                 set limits for user\n"
 "-g, --group                set limits for group\n"
@@ -2434,16 +2756,21 @@ msgid ""
 msgstr ""
 "Verwendung:\n"
 "  setquota [-u|-g] %1$s[-F Quotaformat] <Benutzer|Gruppe>\n"
-"\t<block-softlimit> <block-hardlimit> <inode-softlimit> <inode-hardlimit> -a|<Dateisystem>...\n"
-"  setquota [-u|-g] %1$s[-F Quotaformat] <-p protouser|protogroup> <Benutzer|Gruppe> -a|<Dateisystem>...\n"
+"\t<block-softlimit> <block-hardlimit> <inode-softlimit> <inode-hardlimit> -a|"
+"<Dateisystem>...\n"
+"  setquota [-u|-g] %1$s[-F Quotaformat] <-p protouser|protogroup> <Benutzer|"
+"Gruppe> -a|<Dateisystem>...\n"
 "  setquota [-u|-g] %1$s[-F Quotaformat] -b [-c] -a|<Dateisystem>...\n"
-"  setquota [-u|-g] [-F Quotaformat] -t <blockgrace> <inodegrace> -a|<Dateisystem>...\n"
-"  setquota [-u|-g] [-F Quotaformat] <Benutzer|Gruppe> -T <blockgrace> <inodegrace> -a|<Dateisystemsystem>...\n"
+"  setquota [-u|-g] [-F Quotaformat] -t <blockgrace> <inodegrace> -a|"
+"<Dateisystem>...\n"
+"  setquota [-u|-g] [-F Quotaformat] <Benutzer|Gruppe> -T <blockgrace> "
+"<inodegrace> -a|<Dateisystemsystem>...\n"
 "\n"
 "-u, --user                 Setze Limit für Benutzer\n"
 "-g, --group                Setze Limits für Gruppe\n"
 "-a, --all                  Setze Limits für alle Dateisysteme\n"
-"    --always-resolve       Versuche stets einen Namen aufzulösen, auch wenn er\n"
+"    --always-resolve       Versuche stets einen Namen aufzulösen, auch wenn "
+"er\n"
 "                           nur aus Ziffern besteht\n"
 "-F, --format=Quotaformat    Operiere auf einem bestimmten Quotaformat\n"
 "-p, --prototype=protoname  Kopiere Limits von Benutzer/Gruppe\n"
@@ -2456,7 +2783,8 @@ msgid ""
 "-m, --no-mixed-pathnames      trim leading slashes from NFSv4 mountpoints\n"
 msgstr ""
 "-r, --remote               Setze entferntes Quota (über RPC)\n"
-"-m, --no-mixed-pathnames      Entferne führende Schrägstriche (/) von NFSv4-Einhängepunkten\n"
+"-m, --no-mixed-pathnames      Entferne führende Schrägstriche (/) von NFSv4-"
+"Einhängepunkten\n"
 
 #: setquota.c:75
 msgid ""
@@ -2474,98 +2802,147 @@ msgstr ""
 
 #: setquota.c:90
 #, c-format
-msgid "Bad %s: %s\n"
-msgstr "Fehlerhafte Angabe für %s: %s\n"
+msgid "%s: %s\n"
+msgstr "%s: %s\n"
 
-#: setquota.c:186
+#: setquota.c:103 setquota.c:116
+#, fuzzy, c-format
+msgid "%s: %s: %s\n"
+msgstr "%s (%s) %s:\n"
+
+#: setquota.c:212
 msgid "Group and user quotas cannot be used together.\n"
-msgstr "Gruppen- und Benutzerquotas können nicht gleichzeitig verändert werden.\n"
+msgstr ""
+"Gruppen- und Benutzerquotas können nicht gleichzeitig verändert werden.\n"
 
-#: setquota.c:190
+#: setquota.c:216
 msgid "Prototype user has no sense when editing grace times.\n"
 msgstr "Prototyp macht keinen Sinn beim Bearbeiten von Gnadenfristen.\n"
 
-#: setquota.c:194
+#: setquota.c:220
 msgid "Cannot set both individual and global grace time.\n"
-msgstr "Kann nicht gleichzeitig die individuelle und die Standard-Gnadenfrist setzen.\n"
+msgstr ""
+"Kann nicht gleichzeitig die individuelle und die Standard-Gnadenfrist "
+"setzen.\n"
 
-#: setquota.c:198
+#: setquota.c:224
 msgid "Batch mode cannot be used for setting grace times.\n"
 msgstr "Stapelmodus kann nicht verwendet werden, um Gnadenfristen zu setzen.\n"
 
-#: setquota.c:202
+#: setquota.c:228
 msgid "Batch mode and prototype user cannot be used together.\n"
 msgstr "Stapelmodus und Prototypen können nicht zusammen verwendet werden.\n"
 
-#: setquota.c:225
-msgid "block softlimit"
+#: setquota.c:232
+#, fuzzy
+msgid "Cannot set grace times over RPC protocol.\n"
+msgstr "Kann Gnadenfristen nicht in Datei ablegen.\n"
+
+#: setquota.c:255
+#, fuzzy
+msgid "Bad block softlimit"
 msgstr "weiches Blocklimit"
 
-#: setquota.c:226
-msgid "block hardlimit"
+#: setquota.c:256
+#, fuzzy
+msgid "Bad block hardlimit"
 msgstr "hartes Blocklimit"
 
-#: setquota.c:227
-msgid "inode softlimit"
+#: setquota.c:257
+#, fuzzy
+msgid "Bad inode softlimit"
 msgstr "weiches Inodelimit"
 
-#: setquota.c:228
-msgid "inode hardlimit"
+#: setquota.c:258
+#, fuzzy
+msgid "Bad inode hardlimit"
 msgstr "hartes Inodelimit"
 
-#: setquota.c:234
-#: setquota.c:246
-msgid "block grace time"
+#: setquota.c:264 setquota.c:276
+#, fuzzy
+msgid "Bad block grace time"
 msgstr "Blockgnadenfrist"
 
-#: setquota.c:235
-#: setquota.c:252
-msgid "inode grace time"
+#: setquota.c:265 setquota.c:282
+#, fuzzy
+msgid "Bad inode grace time"
 msgstr "Inodegnadenfrist"
 
-#: setquota.c:258
+#: setquota.c:288
 msgid "Mountpoint not specified.\n"
 msgstr "Einhängepunkt nicht angegeben.\n"
 
-#: setquota.c:313
+#: setquota.c:345
 #, c-format
 msgid "Line %d too long.\n"
 msgstr "Zeile %d zu lang.\n"
 
-#: setquota.c:325
+#: setquota.c:357
 #, c-format
 msgid "Cannot parse input line %d.\n"
 msgstr "Kann Eingabezeile %d nicht verarbeiten.\n"
 
-#: setquota.c:327
-#: setquota.c:335
+#: setquota.c:359 setquota.c:367 setquota.c:376 setquota.c:385 setquota.c:394
+#: setquota.c:403
 msgid "Exitting.\n"
 msgstr "Beende.\n"
 
-#: setquota.c:328
-#: setquota.c:336
+#: setquota.c:360 setquota.c:368 setquota.c:377 setquota.c:386 setquota.c:395
+#: setquota.c:404
 msgid "Skipping line.\n"
 msgstr "Überspringe Zeile.\n"
 
-#: setquota.c:333
+#: setquota.c:365
 #, c-format
 msgid "Unable to resolve name '%s' on line %d.\n"
 msgstr "Kann Namen '%s' in Zeile %d nicht auflösen.\n"
 
-#: setquota.c:396
-#, c-format
-msgid "Not setting block grace time on %s because softlimit is not exceeded.\n"
-msgstr "Setze Blockgnadenfrist auf %s nicht, denn das weiche Limit ist nicht überschritten.\n"
+#: setquota.c:373
+#, fuzzy, c-format
+msgid "Unable to parse block soft limit '%s' on line %d: %s\n"
+msgstr "Kann Namen '%s' in Zeile %d nicht auflösen.\n"
+
+#: setquota.c:382
+#, fuzzy, c-format
+msgid "Unable to parse block hard limit '%s' on line %d: %s\n"
+msgstr "Kann Namen '%s' in Zeile %d nicht auflösen.\n"
+
+#: setquota.c:391
+#, fuzzy, c-format
+msgid "Unable to parse inode soft limit '%s' on line %d: %s\n"
+msgstr "Kann Namen '%s' in Zeile %d nicht auflösen.\n"
 
 #: setquota.c:400
+#, fuzzy, c-format
+msgid "Unable to parse inode hard limit '%s' on line %d: %s\n"
+msgstr "Kann Namen '%s' in Zeile %d nicht auflösen.\n"
+
+#: setquota.c:443
+#, fuzzy, c-format
+msgid "Setting grace period on %s is not supported.\n"
+msgstr "Erzeugung des %s-Quotaformats wird nicht unterstützt.\n"
+
+#: setquota.c:465
+#, c-format
+msgid "Not setting block grace time on %s because softlimit is not exceeded.\n"
+msgstr ""
+"Setze Blockgnadenfrist auf %s nicht, denn das weiche Limit ist nicht "
+"überschritten.\n"
+
+#: setquota.c:469
 #, c-format
 msgid "Not setting inode grace time on %s because softlimit is not exceeded.\n"
-msgstr "Setze Inodegnadenfrist auf %s nicht, denn das weiche Limit ist nicht überschritten.\n"
+msgstr ""
+"Setze Inodegnadenfrist auf %s nicht, denn das weiche Limit ist nicht "
+"überschritten.\n"
 
-#: setquota.c:403
+#: setquota.c:472
 #, c-format
-msgid "cannot write times for %s. Maybe kernel does not support such operation?\n"
-msgstr "Kann die Zeiten für %s nicht schreiben.  Vielleicht unterstützt der Kernel diese Operation nicht?\n"
+msgid ""
+"cannot write times for %s. Maybe kernel does not support such operation?\n"
+msgstr ""
+"Kann die Zeiten für %s nicht schreiben.  Vielleicht unterstützt der Kernel "
+"diese Operation nicht?\n"
 
 #: svc_socket.c:42
 #, c-format
@@ -2613,9 +2990,12 @@ msgstr ""
 "\n"
 "Wir hoffen, dass sie aufräumen bevor die Gnadenfrist abgelaufen ist.\n"
 "\n"
-"Sie erhalten diese Mitteilung, weil sie auf den oben genannten Dateisystemen\n"
-"mehr Speicherplatz belegen bzw. Dateien angelegt haben, als ihnen erlaubt ist.\n"
-"Wenn sie keinen Speicherplatz freigeben bzw. Dateien löschen und wieder unter\n"
+"Sie erhalten diese Mitteilung, weil sie auf den oben genannten "
+"Dateisystemen\n"
+"mehr Speicherplatz belegen bzw. Dateien angelegt haben, als ihnen erlaubt "
+"ist.\n"
+"Wenn sie keinen Speicherplatz freigeben bzw. Dateien löschen und wieder "
+"unter\n"
 "ihr Quota kommen bevor die Gnadenfrist abgelaufen ist, werden sie keinen\n"
 "weiteren Speicherplatz belegen bzw. keine weiteren Dateien anlegen können.\n"
 "\n"
@@ -2633,7 +3013,8 @@ msgid ""
 msgstr ""
 "Hallo,\n"
 "\n"
-"wir haben festgestellt, dass die Gruppe %s, in der sie Mitglied sind, Quotas dieses Systems\n"
+"wir haben festgestellt, dass die Gruppe %s, in der sie Mitglied sind, Quotas "
+"dieses Systems\n"
 "überschreitet.  Folgende Quotas wurden überschritten:\n"
 "\n"
 
@@ -2655,80 +3036,97 @@ msgstr ""
 "\n"
 "Wir hoffen, dass sie aufräumen bevor die Gnadenfrist abgelaufen ist.\n"
 "\n"
-"Sie erhalten diese Mitteilung, weil sie auf den oben genannten Dateisystemen\n"
-"mehr Speicherplatz belegen bzw. Dateien angelegt haben, als ihnen erlaubt ist.\n"
-"Wenn sie keinen Speicherplatz freigeben bzw. Dateien löschen und wieder unter\n"
+"Sie erhalten diese Mitteilung, weil sie auf den oben genannten "
+"Dateisystemen\n"
+"mehr Speicherplatz belegen bzw. Dateien angelegt haben, als ihnen erlaubt "
+"ist.\n"
+"Wenn sie keinen Speicherplatz freigeben bzw. Dateien löschen und wieder "
+"unter\n"
 "ihr Quota kommen bevor die Gnadenfrist abgelaufen ist, werden sie keinen\n"
 "weiteren Speicherplatz belegen bzw. keine weiteren Dateien anlegen können.\n"
 "\n"
 "Für Unterstützung wenden sie sich bitte per E-Mail an %s\n"
 "oder per Telefon an %s.\n"
 
-#: warnquota.c:184
+#: warnquota.c:183
 #, c-format
-msgid "%s: %s\n"
-msgstr "%s: %s\n"
+msgid "ldap_initialize() failed: %s\n"
+msgstr ""
 
-#: warnquota.c:228
+#: warnquota.c:189
+#, c-format
+msgid "ldap_sasl_bind_s() failed: %s\n"
+msgstr ""
+
+#: warnquota.c:204
 #, c-format
 msgid "Cannot get name for uid/gid %u.\n"
 msgstr "Kann Namen für uid/gid %u nicht auflösen.\n"
 
-#: warnquota.c:312
+#: warnquota.c:288
 #, c-format
 msgid "Cannot create pipe: %s\n"
 msgstr "Konnte keine Pipe erzeugen: %s\n"
 
-#: warnquota.c:318
+#: warnquota.c:294
 #, c-format
 msgid "Cannot fork: %s\n"
 msgstr "fork() fehlgeschlagen: %s\n"
 
-#: warnquota.c:323
+#: warnquota.c:299
 #, c-format
 msgid "Cannot duplicate descriptor: %s\n"
 msgstr "Konnte Dateideskriptor nicht duplizieren: %s\n"
 
-#: warnquota.c:327
+#: warnquota.c:303
 #, c-format
 msgid "Cannot execute '%s': %s\n"
 msgstr "Konnte '%s' nicht ausführen: %s\n"
 
-#: warnquota.c:332
-#, c-format
-msgid "Cannot open pine: %s\n"
+#: warnquota.c:308
+#, fuzzy, c-format
+msgid "Cannot open pipe: %s\n"
 msgstr "Konnte pine nicht öffnen: %s\n"
 
-#: warnquota.c:413
-msgid "Could not setup ldap connection, returning.\n"
+#: warnquota.c:382
+#, fuzzy
+msgid "Could not setup ldap connection.\n"
 msgstr "Konnte LDAP-Verbindung nicht herstellen, kehre zurück.\n"
 
-#: warnquota.c:436
+#: warnquota.c:404
 #, c-format
 msgid "Error with %s.\n"
 msgstr "Fehler mit %s.\n"
 
-#: warnquota.c:444
+#: warnquota.c:405
 #, c-format
-msgid "Multiple entries found for client %s, %d not sending mail.\n"
-msgstr "Mehrere Einträge für Client %s gefunden (nämlich %d).  Sende keine Mail.\n"
+msgid "ldap_search_ext_s() failed: %s\n"
+msgstr ""
 
-#: warnquota.c:448
-#, c-format
-msgid "Entry not found for client %s, %d not sending mail.\n"
-msgstr "Eintrag für Client %s nicht gefunden (Gefundene LDAP-Einträge: %d).  Sende keine Mail.\n"
+#: warnquota.c:411
+#, fuzzy, c-format
+msgid "Multiple entries found for client %s (%d).\n"
+msgstr ""
+"Mehrere Einträge für Client %s gefunden (nämlich %d).  Sende keine Mail.\n"
 
-#: warnquota.c:459
+#: warnquota.c:415
+#, fuzzy, c-format
+msgid "Entry not found for client %s.\n"
+msgstr ""
+"Eintrag für Client %s nicht gefunden (Gefundene LDAP-Einträge: %d).  Sende "
+"keine Mail.\n"
+
+#: warnquota.c:425
 #, c-format
 msgid "Could not get values for %s.\n"
 msgstr "Konnte keine Werte für %s bekommen.\n"
 
-#: warnquota.c:491
+#: warnquota.c:467
 #, c-format
 msgid "Administrator for a group %s not found. Cancelling mail.\n"
 msgstr "Administrator für Gruppe %s nicht gefunden. Sende keine Mail.\n"
 
-#: warnquota.c:536
+#: warnquota.c:519
 #, c-format
 msgid ""
 "\n"
@@ -2737,21 +3135,24 @@ msgstr ""
 "\n"
 "                        Blocklimits                Dateilimits\n"
 
-#: warnquota.c:537
+#: warnquota.c:520
 #, c-format
-msgid "Filesystem           used    soft    hard  grace    used  soft  hard  grace\n"
-msgstr "Dateisystem          belegt  soft    hart  Gnadenf. belegt soft hart Gnadenf.\n"
+msgid ""
+"Filesystem           used    soft    hard  grace    used  soft  hard  grace\n"
+msgstr ""
+"Dateisystem          belegt  soft    hart  Gnadenf. belegt soft hart "
+"Gnadenf.\n"
 
-#: warnquota.c:577
+#: warnquota.c:560
 #, c-format
 msgid "Cannot wait for mailer: %s\n"
 msgstr "Kann nicht auf das Mailprogramm warten: %s\n"
 
-#: warnquota.c:579
+#: warnquota.c:562
 msgid "Warning: Mailer exitted abnormally.\n"
 msgstr "Warnung: Mailprogramm hat sich nicht korrekt beendet.\n"
 
-#: warnquota.c:636
+#: warnquota.c:619
 #, c-format
 msgid ""
 "Cannot open %s: %s\n"
@@ -2760,17 +3161,19 @@ msgstr ""
 "Kann %s nicht öffnen: %s\n"
 "Werde Gerätenamen verwenden.\n"
 
-#: warnquota.c:659
+#: warnquota.c:642
 #, c-format
 msgid "Cannot parse line %d in quotatab (missing ':')\n"
 msgstr "Kann Zeile %d in Quotatabelle nicht verarbeiten (fehlender ':')\n"
 
-#: warnquota.c:673
+#: warnquota.c:656
 #, c-format
 msgid "Cannot stat device %s (maybe typo in quotatab)\n"
-msgstr "stat()-Aufruf für Gerät %s fehlgeschlagen (vielleicht ein Fehler in der Quotatabelle)\n"
+msgstr ""
+"stat()-Aufruf für Gerät %s fehlgeschlagen (vielleicht ein Fehler in der "
+"Quotatabelle)\n"
 
-#: warnquota.c:693
+#: warnquota.c:676
 #, c-format
 msgid ""
 "Incorrect format string for variable %s.\n"
@@ -2779,76 +3182,80 @@ msgstr ""
 "Ungültige Formatierungsanweisung für Variable %s.\n"
 "Nicht erkannter Ausdruck %%%c.\n"
 
-#: warnquota.c:732
+#: warnquota.c:722
 #, c-format
 msgid "Cannot open %s: %s\n"
 msgstr "Kann %s nicht öffnen: %s\n"
 
-#: warnquota.c:752
+#: warnquota.c:742
 #, c-format
 msgid "Line %d too long. Truncating.\n"
 msgstr "Zeile %d zu lang. Schneide sie ab.\n"
 
-#: warnquota.c:824
+#: warnquota.c:814
 #, c-format
 msgid "Cannot parse time at CC_BEFORE variable (line %d).\n"
 msgstr "Kann die Zeit bei CC_BEFORE-Variable nicht verarbeiten (Zeile %d).\n"
 
-#: warnquota.c:848
+#: warnquota.c:838
 #, c-format
 msgid "Error in config file (line %d), ignoring\n"
 msgstr "Fehler in Konfigurationsdatei (Zeile %d).  Ignoriere.\n"
 
-#: warnquota.c:851
+#: warnquota.c:841
 #, c-format
 msgid "Possible error in config file (line %d), ignoring\n"
 msgstr "Möglicher Fehler in Konfigurationsdatei in Zeile %d.  Ignoriere.\n"
 
-#: warnquota.c:854
+#: warnquota.c:844
 msgid "Unterminated last line, ignoring\n"
 msgstr "Fehlendes Zeilendendezeichen in der letzten Zeile.  Ignoriere.\n"
 
-#: warnquota.c:861
+#: warnquota.c:850
 #, c-format
 msgid ""
-"LDAP library version >= 2.3 detected. Please use LDAP_URI instead of hostname and port.\n"
+"LDAP library version >= 2.3 detected. Please use LDAP_URI instead of "
+"hostname and port.\n"
 "Generated URI %s\n"
 msgstr ""
-"LDAP-Bibliotheksversion >= 2.3 festgestellt. Bitte verwenden sie LDAP_URI anstelle von Rechnername und Port.\n"
+"LDAP-Bibliotheksversion >= 2.3 festgestellt. Bitte verwenden sie LDAP_URI "
+"anstelle von Rechnername und Port.\n"
 "Generierte URI %s\n"
 
-#: warnquota.c:865
-msgid "LDAP library does not support ldap_initialize() but URI is specified."
-msgstr "LDAP-Bibliothek unterstützt ldap_initialize() nicht, aber ein URI wurde angegeben."
-
-#: warnquota.c:887
+#: warnquota.c:872
 #, c-format
 msgid "Cannot open file with group administrators: %s\n"
 msgstr "Kann Datei der Gruppenadministratoren nicht öffnen: %s\n"
 
-#: warnquota.c:902
+#: warnquota.c:887
 #, c-format
 msgid "Parse error at line %d. Cannot find end of group name.\n"
 msgstr "Einlesefehler in Zeile %d.  Kann kein Ende des Gruppennamens finden.\n"
 
-#: warnquota.c:911
+#: warnquota.c:896
 #, c-format
 msgid "Parse error at line %d. Cannot find administrators name.\n"
 msgstr "Einlesefehler in Zeile %d.  Kann Administratornamen nicht finden.\n"
 
-#: warnquota.c:921
+#: warnquota.c:906
 #, c-format
-msgid "Parse error at line %d. Trailing characters after administrators name.\n"
-msgstr "Einlesefehler in Zeile %d.  Zusätzliche Zeichen nach dem Administratornamen.\n"
+msgid ""
+"Parse error at line %d. Trailing characters after administrators name.\n"
+msgstr ""
+"Einlesefehler in Zeile %d.  Zusätzliche Zeichen nach dem "
+"Administratornamen.\n"
 
-#: warnquota.c:984
+#: warnquota.c:969
+#, fuzzy
 msgid ""
 "Usage:\n"
-"  warnquota [-ugsid] [-F quotaformat] [-c configfile] [-q quotatabfile] [-a adminsfile]\n"
+"  warnquota [-ugsid] [-F quotaformat] [-c configfile] [-q quotatabfile] [-a "
+"adminsfile] [filesystem...]\n"
 "\n"
 "-u, --user                      warn users\n"
 "-g, --group                     warn groups\n"
-"-s, --human-readable            send information in more human friendly units\n"
+"-s, --human-readable            send information in more human friendly "
+"units\n"
 "-i, --no-autofs                 avoid autofs mountpoints\n"
 "-d, --no-details                do not send quota information itself\n"
 "-F, --format=formatname         use quotafiles of specific format\n"
@@ -2860,14 +3267,18 @@ msgid ""
 "\n"
 msgstr ""
 "Verwendung:\n"
-"  warnquota [-ugsid] [-F Quotaformat] [-c Konfigurationsdatei] [-q Quotatabelle] [-a Admindatei]\n"
+"  warnquota [-ugsid] [-F Quotaformat] [-c Konfigurationsdatei] [-q "
+"Quotatabelle] [-a Admindatei]\n"
 "\n"
 "-u, --user                      Benutzer warnen\n"
 "-g, --group                     Gruppen warnen\n"
-"-s, --human-readable            Angaben in menschenfreundlicheren Einheiten senden\n"
+"-s, --human-readable            Angaben in menschenfreundlicheren Einheiten "
+"senden\n"
 "-i, --no-autofs                 Vermeide Autofs-Einhängepunkte\n"
-"-d, --no-details                Sende keine detaillierten Quotainformationen\n"
-"-F, --format=Quotaformat        Verwende Quotadateien eines bestimmten Formats\n"
+"-d, --no-details                Sende keine detaillierten "
+"Quotainformationen\n"
+"-F, --format=Quotaformat        Verwende Quotadateien eines bestimmten "
+"Formats\n"
 "-c, --config=Konfigurationsdatein Nichtstandard-Konfigurationsdatei\n"
 "-q, --quota-tab=Quotatabelle    Nichtstandard-Quotatabellendatei\n"
 "-a, --admins-file=Admindatei    Nichtstandard-Gruppenadministratorendatei\n"
@@ -2875,13 +3286,12 @@ msgstr ""
 "-v, --version                   Versionsinformationen anzeigen und beenden\n"
 "\n"
 
-#: warnquota.c:1065
+#: warnquota.c:1050
 #, c-format
 msgid "Cannot get host name: %s\n"
 msgstr "Kann Rechnernamen nicht bekommen: %s\n"
 
-#: xqmstats.c:32
-#: xqmstats.c:37
+#: xqmstats.c:32 xqmstats.c:37
 msgid "The running kernel does not support XFS\n"
 msgstr "Der laufende Kernel unterstützt kein XFS.\n"
 
@@ -2935,10 +3345,84 @@ msgstr "  inact reclaims:  %u\n"
 msgid "Maximum %u dquots (currently %u incore, %u on freelist)\n"
 msgstr "Maximum %u dquots (currently %u incore, %u on freelist)\n"
 
+#~ msgid ""
+#~ "LDAP library does not support ldap_initialize() but URI is specified."
+#~ msgstr ""
+#~ "LDAP-Bibliothek unterstützt ldap_initialize() nicht, aber ein URI wurde "
+#~ "angegeben."
+
+#~ msgid "Compiled with:%s\n"
+#~ msgstr "Compiliert mit:%s\n"
+
+#~ msgid "XFS quota format needs no checking.\n"
+#~ msgstr "XFS-Quotaformat erfordert keine Prüfung.\n"
+
+#~ msgid "Cannot stat old %s quota file: %s\n"
+#~ msgstr "Kann stat() für alte %s-Quotadatei aufrufen: %s\n"
+
+#~ msgid "Operation not supported for filesystems with hidden quota files!\n"
+#~ msgstr ""
+#~ "Operation bei Dateisystemen mit versteckten Quotadateien nicht "
+#~ "unterstützt!\n"
+
+#~ msgid "Quotas for %s %s:\n"
+#~ msgstr "Quotas für %s %s:\n"
+
+#~ msgid "%s %d, limits (soft = %d, hard = %d)\n"
+#~ msgstr "%s %d, Limits (weich = %d, hart = %d)\n"
+
+#~ msgid "blocks in use:"
+#~ msgstr "Blöcke verwendet:"
+
+#~ msgid "\tinodes in use:"
+#~ msgstr "\tInodes verwendet:"
+
+#~ msgid "%s - bad format\n"
+#~ msgstr "%s - falsches Format\n"
+
+#~ msgid "%s -  %s -- bad format\n"
+#~ msgstr "%s -  %s -- falsches Format\n"
+
+#~ msgid " blocks in use: %llu, limits (soft = %llu, hard = %llu)"
+#~ msgstr " Blöcke verwendet: %llu, Limits (weich = %llu, hart = %llu)"
+
+#~ msgid "%s - %s -- bad format\n"
+#~ msgstr "%s - %s -- falsches Format\n"
+
+#~ msgid "\tinodes in use: %llu, limits (soft = %llu, hard = %llu)"
+#~ msgstr "\tInodes verwendet: %llu, Limits (weich = %llu, hart = %llu)"
+
+#~ msgid "block grace period: %s, file grace period: %s\n"
+#~ msgstr "Blockgnadenfrist: %s, Dateignadenfrist: %s\n"
+
+#~ msgid " block grace period: %d %s file grace period: %d %s"
+#~ msgstr " Blockgnadenfrist: %d %s Dateignadenfrist: %d %s"
+
+#~ msgid "Cannot find device of loopback mount in options for %s. Skipping.\n"
+#~ msgstr ""
+#~ "Kann Gerät des Loopback-Mounts in den Optionen für %s nicht finden. "
+#~ "Überspringe.\n"
+
+#~ msgid "Cannot stat() loopback device %s: %s\n"
+#~ msgstr "stat() für Loopbackgerät %s fehlgeschlagen: %s\n"
+
+#~ msgid "Loopback device %s is not block device!\n"
+#~ msgstr "Loopbackgerät %s ist kein Blockgerät!\n"
+
+#~ msgid "cannot create tcp service.\n"
+#~ msgstr "Kann keinen TCP-Dienst erzeugen.\n"
+
+#~ msgid "unable to register (RQUOTAPROG, RQUOTAVERS, tcp).\n"
+#~ msgstr "Registrierung fehlgeschlagen (RQUOTAPROG, RQUOTAVERS, tcp).\n"
+
+#~ msgid "unable to register (RQUOTAPROG, EXT_RQUOTAVERS, tcp).\n"
+#~ msgstr "Registrierung fehlgeschlagen (RQUOTAPROG, EXT_RQUOTAVERS, tcp).\n"
+
 #~ msgid "Bad number of arguments."
 #~ msgstr "Falsche Anzahl an Argumenten."
+
 #~ msgid "Too new quotafile format on %s\n"
 #~ msgstr "Zu neues Quotadateiformat auf Dateisystem %s\n"
+
 #~ msgid "Unknown format"
 #~ msgstr "Unbekanntes Format"
-
