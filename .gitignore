@@ -19,7 +19,8 @@ config.status
 mkinstalldirs
 ABOUT-NLS
 depcomp
-*.in
+Makefile.in
+Makefile.in.in
 Makefile
 stamp-h1
 .deps

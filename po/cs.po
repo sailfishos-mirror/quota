@@ -16,7 +16,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: quota-tools 4.01\n"
 "Report-Msgid-Bugs-To: jack@suse.cz\n"
-"POT-Creation-Date: 2014-11-29 11:20+0100\n"
+"POT-Creation-Date: 2014-12-02 12:14+0100\n"
 "PO-Revision-Date: 2012-09-10 16:55+0200\n"
 "Last-Translator: Petr Pisar <petr.pisar@atlas.cz>\n"
 "Language-Team: Czech <translation-team-cs@lists.sourceforge.net>\n"
@@ -34,17 +34,6 @@ msgstr "Nalezeno neplatné UUID: %s\n"
 #, c-format
 msgid "Error checking device name: %s\n"
 msgstr "Chyba při kontrole názvu zařízení: %s\n"
-
-#: common.c:124
-#, c-format
-msgid "Quota utilities version %s.\n"
-msgstr "Kvótové nástroje (quota-tools) verze %s.\n"
-
-#: common.c:125 convertquota.c:48 quotacheck.c:314 repquota.c:66
-#: warnquota.c:981
-#, c-format
-msgid "Bugs to %s\n"
-msgstr "Chyby hlaste na <%s>\n"
 
 #: convertquota.c:41
 #, c-format
@@ -75,12 +64,18 @@ msgstr ""
 "-V, --version                       zobrazí informace o verzi a skončí\n"
 "\n"
 
+#: convertquota.c:48 warnquota.c:981 quotacheck.c:314 repquota.c:66
+#: common.c:126
+#, c-format
+msgid "Bugs to %s\n"
+msgstr "Chyby hlaste na <%s>\n"
+
 #: convertquota.c:97
 msgid "You have to specify source and target format of conversion.\n"
 msgstr "Musíte zadat zdrojový a cílový formát převodu.\n"
 
-#: convertquota.c:112 quotacheck.c:400 quotaon.c:137 quotasync.c:81
-#: repquota.c:148 setquota.c:247
+#: convertquota.c:112 quotacheck.c:400 quotasync.c:81 repquota.c:148
+#: quotaon.c:137 setquota.c:247
 msgid "Bad number of arguments.\n"
 msgstr "Špatný počet argumentů.\n"
 
@@ -141,562 +136,319 @@ msgstr "Nelze otevřít starý kvótový soubor na %s: %s\n"
 msgid "Unknown action should be performed.\n"
 msgstr "Provedena by měla být neznámá akce.\n"
 
-#: edquota.c:81
-#, c-format
+#: warnquota.c:56
 msgid ""
-"Usage:\n"
-"\tedquota %1$s[-u] [-F formatname] [-p username] [-f filesystem] "
-"username ...\n"
-"\tedquota %1$s-g [-F formatname] [-p groupname] [-f filesystem] "
-"groupname ...\n"
-"\tedquota [-u|g] [-F formatname] [-f filesystem] -t\n"
-"\tedquota [-u|g] [-F formatname] [-f filesystem] -T username|groupname ...\n"
-msgstr ""
-"Použití:\n"
-"\tedquota %1$s[-u] [-F FORMÁT] [-p UŽIVATEL] [-f SOUBOROVÝ_SYSTÉM] "
-"UŽIVATEL…\n"
-"\tedquota %1$s-g [-F FORMÁT] [-p SKUPINA] [-f SOUBOROVÝ_SYSTÉM] SKUPINA…\n"
-"\tedquota [-u|g] [-F FORMÁT] [-f SOUBOROVÝ_SYSTÉM] -t\n"
-"\tedquota [-u|g] [-F FORMÁT] [-f SOUBOROVÝ_SYSTÉM] -T UŽIVATEL|SKUPINA…\n"
-
-#: edquota.c:85
-msgid ""
+"Hi,\n"
 "\n"
-"-u, --user                    edit user data\n"
-"-g, --group                   edit group data\n"
-msgstr ""
-"\n"
-"-u, --user                    upraví údaje o uživateli\n"
-"-g, --group                   upraví údaje o skupině\n"
-
-#: edquota.c:89
-msgid ""
-"-r, --remote                  edit remote quota (via RPC)\n"
-"-m, --no-mixed-pathnames      trim leading slashes from NFSv4 mountpoints\n"
-msgstr ""
-"-r, --remote                  upraví vzdálenou kvótu (přes RPC)\n"
-"-m, --no-mixed-pathnames      odstraní z připojovacích míst NFSv4 počáteční\n"
-"                              lomítka\n"
-
-#: edquota.c:92
-msgid ""
-"-F, --format=formatname       edit quotas of a specific format\n"
-"-p, --prototype=name          copy data from a prototype user/group\n"
-"    --always-resolve          always try to resolve name, even if it is\n"
-"                              composed only of digits\n"
-"-f, --filesystem=filesystem   edit data only on a specific filesystem\n"
-"-t, --edit-period             edit grace period\n"
-"-T, --edit-times              edit grace time of a user/group\n"
-"-h, --help                    display this help text and exit\n"
-"-V, --version                 display version information and exit\n"
+"We noticed that you are in violation with the quotasystem\n"
+"used on this system. We have found the following violations:\n"
 "\n"
 msgstr ""
-"-F, --format=FORMÁT           upraví kvóty v zadaném formátu\n"
-"-p, --prototype=JMÉNO         zkopíruje údaje z uživatele/skupiny coby "
-"vzoru\n"
-"    --always-resolve          vždy zkusí přeložit jméno, i když je tvořeno\n"
-"                              jen číslicemi\n"
-"-f, --filesystem=SOUBOROVÝ_SYSTÉM\n"
-"                              upraví údaje jen na zadaném "
-"SOUBOROVÉM_SYSTÉMU\n"
-"-t, --edit-period             upraví periodu odkladu\n"
-"-T, --edit-times              upraví dobu odkladu pro uživatele/skupinu\n"
-"-h, --help                    zobrazí tuto nápovědu a skončí\n"
-"-V, --version                 zobrazí údaje o verzi a skončí\n"
+"Ahoj,\n"
+"\n"
+"zaznamenali jsme, že jste ve sporu se systémem kvót na tomto stroji.\n"
+"Nalezeny byly následující porušení pravidel:\n"
 "\n"
 
-#: edquota.c:101 quota.c:111 setquota.c:79
+#: warnquota.c:58
 #, c-format
-msgid "Bugs to: %s\n"
-msgstr ""
-"Chyby v programu zasílejte (anglicky) na: %s\n"
-"Chyby v překladu (česky) na: <translation-team-cs@lists.sourceforge.net>\n"
-
-#: edquota.c:183
 msgid ""
-"Prototype name does not make sense when editing grace period or times.\n"
-msgstr "Při úpravě periody nebo doby odkladu nedává jméno vzoru smysl.\n"
+"\n"
+"We hope that you will cleanup before your grace period expires.\n"
+"\n"
+"Basically, this means that the system thinks you are using more disk space\n"
+"on the above partition(s) than you are allowed.  If you do not delete files\n"
+"and get below your quota before the grace period expires, the system will\n"
+"prevent you from creating new files.\n"
+"\n"
+"For additional assistance, please contact us at %s\n"
+"or via phone at %s.\n"
+msgstr ""
+"\n"
+"Doufáme, že si uklidíte dříve, než vyprší perioda odkladu.\n"
+"\n"
+"V zásadě to znamená, že systém si myslí, že používáte více diskového\n"
+"prostoru na oddílech uvedených výše, než máte dovoleno. Pokud soubory\n"
+"nesmažete a nedostanete se pod váš limit před uplynutím periody odkladu,\n"
+"systém vám bude bránit v tvorbě nových souborů.\n"
+"\n"
+"Potřebujete-li pomoc, napište nám na %s\n"
+"nebo zavolejte na %s.\n"
 
-#: edquota.c:187
-msgid "Cannot change grace times over RPC protocol.\n"
-msgstr "Doby odkladu nelze měnit přes protokol RPC.\n"
-
-#: edquota.c:205
+#: warnquota.c:65
 #, c-format
-msgid "Cannot get quota information for user %s\n"
-msgstr "Údaj o kvótě uživatele %s nelze získat\n"
+msgid ""
+"Hi,\n"
+"\n"
+"We noticed that the group %s you are member of violates the quotasystem\n"
+"used on this system. We have found the following violations:\n"
+"\n"
+msgstr ""
+"Ahoj,\n"
+"\n"
+"Zaznamenali jsme, že skupina %s, jímž jste členem, porušuje na tomto\n"
+"stroji systém kvót. Byla nalezena následující porušení:\n"
+"\n"
 
-#: edquota.c:211
-msgid "fsname mismatch\n"
-msgstr "fsname (název souborového systému) se neshoduje\n"
-
-#: edquota.c:253
-msgid "No filesystems with quota detected.\n"
-msgstr "Nenalezeny žádné souborové systémy s kvótou.\n"
-
-#: edquota.c:269
+#: warnquota.c:67
 #, c-format
-msgid "Cannot create temporary file: %s\n"
-msgstr "Nelze vytvořit dočasný soubor: %s\n"
+msgid ""
+"\n"
+"Please cleanup the group data before the grace period expires.\n"
+"\n"
+"Basically, this means that the system thinks group is using more disk space\n"
+"on the above partition(s) than it is allowed.  If you do not delete files\n"
+"and get below group quota before the grace period expires, the system will\n"
+"prevent you and other members of the group from creating new files owned by\n"
+"the group.\n"
+"\n"
+"For additional assistance, please contact us at %s\n"
+"or via phone at %s.\n"
+msgstr ""
+"\n"
+"Prosíme, abyste uklidili data skupiny před vypršením periody odkladu.\n"
+"\n"
+"V zásadě to znamená, že systém si myslí, že skupina používá více diskového\n"
+"prostoru na oddílech uvedených výše, než má dovoleno. Pokud soubory\n"
+"nesmažete a nedostanete se pod limit skupiny před uplynutím periody\n"
+"odkladu, systém vám a dalším členům skupiny bude bránit v tvorbě nových\n"
+"souborů.\n"
+"\n"
+"Potřebujete-li pomoc, napište nám na %s\n"
+"nebo zavolejte na %s.\n"
 
-#: edquota.c:274
+#: warnquota.c:183
 #, c-format
-msgid "Cannot change owner of temporary file: %s\n"
-msgstr "Nelze změnit vlastníka dočasného souboru: %s\n"
+msgid "ldap_initialize() failed: %s\n"
+msgstr ""
 
-#: edquota.c:281
-msgid "Cannot write grace times to file.\n"
-msgstr "Do souboru nelze zapsat doby odkladu.\n"
-
-#: edquota.c:285
-msgid "Error while editing grace times.\n"
-msgstr "Chyba při úpravě dob odkladu.\n"
-
-#: edquota.c:289
-msgid "Failed to parse grace times file.\n"
-msgstr "Rozbor souboru s dobami odkladu se nezdařil.\n"
-
-#: edquota.c:298 edquota.c:324
+#: warnquota.c:189
 #, c-format
-msgid "Cannot get quota information for user %s.\n"
-msgstr "Údaj o kvótě uživatele %s nelze získat.\n"
+msgid "ldap_sasl_bind_s() failed: %s\n"
+msgstr ""
 
-#: edquota.c:300
-msgid "Cannot write individual grace times to file.\n"
-msgstr "Do souboru nelze zapsat jednotlivé doby odkladu.\n"
-
-#: edquota.c:305
-msgid "Error while editing individual grace times.\n"
-msgstr "Chyba při úpravě jednotlivých dob odkladu.\n"
-
-#: edquota.c:310
-msgid "Cannot read individual grace times from file.\n"
-msgstr "Ze souboru nelze načíst jednotlivé doby odkladu.\n"
-
-#: edquota.c:326
-msgid "Cannot write quotas to file.\n"
-msgstr "Kvóty nelze do souboru zapsat.\n"
-
-#: edquota.c:331
-msgid "Error while editing quotas.\n"
-msgstr "Chyba při úpravě kvót.\n"
-
-#: edquota.c:341
-msgid "Cannot reopen!"
-msgstr "Nelze znovu otevřít!"
-
-#: edquota.c:343
-msgid "Cannot read quotas from file.\n"
-msgstr "Kvóty nelze ze souboru.\n"
-
-#: quot.c:81
+#: warnquota.c:204
 #, c-format
-msgid "Usage: %s [-acfugvViTq] [filesystem...]\n"
-msgstr "Použití: %s [-acfugvViTq] [SYSTÉM_SOUBORŮ…]\n"
+msgid "Cannot get name for uid/gid %u.\n"
+msgstr "UID/GID %u nelze přeložit na jméno.\n"
 
-#: quot.c:178
+#: warnquota.c:288
 #, c-format
-msgid "%s (%s):\n"
-msgstr "%s (%s):\n"
+msgid "Cannot create pipe: %s\n"
+msgstr "Nelze vytvořit rouru: %s\n"
 
-#: quot.c:182 quot.c:186
+#: warnquota.c:294
 #, c-format
-msgid "%d\t%llu\t%llu\n"
-msgstr "%d\t%llu\t%llu\n"
+msgid "Cannot fork: %s\n"
+msgstr "Voláni fork() selhalo: %s\n"
 
-#: quot.c:195
+#: warnquota.c:299
 #, c-format
-msgid "%s (%s) %ss:\n"
-msgstr "%s (%s) objekty třídy %s:\n"
+msgid "Cannot duplicate descriptor: %s\n"
+msgstr "Deskriptor nelze zdvojit: %s\n"
 
-#: quot.c:203 quot.c:205
+#: warnquota.c:303
 #, c-format
-msgid "%8llu    "
-msgstr "%8llu    "
+msgid "Cannot execute '%s': %s\n"
+msgstr "„%s“ nelze spustit: %s\n"
 
-#: quot.c:208
+#: warnquota.c:308
 #, c-format
-msgid "%s"
-msgstr "%s"
+msgid "Cannot open pipe: %s\n"
+msgstr "Nelze otevřít rouru: %s\n"
 
-#: quot.c:210
-#, c-format
-msgid "%-8.8s"
-msgstr "%-8.8s"
+#: warnquota.c:382
+#, fuzzy
+msgid "Could not setup ldap connection.\n"
+msgstr "Spojení LDAP nelze nastavit.\n"
 
-#: quot.c:212
+#: warnquota.c:404
 #, c-format
-msgid "#%-7d"
-msgstr "č%-7d"
+msgid "Error with %s.\n"
+msgstr "Chyba u %s.\n"
 
-#: quot.c:214
+#: warnquota.c:405
 #, c-format
-msgid "    %8llu    %8llu    %8llu"
-msgstr "    %8llu    %8llu    %8llu"
+msgid "ldap_search_ext_s() failed: %s\n"
+msgstr ""
 
-#: quot.c:362
+#: warnquota.c:411
+#, fuzzy, c-format
+msgid "Multiple entries found for client %s (%d).\n"
+msgstr "Nalezeno více záznamů pro klienta %s (%d). E-mail nebude odeslán.\n"
+
+#: warnquota.c:415
+#, fuzzy, c-format
+msgid "Entry not found for client %s.\n"
+msgstr "Záznam pro klienta %s nenalezen. E-mail nebude odeslán.\n"
+
+#: warnquota.c:425
 #, c-format
-msgid "cannot open %s: %s\n"
+msgid "Could not get values for %s.\n"
+msgstr "Hodnoty pro %s nebylo možné získat.\n"
+
+#: warnquota.c:467
+#, c-format
+msgid "Administrator for a group %s not found. Cancelling mail.\n"
+msgstr "Správce skupiny %s nenalezen. E-mail zrušen.\n"
+
+#: warnquota.c:519
+#, c-format
+msgid ""
+"\n"
+"                        Block limits               File limits\n"
+msgstr ""
+"\n"
+"                        Limity bloků               Limity souborů\n"
+
+#: warnquota.c:520
+#, c-format
+msgid ""
+"Filesystem           used    soft    hard  grace    used  soft  hard  grace\n"
+msgstr ""
+"Souborový systém    užito   měkký   pevný odklad   užito měkký pevný odklad\n"
+
+#: warnquota.c:560
+#, c-format
+msgid "Cannot wait for mailer: %s\n"
+msgstr "Nelze se dočkat dokončení odeslání pošty: %s\n"
+
+#: warnquota.c:562
+msgid "Warning: Mailer exitted abnormally.\n"
+msgstr "Pozor: Odesílání pošty skončilo mimořádně.\n"
+
+#: warnquota.c:619
+#, c-format
+msgid ""
+"Cannot open %s: %s\n"
+"Will use device names.\n"
+msgstr ""
+"%s nelze otevřít: %s\n"
+"Použijí se názvy zařízení.\n"
+
+#: warnquota.c:642
+#, c-format
+msgid "Cannot parse line %d in quotatab (missing ':')\n"
+msgstr "V souboru quotatab nelze rozebrat řádek %d (chybí „:“)\n"
+
+#: warnquota.c:656
+#, c-format
+msgid "Cannot stat device %s (maybe typo in quotatab)\n"
+msgstr "O zařízení %s nelze získat údaje (možná překlep v souboru quotatab)\n"
+
+#: warnquota.c:676
+#, c-format
+msgid ""
+"Incorrect format string for variable %s.\n"
+"Unrecognized expression %%%c.\n"
+msgstr ""
+"Nesprávný formátovací řetězec proměnné %s.\n"
+"Nerozpoznaný výraz %%%c.\n"
+
+#: warnquota.c:722
+#, c-format
+msgid "Cannot open %s: %s\n"
 msgstr "%s nelze otevřít: %s\n"
 
-#: quot.c:382
+#: warnquota.c:742
 #, c-format
-msgid "XFS_IOC_FSBULKSTAT ioctl failed: %s\n"
-msgstr "IOCTL XFS_IOC_FSBULKSTAT selhalo: %s\n"
+msgid "Line %d too long. Truncating.\n"
+msgstr "Řádek %d je příliš dlouhý. Bude zkrácen.\n"
 
-#: quota.c:85
-msgid "Usage: quota [-guqvswim] [-l | [-Q | -A]] [-F quotaformat]\n"
-msgstr "Použití: quota [-guqvswim] [-l | [-Q | -A]] [-f FORMÁT]\n"
-
-#: quota.c:86
-msgid "\tquota [-qvswim] [-l | [-Q | -A]] [-F quotaformat] -u username ...\n"
-msgstr "\tquota [-qvswim] [-l | [-Q | -A]] [-F FORMÁT] -u UŽIVATEL…\n"
-
-#: quota.c:87
-msgid "\tquota [-qvswim] [-l | [-Q | -A]] [-F quotaformat] -g groupname ...\n"
-msgstr "\tquota [-qvswim] [-l | [-Q | -A]] [-F FORMÁT] -g SKUPINA…\n"
-
-#: quota.c:88
-msgid "\tquota [-qvswugQm] [-F quotaformat] -f filesystem ...\n"
-msgstr "\tquota [-qvswugQm] [-F FORMÁT] -f SOUBOROVÝ_SYSTÉM…\n"
-
-#: quota.c:89
-#, fuzzy
-msgid ""
-"\n"
-"-u, --user                display quota for user\n"
-"-g, --group               display quota for group\n"
-"-q, --quiet               print more terse message\n"
-"-v, --verbose             print more verbose message\n"
-"-s, --human-readable      display numbers in human friendly units (MB, "
-"GB...)\n"
-"    --always-resolve      always try to translate name to id, even if it is\n"
-"\t\t\t  composed of only digits\n"
-"-w, --no-wrap             do not wrap long lines\n"
-"-p, --raw-grace           print grace time in seconds since epoch\n"
-"-l, --local-only          do not query NFS filesystems\n"
-"-Q, --quiet-refuse        do not print error message when NFS server does\n"
-"                          not respond\n"
-"-i, --no-autofs           do not query autofs mountpoints\n"
-"-F, --format=formatname   display quota of a specific format\n"
-"-f, --filesystem-list     display quota information only for given "
-"filesystems\n"
-"-A, --all-nfs             display quota for all NFS mountpoints\n"
-"-m, --no-mixed-pathnames  trim leading slashes from NFSv4 mountpoints\n"
-"    --show-mntpoint       show mount point of the file system in output\n"
-"    --hide-device         do not show file system device in output\n"
-"-h, --help                display this help message and exit\n"
-"-V, --version             display version information and exit\n"
-"\n"
-msgstr ""
-"\n"
-"-u, --user                zobrazí kvótu uživatele\n"
-"-g, --group               zobrazí kvótu skupiny\n"
-"-q, --quiet               vypisuje stručnější hlášky\n"
-"-v, --verbose             vypisuje podrobnější hlášky\n"
-"-s, --human-readable      čísla zobrazí v přirozeném tvaru (MB, GB…)\n"
-"    --always-resolve      vždy zkusí přeložit jméno na ID, i když je "
-"tvořeno\n"
-"                          jen číslicemi\n"
-"-w, --no-wrap             nezalamuje dlouhé řádky\n"
-"-p, --raw-grace           dobu odkladu vypíše v sekundách od počátku epochy\n"
-"-l, --local-only          nedotazuje se souborových systémů přes NFS\n"
-"-Q, --quiet-refuse        nevypisuje chybové hlášení, když NFS server "
-"neodpoví\n"
-"-i, --no-autofs           nedotazuje se bodů připojení typu autofs\n"
-"-F, --format=FORMÁT       zobrazí kvótu určeného FORMÁTU\n"
-"-f, --filesystem-list     zobrazí údaje o kvótách jen pro zadané systémy\n"
-"                          souborů\n"
-"-A, --nfs-all             zobrazí kvóty pro všechny místa připojení typu "
-"NFS\n"
-"-m, --no-mixed-pathnames  odstraní úvodní lomítka z míst připojení typu "
-"NFSv4\n"
-"    --show-mntpoint       zobrazí bod připojení systému souborů\n"
-"    --hide-device         nezobrazí zařízení systému souborů\n"
-"-h, --help                zobrazí tuto nápovědu a skončí\n"
-"-V, --version             zobrazí údaje o verzi a skončí\n"
-"\n"
-
-#: quota.c:120
-msgid "space"
-msgstr "místo"
-
-#: quota.c:122
-msgid "blocks"
-msgstr "bloky"
-
-# FIXME: third argument is first character of first argument
-# (user/group → u/g-id). This is not localizable.
-#: quota.c:124
+#: warnquota.c:814
 #, c-format
-msgid "Disk quotas for %s %s (%cid %u): %s\n"
-msgstr "Diskové kvóty pro %s %s (%cid %u): %s\n"
+msgid "Cannot parse time at CC_BEFORE variable (line %d).\n"
+msgstr "Čas v proměnné CC_BEFORE nelze rozebrat (řádek %d).\n"
 
-# FIXME: printf(3) counts bytes, not columns
-#: quota.c:127
-msgid "Filesystem"
-msgstr "Souborovy system"
-
-# FIXME: printf(3) counts bytes, not columns
-#: quota.c:128 quota.c:129
-msgid "quota"
-msgstr "kvota"
-
-# FIXME: printf(3) counts bytes, not columns
-#: quota.c:128 quota.c:129
-msgid "limit"
-msgstr "limit"
-
-# FIXME: printf(3) counts bytes, not columns
-#: quota.c:128 quota.c:129
-msgid "grace"
-msgstr "odklad"
-
-# FIXME: printf(3) counts bytes, not columns
-#: quota.c:129
-msgid "files"
-msgstr "souboru"
-
-#: quota.c:201
-msgid "File limit reached on"
-msgstr "Omezení počtu souborů dosaženo na"
-
-#: quota.c:207
-msgid "In file grace period on"
-msgstr "V periodě odkladu počtu souborů na"
-
-#: quota.c:211
-msgid "Over file quota on"
-msgstr "Kvóta na počet souborů přesažena na"
-
-#: quota.c:217
-msgid "Block limit reached on"
-msgstr "Omezení na počet bloků dosaženo na"
-
-#: quota.c:223
-msgid "In block grace period on"
-msgstr "V periodě odkladu počtu bloků na"
-
-#: quota.c:227
-msgid "Over block quota on"
-msgstr "Kvóta na počet bloků překročena na"
-
-# FIXME: context
-# None limit
-# None grace
-#: quota.c:290 quotasys.c:320
-msgid "none"
-msgstr "žádný"
-
-#: quota.c:396
+#: warnquota.c:838
 #, c-format
-msgid "Warning: Ignoring -%c when filesystem list specified.\n"
-msgstr "Pozor: Je-li zadán seznam souborových systémů, -%c bude ignorován.\n"
+msgid "Error in config file (line %d), ignoring\n"
+msgstr "Chyba v konfiguračním souboru (řádek %d), ignoruje se.\n"
 
-#: quota.c:403
-msgid "No filesystem specified.\n"
-msgstr "Nezadán žádný systém souborů.\n"
-
-#: quota.c:411
+#: warnquota.c:841
 #, c-format
-msgid "Gid set allocation (%d): %s\n"
-msgstr "Alokace množiny GID (%d): %s\n"
+msgid "Possible error in config file (line %d), ignoring\n"
+msgstr "Možná chyba v konfiguračním souboru (řádek %d), ignoruje se.\n"
 
-#: quota.c:417
-#, c-format
-msgid "getgroups(): %s\n"
-msgstr "getgroups(): %s\n"
+#: warnquota.c:844
+msgid "Unterminated last line, ignoring\n"
+msgstr "Neukončený poslední řádek, ignoruje se.\n"
 
-#: quota_nld.c:85
+#: warnquota.c:850
 #, c-format
 msgid ""
-"Usage: %s [options]\n"
-"Options are:\n"
-" -h --help         shows this text\n"
-" -V --version      shows version information\n"
-" -C --no-console   do not try to write messages to console\n"
-" -b --print-below  write to console also information about getting below "
-"hard/soft limits\n"
-" -D --no-dbus      do not try to write messages to DBUS\n"
-" -F --foreground   run daemon in foreground\n"
+"LDAP library version >= 2.3 detected. Please use LDAP_URI instead of "
+"hostname and port.\n"
+"Generated URI %s\n"
 msgstr ""
-"Použití: %s [PŘEPÍNAČE]\n"
-"Přepínače jsou:\n"
-" -h --help         zobrazí tento text\n"
-" -V --version      zobrazí údaje o verzi\n"
-" -C --no-console   zprávy nevypisuje na konzoli\n"
-" -b --print-below  na konzoli hlásí rovněž přechody pod pevný/měkký limit\n"
-" -D --no-dbus      zprávy nezasílá přes D-bus\n"
-" -F --foreground   spustit na popředí\n"
+"Zjištěna verze LDAP knihovny >= 2.3. Prosím, použijte LDAP_URI namísto\n"
+"názvu stroje a portu.\n"
+"Vytvořené URI: %s\n"
 
-#: quota_nld.c:119 rquota_svc.c:160
+#: warnquota.c:872
 #, c-format
-msgid "Unknown option '%c'.\n"
-msgstr "Neznámý přepínač „%c“.\n"
+msgid "Cannot open file with group administrators: %s\n"
+msgstr "Soubor se správci skupin nelze otevřít: %s\n"
 
-#: quota_nld.c:125
-msgid "No possible destination for messages. Nothing to do.\n"
-msgstr "Zprávy není, kam posílat. Není, co dělat.\n"
+#: warnquota.c:887
+#, c-format
+msgid "Parse error at line %d. Cannot find end of group name.\n"
+msgstr "Chyba při rozboru řádku %d. Nelze nalézt konec názvu skupiny.\n"
 
-#: quota_nld.c:151
-msgid "Error parsing netlink message.\n"
-msgstr "Chyba rozboru netlinkové zprávy.\n"
+#: warnquota.c:896
+#, c-format
+msgid "Parse error at line %d. Cannot find administrators name.\n"
+msgstr "Chyba při rozboru řádku %d. Nelze nalézt jméno správce.\n"
 
-#: quota_nld.c:158
+#: warnquota.c:906
+#, c-format
 msgid ""
-"Unknown format of kernel netlink message!\n"
-"Maybe your quota tools are too old?\n"
+"Parse error at line %d. Trailing characters after administrators name.\n"
+msgstr "Chyba při rozboru řádku %d. Přebytečné znaky za jménem správce.\n"
+
+#: warnquota.c:969
+msgid ""
+"Usage:\n"
+"  warnquota [-ugsid] [-F quotaformat] [-c configfile] [-q quotatabfile] [-a "
+"adminsfile] [filesystem...]\n"
+"\n"
+"-u, --user                      warn users\n"
+"-g, --group                     warn groups\n"
+"-s, --human-readable            send information in more human friendly "
+"units\n"
+"-i, --no-autofs                 avoid autofs mountpoints\n"
+"-d, --no-details                do not send quota information itself\n"
+"-F, --format=formatname         use quotafiles of specific format\n"
+"-c, --config=config-file        non-default config file\n"
+"-q, --quota-tab=quotatab-file   non-default quotatab\n"
+"-a, --admins-file=admins-file   non-default admins file\n"
+"-h, --help                      display this help message and exit\n"
+"-v, --version                   display version information and exit\n"
+"\n"
 msgstr ""
-"Neznámý formát netlinkové zprávy z jádra!\n"
-"Nejsou vaše nástroje pro kvótu zastaralé?\n"
+"Použití:\n"
+"  warnquota [-ugsid] [-F FORMÁT_KVÓT] [-c KONFIGURAČNÍ_SOUBOR]\n"
+"            [-q SOUBOR_QUOTATAB [-a SOUBOR_SE_SPRÁVCI] [SYSTÉM_SOUBORŮ…]\n"
+"\n"
+"-u, --user                        upozorní uživatele\n"
+"-g, --group                       upozorní skupiny\n"
+"-s, --human-readable              odesílá údaje v jednotkách vhodných pro\n"
+"                                  člověka\n"
+"-i, --no-autofs                   vynechá přípojné body typu autofs\n"
+"-d, --no-details                  neodesílá samotné údaje o kvótách\n"
+"-F, --format=FORMÁT_KVÓT          použije kvótové soubory zadaného formátu\n"
+"-c, --config=KONFIGURAČNÍ_SOUBOR  jiný konfigurační soubor\n"
+"-q, --quota-tab=SOUBOR_QUOTATAB   jiný quotatab\n"
+"-a, --admins-file=SOUBOR_SE_SPRÁVCI\n"
+"                                  jiný soubor správců\n"
+"-h, --help                        zobrazí tuto nápovědu a skončí\n"
+"-v, --version                     zobrazí údaje o verzi a skončí\n"
+"\n"
 
-#: quota_nld.c:182
-#, fuzzy
-msgid "Cannot allocate netlink socket!\n"
-msgstr "Nelze alokovat deskriptor netlinku!\n"
-
-#: quota_nld.c:188
+#: warnquota.c:1050
 #, c-format
-msgid "Cannot register callback for netlink messages: %s\n"
-msgstr "Zpětné volání pro netlinkové zprávy nelze zaregistrovat: %s\n"
-
-#: quota_nld.c:193
-#, c-format
-msgid "Cannot connect to netlink socket: %s\n"
-msgstr "Na netlinkový socket se nelze připojit: %s\n"
-
-#: quota_nld.c:205
-#, c-format
-msgid "Cannot resolve quota netlink name: %s\n"
-msgstr "Nelze přeložit netlinkový název kvóty: %s\n"
-
-#: quota_nld.c:211
-#, c-format
-msgid "Cannot join quota multicast group: %s\n"
-msgstr "Nelze se připojit k multicastové skupině kvóty: %s\n"
-
-#: quota_nld.c:224
-#, c-format
-msgid "Cannot connect to system DBUS: %s\n"
-msgstr "Nelze se připojit k systémové sběrnici D-bus: %s\n"
-
-#: quota_nld.c:289
-#, c-format
-msgid "Failed to find tty of user %llu to report warning to.\n"
-msgstr ""
-"Nebylo možné nalézt TTY uživatele %llu, kam by se mělo vypsat upozornění.\n"
-
-#: quota_nld.c:294
-#, c-format
-msgid "Failed to open tty %s of user %llu to report warning.\n"
-msgstr ""
-"Otevření TTY %s uživatele %llu, kam by se mělo vypsat upozornění, selhalo.\n"
-
-#: quota_nld.c:300
-msgid "Warning"
-msgstr "Pozor"
-
-#: quota_nld.c:303
-msgid "Error"
-msgstr "Chyba"
-
-#: quota_nld.c:305
-msgid "Info"
-msgstr "Na vědomí"
-
-#: quota_nld.c:308
-msgid "file limit reached"
-msgstr "limit na soubory dosažen"
-
-#: quota_nld.c:311
-msgid "file quota exceeded too long"
-msgstr "kvóta na soubory překročena příliš dlouho"
-
-#: quota_nld.c:314
-msgid "file quota exceeded"
-msgstr "Kvóta na soubory překročena"
-
-#: quota_nld.c:317
-msgid "block limit reached"
-msgstr "limit na bloky dosažen"
-
-#: quota_nld.c:320
-msgid "block quota exceeded too long"
-msgstr "kvóta na bloky překročena příliš dlouho"
-
-#: quota_nld.c:323
-msgid "block quota exceeded"
-msgstr "kvóta na bloky překročena"
-
-#: quota_nld.c:326
-msgid "got below file limit"
-msgstr "počet souborů klesl pod limit"
-
-#: quota_nld.c:329
-msgid "got below file quota"
-msgstr "počet souborů klesl pod kvótu"
-
-#: quota_nld.c:332
-msgid "got below block limit"
-msgstr "počet bloků klesl pod limit"
-
-#: quota_nld.c:335
-msgid "got below block quota"
-msgstr "počet bloků klesl pod kvótu"
-
-#: quota_nld.c:338
-msgid "unknown quota warning"
-msgstr "neznámé upozornění kvóty"
-
-#: quota_nld.c:342
-#, c-format
-msgid "Failed to write quota message for user %llu to %s: %s\n"
-msgstr "Zápis zprávy o kvótě pro uživatele %llu na %s selhal: %s\n"
-
-#: quota_nld.c:355
-msgid "Cannot create DBUS message: No enough memory.\n"
-msgstr "Zprávu D-bus nelze vytvořit: Nedostatek paměti.\n"
-
-#: quota_nld.c:373
-msgid "Failed to write message to dbus: No enough memory.\n"
-msgstr "Zprávu nelze zapsat do D-bus: Nedostatek paměti.\n"
-
-#: quota_nld.c:389
-#, c-format
-msgid "Failed to read or parse quota netlink message: %s\n"
-msgstr "Netlinkovou zprávu kvóty nebylo možné přečíst nebo rozebrat: %s\n"
-
-#: quota_nld.c:400
-msgid "Undefined program name.\n"
-msgstr "Název programu není určen.\n"
-
-#: quota_nld.c:405
-msgid "Not enough memory to build PID file name.\n"
-msgstr "Nedostatek paměti pro tvorbu názvu souboru s PID.\n"
-
-#: quota_nld.c:424
-#, c-format
-msgid "Could not open PID file '%s': %s\n"
-msgstr "Soubor s PID „%s“ nelze otevřít: %s\n"
-
-#: quota_nld.c:430
-#, c-format
-msgid "Could not write daemon's PID into '%s'.\n"
-msgstr "PID démona nebylo možné zapsat do „%s“.\n"
-
-#: quota_nld.c:437
-#, c-format
-msgid "Could not close PID file '%s'.\n"
-msgstr "Soubor s PID „%s“ nebylo možné uzavřít.\n"
-
-#: quota_nld.c:467
-msgid "Could not register PID file removal on SIGTERM.\n"
-msgstr "Odebrání souboru s PID nebylo možné zaregistrovat na signál SIGTERM.\n"
-
-#: quota_nld.c:469
-#, c-format
-msgid "Could not store my PID %jd.\n"
-msgstr "Nebylo možné uložit vlastní PID %jd.\n"
+msgid "Cannot get host name: %s\n"
+msgstr "Nelze získat název stroje: %s\n"
 
 #: quotacheck.c:92
 msgid "Not enough memory.\n"
@@ -1205,6 +957,410 @@ msgstr ""
 "Alokováno %'d bajtů paměti\n"
 "Uvolněno %'d bajtů\n"
 "Ztraceno %'d bajtů\n"
+
+#: quot.c:81
+#, c-format
+msgid "Usage: %s [-acfugvViTq] [filesystem...]\n"
+msgstr "Použití: %s [-acfugvViTq] [SYSTÉM_SOUBORŮ…]\n"
+
+#: quot.c:178
+#, c-format
+msgid "%s (%s):\n"
+msgstr "%s (%s):\n"
+
+#: quot.c:182 quot.c:186
+#, c-format
+msgid "%d\t%llu\t%llu\n"
+msgstr "%d\t%llu\t%llu\n"
+
+#: quot.c:195
+#, c-format
+msgid "%s (%s) %ss:\n"
+msgstr "%s (%s) objekty třídy %s:\n"
+
+#: quot.c:203 quot.c:205
+#, c-format
+msgid "%8llu    "
+msgstr "%8llu    "
+
+#: quot.c:208
+#, c-format
+msgid "%s"
+msgstr "%s"
+
+#: quot.c:210
+#, c-format
+msgid "%-8.8s"
+msgstr "%-8.8s"
+
+#: quot.c:212
+#, c-format
+msgid "#%-7d"
+msgstr "č%-7d"
+
+#: quot.c:214
+#, c-format
+msgid "    %8llu    %8llu    %8llu"
+msgstr "    %8llu    %8llu    %8llu"
+
+#: quot.c:362
+#, c-format
+msgid "cannot open %s: %s\n"
+msgstr "%s nelze otevřít: %s\n"
+
+#: quot.c:382
+#, c-format
+msgid "XFS_IOC_FSBULKSTAT ioctl failed: %s\n"
+msgstr "IOCTL XFS_IOC_FSBULKSTAT selhalo: %s\n"
+
+#: quotasync.c:27
+#, fuzzy, c-format
+msgid ""
+"%1$s: Utility for syncing quotas.\n"
+"Usage: %1$s [-ug] mount-point...\n"
+"   or: %1$s [-ug] -a\n"
+"   or: %1$s -h | -V\n"
+"\n"
+msgstr ""
+"Nástroj pro synchronizaci kvót.\n"
+"Použití:\n"
+"%s [-ug] -a | PŘÍPOJNÝ_BOD…\n"
+"\n"
+
+#: quotasync.c:34
+#, fuzzy, c-format
+msgid ""
+"Options:\n"
+"-u, --user     synchronize user quotas\n"
+"-g, --group    synchronize group quotas\n"
+"-a, --all      synchronize quotas for all mounted file systems\n"
+"-h, --help     display this help message and exit\n"
+"-V, --version  display version information and exit\n"
+"\n"
+msgstr ""
+"-t, --edit-period          změní periodu odkladu\n"
+"-T, --edit-times           změní dobu odkladu pro uživatele/skupinu\n"
+"-h, --help                 zobrazí tuto nápovědu a skončí\n"
+"-V, --version              zobrazí údaje o verzi a skončí\n"
+"\n"
+
+#: quotasync.c:42
+#, fuzzy, c-format
+msgid "Report bugs to <%s>.\n"
+msgstr "Chyby hlaste na <%s>\n"
+
+# TODO: quota attribute
+#: quotasync.c:106
+#, c-format
+msgid "%s quota sync failed: %s\n"
+msgstr "synchronizace kvóty %s selhala: %s\n"
+
+#: quotasync.c:119
+#, c-format
+msgid "%s quota sync failed for %s: %s\n"
+msgstr "synchronizace kvóty %s na %s selhala: %s\n"
+
+# kvótový soubor pro třídu %s
+#: quota.h:21
+msgid "user"
+msgstr "uživatel"
+
+# kvótový soubor pro třídu %s
+#: quota.h:22
+msgid "group"
+msgstr "skupina"
+
+# kvótový soubor pro třídu %s
+#: quota.h:23
+msgid "undefined"
+msgstr "neurčeno"
+
+#: quota_nld.c:85
+#, c-format
+msgid ""
+"Usage: %s [options]\n"
+"Options are:\n"
+" -h --help         shows this text\n"
+" -V --version      shows version information\n"
+" -C --no-console   do not try to write messages to console\n"
+" -b --print-below  write to console also information about getting below "
+"hard/soft limits\n"
+" -D --no-dbus      do not try to write messages to DBUS\n"
+" -F --foreground   run daemon in foreground\n"
+msgstr ""
+"Použití: %s [PŘEPÍNAČE]\n"
+"Přepínače jsou:\n"
+" -h --help         zobrazí tento text\n"
+" -V --version      zobrazí údaje o verzi\n"
+" -C --no-console   zprávy nevypisuje na konzoli\n"
+" -b --print-below  na konzoli hlásí rovněž přechody pod pevný/měkký limit\n"
+" -D --no-dbus      zprávy nezasílá přes D-bus\n"
+" -F --foreground   spustit na popředí\n"
+
+#: quota_nld.c:119 rquota_svc.c:160
+#, c-format
+msgid "Unknown option '%c'.\n"
+msgstr "Neznámý přepínač „%c“.\n"
+
+#: quota_nld.c:125
+msgid "No possible destination for messages. Nothing to do.\n"
+msgstr "Zprávy není, kam posílat. Není, co dělat.\n"
+
+#: quota_nld.c:151
+msgid "Error parsing netlink message.\n"
+msgstr "Chyba rozboru netlinkové zprávy.\n"
+
+#: quota_nld.c:158
+msgid ""
+"Unknown format of kernel netlink message!\n"
+"Maybe your quota tools are too old?\n"
+msgstr ""
+"Neznámý formát netlinkové zprávy z jádra!\n"
+"Nejsou vaše nástroje pro kvótu zastaralé?\n"
+
+#: quota_nld.c:182
+#, fuzzy
+msgid "Cannot allocate netlink socket!\n"
+msgstr "Nelze alokovat deskriptor netlinku!\n"
+
+#: quota_nld.c:188
+#, c-format
+msgid "Cannot register callback for netlink messages: %s\n"
+msgstr "Zpětné volání pro netlinkové zprávy nelze zaregistrovat: %s\n"
+
+#: quota_nld.c:193
+#, c-format
+msgid "Cannot connect to netlink socket: %s\n"
+msgstr "Na netlinkový socket se nelze připojit: %s\n"
+
+#: quota_nld.c:205
+#, c-format
+msgid "Cannot resolve quota netlink name: %s\n"
+msgstr "Nelze přeložit netlinkový název kvóty: %s\n"
+
+#: quota_nld.c:211
+#, c-format
+msgid "Cannot join quota multicast group: %s\n"
+msgstr "Nelze se připojit k multicastové skupině kvóty: %s\n"
+
+#: quota_nld.c:224
+#, c-format
+msgid "Cannot connect to system DBUS: %s\n"
+msgstr "Nelze se připojit k systémové sběrnici D-bus: %s\n"
+
+#: quota_nld.c:289
+#, c-format
+msgid "Failed to find tty of user %llu to report warning to.\n"
+msgstr ""
+"Nebylo možné nalézt TTY uživatele %llu, kam by se mělo vypsat upozornění.\n"
+
+#: quota_nld.c:294
+#, c-format
+msgid "Failed to open tty %s of user %llu to report warning.\n"
+msgstr ""
+"Otevření TTY %s uživatele %llu, kam by se mělo vypsat upozornění, selhalo.\n"
+
+#: quota_nld.c:300
+msgid "Warning"
+msgstr "Pozor"
+
+#: quota_nld.c:303
+msgid "Error"
+msgstr "Chyba"
+
+#: quota_nld.c:305
+msgid "Info"
+msgstr "Na vědomí"
+
+#: quota_nld.c:308
+msgid "file limit reached"
+msgstr "limit na soubory dosažen"
+
+#: quota_nld.c:311
+msgid "file quota exceeded too long"
+msgstr "kvóta na soubory překročena příliš dlouho"
+
+#: quota_nld.c:314
+msgid "file quota exceeded"
+msgstr "Kvóta na soubory překročena"
+
+#: quota_nld.c:317
+msgid "block limit reached"
+msgstr "limit na bloky dosažen"
+
+#: quota_nld.c:320
+msgid "block quota exceeded too long"
+msgstr "kvóta na bloky překročena příliš dlouho"
+
+#: quota_nld.c:323
+msgid "block quota exceeded"
+msgstr "kvóta na bloky překročena"
+
+#: quota_nld.c:326
+msgid "got below file limit"
+msgstr "počet souborů klesl pod limit"
+
+#: quota_nld.c:329
+msgid "got below file quota"
+msgstr "počet souborů klesl pod kvótu"
+
+#: quota_nld.c:332
+msgid "got below block limit"
+msgstr "počet bloků klesl pod limit"
+
+#: quota_nld.c:335
+msgid "got below block quota"
+msgstr "počet bloků klesl pod kvótu"
+
+#: quota_nld.c:338
+msgid "unknown quota warning"
+msgstr "neznámé upozornění kvóty"
+
+#: quota_nld.c:342
+#, c-format
+msgid "Failed to write quota message for user %llu to %s: %s\n"
+msgstr "Zápis zprávy o kvótě pro uživatele %llu na %s selhal: %s\n"
+
+#: quota_nld.c:355
+msgid "Cannot create DBUS message: No enough memory.\n"
+msgstr "Zprávu D-bus nelze vytvořit: Nedostatek paměti.\n"
+
+#: quota_nld.c:373
+msgid "Failed to write message to dbus: No enough memory.\n"
+msgstr "Zprávu nelze zapsat do D-bus: Nedostatek paměti.\n"
+
+#: quota_nld.c:389
+#, c-format
+msgid "Failed to read or parse quota netlink message: %s\n"
+msgstr "Netlinkovou zprávu kvóty nebylo možné přečíst nebo rozebrat: %s\n"
+
+#: quota_nld.c:400
+msgid "Undefined program name.\n"
+msgstr "Název programu není určen.\n"
+
+#: quota_nld.c:405
+msgid "Not enough memory to build PID file name.\n"
+msgstr "Nedostatek paměti pro tvorbu názvu souboru s PID.\n"
+
+#: quota_nld.c:424
+#, c-format
+msgid "Could not open PID file '%s': %s\n"
+msgstr "Soubor s PID „%s“ nelze otevřít: %s\n"
+
+#: quota_nld.c:430
+#, c-format
+msgid "Could not write daemon's PID into '%s'.\n"
+msgstr "PID démona nebylo možné zapsat do „%s“.\n"
+
+#: quota_nld.c:437
+#, c-format
+msgid "Could not close PID file '%s'.\n"
+msgstr "Soubor s PID „%s“ nebylo možné uzavřít.\n"
+
+#: quota_nld.c:467
+msgid "Could not register PID file removal on SIGTERM.\n"
+msgstr "Odebrání souboru s PID nebylo možné zaregistrovat na signál SIGTERM.\n"
+
+#: quota_nld.c:469
+#, c-format
+msgid "Could not store my PID %jd.\n"
+msgstr "Nebylo možné uložit vlastní PID %jd.\n"
+
+#: repquota.c:50
+#, fuzzy, c-format
+msgid ""
+"Utility for reporting quotas.\n"
+"Usage:\n"
+"%s [-vugsi] [-c|C] [-t|n] [-F quotaformat] [-O (default | xml | csv)] (-a | "
+"mntpoint)\n"
+"\n"
+"-v, --verbose               display also users/groups without any usage\n"
+"-u, --user                  display information about users\n"
+"-g, --group                 display information about groups\n"
+"-s, --human-readable        show numbers in human friendly units (MB, "
+"GB, ...)\n"
+"-t, --truncate-names        truncate names to 9 characters\n"
+"-p, --raw-grace             print grace time in seconds since epoch\n"
+"-n, --no-names              do not translate uid/gid to name\n"
+"-i, --no-autofs             avoid autofs mountpoints\n"
+"-c, --cache                 translate big number of ids at once\n"
+"-C, --no-cache              translate ids one by one\n"
+"-F, --format=formatname     report information for specific format\n"
+"-O, --output=format         format output as xml or csv\n"
+"-a, --all                   report information for all mount points with "
+"quotas\n"
+"-h, --help                  display this help message and exit\n"
+"-V, --version               display version information and exit\n"
+"\n"
+msgstr ""
+"Nástroj pro hlášení kvót.\n"
+"Použití:\n"
+"%s [-vugsi] [-c|C] [-t|n] [-F FORMÁT_KVÓTY (-a | BOD_PŘIPOJENÍ)\n"
+"\n"
+"-v, --verbose               zobrazí rovněž uživatele/skupiny, které žádné\n"
+"                            místo nezabírají\n"
+"-u, --user                  zobrazí údaje o uživatelích\n"
+"-g, --group                 zobrazí údaje o skupinách\n"
+"-s, --human-readable        zobrazí počty v podobě vhodné přo člověka\n"
+"                            (MB, GB, …)\n"
+"-t, --truncate-names        názvy zkrátí na 9 znaků\n"
+"-p, --raw-grace             dobu odkladu zobrazí v sekundách od počátku "
+"epochy\n"
+"-n, --no-names              nepřekládá UID/GID na jména\n"
+"-i, --no-autofs             nezaobírá se přípojnými body typu autofs\n"
+"-c, --batch-translation     překládá identifikátory ve velkých dávkách\n"
+"-C, --no-batch-translation  překládá identifikátory po jednom\n"
+"-F, --format=FORMÁT_KVÓTY   hlásí údaje u zadaného formátu\n"
+"-h, --help                  zobrazí tuto nápovědu a skončí\n"
+"-V, --version               zobrazí údaje o verzi a skončí\n"
+"\n"
+
+#: repquota.c:152
+msgid "Repquota cannot report through RPC calls.\n"
+msgstr "Repquota nedokáže pracovat přes volání RPC.\n"
+
+#: repquota.c:156
+msgid "Specified both -n and -t but only one of them can be used.\n"
+msgstr "Zadány přepínače -n i -t, ale použít lze jen jeden z nich.\n"
+
+#: repquota.c:348
+msgid "User"
+msgstr "Uživatel"
+
+#: repquota.c:350
+msgid "Group"
+msgstr "Skupina"
+
+# TODO: Internationalize first argument
+#: repquota.c:353
+#, c-format
+msgid "*** Report for %s quotas on device %s\n"
+msgstr "*** Hlášení pro kvóty %s na zařízení %s\n"
+
+# This is first argument of `%s limits' header
+#: repquota.c:362
+msgid "Space"
+msgstr "místa"
+
+# This is first argument of `%s limits' header
+#: repquota.c:364
+msgid "Block"
+msgstr "bloků"
+
+#: repquota.c:365
+#, c-format
+msgid "Block grace time: %s; Inode grace time: %s\n"
+msgstr "Doba odkladu bloků: %s, Doba odkladu i-uzlů: %s\n"
+
+#: repquota.c:366
+#, c-format
+msgid "                        %s limits                File limits\n"
+msgstr "                        Limity %s                Limity souborů\n"
+
+#: repquota.c:367
+#, c-format
+msgid "%-9s       used    soft    hard  grace    used  soft  hard  grace\n"
+msgstr "%-9s       užito   měkký   pevný odklad   užito měkký pevný odklad\n"
 
 #: quotacheck_v1.c:32
 #, c-format
@@ -2185,29 +2341,68 @@ msgstr "Počet volných dquot: %ld\n"
 msgid "Number of in use dquot entries (user/group): %ld\n"
 msgstr "Počet použitých záznamů dquot (uživatel/skupina): %ld\n"
 
-#: quotasync.c:27
-#, fuzzy, c-format
+#: setquota.c:55
+#, c-format
 msgid ""
-"%1$s: Utility for syncing quotas.\n"
-"Usage: %1$s [-ug] mount-point...\n"
-"   or: %1$s [-ug] -a\n"
-"   or: %1$s -h | -V\n"
+"Usage:\n"
+"  setquota [-u|-g] %1$s[-F quotaformat] <user|group>\n"
+"\t<block-softlimit> <block-hardlimit> <inode-softlimit> <inode-hardlimit> -a|"
+"<filesystem>...\n"
+"  setquota [-u|-g] %1$s[-F quotaformat] <-p protouser|protogroup> <user|"
+"group> -a|<filesystem>...\n"
+"  setquota [-u|-g] %1$s[-F quotaformat] -b [-c] -a|<filesystem>...\n"
+"  setquota [-u|-g] [-F quotaformat] -t <blockgrace> <inodegrace> -a|"
+"<filesystem>...\n"
+"  setquota [-u|-g] [-F quotaformat] <user|group> -T <blockgrace> "
+"<inodegrace> -a|<filesystem>...\n"
 "\n"
+"-u, --user                 set limits for user\n"
+"-g, --group                set limits for group\n"
+"-a, --all                  set limits for all filesystems\n"
+"    --always-resolve       always try to resolve name, even if is\n"
+"                           composed only of digits\n"
+"-F, --format=formatname    operate on specific quota format\n"
+"-p, --prototype=protoname  copy limits from user/group\n"
+"-b, --batch                read limits from standard input\n"
+"-c, --continue-batch       continue in input processing in case of an error\n"
 msgstr ""
-"Nástroj pro synchronizaci kvót.\n"
 "Použití:\n"
-"%s [-ug] -a | PŘÍPOJNÝ_BOD…\n"
+"  setquota [-u|-g] %1$s[-F FORMÁT_KVÓTY] UŽIVATEL|SKUPINA\n"
+"\tMĚKKÝ_LIMIT_BLOKŮ PEVNÝ_LIMIT_BLOKŮ MĚKKÝ_LIMIT_IUZLŮ PEVNÝ_LIMIT_IUZLŮ\n"
+"\t-a|SYSTÉM_SOUBORŮ…\n"
+"  setquota [-u|-g] %1$s[-F FORMÁT_KVÓTY] -p VZOROVÝ_UŽIVATEL|"
+"VZOROVÁ_SKUPINA\n"
+"\tUŽIVATEL|SKUPINA -a|SYSTÉM_SOUBORŮ…\n"
+"  setquota [-u|-g] %1$s[-F FORMÁT_KVÓTY] -b [-c] -a|SYSTÉM_SOUBORŮ…\n"
+"  setquota [-u|-g] [-F FORMÁT_KVÓTY] -t PERIODA_BLOKŮ PERIODA_IUZLŮ\n"
+"\t-a|SYSTÉM_SOUBORŮ…\n"
+"  setquota [-u|-g] [-F FORMÁT_KVÓTY] UŽIVATEL|SKUPINA -T DOBA_BLOKŮ\n"
+"\tDOBA_IUZLŮ -a|SYSTÉM_SOUBORŮ…\n"
 "\n"
+"-u, --user                 nastaví limity pro uživatele\n"
+"-g, --group                nastaví limity pro skupinu\n"
+"-a, --all                  nastaví limity pro všechny souborové systémy\n"
+"    --always-resolve       vždy překládá jména, i když se skládají jen "
+"z číslic\n"
+"-F, --format=FORMÁT_KVÓTY  pracuje nad určitým formátem kvót\n"
+"-p, --prototype=VZOR       zkopíruje limity z uživatele/skupiny\n"
+"-b, --batch                limity načte v dávce ze standardního vstupu\n"
+"-c, --continue-batch       pokračuje ve zpracování vstupu i v případě chyby\n"
 
-#: quotasync.c:34
-#, fuzzy, c-format
+#: setquota.c:72
 msgid ""
-"Options:\n"
-"-u, --user     synchronize user quotas\n"
-"-g, --group    synchronize group quotas\n"
-"-a, --all      synchronize quotas for all mounted file systems\n"
-"-h, --help     display this help message and exit\n"
-"-V, --version  display version information and exit\n"
+"-r, --remote               set remote quota (via RPC)\n"
+"-m, --no-mixed-pathnames      trim leading slashes from NFSv4 mountpoints\n"
+msgstr ""
+"-r, --remote               nastaví vzdálenou kvótu (přes RPC)\n"
+"-m, --no-mixed-pathnames   odstraní úvodní lomítka z systému NFSv4\n"
+
+#: setquota.c:75
+msgid ""
+"-t, --edit-period          edit grace period\n"
+"-T, --edit-times           edit grace times for user/group\n"
+"-h, --help                 display this help text and exit\n"
+"-V, --version              display version information and exit\n"
 "\n"
 msgstr ""
 "-t, --edit-period          změní periodu odkladu\n"
@@ -2216,21 +2411,145 @@ msgstr ""
 "-V, --version              zobrazí údaje o verzi a skončí\n"
 "\n"
 
-#: quotasync.c:42
+#: setquota.c:79 edquota.c:101 quota.c:111
+#, c-format
+msgid "Bugs to: %s\n"
+msgstr ""
+"Chyby v programu zasílejte (anglicky) na: %s\n"
+"Chyby v překladu (česky) na: <translation-team-cs@lists.sourceforge.net>\n"
+
+#: setquota.c:90
+#, c-format
+msgid "%s: %s\n"
+msgstr "%s: %s\n"
+
+#: setquota.c:103 setquota.c:116
 #, fuzzy, c-format
-msgid "Report bugs to <%s>.\n"
-msgstr "Chyby hlaste na <%s>\n"
+msgid "%s: %s: %s\n"
+msgstr "%s: %s\n"
 
-# TODO: quota attribute
-#: quotasync.c:106
-#, c-format
-msgid "%s quota sync failed: %s\n"
-msgstr "synchronizace kvóty %s selhala: %s\n"
+#: setquota.c:212
+msgid "Group and user quotas cannot be used together.\n"
+msgstr "Kvóty skupiny a uživatele nelze použít společně.\n"
 
-#: quotasync.c:119
+#: setquota.c:216
+msgid "Prototype user has no sense when editing grace times.\n"
+msgstr "Vzorový uživatel nemá smysl, když se mění doba odkladu.\n"
+
+#: setquota.c:220
+msgid "Cannot set both individual and global grace time.\n"
+msgstr "Jednotlivé a globální doby odkladu nelze nastavit najednou.\n"
+
+#: setquota.c:224
+msgid "Batch mode cannot be used for setting grace times.\n"
+msgstr "Dobu odkladu nelze v dávkovém režimu nastavit.\n"
+
+#: setquota.c:228
+msgid "Batch mode and prototype user cannot be used together.\n"
+msgstr "Dávkový režim a vzorového uživatele nelze nastavit najednou.\n"
+
+#: setquota.c:232
+msgid "Cannot set grace times over RPC protocol.\n"
+msgstr "Doby odkladu nelze nastavit přes protokol RPC.\n"
+
+#: setquota.c:255
+msgid "Bad block softlimit"
+msgstr "Chybný měkký limit bloků"
+
+#: setquota.c:256
+msgid "Bad block hardlimit"
+msgstr "Chybný pevný limit bloků"
+
+#: setquota.c:257
+msgid "Bad inode softlimit"
+msgstr "Chybný měkký limit iuzlů"
+
+#: setquota.c:258
+msgid "Bad inode hardlimit"
+msgstr "Chybný pevný limit iuzlů"
+
+#: setquota.c:264 setquota.c:276
+msgid "Bad block grace time"
+msgstr "Chybná doba odkladu bloků"
+
+#: setquota.c:265 setquota.c:282
+msgid "Bad inode grace time"
+msgstr "Chybná doba odkladu iuzlů"
+
+#: setquota.c:288
+msgid "Mountpoint not specified.\n"
+msgstr "Nebyl zadán bod připojení.\n"
+
+#: setquota.c:345
 #, c-format
-msgid "%s quota sync failed for %s: %s\n"
-msgstr "synchronizace kvóty %s na %s selhala: %s\n"
+msgid "Line %d too long.\n"
+msgstr "Řádek %d je příliš dlouhý.\n"
+
+#: setquota.c:357
+#, c-format
+msgid "Cannot parse input line %d.\n"
+msgstr "Vstupní řádek %d nelze rozebrat.\n"
+
+#: setquota.c:359 setquota.c:367 setquota.c:376 setquota.c:385 setquota.c:394
+#: setquota.c:403
+msgid "Exitting.\n"
+msgstr "Končí se.\n"
+
+#: setquota.c:360 setquota.c:368 setquota.c:377 setquota.c:386 setquota.c:395
+#: setquota.c:404
+msgid "Skipping line.\n"
+msgstr "Řádek bude přeskočen.\n"
+
+#: setquota.c:365
+#, c-format
+msgid "Unable to resolve name '%s' on line %d.\n"
+msgstr "Jméno „%s“ na řádku %d nelze přeložit.\n"
+
+#: setquota.c:373
+#, fuzzy, c-format
+msgid "Unable to parse block soft limit '%s' on line %d: %s\n"
+msgstr "Jméno „%s“ na řádku %d nelze přeložit.\n"
+
+#: setquota.c:382
+#, fuzzy, c-format
+msgid "Unable to parse block hard limit '%s' on line %d: %s\n"
+msgstr "Jméno „%s“ na řádku %d nelze přeložit.\n"
+
+#: setquota.c:391
+#, fuzzy, c-format
+msgid "Unable to parse inode soft limit '%s' on line %d: %s\n"
+msgstr "Jméno „%s“ na řádku %d nelze přeložit.\n"
+
+#: setquota.c:400
+#, fuzzy, c-format
+msgid "Unable to parse inode hard limit '%s' on line %d: %s\n"
+msgstr "Jméno „%s“ na řádku %d nelze přeložit.\n"
+
+#: setquota.c:443
+#, c-format
+msgid "Setting grace period on %s is not supported.\n"
+msgstr "Nastavování periody odkladu na %s není podporováno.\n"
+
+#: setquota.c:465
+#, c-format
+msgid "Not setting block grace time on %s because softlimit is not exceeded.\n"
+msgstr ""
+"Doba odkladu bloků na %s nebude nastavena, protože měkký limit není "
+"překročen.\n"
+
+#: setquota.c:469
+#, c-format
+msgid "Not setting inode grace time on %s because softlimit is not exceeded.\n"
+msgstr ""
+"Doba odkladu iuzlů na %s nebude nastavena, protože měkký limit není "
+"překročen.\n"
+
+# TODO: Internationalize first argument
+#: setquota.c:472
+#, c-format
+msgid ""
+"cannot write times for %s. Maybe kernel does not support such operation?\n"
+msgstr "Doby pro %s nelze zapsat. Možná jádro takovou operaci nepodporuje.\n"
 
 #: quotasys.c:100
 #, c-format
@@ -2270,6 +2589,13 @@ msgid ""
 "  csv     - comma-separated values\n"
 "  xml     - simple XML\n"
 msgstr ""
+
+# FIXME: context
+# None limit
+# None grace
+#: quotasys.c:320 quota.c:290
+msgid "none"
+msgstr "žádný"
 
 # TODO: Pluralize
 #: quotasys.c:352
@@ -2518,102 +2844,6 @@ msgstr "Nezadán žádný správný bod připojení.\n"
 msgid "Mountpoint (or device) %s not found or has no quota enabled.\n"
 msgstr "Bod připojení (nebo zařízení) %s nenalezen nebo nemá zapnuté kvóty.\n"
 
-#: repquota.c:50
-#, fuzzy, c-format
-msgid ""
-"Utility for reporting quotas.\n"
-"Usage:\n"
-"%s [-vugsi] [-c|C] [-t|n] [-F quotaformat] [-O (default | xml | csv)] (-a | "
-"mntpoint)\n"
-"\n"
-"-v, --verbose               display also users/groups without any usage\n"
-"-u, --user                  display information about users\n"
-"-g, --group                 display information about groups\n"
-"-s, --human-readable        show numbers in human friendly units (MB, "
-"GB, ...)\n"
-"-t, --truncate-names        truncate names to 9 characters\n"
-"-p, --raw-grace             print grace time in seconds since epoch\n"
-"-n, --no-names              do not translate uid/gid to name\n"
-"-i, --no-autofs             avoid autofs mountpoints\n"
-"-c, --cache                 translate big number of ids at once\n"
-"-C, --no-cache              translate ids one by one\n"
-"-F, --format=formatname     report information for specific format\n"
-"-O, --output=format         format output as xml or csv\n"
-"-a, --all                   report information for all mount points with "
-"quotas\n"
-"-h, --help                  display this help message and exit\n"
-"-V, --version               display version information and exit\n"
-"\n"
-msgstr ""
-"Nástroj pro hlášení kvót.\n"
-"Použití:\n"
-"%s [-vugsi] [-c|C] [-t|n] [-F FORMÁT_KVÓTY (-a | BOD_PŘIPOJENÍ)\n"
-"\n"
-"-v, --verbose               zobrazí rovněž uživatele/skupiny, které žádné\n"
-"                            místo nezabírají\n"
-"-u, --user                  zobrazí údaje o uživatelích\n"
-"-g, --group                 zobrazí údaje o skupinách\n"
-"-s, --human-readable        zobrazí počty v podobě vhodné přo člověka\n"
-"                            (MB, GB, …)\n"
-"-t, --truncate-names        názvy zkrátí na 9 znaků\n"
-"-p, --raw-grace             dobu odkladu zobrazí v sekundách od počátku "
-"epochy\n"
-"-n, --no-names              nepřekládá UID/GID na jména\n"
-"-i, --no-autofs             nezaobírá se přípojnými body typu autofs\n"
-"-c, --batch-translation     překládá identifikátory ve velkých dávkách\n"
-"-C, --no-batch-translation  překládá identifikátory po jednom\n"
-"-F, --format=FORMÁT_KVÓTY   hlásí údaje u zadaného formátu\n"
-"-h, --help                  zobrazí tuto nápovědu a skončí\n"
-"-V, --version               zobrazí údaje o verzi a skončí\n"
-"\n"
-
-#: repquota.c:152
-msgid "Repquota cannot report through RPC calls.\n"
-msgstr "Repquota nedokáže pracovat přes volání RPC.\n"
-
-#: repquota.c:156
-msgid "Specified both -n and -t but only one of them can be used.\n"
-msgstr "Zadány přepínače -n i -t, ale použít lze jen jeden z nich.\n"
-
-#: repquota.c:348
-msgid "User"
-msgstr "Uživatel"
-
-#: repquota.c:350
-msgid "Group"
-msgstr "Skupina"
-
-# TODO: Internationalize first argument
-#: repquota.c:353
-#, c-format
-msgid "*** Report for %s quotas on device %s\n"
-msgstr "*** Hlášení pro kvóty %s na zařízení %s\n"
-
-# This is first argument of `%s limits' header
-#: repquota.c:362
-msgid "Space"
-msgstr "místa"
-
-# This is first argument of `%s limits' header
-#: repquota.c:364
-msgid "Block"
-msgstr "bloků"
-
-#: repquota.c:365
-#, c-format
-msgid "Block grace time: %s; Inode grace time: %s\n"
-msgstr "Doba odkladu bloků: %s, Doba odkladu i-uzlů: %s\n"
-
-#: repquota.c:366
-#, c-format
-msgid "                        %s limits                File limits\n"
-msgstr "                        Limity %s                Limity souborů\n"
-
-#: repquota.c:367
-#, c-format
-msgid "%-9s       used    soft    hard  grace    used  soft  hard  grace\n"
-msgstr "%-9s       užito   měkký   pevný odklad   užito měkký pevný odklad\n"
-
 #: rquota_svc.c:88
 #, c-format
 msgid ""
@@ -2754,209 +2984,6 @@ msgstr "copy_group_quota_limits: Nastavení kvót skupině s ID %ld selhalo: %s
 msgid "copy_group_quota_limits: Failed to get groupquota for gid %ld : %s\n"
 msgstr "copy_group_quota_limits: Získání kvót skupiny s ID %ld selhalo: %s\n"
 
-#: setquota.c:55
-#, c-format
-msgid ""
-"Usage:\n"
-"  setquota [-u|-g] %1$s[-F quotaformat] <user|group>\n"
-"\t<block-softlimit> <block-hardlimit> <inode-softlimit> <inode-hardlimit> -a|"
-"<filesystem>...\n"
-"  setquota [-u|-g] %1$s[-F quotaformat] <-p protouser|protogroup> <user|"
-"group> -a|<filesystem>...\n"
-"  setquota [-u|-g] %1$s[-F quotaformat] -b [-c] -a|<filesystem>...\n"
-"  setquota [-u|-g] [-F quotaformat] -t <blockgrace> <inodegrace> -a|"
-"<filesystem>...\n"
-"  setquota [-u|-g] [-F quotaformat] <user|group> -T <blockgrace> "
-"<inodegrace> -a|<filesystem>...\n"
-"\n"
-"-u, --user                 set limits for user\n"
-"-g, --group                set limits for group\n"
-"-a, --all                  set limits for all filesystems\n"
-"    --always-resolve       always try to resolve name, even if is\n"
-"                           composed only of digits\n"
-"-F, --format=formatname    operate on specific quota format\n"
-"-p, --prototype=protoname  copy limits from user/group\n"
-"-b, --batch                read limits from standard input\n"
-"-c, --continue-batch       continue in input processing in case of an error\n"
-msgstr ""
-"Použití:\n"
-"  setquota [-u|-g] %1$s[-F FORMÁT_KVÓTY] UŽIVATEL|SKUPINA\n"
-"\tMĚKKÝ_LIMIT_BLOKŮ PEVNÝ_LIMIT_BLOKŮ MĚKKÝ_LIMIT_IUZLŮ PEVNÝ_LIMIT_IUZLŮ\n"
-"\t-a|SYSTÉM_SOUBORŮ…\n"
-"  setquota [-u|-g] %1$s[-F FORMÁT_KVÓTY] -p VZOROVÝ_UŽIVATEL|"
-"VZOROVÁ_SKUPINA\n"
-"\tUŽIVATEL|SKUPINA -a|SYSTÉM_SOUBORŮ…\n"
-"  setquota [-u|-g] %1$s[-F FORMÁT_KVÓTY] -b [-c] -a|SYSTÉM_SOUBORŮ…\n"
-"  setquota [-u|-g] [-F FORMÁT_KVÓTY] -t PERIODA_BLOKŮ PERIODA_IUZLŮ\n"
-"\t-a|SYSTÉM_SOUBORŮ…\n"
-"  setquota [-u|-g] [-F FORMÁT_KVÓTY] UŽIVATEL|SKUPINA -T DOBA_BLOKŮ\n"
-"\tDOBA_IUZLŮ -a|SYSTÉM_SOUBORŮ…\n"
-"\n"
-"-u, --user                 nastaví limity pro uživatele\n"
-"-g, --group                nastaví limity pro skupinu\n"
-"-a, --all                  nastaví limity pro všechny souborové systémy\n"
-"    --always-resolve       vždy překládá jména, i když se skládají jen "
-"z číslic\n"
-"-F, --format=FORMÁT_KVÓTY  pracuje nad určitým formátem kvót\n"
-"-p, --prototype=VZOR       zkopíruje limity z uživatele/skupiny\n"
-"-b, --batch                limity načte v dávce ze standardního vstupu\n"
-"-c, --continue-batch       pokračuje ve zpracování vstupu i v případě chyby\n"
-
-#: setquota.c:72
-msgid ""
-"-r, --remote               set remote quota (via RPC)\n"
-"-m, --no-mixed-pathnames      trim leading slashes from NFSv4 mountpoints\n"
-msgstr ""
-"-r, --remote               nastaví vzdálenou kvótu (přes RPC)\n"
-"-m, --no-mixed-pathnames   odstraní úvodní lomítka z systému NFSv4\n"
-
-#: setquota.c:75
-msgid ""
-"-t, --edit-period          edit grace period\n"
-"-T, --edit-times           edit grace times for user/group\n"
-"-h, --help                 display this help text and exit\n"
-"-V, --version              display version information and exit\n"
-"\n"
-msgstr ""
-"-t, --edit-period          změní periodu odkladu\n"
-"-T, --edit-times           změní dobu odkladu pro uživatele/skupinu\n"
-"-h, --help                 zobrazí tuto nápovědu a skončí\n"
-"-V, --version              zobrazí údaje o verzi a skončí\n"
-"\n"
-
-#: setquota.c:90
-#, c-format
-msgid "%s: %s\n"
-msgstr "%s: %s\n"
-
-#: setquota.c:103 setquota.c:116
-#, fuzzy, c-format
-msgid "%s: %s: %s\n"
-msgstr "%s: %s\n"
-
-#: setquota.c:212
-msgid "Group and user quotas cannot be used together.\n"
-msgstr "Kvóty skupiny a uživatele nelze použít společně.\n"
-
-#: setquota.c:216
-msgid "Prototype user has no sense when editing grace times.\n"
-msgstr "Vzorový uživatel nemá smysl, když se mění doba odkladu.\n"
-
-#: setquota.c:220
-msgid "Cannot set both individual and global grace time.\n"
-msgstr "Jednotlivé a globální doby odkladu nelze nastavit najednou.\n"
-
-#: setquota.c:224
-msgid "Batch mode cannot be used for setting grace times.\n"
-msgstr "Dobu odkladu nelze v dávkovém režimu nastavit.\n"
-
-#: setquota.c:228
-msgid "Batch mode and prototype user cannot be used together.\n"
-msgstr "Dávkový režim a vzorového uživatele nelze nastavit najednou.\n"
-
-#: setquota.c:232
-msgid "Cannot set grace times over RPC protocol.\n"
-msgstr "Doby odkladu nelze nastavit přes protokol RPC.\n"
-
-#: setquota.c:255
-msgid "Bad block softlimit"
-msgstr "Chybný měkký limit bloků"
-
-#: setquota.c:256
-msgid "Bad block hardlimit"
-msgstr "Chybný pevný limit bloků"
-
-#: setquota.c:257
-msgid "Bad inode softlimit"
-msgstr "Chybný měkký limit iuzlů"
-
-#: setquota.c:258
-msgid "Bad inode hardlimit"
-msgstr "Chybný pevný limit iuzlů"
-
-#: setquota.c:264 setquota.c:276
-msgid "Bad block grace time"
-msgstr "Chybná doba odkladu bloků"
-
-#: setquota.c:265 setquota.c:282
-msgid "Bad inode grace time"
-msgstr "Chybná doba odkladu iuzlů"
-
-#: setquota.c:288
-msgid "Mountpoint not specified.\n"
-msgstr "Nebyl zadán bod připojení.\n"
-
-#: setquota.c:345
-#, c-format
-msgid "Line %d too long.\n"
-msgstr "Řádek %d je příliš dlouhý.\n"
-
-#: setquota.c:357
-#, c-format
-msgid "Cannot parse input line %d.\n"
-msgstr "Vstupní řádek %d nelze rozebrat.\n"
-
-#: setquota.c:359 setquota.c:367 setquota.c:376 setquota.c:385 setquota.c:394
-#: setquota.c:403
-msgid "Exitting.\n"
-msgstr "Končí se.\n"
-
-#: setquota.c:360 setquota.c:368 setquota.c:377 setquota.c:386 setquota.c:395
-#: setquota.c:404
-msgid "Skipping line.\n"
-msgstr "Řádek bude přeskočen.\n"
-
-#: setquota.c:365
-#, c-format
-msgid "Unable to resolve name '%s' on line %d.\n"
-msgstr "Jméno „%s“ na řádku %d nelze přeložit.\n"
-
-#: setquota.c:373
-#, fuzzy, c-format
-msgid "Unable to parse block soft limit '%s' on line %d: %s\n"
-msgstr "Jméno „%s“ na řádku %d nelze přeložit.\n"
-
-#: setquota.c:382
-#, fuzzy, c-format
-msgid "Unable to parse block hard limit '%s' on line %d: %s\n"
-msgstr "Jméno „%s“ na řádku %d nelze přeložit.\n"
-
-#: setquota.c:391
-#, fuzzy, c-format
-msgid "Unable to parse inode soft limit '%s' on line %d: %s\n"
-msgstr "Jméno „%s“ na řádku %d nelze přeložit.\n"
-
-#: setquota.c:400
-#, fuzzy, c-format
-msgid "Unable to parse inode hard limit '%s' on line %d: %s\n"
-msgstr "Jméno „%s“ na řádku %d nelze přeložit.\n"
-
-#: setquota.c:443
-#, c-format
-msgid "Setting grace period on %s is not supported.\n"
-msgstr "Nastavování periody odkladu na %s není podporováno.\n"
-
-#: setquota.c:465
-#, c-format
-msgid "Not setting block grace time on %s because softlimit is not exceeded.\n"
-msgstr ""
-"Doba odkladu bloků na %s nebude nastavena, protože měkký limit není "
-"překročen.\n"
-
-#: setquota.c:469
-#, c-format
-msgid "Not setting inode grace time on %s because softlimit is not exceeded.\n"
-msgstr ""
-"Doba odkladu iuzlů na %s nebude nastavena, protože měkký limit není "
-"překročen.\n"
-
-# TODO: Internationalize first argument
-#: setquota.c:472
-#, c-format
-msgid ""
-"cannot write times for %s. Maybe kernel does not support such operation?\n"
-msgstr "Doby pro %s nelze zapsat. Možná jádro takovou operaci nepodporuje.\n"
-
 #: svc_socket.c:42
 #, c-format
 msgid "Cannot create socket: %s\n"
@@ -2971,320 +2998,6 @@ msgstr "Socketu nelze nastavit parametry: %s\n"
 #, c-format
 msgid "Cannot bind to given address: %s\n"
 msgstr "Na zadanou adresu se nelze přilepit: %s\n"
-
-#: warnquota.c:56
-msgid ""
-"Hi,\n"
-"\n"
-"We noticed that you are in violation with the quotasystem\n"
-"used on this system. We have found the following violations:\n"
-"\n"
-msgstr ""
-"Ahoj,\n"
-"\n"
-"zaznamenali jsme, že jste ve sporu se systémem kvót na tomto stroji.\n"
-"Nalezeny byly následující porušení pravidel:\n"
-"\n"
-
-#: warnquota.c:58
-#, c-format
-msgid ""
-"\n"
-"We hope that you will cleanup before your grace period expires.\n"
-"\n"
-"Basically, this means that the system thinks you are using more disk space\n"
-"on the above partition(s) than you are allowed.  If you do not delete files\n"
-"and get below your quota before the grace period expires, the system will\n"
-"prevent you from creating new files.\n"
-"\n"
-"For additional assistance, please contact us at %s\n"
-"or via phone at %s.\n"
-msgstr ""
-"\n"
-"Doufáme, že si uklidíte dříve, než vyprší perioda odkladu.\n"
-"\n"
-"V zásadě to znamená, že systém si myslí, že používáte více diskového\n"
-"prostoru na oddílech uvedených výše, než máte dovoleno. Pokud soubory\n"
-"nesmažete a nedostanete se pod váš limit před uplynutím periody odkladu,\n"
-"systém vám bude bránit v tvorbě nových souborů.\n"
-"\n"
-"Potřebujete-li pomoc, napište nám na %s\n"
-"nebo zavolejte na %s.\n"
-
-#: warnquota.c:65
-#, c-format
-msgid ""
-"Hi,\n"
-"\n"
-"We noticed that the group %s you are member of violates the quotasystem\n"
-"used on this system. We have found the following violations:\n"
-"\n"
-msgstr ""
-"Ahoj,\n"
-"\n"
-"Zaznamenali jsme, že skupina %s, jímž jste členem, porušuje na tomto\n"
-"stroji systém kvót. Byla nalezena následující porušení:\n"
-"\n"
-
-#: warnquota.c:67
-#, c-format
-msgid ""
-"\n"
-"Please cleanup the group data before the grace period expires.\n"
-"\n"
-"Basically, this means that the system thinks group is using more disk space\n"
-"on the above partition(s) than it is allowed.  If you do not delete files\n"
-"and get below group quota before the grace period expires, the system will\n"
-"prevent you and other members of the group from creating new files owned by\n"
-"the group.\n"
-"\n"
-"For additional assistance, please contact us at %s\n"
-"or via phone at %s.\n"
-msgstr ""
-"\n"
-"Prosíme, abyste uklidili data skupiny před vypršením periody odkladu.\n"
-"\n"
-"V zásadě to znamená, že systém si myslí, že skupina používá více diskového\n"
-"prostoru na oddílech uvedených výše, než má dovoleno. Pokud soubory\n"
-"nesmažete a nedostanete se pod limit skupiny před uplynutím periody\n"
-"odkladu, systém vám a dalším členům skupiny bude bránit v tvorbě nových\n"
-"souborů.\n"
-"\n"
-"Potřebujete-li pomoc, napište nám na %s\n"
-"nebo zavolejte na %s.\n"
-
-#: warnquota.c:183
-#, c-format
-msgid "ldap_initialize() failed: %s\n"
-msgstr ""
-
-#: warnquota.c:189
-#, c-format
-msgid "ldap_sasl_bind_s() failed: %s\n"
-msgstr ""
-
-#: warnquota.c:204
-#, c-format
-msgid "Cannot get name for uid/gid %u.\n"
-msgstr "UID/GID %u nelze přeložit na jméno.\n"
-
-#: warnquota.c:288
-#, c-format
-msgid "Cannot create pipe: %s\n"
-msgstr "Nelze vytvořit rouru: %s\n"
-
-#: warnquota.c:294
-#, c-format
-msgid "Cannot fork: %s\n"
-msgstr "Voláni fork() selhalo: %s\n"
-
-#: warnquota.c:299
-#, c-format
-msgid "Cannot duplicate descriptor: %s\n"
-msgstr "Deskriptor nelze zdvojit: %s\n"
-
-#: warnquota.c:303
-#, c-format
-msgid "Cannot execute '%s': %s\n"
-msgstr "„%s“ nelze spustit: %s\n"
-
-#: warnquota.c:308
-#, c-format
-msgid "Cannot open pipe: %s\n"
-msgstr "Nelze otevřít rouru: %s\n"
-
-#: warnquota.c:382
-#, fuzzy
-msgid "Could not setup ldap connection.\n"
-msgstr "Spojení LDAP nelze nastavit.\n"
-
-#: warnquota.c:404
-#, c-format
-msgid "Error with %s.\n"
-msgstr "Chyba u %s.\n"
-
-#: warnquota.c:405
-#, c-format
-msgid "ldap_search_ext_s() failed: %s\n"
-msgstr ""
-
-#: warnquota.c:411
-#, fuzzy, c-format
-msgid "Multiple entries found for client %s (%d).\n"
-msgstr "Nalezeno více záznamů pro klienta %s (%d). E-mail nebude odeslán.\n"
-
-#: warnquota.c:415
-#, fuzzy, c-format
-msgid "Entry not found for client %s.\n"
-msgstr "Záznam pro klienta %s nenalezen. E-mail nebude odeslán.\n"
-
-#: warnquota.c:425
-#, c-format
-msgid "Could not get values for %s.\n"
-msgstr "Hodnoty pro %s nebylo možné získat.\n"
-
-#: warnquota.c:467
-#, c-format
-msgid "Administrator for a group %s not found. Cancelling mail.\n"
-msgstr "Správce skupiny %s nenalezen. E-mail zrušen.\n"
-
-#: warnquota.c:519
-#, c-format
-msgid ""
-"\n"
-"                        Block limits               File limits\n"
-msgstr ""
-"\n"
-"                        Limity bloků               Limity souborů\n"
-
-#: warnquota.c:520
-#, c-format
-msgid ""
-"Filesystem           used    soft    hard  grace    used  soft  hard  grace\n"
-msgstr ""
-"Souborový systém    užito   měkký   pevný odklad   užito měkký pevný odklad\n"
-
-#: warnquota.c:560
-#, c-format
-msgid "Cannot wait for mailer: %s\n"
-msgstr "Nelze se dočkat dokončení odeslání pošty: %s\n"
-
-#: warnquota.c:562
-msgid "Warning: Mailer exitted abnormally.\n"
-msgstr "Pozor: Odesílání pošty skončilo mimořádně.\n"
-
-#: warnquota.c:619
-#, c-format
-msgid ""
-"Cannot open %s: %s\n"
-"Will use device names.\n"
-msgstr ""
-"%s nelze otevřít: %s\n"
-"Použijí se názvy zařízení.\n"
-
-#: warnquota.c:642
-#, c-format
-msgid "Cannot parse line %d in quotatab (missing ':')\n"
-msgstr "V souboru quotatab nelze rozebrat řádek %d (chybí „:“)\n"
-
-#: warnquota.c:656
-#, c-format
-msgid "Cannot stat device %s (maybe typo in quotatab)\n"
-msgstr "O zařízení %s nelze získat údaje (možná překlep v souboru quotatab)\n"
-
-#: warnquota.c:676
-#, c-format
-msgid ""
-"Incorrect format string for variable %s.\n"
-"Unrecognized expression %%%c.\n"
-msgstr ""
-"Nesprávný formátovací řetězec proměnné %s.\n"
-"Nerozpoznaný výraz %%%c.\n"
-
-#: warnquota.c:722
-#, c-format
-msgid "Cannot open %s: %s\n"
-msgstr "%s nelze otevřít: %s\n"
-
-#: warnquota.c:742
-#, c-format
-msgid "Line %d too long. Truncating.\n"
-msgstr "Řádek %d je příliš dlouhý. Bude zkrácen.\n"
-
-#: warnquota.c:814
-#, c-format
-msgid "Cannot parse time at CC_BEFORE variable (line %d).\n"
-msgstr "Čas v proměnné CC_BEFORE nelze rozebrat (řádek %d).\n"
-
-#: warnquota.c:838
-#, c-format
-msgid "Error in config file (line %d), ignoring\n"
-msgstr "Chyba v konfiguračním souboru (řádek %d), ignoruje se.\n"
-
-#: warnquota.c:841
-#, c-format
-msgid "Possible error in config file (line %d), ignoring\n"
-msgstr "Možná chyba v konfiguračním souboru (řádek %d), ignoruje se.\n"
-
-#: warnquota.c:844
-msgid "Unterminated last line, ignoring\n"
-msgstr "Neukončený poslední řádek, ignoruje se.\n"
-
-#: warnquota.c:850
-#, c-format
-msgid ""
-"LDAP library version >= 2.3 detected. Please use LDAP_URI instead of "
-"hostname and port.\n"
-"Generated URI %s\n"
-msgstr ""
-"Zjištěna verze LDAP knihovny >= 2.3. Prosím, použijte LDAP_URI namísto\n"
-"názvu stroje a portu.\n"
-"Vytvořené URI: %s\n"
-
-#: warnquota.c:872
-#, c-format
-msgid "Cannot open file with group administrators: %s\n"
-msgstr "Soubor se správci skupin nelze otevřít: %s\n"
-
-#: warnquota.c:887
-#, c-format
-msgid "Parse error at line %d. Cannot find end of group name.\n"
-msgstr "Chyba při rozboru řádku %d. Nelze nalézt konec názvu skupiny.\n"
-
-#: warnquota.c:896
-#, c-format
-msgid "Parse error at line %d. Cannot find administrators name.\n"
-msgstr "Chyba při rozboru řádku %d. Nelze nalézt jméno správce.\n"
-
-#: warnquota.c:906
-#, c-format
-msgid ""
-"Parse error at line %d. Trailing characters after administrators name.\n"
-msgstr "Chyba při rozboru řádku %d. Přebytečné znaky za jménem správce.\n"
-
-#: warnquota.c:969
-msgid ""
-"Usage:\n"
-"  warnquota [-ugsid] [-F quotaformat] [-c configfile] [-q quotatabfile] [-a "
-"adminsfile] [filesystem...]\n"
-"\n"
-"-u, --user                      warn users\n"
-"-g, --group                     warn groups\n"
-"-s, --human-readable            send information in more human friendly "
-"units\n"
-"-i, --no-autofs                 avoid autofs mountpoints\n"
-"-d, --no-details                do not send quota information itself\n"
-"-F, --format=formatname         use quotafiles of specific format\n"
-"-c, --config=config-file        non-default config file\n"
-"-q, --quota-tab=quotatab-file   non-default quotatab\n"
-"-a, --admins-file=admins-file   non-default admins file\n"
-"-h, --help                      display this help message and exit\n"
-"-v, --version                   display version information and exit\n"
-"\n"
-msgstr ""
-"Použití:\n"
-"  warnquota [-ugsid] [-F FORMÁT_KVÓT] [-c KONFIGURAČNÍ_SOUBOR]\n"
-"            [-q SOUBOR_QUOTATAB [-a SOUBOR_SE_SPRÁVCI] [SYSTÉM_SOUBORŮ…]\n"
-"\n"
-"-u, --user                        upozorní uživatele\n"
-"-g, --group                       upozorní skupiny\n"
-"-s, --human-readable              odesílá údaje v jednotkách vhodných pro\n"
-"                                  člověka\n"
-"-i, --no-autofs                   vynechá přípojné body typu autofs\n"
-"-d, --no-details                  neodesílá samotné údaje o kvótách\n"
-"-F, --format=FORMÁT_KVÓT          použije kvótové soubory zadaného formátu\n"
-"-c, --config=KONFIGURAČNÍ_SOUBOR  jiný konfigurační soubor\n"
-"-q, --quota-tab=SOUBOR_QUOTATAB   jiný quotatab\n"
-"-a, --admins-file=SOUBOR_SE_SPRÁVCI\n"
-"                                  jiný soubor správců\n"
-"-h, --help                        zobrazí tuto nápovědu a skončí\n"
-"-v, --version                     zobrazí údaje o verzi a skončí\n"
-"\n"
-
-#: warnquota.c:1050
-#, c-format
-msgid "Cannot get host name: %s\n"
-msgstr "Nelze získat název stroje: %s\n"
 
 #: xqmstats.c:32 xqmstats.c:37
 msgid "The running kernel does not support XFS\n"
@@ -3340,24 +3053,316 @@ msgstr "  uvolnění neaktivních: %u\n"
 msgid "Maximum %u dquots (currently %u incore, %u on freelist)\n"
 msgstr "Maximum %u dquot (nyní %u v jádře, %u na seznamu volných)\n"
 
+#: edquota.c:81
+#, c-format
+msgid ""
+"Usage:\n"
+"\tedquota %1$s[-u] [-F formatname] [-p username] [-f filesystem] "
+"username ...\n"
+"\tedquota %1$s-g [-F formatname] [-p groupname] [-f filesystem] "
+"groupname ...\n"
+"\tedquota [-u|g] [-F formatname] [-f filesystem] -t\n"
+"\tedquota [-u|g] [-F formatname] [-f filesystem] -T username|groupname ...\n"
+msgstr ""
+"Použití:\n"
+"\tedquota %1$s[-u] [-F FORMÁT] [-p UŽIVATEL] [-f SOUBOROVÝ_SYSTÉM] "
+"UŽIVATEL…\n"
+"\tedquota %1$s-g [-F FORMÁT] [-p SKUPINA] [-f SOUBOROVÝ_SYSTÉM] SKUPINA…\n"
+"\tedquota [-u|g] [-F FORMÁT] [-f SOUBOROVÝ_SYSTÉM] -t\n"
+"\tedquota [-u|g] [-F FORMÁT] [-f SOUBOROVÝ_SYSTÉM] -T UŽIVATEL|SKUPINA…\n"
+
+#: edquota.c:85
+msgid ""
+"\n"
+"-u, --user                    edit user data\n"
+"-g, --group                   edit group data\n"
+msgstr ""
+"\n"
+"-u, --user                    upraví údaje o uživateli\n"
+"-g, --group                   upraví údaje o skupině\n"
+
+#: edquota.c:89
+msgid ""
+"-r, --remote                  edit remote quota (via RPC)\n"
+"-m, --no-mixed-pathnames      trim leading slashes from NFSv4 mountpoints\n"
+msgstr ""
+"-r, --remote                  upraví vzdálenou kvótu (přes RPC)\n"
+"-m, --no-mixed-pathnames      odstraní z připojovacích míst NFSv4 počáteční\n"
+"                              lomítka\n"
+
+#: edquota.c:92
+msgid ""
+"-F, --format=formatname       edit quotas of a specific format\n"
+"-p, --prototype=name          copy data from a prototype user/group\n"
+"    --always-resolve          always try to resolve name, even if it is\n"
+"                              composed only of digits\n"
+"-f, --filesystem=filesystem   edit data only on a specific filesystem\n"
+"-t, --edit-period             edit grace period\n"
+"-T, --edit-times              edit grace time of a user/group\n"
+"-h, --help                    display this help text and exit\n"
+"-V, --version                 display version information and exit\n"
+"\n"
+msgstr ""
+"-F, --format=FORMÁT           upraví kvóty v zadaném formátu\n"
+"-p, --prototype=JMÉNO         zkopíruje údaje z uživatele/skupiny coby "
+"vzoru\n"
+"    --always-resolve          vždy zkusí přeložit jméno, i když je tvořeno\n"
+"                              jen číslicemi\n"
+"-f, --filesystem=SOUBOROVÝ_SYSTÉM\n"
+"                              upraví údaje jen na zadaném "
+"SOUBOROVÉM_SYSTÉMU\n"
+"-t, --edit-period             upraví periodu odkladu\n"
+"-T, --edit-times              upraví dobu odkladu pro uživatele/skupinu\n"
+"-h, --help                    zobrazí tuto nápovědu a skončí\n"
+"-V, --version                 zobrazí údaje o verzi a skončí\n"
+"\n"
+
+#: edquota.c:183
+msgid ""
+"Prototype name does not make sense when editing grace period or times.\n"
+msgstr "Při úpravě periody nebo doby odkladu nedává jméno vzoru smysl.\n"
+
+#: edquota.c:187
+msgid "Cannot change grace times over RPC protocol.\n"
+msgstr "Doby odkladu nelze měnit přes protokol RPC.\n"
+
+#: edquota.c:205
+#, c-format
+msgid "Cannot get quota information for user %s\n"
+msgstr "Údaj o kvótě uživatele %s nelze získat\n"
+
+#: edquota.c:211
+msgid "fsname mismatch\n"
+msgstr "fsname (název souborového systému) se neshoduje\n"
+
+#: edquota.c:253
+msgid "No filesystems with quota detected.\n"
+msgstr "Nenalezeny žádné souborové systémy s kvótou.\n"
+
+#: edquota.c:269
+#, c-format
+msgid "Cannot create temporary file: %s\n"
+msgstr "Nelze vytvořit dočasný soubor: %s\n"
+
+#: edquota.c:274
+#, c-format
+msgid "Cannot change owner of temporary file: %s\n"
+msgstr "Nelze změnit vlastníka dočasného souboru: %s\n"
+
+#: edquota.c:281
+msgid "Cannot write grace times to file.\n"
+msgstr "Do souboru nelze zapsat doby odkladu.\n"
+
+#: edquota.c:285
+msgid "Error while editing grace times.\n"
+msgstr "Chyba při úpravě dob odkladu.\n"
+
+#: edquota.c:289
+msgid "Failed to parse grace times file.\n"
+msgstr "Rozbor souboru s dobami odkladu se nezdařil.\n"
+
+#: edquota.c:298 edquota.c:324
+#, c-format
+msgid "Cannot get quota information for user %s.\n"
+msgstr "Údaj o kvótě uživatele %s nelze získat.\n"
+
+#: edquota.c:300
+msgid "Cannot write individual grace times to file.\n"
+msgstr "Do souboru nelze zapsat jednotlivé doby odkladu.\n"
+
+#: edquota.c:305
+msgid "Error while editing individual grace times.\n"
+msgstr "Chyba při úpravě jednotlivých dob odkladu.\n"
+
+#: edquota.c:310
+msgid "Cannot read individual grace times from file.\n"
+msgstr "Ze souboru nelze načíst jednotlivé doby odkladu.\n"
+
+#: edquota.c:326
+msgid "Cannot write quotas to file.\n"
+msgstr "Kvóty nelze do souboru zapsat.\n"
+
+#: edquota.c:331
+msgid "Error while editing quotas.\n"
+msgstr "Chyba při úpravě kvót.\n"
+
+#: edquota.c:341
+msgid "Cannot reopen!"
+msgstr "Nelze znovu otevřít!"
+
+#: edquota.c:343
+msgid "Cannot read quotas from file.\n"
+msgstr "Kvóty nelze ze souboru.\n"
+
+#: quota.c:85
+msgid "Usage: quota [-guqvswim] [-l | [-Q | -A]] [-F quotaformat]\n"
+msgstr "Použití: quota [-guqvswim] [-l | [-Q | -A]] [-f FORMÁT]\n"
+
+#: quota.c:86
+msgid "\tquota [-qvswim] [-l | [-Q | -A]] [-F quotaformat] -u username ...\n"
+msgstr "\tquota [-qvswim] [-l | [-Q | -A]] [-F FORMÁT] -u UŽIVATEL…\n"
+
+#: quota.c:87
+msgid "\tquota [-qvswim] [-l | [-Q | -A]] [-F quotaformat] -g groupname ...\n"
+msgstr "\tquota [-qvswim] [-l | [-Q | -A]] [-F FORMÁT] -g SKUPINA…\n"
+
+#: quota.c:88
+msgid "\tquota [-qvswugQm] [-F quotaformat] -f filesystem ...\n"
+msgstr "\tquota [-qvswugQm] [-F FORMÁT] -f SOUBOROVÝ_SYSTÉM…\n"
+
+#: quota.c:89
+#, fuzzy
+msgid ""
+"\n"
+"-u, --user                display quota for user\n"
+"-g, --group               display quota for group\n"
+"-q, --quiet               print more terse message\n"
+"-v, --verbose             print more verbose message\n"
+"-s, --human-readable      display numbers in human friendly units (MB, "
+"GB...)\n"
+"    --always-resolve      always try to translate name to id, even if it is\n"
+"\t\t\t  composed of only digits\n"
+"-w, --no-wrap             do not wrap long lines\n"
+"-p, --raw-grace           print grace time in seconds since epoch\n"
+"-l, --local-only          do not query NFS filesystems\n"
+"-Q, --quiet-refuse        do not print error message when NFS server does\n"
+"                          not respond\n"
+"-i, --no-autofs           do not query autofs mountpoints\n"
+"-F, --format=formatname   display quota of a specific format\n"
+"-f, --filesystem-list     display quota information only for given "
+"filesystems\n"
+"-A, --all-nfs             display quota for all NFS mountpoints\n"
+"-m, --no-mixed-pathnames  trim leading slashes from NFSv4 mountpoints\n"
+"    --show-mntpoint       show mount point of the file system in output\n"
+"    --hide-device         do not show file system device in output\n"
+"-h, --help                display this help message and exit\n"
+"-V, --version             display version information and exit\n"
+"\n"
+msgstr ""
+"\n"
+"-u, --user                zobrazí kvótu uživatele\n"
+"-g, --group               zobrazí kvótu skupiny\n"
+"-q, --quiet               vypisuje stručnější hlášky\n"
+"-v, --verbose             vypisuje podrobnější hlášky\n"
+"-s, --human-readable      čísla zobrazí v přirozeném tvaru (MB, GB…)\n"
+"    --always-resolve      vždy zkusí přeložit jméno na ID, i když je "
+"tvořeno\n"
+"                          jen číslicemi\n"
+"-w, --no-wrap             nezalamuje dlouhé řádky\n"
+"-p, --raw-grace           dobu odkladu vypíše v sekundách od počátku epochy\n"
+"-l, --local-only          nedotazuje se souborových systémů přes NFS\n"
+"-Q, --quiet-refuse        nevypisuje chybové hlášení, když NFS server "
+"neodpoví\n"
+"-i, --no-autofs           nedotazuje se bodů připojení typu autofs\n"
+"-F, --format=FORMÁT       zobrazí kvótu určeného FORMÁTU\n"
+"-f, --filesystem-list     zobrazí údaje o kvótách jen pro zadané systémy\n"
+"                          souborů\n"
+"-A, --nfs-all             zobrazí kvóty pro všechny místa připojení typu "
+"NFS\n"
+"-m, --no-mixed-pathnames  odstraní úvodní lomítka z míst připojení typu "
+"NFSv4\n"
+"    --show-mntpoint       zobrazí bod připojení systému souborů\n"
+"    --hide-device         nezobrazí zařízení systému souborů\n"
+"-h, --help                zobrazí tuto nápovědu a skončí\n"
+"-V, --version             zobrazí údaje o verzi a skončí\n"
+"\n"
+
+#: quota.c:120
+msgid "space"
+msgstr "místo"
+
+#: quota.c:122
+msgid "blocks"
+msgstr "bloky"
+
+# FIXME: third argument is first character of first argument
+# (user/group → u/g-id). This is not localizable.
+#: quota.c:124
+#, c-format
+msgid "Disk quotas for %s %s (%cid %u): %s\n"
+msgstr "Diskové kvóty pro %s %s (%cid %u): %s\n"
+
+# FIXME: printf(3) counts bytes, not columns
+#: quota.c:127
+msgid "Filesystem"
+msgstr "Souborovy system"
+
+# FIXME: printf(3) counts bytes, not columns
+#: quota.c:128 quota.c:129
+msgid "quota"
+msgstr "kvota"
+
+# FIXME: printf(3) counts bytes, not columns
+#: quota.c:128 quota.c:129
+msgid "limit"
+msgstr "limit"
+
+# FIXME: printf(3) counts bytes, not columns
+#: quota.c:128 quota.c:129
+msgid "grace"
+msgstr "odklad"
+
+# FIXME: printf(3) counts bytes, not columns
+#: quota.c:129
+msgid "files"
+msgstr "souboru"
+
+#: quota.c:201
+msgid "File limit reached on"
+msgstr "Omezení počtu souborů dosaženo na"
+
+#: quota.c:207
+msgid "In file grace period on"
+msgstr "V periodě odkladu počtu souborů na"
+
+#: quota.c:211
+msgid "Over file quota on"
+msgstr "Kvóta na počet souborů přesažena na"
+
+#: quota.c:217
+msgid "Block limit reached on"
+msgstr "Omezení na počet bloků dosaženo na"
+
+#: quota.c:223
+msgid "In block grace period on"
+msgstr "V periodě odkladu počtu bloků na"
+
+#: quota.c:227
+msgid "Over block quota on"
+msgstr "Kvóta na počet bloků překročena na"
+
+#: quota.c:396
+#, c-format
+msgid "Warning: Ignoring -%c when filesystem list specified.\n"
+msgstr "Pozor: Je-li zadán seznam souborových systémů, -%c bude ignorován.\n"
+
+#: quota.c:403
+msgid "No filesystem specified.\n"
+msgstr "Nezadán žádný systém souborů.\n"
+
+#: quota.c:411
+#, c-format
+msgid "Gid set allocation (%d): %s\n"
+msgstr "Alokace množiny GID (%d): %s\n"
+
+#: quota.c:417
+#, c-format
+msgid "getgroups(): %s\n"
+msgstr "getgroups(): %s\n"
+
+#: common.c:124
+#, c-format
+msgid "Quota utilities version %s.\n"
+msgstr "Kvótové nástroje (quota-tools) verze %s.\n"
+
+#: common.c:125
+#, c-format
+msgid "Compiled with:%s\n"
+msgstr "Přeloženo s:%s\n"
+
 #~ msgid ""
 #~ "LDAP library does not support ldap_initialize() but URI is specified."
 #~ msgstr "LDAP knihovna nepodporuje ldap_initialize(), třebaže je zadáno URI."
-
-#~ msgid "Compiled with:%s\n"
-#~ msgstr "Přeloženo s:%s\n"
-
-# kvótový soubor pro třídu %s
-#~ msgid "user"
-#~ msgstr "uživatel"
-
-# kvótový soubor pro třídu %s
-#~ msgid "group"
-#~ msgstr "skupina"
-
-# kvótový soubor pro třídu %s
-#~ msgid "undefined"
-#~ msgstr "neurčeno"
 
 #~ msgid "cannot create tcp service.\n"
 #~ msgstr "TCP službu nelze vytvořit.\n"

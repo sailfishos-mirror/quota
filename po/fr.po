@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1\n"
 "Report-Msgid-Bugs-To: jack@suse.cz\n"
-"POT-Creation-Date: 2014-11-29 11:20+0100\n"
+"POT-Creation-Date: 2014-12-02 12:14+0100\n"
 "PO-Revision-Date: 2003-02-21 22:43+0100\n"
 "Last-Translator: Jérôme Schell <jerome@myreseau.org>\n"
 "Language-Team: French <traduc@traduc.org>\n"
@@ -25,17 +25,6 @@ msgstr "UUID invalide trouvé : %s\n"
 msgid "Error checking device name: %s\n"
 msgstr "Erreur vérification nom de périphérique : %s\n"
 
-#: common.c:124
-#, c-format
-msgid "Quota utilities version %s.\n"
-msgstr "Utilitaires quotas version %s.\n"
-
-#: common.c:125 convertquota.c:48 quotacheck.c:314 repquota.c:66
-#: warnquota.c:981
-#, c-format
-msgid "Bugs to %s\n"
-msgstr "Rapports de bugs à %s\n"
-
 #: convertquota.c:41
 #, c-format
 msgid ""
@@ -52,12 +41,18 @@ msgid ""
 "\n"
 msgstr ""
 
+#: convertquota.c:48 warnquota.c:981 quotacheck.c:314 repquota.c:66
+#: common.c:126
+#, c-format
+msgid "Bugs to %s\n"
+msgstr "Rapports de bugs à %s\n"
+
 #: convertquota.c:97
 msgid "You have to specify source and target format of conversion.\n"
 msgstr ""
 
-#: convertquota.c:112 quotacheck.c:400 quotaon.c:137 quotasync.c:81
-#: repquota.c:148 setquota.c:247
+#: convertquota.c:112 quotacheck.c:400 quotasync.c:81 repquota.c:148
+#: quotaon.c:137 setquota.c:247
 msgid "Bad number of arguments.\n"
 msgstr "Mauvais nombre d'arguments.\n"
 
@@ -122,516 +117,314 @@ msgstr "Impossible d'ouvrir l'ancien fichier de quotas sur %s : %s\n"
 msgid "Unknown action should be performed.\n"
 msgstr "Une action inconnue doit être exécutée.\n"
 
-#: edquota.c:81
-#, c-format
+#: warnquota.c:56
 msgid ""
-"Usage:\n"
-"\tedquota %1$s[-u] [-F formatname] [-p username] [-f filesystem] "
-"username ...\n"
-"\tedquota %1$s-g [-F formatname] [-p groupname] [-f filesystem] "
-"groupname ...\n"
-"\tedquota [-u|g] [-F formatname] [-f filesystem] -t\n"
-"\tedquota [-u|g] [-F formatname] [-f filesystem] -T username|groupname ...\n"
-msgstr ""
-
-#: edquota.c:85
-msgid ""
+"Hi,\n"
 "\n"
-"-u, --user                    edit user data\n"
-"-g, --group                   edit group data\n"
-msgstr ""
-
-#: edquota.c:89
-msgid ""
-"-r, --remote                  edit remote quota (via RPC)\n"
-"-m, --no-mixed-pathnames      trim leading slashes from NFSv4 mountpoints\n"
-msgstr ""
-
-#: edquota.c:92
-msgid ""
-"-F, --format=formatname       edit quotas of a specific format\n"
-"-p, --prototype=name          copy data from a prototype user/group\n"
-"    --always-resolve          always try to resolve name, even if it is\n"
-"                              composed only of digits\n"
-"-f, --filesystem=filesystem   edit data only on a specific filesystem\n"
-"-t, --edit-period             edit grace period\n"
-"-T, --edit-times              edit grace time of a user/group\n"
-"-h, --help                    display this help text and exit\n"
-"-V, --version                 display version information and exit\n"
+"We noticed that you are in violation with the quotasystem\n"
+"used on this system. We have found the following violations:\n"
 "\n"
 msgstr ""
+"Bonjour,\n"
+"\n"
+"Il semblerait que vous soyez en violation avec le mécanisme de\n"
+"quotas utilisé sur ce système. Voici les dépassements relevés :\n"
+"\n"
 
-#: edquota.c:101 quota.c:111 setquota.c:79
+#: warnquota.c:58
 #, c-format
-msgid "Bugs to: %s\n"
-msgstr "Rapports de bugs à : %s\n"
-
-#: edquota.c:183
-#, fuzzy
 msgid ""
-"Prototype name does not make sense when editing grace period or times.\n"
+"\n"
+"We hope that you will cleanup before your grace period expires.\n"
+"\n"
+"Basically, this means that the system thinks you are using more disk space\n"
+"on the above partition(s) than you are allowed.  If you do not delete files\n"
+"and get below your quota before the grace period expires, the system will\n"
+"prevent you from creating new files.\n"
+"\n"
+"For additional assistance, please contact us at %s\n"
+"or via phone at %s.\n"
 msgstr ""
-"Un prototype d'utilisateur n'a pas lieu d'être pour la modification des "
-"temps de sursis.\n"
+"\n"
+"Nous espérons que vous ferez de la place avant que votre période de\n"
+"sursis n'expire.\n"
+"\n"
+"En clair, tout cela signifie que le système pense que vous utilisez\n"
+"plus d'espace disque qu'il ne vous est autorisé sur la (les)\n"
+"partition(s) ci-dessus. Si vous n'effacez pas de fichiers pour passer\n"
+"en-dessous de votre quota avant que votre période de sursis\n"
+"expire, le système vous empéchera de créer de nouveaux fichiers.\n"
+"\n"
+"Pour plus de renseignements, veuillez nous contacter au %s\n"
+"ou par téléphone au %s.\n"
 
-#: edquota.c:187
-#, fuzzy
-msgid "Cannot change grace times over RPC protocol.\n"
-msgstr "Impossible d'écrire les temps de sursis dans le fichier.\n"
-
-#: edquota.c:205
-#, fuzzy, c-format
-msgid "Cannot get quota information for user %s\n"
-msgstr "Impossible d'obtenir le nom du fichier de quotas pour %s\n"
-
-#: edquota.c:211
-msgid "fsname mismatch\n"
-msgstr "Incohérence de fsname\n"
-
-#: edquota.c:253
-msgid "No filesystems with quota detected.\n"
-msgstr "Aucun système de fichier avec quotas détecté.\n"
-
-#: edquota.c:269
-#, fuzzy, c-format
-msgid "Cannot create temporary file: %s\n"
-msgstr "Impossible de ré-ouvrir le fichier temporaire : %s\n"
-
-#: edquota.c:274
-#, fuzzy, c-format
-msgid "Cannot change owner of temporary file: %s\n"
-msgstr "Impossible de dupliquer le descripteur du fichier temporaire : %s\n"
-
-#: edquota.c:281
-#, fuzzy
-msgid "Cannot write grace times to file.\n"
-msgstr "Impossible d'écrire les temps de sursis dans le fichier.\n"
-
-#: edquota.c:285
-msgid "Error while editing grace times.\n"
-msgstr "Erreur lors de la modification des temps de sursis.\n"
-
-#: edquota.c:289
-msgid "Failed to parse grace times file.\n"
-msgstr "Échec lors de l'analyse du fichier des temps de sursis.\n"
-
-#: edquota.c:298 edquota.c:324
-#, fuzzy, c-format
-msgid "Cannot get quota information for user %s.\n"
-msgstr "Impossible d'obtenir le nom du fichier de quotas pour %s\n"
-
-#: edquota.c:300
-#, fuzzy
-msgid "Cannot write individual grace times to file.\n"
-msgstr "Impossible d'écrire les temps de sursis individuels dans le fichier.\n"
-
-#: edquota.c:305
-msgid "Error while editing individual grace times.\n"
-msgstr "Erreur lors de la modification des temps de sursis individuels.\n"
-
-#: edquota.c:310
-#, fuzzy
-msgid "Cannot read individual grace times from file.\n"
+#: warnquota.c:65
+#, c-format
+msgid ""
+"Hi,\n"
+"\n"
+"We noticed that the group %s you are member of violates the quotasystem\n"
+"used on this system. We have found the following violations:\n"
+"\n"
 msgstr ""
-"Impossible de lire les temps de sursis individuels depuis le fichier.\n"
+"Bonjour,\n"
+"\n"
+"Il semblerait que le groupe %s dont vous êtes membre soit en violation avec\n"
+"le mécanisme de quotas utilisé sur ce système. Voici les dépassements "
+"relevés :\n"
+"\n"
 
-#: edquota.c:326
-#, fuzzy
-msgid "Cannot write quotas to file.\n"
-msgstr "Impossible d'écrire les quotas dans le fichier.\n"
+#: warnquota.c:67
+#, c-format
+msgid ""
+"\n"
+"Please cleanup the group data before the grace period expires.\n"
+"\n"
+"Basically, this means that the system thinks group is using more disk space\n"
+"on the above partition(s) than it is allowed.  If you do not delete files\n"
+"and get below group quota before the grace period expires, the system will\n"
+"prevent you and other members of the group from creating new files owned by\n"
+"the group.\n"
+"\n"
+"For additional assistance, please contact us at %s\n"
+"or via phone at %s.\n"
+msgstr ""
+"\n"
+"Veuillez faire de la place dans les données du groupe avant que la\n"
+"période de sursis n'expire.\n"
+"\n"
+"En clair, tout cela signifie que le système pense que le groupe utilise\n"
+"plus d'espace disque qu'il n'est autorisé sur la (les)\n"
+"partition(s) ci-dessus. Si vous n'effacez pas de fichiers pour passer\n"
+"en-dessous du quota du groupe avant que la période de sursis\n"
+"expire, le système vous empéchera, à vous ainsi qu'aux autres membres du\n"
+"groupe, de créer de nouveaux fichiers appartenant à ce groupe.\n"
+"\n"
+"Pour plus de renseignements, veuillez nous contacter au %s\n"
+"ou par téléphone au %s.\n"
 
-#: edquota.c:331
-msgid "Error while editing quotas.\n"
+#: warnquota.c:183
+#, c-format
+msgid "ldap_initialize() failed: %s\n"
+msgstr ""
+
+#: warnquota.c:189
+#, c-format
+msgid "ldap_sasl_bind_s() failed: %s\n"
+msgstr ""
+
+#: warnquota.c:204
+#, fuzzy, c-format
+msgid "Cannot get name for uid/gid %u.\n"
+msgstr "Impossible d'obtenir un nom pour les uid/gid %u.\n"
+
+#: warnquota.c:288
+#, fuzzy, c-format
+msgid "Cannot create pipe: %s\n"
+msgstr "Impossible de créer un tube : %s\n"
+
+#: warnquota.c:294
+#, fuzzy, c-format
+msgid "Cannot fork: %s\n"
+msgstr "Impossible d'exécuter fork() : %s\n"
+
+#: warnquota.c:299
+#, fuzzy, c-format
+msgid "Cannot duplicate descriptor: %s\n"
+msgstr "Impossible de dupliquer le descripteur : %s\n"
+
+#: warnquota.c:303
+#, fuzzy, c-format
+msgid "Cannot execute '%s': %s\n"
+msgstr "Impossible d'exécuter « %s » : %s\n"
+
+#: warnquota.c:308
+#, fuzzy, c-format
+msgid "Cannot open pipe: %s\n"
+msgstr "Impossible d'ouvrir « pine » : %s\n"
+
+#: warnquota.c:382
+msgid "Could not setup ldap connection.\n"
+msgstr ""
+
+#: warnquota.c:404
+#, fuzzy, c-format
+msgid "Error with %s.\n"
 msgstr "Erreur lors de la modification des quotas.\n"
 
-#: edquota.c:341
-#, fuzzy
-msgid "Cannot reopen!"
-msgstr "Impossible d'ouvrir %s : %s\n"
-
-#: edquota.c:343
-#, fuzzy
-msgid "Cannot read quotas from file.\n"
-msgstr "Impossible de lire les quotas depuis le fichier.\n"
-
-#: quot.c:81
-#, fuzzy, c-format
-msgid "Usage: %s [-acfugvViTq] [filesystem...]\n"
-msgstr "Utilisation : %s [-acfugvV] [systèmefichiers...]\n"
-
-#: quot.c:178
+#: warnquota.c:405
 #, c-format
-msgid "%s (%s):\n"
-msgstr "%s (%s) :\n"
-
-#: quot.c:182 quot.c:186
-#, c-format
-msgid "%d\t%llu\t%llu\n"
-msgstr "%d\t%llu\t%llu\n"
-
-#: quot.c:195
-#, fuzzy, c-format
-msgid "%s (%s) %ss:\n"
-msgstr "%s (%s) %s :\n"
-
-#: quot.c:203 quot.c:205
-#, c-format
-msgid "%8llu    "
-msgstr "%8llu    "
-
-#: quot.c:208
-#, c-format
-msgid "%s"
+msgid "ldap_search_ext_s() failed: %s\n"
 msgstr ""
 
-#: quot.c:210
+#: warnquota.c:411
 #, c-format
-msgid "%-8.8s"
-msgstr "%-8.8s"
+msgid "Multiple entries found for client %s (%d).\n"
+msgstr ""
 
-#: quot.c:212
+#: warnquota.c:415
 #, c-format
-msgid "#%-7d"
-msgstr "#%-7d"
+msgid "Entry not found for client %s.\n"
+msgstr ""
 
-#: quot.c:214
+#: warnquota.c:425
+#, fuzzy, c-format
+msgid "Could not get values for %s.\n"
+msgstr "Impossible d'obtenir le nom de périphérique pour %s\n"
+
+#: warnquota.c:467
 #, c-format
-msgid "    %8llu    %8llu    %8llu"
-msgstr "    %8llu    %8llu    %8llu"
+msgid "Administrator for a group %s not found. Cancelling mail.\n"
+msgstr ""
+"Administrateur pour le groupe %s non trouvé. Abandon de l'envoi du "
+"courrier.\n"
 
-#: quot.c:362
+#: warnquota.c:519
 #, c-format
-msgid "cannot open %s: %s\n"
-msgstr "Impossible d'ouvrir %s : %s\n"
-
-#: quot.c:382
-#, c-format
-msgid "XFS_IOC_FSBULKSTAT ioctl failed: %s\n"
-msgstr "Échec de ioctl XFS_IOC_FSBULKSTAT : %s\n"
-
-#: quota.c:85
-#, fuzzy
-msgid "Usage: quota [-guqvswim] [-l | [-Q | -A]] [-F quotaformat]\n"
-msgstr "Utilisation : quota [-guqvs] [-l | -Q] [-F format_quota]\n"
-
-#: quota.c:86
-#, fuzzy
-msgid "\tquota [-qvswim] [-l | [-Q | -A]] [-F quotaformat] -u username ...\n"
-msgstr "\tquota [-qvs] [-l | -Q] [-F format_quota] -u utilisateur ...\n"
-
-#: quota.c:87
-#, fuzzy
-msgid "\tquota [-qvswim] [-l | [-Q | -A]] [-F quotaformat] -g groupname ...\n"
-msgstr "\tquota [-qvs] [-l | -Q] [-F format_quota] -g groupe ...\n"
-
-#: quota.c:88
-#, fuzzy
-msgid "\tquota [-qvswugQm] [-F quotaformat] -f filesystem ...\n"
-msgstr "\tedquota [-u|g] [-F nom_format] [-f système_fichier] -t\n"
-
-#: quota.c:89
 msgid ""
 "\n"
-"-u, --user                display quota for user\n"
-"-g, --group               display quota for group\n"
-"-q, --quiet               print more terse message\n"
-"-v, --verbose             print more verbose message\n"
-"-s, --human-readable      display numbers in human friendly units (MB, "
-"GB...)\n"
-"    --always-resolve      always try to translate name to id, even if it is\n"
-"\t\t\t  composed of only digits\n"
-"-w, --no-wrap             do not wrap long lines\n"
-"-p, --raw-grace           print grace time in seconds since epoch\n"
-"-l, --local-only          do not query NFS filesystems\n"
-"-Q, --quiet-refuse        do not print error message when NFS server does\n"
-"                          not respond\n"
-"-i, --no-autofs           do not query autofs mountpoints\n"
-"-F, --format=formatname   display quota of a specific format\n"
-"-f, --filesystem-list     display quota information only for given "
-"filesystems\n"
-"-A, --all-nfs             display quota for all NFS mountpoints\n"
-"-m, --no-mixed-pathnames  trim leading slashes from NFSv4 mountpoints\n"
-"    --show-mntpoint       show mount point of the file system in output\n"
-"    --hide-device         do not show file system device in output\n"
-"-h, --help                display this help message and exit\n"
-"-V, --version             display version information and exit\n"
+"                        Block limits               File limits\n"
+msgstr ""
+"\n"
+"                        Limites bloc               Limites fichiers\n"
+
+#: warnquota.c:520
+#, c-format
+msgid ""
+"Filesystem           used    soft    hard  grace    used  soft  hard  grace\n"
+msgstr ""
+"Système fichiers   utilisé souple stricte sursis utilisé souple stricte "
+"sursis\n"
+
+#: warnquota.c:560
+#, fuzzy, c-format
+msgid "Cannot wait for mailer: %s\n"
+msgstr "Impossible d'attendre le client de messagerie : %s\n"
+
+#: warnquota.c:562
+msgid "Warning: Mailer exitted abnormally.\n"
+msgstr ""
+"Attention : le client de messagerie s'est terminé de manière inattendue.\n"
+
+#: warnquota.c:619
+#, fuzzy, c-format
+msgid ""
+"Cannot open %s: %s\n"
+"Will use device names.\n"
+msgstr ""
+"Impossible d'ouvrir %s : %s\n"
+"Utilisation des noms de périphériques.\n"
+
+#: warnquota.c:642
+#, fuzzy, c-format
+msgid "Cannot parse line %d in quotatab (missing ':')\n"
+msgstr "Impossible d'analyser la ligne %d dans quotatab (il manque « : »)\n"
+
+#: warnquota.c:656
+#, fuzzy, c-format
+msgid "Cannot stat device %s (maybe typo in quotatab)\n"
+msgstr ""
+"Impossible d'exécuter stat() sur le périphérique %s (erreur de syntaxe dans "
+"quotatab ?)\n"
+
+#: warnquota.c:676
+#, c-format
+msgid ""
+"Incorrect format string for variable %s.\n"
+"Unrecognized expression %%%c.\n"
+msgstr ""
+
+#: warnquota.c:722
+#, fuzzy, c-format
+msgid "Cannot open %s: %s\n"
+msgstr "Impossible d'ouvrir %s : %s\n"
+
+#: warnquota.c:742
+#, c-format
+msgid "Line %d too long. Truncating.\n"
+msgstr "Ligne %d trop longue. Tronquée.\n"
+
+#: warnquota.c:814
+#, c-format
+msgid "Cannot parse time at CC_BEFORE variable (line %d).\n"
+msgstr ""
+
+#: warnquota.c:838
+#, c-format
+msgid "Error in config file (line %d), ignoring\n"
+msgstr "Erreur dans le fichier de configuration (ligne %d), ignorée\n"
+
+#: warnquota.c:841
+#, c-format
+msgid "Possible error in config file (line %d), ignoring\n"
+msgstr "Erreur probable dans le fichier de configuration (ligne %d), ignorée\n"
+
+#: warnquota.c:844
+msgid "Unterminated last line, ignoring\n"
+msgstr "Dernière ligne non terminée, ignorée\n"
+
+#: warnquota.c:850
+#, c-format
+msgid ""
+"LDAP library version >= 2.3 detected. Please use LDAP_URI instead of "
+"hostname and port.\n"
+"Generated URI %s\n"
+msgstr ""
+
+#: warnquota.c:872
+#, fuzzy, c-format
+msgid "Cannot open file with group administrators: %s\n"
+msgstr ""
+"Impossible d'ouvrir le fichier contenant les administrateurs de groupes : "
+"%s\n"
+
+#: warnquota.c:887
+#, fuzzy, c-format
+msgid "Parse error at line %d. Cannot find end of group name.\n"
+msgstr ""
+"Erreur d'analyse à la ligne %d. Impossible de trouver la fin du nom de "
+"groupe.\n"
+
+#: warnquota.c:896
+#, fuzzy, c-format
+msgid "Parse error at line %d. Cannot find administrators name.\n"
+msgstr ""
+"Erreur d'analyse à la ligne %d. Impossible de trouver le nom des "
+"administrateurs.\n"
+
+#: warnquota.c:906
+#, c-format
+msgid ""
+"Parse error at line %d. Trailing characters after administrators name.\n"
+msgstr ""
+"Erreur d'analyse à la ligne %d. Caractères parasites après le nom des "
+"administrateurs.\n"
+
+#: warnquota.c:969
+msgid ""
+"Usage:\n"
+"  warnquota [-ugsid] [-F quotaformat] [-c configfile] [-q quotatabfile] [-a "
+"adminsfile] [filesystem...]\n"
+"\n"
+"-u, --user                      warn users\n"
+"-g, --group                     warn groups\n"
+"-s, --human-readable            send information in more human friendly "
+"units\n"
+"-i, --no-autofs                 avoid autofs mountpoints\n"
+"-d, --no-details                do not send quota information itself\n"
+"-F, --format=formatname         use quotafiles of specific format\n"
+"-c, --config=config-file        non-default config file\n"
+"-q, --quota-tab=quotatab-file   non-default quotatab\n"
+"-a, --admins-file=admins-file   non-default admins file\n"
+"-h, --help                      display this help message and exit\n"
+"-v, --version                   display version information and exit\n"
 "\n"
 msgstr ""
 
-#: quota.c:120
-msgid "space"
-msgstr ""
-
-#: quota.c:122
-msgid "blocks"
-msgstr "blocs"
-
-#: quota.c:124
+#: warnquota.c:1050
 #, fuzzy, c-format
-msgid "Disk quotas for %s %s (%cid %u): %s\n"
-msgstr "Quotas disque pour %s %s (%cid %d) : %s\n"
-
-#: quota.c:127
-msgid "Filesystem"
-msgstr "Système fichiers"
-
-#: quota.c:128 quota.c:129
-msgid "quota"
-msgstr "quota"
-
-#: quota.c:128 quota.c:129
-msgid "limit"
-msgstr "limite"
-
-#: quota.c:128 quota.c:129
-msgid "grace"
-msgstr "sursis"
-
-#: quota.c:129
-msgid "files"
-msgstr "fichiers"
-
-#: quota.c:201
-msgid "File limit reached on"
-msgstr "Limite de fichiers atteinte"
-
-#: quota.c:207
-msgid "In file grace period on"
-msgstr "Période de sursis fichiers activée"
-
-#: quota.c:211
-msgid "Over file quota on"
-msgstr "Quota dépassement fichiers activé"
-
-#: quota.c:217
-msgid "Block limit reached on"
-msgstr "Limite de blocs atteinte"
-
-#: quota.c:223
-msgid "In block grace period on"
-msgstr "Période de sursis blocs activée"
-
-#: quota.c:227
-msgid "Over block quota on"
-msgstr "Quota dépassement blocs activé"
-
-#: quota.c:290 quotasys.c:320
-msgid "none"
-msgstr "aucun"
-
-#: quota.c:396
-#, c-format
-msgid "Warning: Ignoring -%c when filesystem list specified.\n"
-msgstr ""
-
-#: quota.c:403
-#, fuzzy
-msgid "No filesystem specified.\n"
-msgstr "Aucun système de fichier avec quotas détecté.\n"
-
-#: quota.c:411
-#, c-format
-msgid "Gid set allocation (%d): %s\n"
-msgstr ""
-
-#: quota.c:417
-#, fuzzy, c-format
-msgid "getgroups(): %s\n"
-msgstr "quota : getgroups() : %s\n"
-
-#: quota_nld.c:85
-#, fuzzy, c-format
-msgid ""
-"Usage: %s [options]\n"
-"Options are:\n"
-" -h --help         shows this text\n"
-" -V --version      shows version information\n"
-" -C --no-console   do not try to write messages to console\n"
-" -b --print-below  write to console also information about getting below "
-"hard/soft limits\n"
-" -D --no-dbus      do not try to write messages to DBUS\n"
-" -F --foreground   run daemon in foreground\n"
-msgstr ""
-"Utilisation : %s [options]\n"
-"Avec pour options :\n"
-" -h --help         affichage de ce texte\n"
-" -V --version      affiche les informations de version\n"
-" -F --foreground   démarre le service quotas en avant-plan\n"
-" -s --no-setquota  désactive l'utilisation d'appels distants à setquota "
-"(défaut)\n"
-" -S --setquota     active l'utilisation d'appels distants à setquota\n"
-
-#: quota_nld.c:119 rquota_svc.c:160
-#, c-format
-msgid "Unknown option '%c'.\n"
-msgstr "Option non reconnue « %c ».\n"
-
-#: quota_nld.c:125
-msgid "No possible destination for messages. Nothing to do.\n"
-msgstr ""
-
-#: quota_nld.c:151
-msgid "Error parsing netlink message.\n"
-msgstr ""
-
-#: quota_nld.c:158
-msgid ""
-"Unknown format of kernel netlink message!\n"
-"Maybe your quota tools are too old?\n"
-msgstr ""
-
-#: quota_nld.c:182
-#, fuzzy
-msgid "Cannot allocate netlink socket!\n"
-msgstr "Impossible de créer la socket : %s\n"
-
-#: quota_nld.c:188
-#, c-format
-msgid "Cannot register callback for netlink messages: %s\n"
-msgstr ""
-
-#: quota_nld.c:193
-#, fuzzy, c-format
-msgid "Cannot connect to netlink socket: %s\n"
-msgstr "Impossible de créer la socket : %s\n"
-
-#: quota_nld.c:205
-#, fuzzy, c-format
-msgid "Cannot resolve quota netlink name: %s\n"
+msgid "Cannot get host name: %s\n"
 msgstr "Impossible d'obtenir le nom du fichier de quotas pour %s\n"
-
-#: quota_nld.c:211
-#, fuzzy, c-format
-msgid "Cannot join quota multicast group: %s\n"
-msgstr "Impossible d'ouvrir le fichier de quotas %s : %s\n"
-
-#: quota_nld.c:224
-#, fuzzy, c-format
-msgid "Cannot connect to system DBUS: %s\n"
-msgstr "Impossible de créer la socket : %s\n"
-
-#: quota_nld.c:289
-#, c-format
-msgid "Failed to find tty of user %llu to report warning to.\n"
-msgstr ""
-
-#: quota_nld.c:294
-#, c-format
-msgid "Failed to open tty %s of user %llu to report warning.\n"
-msgstr ""
-
-#: quota_nld.c:300
-msgid "Warning"
-msgstr ""
-
-#: quota_nld.c:303
-msgid "Error"
-msgstr ""
-
-#: quota_nld.c:305
-msgid "Info"
-msgstr ""
-
-#: quota_nld.c:308
-#, fuzzy
-msgid "file limit reached"
-msgstr "Limite de fichiers atteinte"
-
-#: quota_nld.c:311
-msgid "file quota exceeded too long"
-msgstr ""
-
-#: quota_nld.c:314
-msgid "file quota exceeded"
-msgstr ""
-
-#: quota_nld.c:317
-#, fuzzy
-msgid "block limit reached"
-msgstr "Limite de blocs atteinte"
-
-#: quota_nld.c:320
-msgid "block quota exceeded too long"
-msgstr ""
-
-#: quota_nld.c:323
-#, fuzzy
-msgid "block quota exceeded"
-msgstr "Quota dépassement blocs activé"
-
-#: quota_nld.c:326
-msgid "got below file limit"
-msgstr ""
-
-#: quota_nld.c:329
-#, fuzzy
-msgid "got below file quota"
-msgstr "Quota dépassement fichiers activé"
-
-#: quota_nld.c:332
-#, fuzzy
-msgid "got below block limit"
-msgstr "limite souple bloc"
-
-#: quota_nld.c:335
-#, fuzzy
-msgid "got below block quota"
-msgstr "Quota dépassement blocs activé"
-
-#: quota_nld.c:338
-msgid "unknown quota warning"
-msgstr ""
-
-#: quota_nld.c:342
-#, fuzzy, c-format
-msgid "Failed to write quota message for user %llu to %s: %s\n"
-msgstr "Impossible d'écrire les quotas pour %u sur %s : %s\n"
-
-#: quota_nld.c:355
-msgid "Cannot create DBUS message: No enough memory.\n"
-msgstr ""
-
-#: quota_nld.c:373
-msgid "Failed to write message to dbus: No enough memory.\n"
-msgstr ""
-
-#: quota_nld.c:389
-#, c-format
-msgid "Failed to read or parse quota netlink message: %s\n"
-msgstr ""
-
-#: quota_nld.c:400
-msgid "Undefined program name.\n"
-msgstr ""
-
-#: quota_nld.c:405
-#, fuzzy
-msgid "Not enough memory to build PID file name.\n"
-msgstr "Pas assez de mémoire.\n"
-
-#: quota_nld.c:424
-#, fuzzy, c-format
-msgid "Could not open PID file '%s': %s\n"
-msgstr "Impossible d'ouvrir le fichier %s : %s\n"
-
-#: quota_nld.c:430
-#, c-format
-msgid "Could not write daemon's PID into '%s'.\n"
-msgstr ""
-
-#: quota_nld.c:437
-#, c-format
-msgid "Could not close PID file '%s'.\n"
-msgstr ""
-
-#: quota_nld.c:467
-msgid "Could not register PID file removal on SIGTERM.\n"
-msgstr ""
-
-#: quota_nld.c:469
-#, c-format
-msgid "Could not store my PID %jd.\n"
-msgstr ""
 
 #: quotacheck.c:92
 msgid "Not enough memory.\n"
@@ -1106,6 +899,381 @@ msgstr ""
 "%d octets de mémoire alloués\n"
 "%d octets libérés\n"
 "%d octets perdus\n"
+
+#: quot.c:81
+#, fuzzy, c-format
+msgid "Usage: %s [-acfugvViTq] [filesystem...]\n"
+msgstr "Utilisation : %s [-acfugvV] [systèmefichiers...]\n"
+
+#: quot.c:178
+#, c-format
+msgid "%s (%s):\n"
+msgstr "%s (%s) :\n"
+
+#: quot.c:182 quot.c:186
+#, c-format
+msgid "%d\t%llu\t%llu\n"
+msgstr "%d\t%llu\t%llu\n"
+
+#: quot.c:195
+#, fuzzy, c-format
+msgid "%s (%s) %ss:\n"
+msgstr "%s (%s) %s :\n"
+
+#: quot.c:203 quot.c:205
+#, c-format
+msgid "%8llu    "
+msgstr "%8llu    "
+
+#: quot.c:208
+#, c-format
+msgid "%s"
+msgstr ""
+
+#: quot.c:210
+#, c-format
+msgid "%-8.8s"
+msgstr "%-8.8s"
+
+#: quot.c:212
+#, c-format
+msgid "#%-7d"
+msgstr "#%-7d"
+
+#: quot.c:214
+#, c-format
+msgid "    %8llu    %8llu    %8llu"
+msgstr "    %8llu    %8llu    %8llu"
+
+#: quot.c:362
+#, c-format
+msgid "cannot open %s: %s\n"
+msgstr "Impossible d'ouvrir %s : %s\n"
+
+#: quot.c:382
+#, c-format
+msgid "XFS_IOC_FSBULKSTAT ioctl failed: %s\n"
+msgstr "Échec de ioctl XFS_IOC_FSBULKSTAT : %s\n"
+
+#: quotasync.c:27
+#, c-format
+msgid ""
+"%1$s: Utility for syncing quotas.\n"
+"Usage: %1$s [-ug] mount-point...\n"
+"   or: %1$s [-ug] -a\n"
+"   or: %1$s -h | -V\n"
+"\n"
+msgstr ""
+
+#: quotasync.c:34
+#, c-format
+msgid ""
+"Options:\n"
+"-u, --user     synchronize user quotas\n"
+"-g, --group    synchronize group quotas\n"
+"-a, --all      synchronize quotas for all mounted file systems\n"
+"-h, --help     display this help message and exit\n"
+"-V, --version  display version information and exit\n"
+"\n"
+msgstr ""
+
+#: quotasync.c:42
+#, fuzzy, c-format
+msgid "Report bugs to <%s>.\n"
+msgstr "Rapports de bugs à %s\n"
+
+#: quotasync.c:106
+#, fuzzy, c-format
+msgid "%s quota sync failed: %s\n"
+msgstr "Impossible d'exécuter stat() sur le fichier de quotas %s : %s\n"
+
+#: quotasync.c:119
+#, fuzzy, c-format
+msgid "%s quota sync failed for %s: %s\n"
+msgstr "quotactl sur %s : %s\n"
+
+#: quota.h:21
+msgid "user"
+msgstr ""
+
+#: quota.h:22
+#, fuzzy
+msgid "group"
+msgstr "Groupe"
+
+#: quota.h:23
+msgid "undefined"
+msgstr ""
+
+#: quota_nld.c:85
+#, fuzzy, c-format
+msgid ""
+"Usage: %s [options]\n"
+"Options are:\n"
+" -h --help         shows this text\n"
+" -V --version      shows version information\n"
+" -C --no-console   do not try to write messages to console\n"
+" -b --print-below  write to console also information about getting below "
+"hard/soft limits\n"
+" -D --no-dbus      do not try to write messages to DBUS\n"
+" -F --foreground   run daemon in foreground\n"
+msgstr ""
+"Utilisation : %s [options]\n"
+"Avec pour options :\n"
+" -h --help         affichage de ce texte\n"
+" -V --version      affiche les informations de version\n"
+" -F --foreground   démarre le service quotas en avant-plan\n"
+" -s --no-setquota  désactive l'utilisation d'appels distants à setquota "
+"(défaut)\n"
+" -S --setquota     active l'utilisation d'appels distants à setquota\n"
+
+#: quota_nld.c:119 rquota_svc.c:160
+#, c-format
+msgid "Unknown option '%c'.\n"
+msgstr "Option non reconnue « %c ».\n"
+
+#: quota_nld.c:125
+msgid "No possible destination for messages. Nothing to do.\n"
+msgstr ""
+
+#: quota_nld.c:151
+msgid "Error parsing netlink message.\n"
+msgstr ""
+
+#: quota_nld.c:158
+msgid ""
+"Unknown format of kernel netlink message!\n"
+"Maybe your quota tools are too old?\n"
+msgstr ""
+
+#: quota_nld.c:182
+#, fuzzy
+msgid "Cannot allocate netlink socket!\n"
+msgstr "Impossible de créer la socket : %s\n"
+
+#: quota_nld.c:188
+#, c-format
+msgid "Cannot register callback for netlink messages: %s\n"
+msgstr ""
+
+#: quota_nld.c:193
+#, fuzzy, c-format
+msgid "Cannot connect to netlink socket: %s\n"
+msgstr "Impossible de créer la socket : %s\n"
+
+#: quota_nld.c:205
+#, fuzzy, c-format
+msgid "Cannot resolve quota netlink name: %s\n"
+msgstr "Impossible d'obtenir le nom du fichier de quotas pour %s\n"
+
+#: quota_nld.c:211
+#, fuzzy, c-format
+msgid "Cannot join quota multicast group: %s\n"
+msgstr "Impossible d'ouvrir le fichier de quotas %s : %s\n"
+
+#: quota_nld.c:224
+#, fuzzy, c-format
+msgid "Cannot connect to system DBUS: %s\n"
+msgstr "Impossible de créer la socket : %s\n"
+
+#: quota_nld.c:289
+#, c-format
+msgid "Failed to find tty of user %llu to report warning to.\n"
+msgstr ""
+
+#: quota_nld.c:294
+#, c-format
+msgid "Failed to open tty %s of user %llu to report warning.\n"
+msgstr ""
+
+#: quota_nld.c:300
+msgid "Warning"
+msgstr ""
+
+#: quota_nld.c:303
+msgid "Error"
+msgstr ""
+
+#: quota_nld.c:305
+msgid "Info"
+msgstr ""
+
+#: quota_nld.c:308
+#, fuzzy
+msgid "file limit reached"
+msgstr "Limite de fichiers atteinte"
+
+#: quota_nld.c:311
+msgid "file quota exceeded too long"
+msgstr ""
+
+#: quota_nld.c:314
+msgid "file quota exceeded"
+msgstr ""
+
+#: quota_nld.c:317
+#, fuzzy
+msgid "block limit reached"
+msgstr "Limite de blocs atteinte"
+
+#: quota_nld.c:320
+msgid "block quota exceeded too long"
+msgstr ""
+
+#: quota_nld.c:323
+#, fuzzy
+msgid "block quota exceeded"
+msgstr "Quota dépassement blocs activé"
+
+#: quota_nld.c:326
+msgid "got below file limit"
+msgstr ""
+
+#: quota_nld.c:329
+#, fuzzy
+msgid "got below file quota"
+msgstr "Quota dépassement fichiers activé"
+
+#: quota_nld.c:332
+#, fuzzy
+msgid "got below block limit"
+msgstr "limite souple bloc"
+
+#: quota_nld.c:335
+#, fuzzy
+msgid "got below block quota"
+msgstr "Quota dépassement blocs activé"
+
+#: quota_nld.c:338
+msgid "unknown quota warning"
+msgstr ""
+
+#: quota_nld.c:342
+#, fuzzy, c-format
+msgid "Failed to write quota message for user %llu to %s: %s\n"
+msgstr "Impossible d'écrire les quotas pour %u sur %s : %s\n"
+
+#: quota_nld.c:355
+msgid "Cannot create DBUS message: No enough memory.\n"
+msgstr ""
+
+#: quota_nld.c:373
+msgid "Failed to write message to dbus: No enough memory.\n"
+msgstr ""
+
+#: quota_nld.c:389
+#, c-format
+msgid "Failed to read or parse quota netlink message: %s\n"
+msgstr ""
+
+#: quota_nld.c:400
+msgid "Undefined program name.\n"
+msgstr ""
+
+#: quota_nld.c:405
+#, fuzzy
+msgid "Not enough memory to build PID file name.\n"
+msgstr "Pas assez de mémoire.\n"
+
+#: quota_nld.c:424
+#, fuzzy, c-format
+msgid "Could not open PID file '%s': %s\n"
+msgstr "Impossible d'ouvrir le fichier %s : %s\n"
+
+#: quota_nld.c:430
+#, c-format
+msgid "Could not write daemon's PID into '%s'.\n"
+msgstr ""
+
+#: quota_nld.c:437
+#, c-format
+msgid "Could not close PID file '%s'.\n"
+msgstr ""
+
+#: quota_nld.c:467
+msgid "Could not register PID file removal on SIGTERM.\n"
+msgstr ""
+
+#: quota_nld.c:469
+#, c-format
+msgid "Could not store my PID %jd.\n"
+msgstr ""
+
+#: repquota.c:50
+#, c-format
+msgid ""
+"Utility for reporting quotas.\n"
+"Usage:\n"
+"%s [-vugsi] [-c|C] [-t|n] [-F quotaformat] [-O (default | xml | csv)] (-a | "
+"mntpoint)\n"
+"\n"
+"-v, --verbose               display also users/groups without any usage\n"
+"-u, --user                  display information about users\n"
+"-g, --group                 display information about groups\n"
+"-s, --human-readable        show numbers in human friendly units (MB, "
+"GB, ...)\n"
+"-t, --truncate-names        truncate names to 9 characters\n"
+"-p, --raw-grace             print grace time in seconds since epoch\n"
+"-n, --no-names              do not translate uid/gid to name\n"
+"-i, --no-autofs             avoid autofs mountpoints\n"
+"-c, --cache                 translate big number of ids at once\n"
+"-C, --no-cache              translate ids one by one\n"
+"-F, --format=formatname     report information for specific format\n"
+"-O, --output=format         format output as xml or csv\n"
+"-a, --all                   report information for all mount points with "
+"quotas\n"
+"-h, --help                  display this help message and exit\n"
+"-V, --version               display version information and exit\n"
+"\n"
+msgstr ""
+
+#: repquota.c:152
+#, fuzzy
+msgid "Repquota cannot report through RPC calls.\n"
+msgstr "Repquota ne peut pas générer de rapport en utilisant des appels RPC.\n"
+
+#: repquota.c:156
+msgid "Specified both -n and -t but only one of them can be used.\n"
+msgstr ""
+"Spécification de -n et -t alors qu'un seul des deux peut être utilisé à la "
+"fois.\n"
+
+#: repquota.c:348
+msgid "User"
+msgstr "Utilisateur"
+
+#: repquota.c:350
+msgid "Group"
+msgstr "Groupe"
+
+#: repquota.c:353
+#, c-format
+msgid "*** Report for %s quotas on device %s\n"
+msgstr "*** Rapport pour les quotas %s sur le périphérique %s\n"
+
+#: repquota.c:362
+msgid "Space"
+msgstr ""
+
+#: repquota.c:364
+#, fuzzy
+msgid "Block"
+msgstr "blocs"
+
+#: repquota.c:365
+#, c-format
+msgid "Block grace time: %s; Inode grace time: %s\n"
+msgstr "Période de sursis bloc : %s ; période de sursis inode : %s\n"
+
+#: repquota.c:366
+#, fuzzy, c-format
+msgid "                        %s limits                File limits\n"
+msgstr "                        Limites bloc               Limites fichier\n"
+
+#: repquota.c:367
+#, c-format
+msgid "%-9s       used    soft    hard  grace    used  soft  hard  grace\n"
+msgstr "%-9s     utilisé souple stricte sursis utilisé souple stricte sursis\n"
 
 #: quotacheck_v1.c:32
 #, fuzzy, c-format
@@ -2083,42 +2251,201 @@ msgstr "Nombre de dquots libre : %ld\n"
 msgid "Number of in use dquot entries (user/group): %ld\n"
 msgstr "Nombre d'entrées dquot utilisées (utilisateur/groupe) : %ld\n"
 
-#: quotasync.c:27
+#: setquota.c:55
 #, c-format
 msgid ""
-"%1$s: Utility for syncing quotas.\n"
-"Usage: %1$s [-ug] mount-point...\n"
-"   or: %1$s [-ug] -a\n"
-"   or: %1$s -h | -V\n"
+"Usage:\n"
+"  setquota [-u|-g] %1$s[-F quotaformat] <user|group>\n"
+"\t<block-softlimit> <block-hardlimit> <inode-softlimit> <inode-hardlimit> -a|"
+"<filesystem>...\n"
+"  setquota [-u|-g] %1$s[-F quotaformat] <-p protouser|protogroup> <user|"
+"group> -a|<filesystem>...\n"
+"  setquota [-u|-g] %1$s[-F quotaformat] -b [-c] -a|<filesystem>...\n"
+"  setquota [-u|-g] [-F quotaformat] -t <blockgrace> <inodegrace> -a|"
+"<filesystem>...\n"
+"  setquota [-u|-g] [-F quotaformat] <user|group> -T <blockgrace> "
+"<inodegrace> -a|<filesystem>...\n"
+"\n"
+"-u, --user                 set limits for user\n"
+"-g, --group                set limits for group\n"
+"-a, --all                  set limits for all filesystems\n"
+"    --always-resolve       always try to resolve name, even if is\n"
+"                           composed only of digits\n"
+"-F, --format=formatname    operate on specific quota format\n"
+"-p, --prototype=protoname  copy limits from user/group\n"
+"-b, --batch                read limits from standard input\n"
+"-c, --continue-batch       continue in input processing in case of an error\n"
+msgstr ""
+
+#: setquota.c:72
+msgid ""
+"-r, --remote               set remote quota (via RPC)\n"
+"-m, --no-mixed-pathnames      trim leading slashes from NFSv4 mountpoints\n"
+msgstr ""
+
+#: setquota.c:75
+msgid ""
+"-t, --edit-period          edit grace period\n"
+"-T, --edit-times           edit grace times for user/group\n"
+"-h, --help                 display this help text and exit\n"
+"-V, --version              display version information and exit\n"
 "\n"
 msgstr ""
 
-#: quotasync.c:34
+#: setquota.c:79 edquota.c:101 quota.c:111
 #, c-format
-msgid ""
-"Options:\n"
-"-u, --user     synchronize user quotas\n"
-"-g, --group    synchronize group quotas\n"
-"-a, --all      synchronize quotas for all mounted file systems\n"
-"-h, --help     display this help message and exit\n"
-"-V, --version  display version information and exit\n"
-"\n"
+msgid "Bugs to: %s\n"
+msgstr "Rapports de bugs à : %s\n"
+
+#: setquota.c:90
+#, fuzzy, c-format
+msgid "%s: %s\n"
+msgstr "Mauvais %s : %s\n"
+
+#: setquota.c:103 setquota.c:116
+#, fuzzy, c-format
+msgid "%s: %s: %s\n"
+msgstr "%s (%s) %s :\n"
+
+#: setquota.c:212
+#, fuzzy
+msgid "Group and user quotas cannot be used together.\n"
+msgstr ""
+"Les quotas groupes et utilisateurs ne peuvent pas être utilisés "
+"simultanément.\n"
+
+#: setquota.c:216
+msgid "Prototype user has no sense when editing grace times.\n"
+msgstr ""
+"Un prototype d'utilisateur n'a pas lieu d'être pour la modification des "
+"temps de sursis.\n"
+
+#: setquota.c:220
+#, fuzzy
+msgid "Cannot set both individual and global grace time.\n"
+msgstr "Impossible d'écrire les temps de sursis individuels dans le fichier.\n"
+
+#: setquota.c:224
+#, fuzzy
+msgid "Batch mode cannot be used for setting grace times.\n"
+msgstr ""
+"Un prototype d'utilisateur n'a pas lieu d'être pour la modification des "
+"temps de sursis.\n"
+
+#: setquota.c:228
+#, fuzzy
+msgid "Batch mode and prototype user cannot be used together.\n"
+msgstr ""
+"Les quotas groupes et utilisateurs ne peuvent pas être utilisés "
+"simultanément.\n"
+
+#: setquota.c:232
+#, fuzzy
+msgid "Cannot set grace times over RPC protocol.\n"
+msgstr "Impossible d'écrire les temps de sursis dans le fichier.\n"
+
+#: setquota.c:255
+#, fuzzy
+msgid "Bad block softlimit"
+msgstr "limite souple bloc"
+
+#: setquota.c:256
+#, fuzzy
+msgid "Bad block hardlimit"
+msgstr "limite stricte bloc"
+
+#: setquota.c:257
+#, fuzzy
+msgid "Bad inode softlimit"
+msgstr "limite souple inode"
+
+#: setquota.c:258
+#, fuzzy
+msgid "Bad inode hardlimit"
+msgstr "limite stricte inode"
+
+#: setquota.c:264 setquota.c:276
+#, fuzzy
+msgid "Bad block grace time"
+msgstr "temps de sursis bloc"
+
+#: setquota.c:265 setquota.c:282
+#, fuzzy
+msgid "Bad inode grace time"
+msgstr "temps de sursis inode"
+
+#: setquota.c:288
+msgid "Mountpoint not specified.\n"
+msgstr "Point de montage non spécifié.\n"
+
+#: setquota.c:345
+#, fuzzy, c-format
+msgid "Line %d too long.\n"
+msgstr "Ligne %d trop longue. Tronquée.\n"
+
+#: setquota.c:357
+#, fuzzy, c-format
+msgid "Cannot parse input line %d.\n"
+msgstr "Impossible d'ouvrir le fichier %s : %s\n"
+
+#: setquota.c:359 setquota.c:367 setquota.c:376 setquota.c:385 setquota.c:394
+#: setquota.c:403
+msgid "Exitting.\n"
 msgstr ""
 
-#: quotasync.c:42
-#, fuzzy, c-format
-msgid "Report bugs to <%s>.\n"
-msgstr "Rapports de bugs à %s\n"
+#: setquota.c:360 setquota.c:368 setquota.c:377 setquota.c:386 setquota.c:395
+#: setquota.c:404
+#, fuzzy
+msgid "Skipping line.\n"
+msgstr "Non traitement de %s [%s]\n"
 
-#: quotasync.c:106
-#, fuzzy, c-format
-msgid "%s quota sync failed: %s\n"
-msgstr "Impossible d'exécuter stat() sur le fichier de quotas %s : %s\n"
+#: setquota.c:365
+#, c-format
+msgid "Unable to resolve name '%s' on line %d.\n"
+msgstr ""
 
-#: quotasync.c:119
+#: setquota.c:373
+#, c-format
+msgid "Unable to parse block soft limit '%s' on line %d: %s\n"
+msgstr ""
+
+#: setquota.c:382
+#, c-format
+msgid "Unable to parse block hard limit '%s' on line %d: %s\n"
+msgstr ""
+
+#: setquota.c:391
+#, c-format
+msgid "Unable to parse inode soft limit '%s' on line %d: %s\n"
+msgstr ""
+
+#: setquota.c:400
+#, c-format
+msgid "Unable to parse inode hard limit '%s' on line %d: %s\n"
+msgstr ""
+
+#: setquota.c:443
 #, fuzzy, c-format
-msgid "%s quota sync failed for %s: %s\n"
-msgstr "quotactl sur %s : %s\n"
+msgid "Setting grace period on %s is not supported.\n"
+msgstr "La création de quotas au format %s n'est pas supportée.\n"
+
+#: setquota.c:465
+#, c-format
+msgid "Not setting block grace time on %s because softlimit is not exceeded.\n"
+msgstr ""
+
+#: setquota.c:469
+#, c-format
+msgid "Not setting inode grace time on %s because softlimit is not exceeded.\n"
+msgstr ""
+
+#: setquota.c:472
+#, fuzzy, c-format
+msgid ""
+"cannot write times for %s. Maybe kernel does not support such operation?\n"
+msgstr ""
+"Impossible d'écrire les temps pour %s. Le noyau supporte-t'il une telle "
+"opération ?\n"
 
 #: quotasys.c:100
 #, fuzzy, c-format
@@ -2157,6 +2484,10 @@ msgid ""
 "  csv     - comma-separated values\n"
 "  xml     - simple XML\n"
 msgstr ""
+
+#: quotasys.c:320 quota.c:290
+msgid "none"
+msgstr "aucun"
 
 #: quotasys.c:352
 #, c-format
@@ -2407,82 +2738,6 @@ msgstr "Aucun point de montage correct spécifié.\n"
 msgid "Mountpoint (or device) %s not found or has no quota enabled.\n"
 msgstr "Point de montage (ou périphérique) %s introuvable.\n"
 
-#: repquota.c:50
-#, c-format
-msgid ""
-"Utility for reporting quotas.\n"
-"Usage:\n"
-"%s [-vugsi] [-c|C] [-t|n] [-F quotaformat] [-O (default | xml | csv)] (-a | "
-"mntpoint)\n"
-"\n"
-"-v, --verbose               display also users/groups without any usage\n"
-"-u, --user                  display information about users\n"
-"-g, --group                 display information about groups\n"
-"-s, --human-readable        show numbers in human friendly units (MB, "
-"GB, ...)\n"
-"-t, --truncate-names        truncate names to 9 characters\n"
-"-p, --raw-grace             print grace time in seconds since epoch\n"
-"-n, --no-names              do not translate uid/gid to name\n"
-"-i, --no-autofs             avoid autofs mountpoints\n"
-"-c, --cache                 translate big number of ids at once\n"
-"-C, --no-cache              translate ids one by one\n"
-"-F, --format=formatname     report information for specific format\n"
-"-O, --output=format         format output as xml or csv\n"
-"-a, --all                   report information for all mount points with "
-"quotas\n"
-"-h, --help                  display this help message and exit\n"
-"-V, --version               display version information and exit\n"
-"\n"
-msgstr ""
-
-#: repquota.c:152
-#, fuzzy
-msgid "Repquota cannot report through RPC calls.\n"
-msgstr "Repquota ne peut pas générer de rapport en utilisant des appels RPC.\n"
-
-#: repquota.c:156
-msgid "Specified both -n and -t but only one of them can be used.\n"
-msgstr ""
-"Spécification de -n et -t alors qu'un seul des deux peut être utilisé à la "
-"fois.\n"
-
-#: repquota.c:348
-msgid "User"
-msgstr "Utilisateur"
-
-#: repquota.c:350
-msgid "Group"
-msgstr "Groupe"
-
-#: repquota.c:353
-#, c-format
-msgid "*** Report for %s quotas on device %s\n"
-msgstr "*** Rapport pour les quotas %s sur le périphérique %s\n"
-
-#: repquota.c:362
-msgid "Space"
-msgstr ""
-
-#: repquota.c:364
-#, fuzzy
-msgid "Block"
-msgstr "blocs"
-
-#: repquota.c:365
-#, c-format
-msgid "Block grace time: %s; Inode grace time: %s\n"
-msgstr "Période de sursis bloc : %s ; période de sursis inode : %s\n"
-
-#: repquota.c:366
-#, fuzzy, c-format
-msgid "                        %s limits                File limits\n"
-msgstr "                        Limites bloc               Limites fichier\n"
-
-#: repquota.c:367
-#, c-format
-msgid "%-9s       used    soft    hard  grace    used  soft  hard  grace\n"
-msgstr "%-9s     utilisé souple stricte sursis utilisé souple stricte sursis\n"
-
 #: rquota_svc.c:88
 #, fuzzy, c-format
 msgid ""
@@ -2624,197 +2879,6 @@ msgstr ""
 "copy_group_quota_limits : échec dans la récupération des quotas groupe pour "
 "l'uid %ld : %s\n"
 
-#: setquota.c:55
-#, c-format
-msgid ""
-"Usage:\n"
-"  setquota [-u|-g] %1$s[-F quotaformat] <user|group>\n"
-"\t<block-softlimit> <block-hardlimit> <inode-softlimit> <inode-hardlimit> -a|"
-"<filesystem>...\n"
-"  setquota [-u|-g] %1$s[-F quotaformat] <-p protouser|protogroup> <user|"
-"group> -a|<filesystem>...\n"
-"  setquota [-u|-g] %1$s[-F quotaformat] -b [-c] -a|<filesystem>...\n"
-"  setquota [-u|-g] [-F quotaformat] -t <blockgrace> <inodegrace> -a|"
-"<filesystem>...\n"
-"  setquota [-u|-g] [-F quotaformat] <user|group> -T <blockgrace> "
-"<inodegrace> -a|<filesystem>...\n"
-"\n"
-"-u, --user                 set limits for user\n"
-"-g, --group                set limits for group\n"
-"-a, --all                  set limits for all filesystems\n"
-"    --always-resolve       always try to resolve name, even if is\n"
-"                           composed only of digits\n"
-"-F, --format=formatname    operate on specific quota format\n"
-"-p, --prototype=protoname  copy limits from user/group\n"
-"-b, --batch                read limits from standard input\n"
-"-c, --continue-batch       continue in input processing in case of an error\n"
-msgstr ""
-
-#: setquota.c:72
-msgid ""
-"-r, --remote               set remote quota (via RPC)\n"
-"-m, --no-mixed-pathnames      trim leading slashes from NFSv4 mountpoints\n"
-msgstr ""
-
-#: setquota.c:75
-msgid ""
-"-t, --edit-period          edit grace period\n"
-"-T, --edit-times           edit grace times for user/group\n"
-"-h, --help                 display this help text and exit\n"
-"-V, --version              display version information and exit\n"
-"\n"
-msgstr ""
-
-#: setquota.c:90
-#, fuzzy, c-format
-msgid "%s: %s\n"
-msgstr "Mauvais %s : %s\n"
-
-#: setquota.c:103 setquota.c:116
-#, fuzzy, c-format
-msgid "%s: %s: %s\n"
-msgstr "%s (%s) %s :\n"
-
-#: setquota.c:212
-#, fuzzy
-msgid "Group and user quotas cannot be used together.\n"
-msgstr ""
-"Les quotas groupes et utilisateurs ne peuvent pas être utilisés "
-"simultanément.\n"
-
-#: setquota.c:216
-msgid "Prototype user has no sense when editing grace times.\n"
-msgstr ""
-"Un prototype d'utilisateur n'a pas lieu d'être pour la modification des "
-"temps de sursis.\n"
-
-#: setquota.c:220
-#, fuzzy
-msgid "Cannot set both individual and global grace time.\n"
-msgstr "Impossible d'écrire les temps de sursis individuels dans le fichier.\n"
-
-#: setquota.c:224
-#, fuzzy
-msgid "Batch mode cannot be used for setting grace times.\n"
-msgstr ""
-"Un prototype d'utilisateur n'a pas lieu d'être pour la modification des "
-"temps de sursis.\n"
-
-#: setquota.c:228
-#, fuzzy
-msgid "Batch mode and prototype user cannot be used together.\n"
-msgstr ""
-"Les quotas groupes et utilisateurs ne peuvent pas être utilisés "
-"simultanément.\n"
-
-#: setquota.c:232
-#, fuzzy
-msgid "Cannot set grace times over RPC protocol.\n"
-msgstr "Impossible d'écrire les temps de sursis dans le fichier.\n"
-
-#: setquota.c:255
-#, fuzzy
-msgid "Bad block softlimit"
-msgstr "limite souple bloc"
-
-#: setquota.c:256
-#, fuzzy
-msgid "Bad block hardlimit"
-msgstr "limite stricte bloc"
-
-#: setquota.c:257
-#, fuzzy
-msgid "Bad inode softlimit"
-msgstr "limite souple inode"
-
-#: setquota.c:258
-#, fuzzy
-msgid "Bad inode hardlimit"
-msgstr "limite stricte inode"
-
-#: setquota.c:264 setquota.c:276
-#, fuzzy
-msgid "Bad block grace time"
-msgstr "temps de sursis bloc"
-
-#: setquota.c:265 setquota.c:282
-#, fuzzy
-msgid "Bad inode grace time"
-msgstr "temps de sursis inode"
-
-#: setquota.c:288
-msgid "Mountpoint not specified.\n"
-msgstr "Point de montage non spécifié.\n"
-
-#: setquota.c:345
-#, fuzzy, c-format
-msgid "Line %d too long.\n"
-msgstr "Ligne %d trop longue. Tronquée.\n"
-
-#: setquota.c:357
-#, fuzzy, c-format
-msgid "Cannot parse input line %d.\n"
-msgstr "Impossible d'ouvrir le fichier %s : %s\n"
-
-#: setquota.c:359 setquota.c:367 setquota.c:376 setquota.c:385 setquota.c:394
-#: setquota.c:403
-msgid "Exitting.\n"
-msgstr ""
-
-#: setquota.c:360 setquota.c:368 setquota.c:377 setquota.c:386 setquota.c:395
-#: setquota.c:404
-#, fuzzy
-msgid "Skipping line.\n"
-msgstr "Non traitement de %s [%s]\n"
-
-#: setquota.c:365
-#, c-format
-msgid "Unable to resolve name '%s' on line %d.\n"
-msgstr ""
-
-#: setquota.c:373
-#, c-format
-msgid "Unable to parse block soft limit '%s' on line %d: %s\n"
-msgstr ""
-
-#: setquota.c:382
-#, c-format
-msgid "Unable to parse block hard limit '%s' on line %d: %s\n"
-msgstr ""
-
-#: setquota.c:391
-#, c-format
-msgid "Unable to parse inode soft limit '%s' on line %d: %s\n"
-msgstr ""
-
-#: setquota.c:400
-#, c-format
-msgid "Unable to parse inode hard limit '%s' on line %d: %s\n"
-msgstr ""
-
-#: setquota.c:443
-#, fuzzy, c-format
-msgid "Setting grace period on %s is not supported.\n"
-msgstr "La création de quotas au format %s n'est pas supportée.\n"
-
-#: setquota.c:465
-#, c-format
-msgid "Not setting block grace time on %s because softlimit is not exceeded.\n"
-msgstr ""
-
-#: setquota.c:469
-#, c-format
-msgid "Not setting inode grace time on %s because softlimit is not exceeded.\n"
-msgstr ""
-
-#: setquota.c:472
-#, fuzzy, c-format
-msgid ""
-"cannot write times for %s. Maybe kernel does not support such operation?\n"
-msgstr ""
-"Impossible d'écrire les temps pour %s. Le noyau supporte-t'il une telle "
-"opération ?\n"
-
 #: svc_socket.c:42
 #, c-format
 msgid "Cannot create socket: %s\n"
@@ -2829,315 +2893,6 @@ msgstr "Impossible de fixer les options de la socket : %s\n"
 #, c-format
 msgid "Cannot bind to given address: %s\n"
 msgstr "Impossible d'exécuter bind() avec l'adresse donnée : %s\n"
-
-#: warnquota.c:56
-msgid ""
-"Hi,\n"
-"\n"
-"We noticed that you are in violation with the quotasystem\n"
-"used on this system. We have found the following violations:\n"
-"\n"
-msgstr ""
-"Bonjour,\n"
-"\n"
-"Il semblerait que vous soyez en violation avec le mécanisme de\n"
-"quotas utilisé sur ce système. Voici les dépassements relevés :\n"
-"\n"
-
-#: warnquota.c:58
-#, c-format
-msgid ""
-"\n"
-"We hope that you will cleanup before your grace period expires.\n"
-"\n"
-"Basically, this means that the system thinks you are using more disk space\n"
-"on the above partition(s) than you are allowed.  If you do not delete files\n"
-"and get below your quota before the grace period expires, the system will\n"
-"prevent you from creating new files.\n"
-"\n"
-"For additional assistance, please contact us at %s\n"
-"or via phone at %s.\n"
-msgstr ""
-"\n"
-"Nous espérons que vous ferez de la place avant que votre période de\n"
-"sursis n'expire.\n"
-"\n"
-"En clair, tout cela signifie que le système pense que vous utilisez\n"
-"plus d'espace disque qu'il ne vous est autorisé sur la (les)\n"
-"partition(s) ci-dessus. Si vous n'effacez pas de fichiers pour passer\n"
-"en-dessous de votre quota avant que votre période de sursis\n"
-"expire, le système vous empéchera de créer de nouveaux fichiers.\n"
-"\n"
-"Pour plus de renseignements, veuillez nous contacter au %s\n"
-"ou par téléphone au %s.\n"
-
-#: warnquota.c:65
-#, c-format
-msgid ""
-"Hi,\n"
-"\n"
-"We noticed that the group %s you are member of violates the quotasystem\n"
-"used on this system. We have found the following violations:\n"
-"\n"
-msgstr ""
-"Bonjour,\n"
-"\n"
-"Il semblerait que le groupe %s dont vous êtes membre soit en violation avec\n"
-"le mécanisme de quotas utilisé sur ce système. Voici les dépassements "
-"relevés :\n"
-"\n"
-
-#: warnquota.c:67
-#, c-format
-msgid ""
-"\n"
-"Please cleanup the group data before the grace period expires.\n"
-"\n"
-"Basically, this means that the system thinks group is using more disk space\n"
-"on the above partition(s) than it is allowed.  If you do not delete files\n"
-"and get below group quota before the grace period expires, the system will\n"
-"prevent you and other members of the group from creating new files owned by\n"
-"the group.\n"
-"\n"
-"For additional assistance, please contact us at %s\n"
-"or via phone at %s.\n"
-msgstr ""
-"\n"
-"Veuillez faire de la place dans les données du groupe avant que la\n"
-"période de sursis n'expire.\n"
-"\n"
-"En clair, tout cela signifie que le système pense que le groupe utilise\n"
-"plus d'espace disque qu'il n'est autorisé sur la (les)\n"
-"partition(s) ci-dessus. Si vous n'effacez pas de fichiers pour passer\n"
-"en-dessous du quota du groupe avant que la période de sursis\n"
-"expire, le système vous empéchera, à vous ainsi qu'aux autres membres du\n"
-"groupe, de créer de nouveaux fichiers appartenant à ce groupe.\n"
-"\n"
-"Pour plus de renseignements, veuillez nous contacter au %s\n"
-"ou par téléphone au %s.\n"
-
-#: warnquota.c:183
-#, c-format
-msgid "ldap_initialize() failed: %s\n"
-msgstr ""
-
-#: warnquota.c:189
-#, c-format
-msgid "ldap_sasl_bind_s() failed: %s\n"
-msgstr ""
-
-#: warnquota.c:204
-#, fuzzy, c-format
-msgid "Cannot get name for uid/gid %u.\n"
-msgstr "Impossible d'obtenir un nom pour les uid/gid %u.\n"
-
-#: warnquota.c:288
-#, fuzzy, c-format
-msgid "Cannot create pipe: %s\n"
-msgstr "Impossible de créer un tube : %s\n"
-
-#: warnquota.c:294
-#, fuzzy, c-format
-msgid "Cannot fork: %s\n"
-msgstr "Impossible d'exécuter fork() : %s\n"
-
-#: warnquota.c:299
-#, fuzzy, c-format
-msgid "Cannot duplicate descriptor: %s\n"
-msgstr "Impossible de dupliquer le descripteur : %s\n"
-
-#: warnquota.c:303
-#, fuzzy, c-format
-msgid "Cannot execute '%s': %s\n"
-msgstr "Impossible d'exécuter « %s » : %s\n"
-
-#: warnquota.c:308
-#, fuzzy, c-format
-msgid "Cannot open pipe: %s\n"
-msgstr "Impossible d'ouvrir « pine » : %s\n"
-
-#: warnquota.c:382
-msgid "Could not setup ldap connection.\n"
-msgstr ""
-
-#: warnquota.c:404
-#, fuzzy, c-format
-msgid "Error with %s.\n"
-msgstr "Erreur lors de la modification des quotas.\n"
-
-#: warnquota.c:405
-#, c-format
-msgid "ldap_search_ext_s() failed: %s\n"
-msgstr ""
-
-#: warnquota.c:411
-#, c-format
-msgid "Multiple entries found for client %s (%d).\n"
-msgstr ""
-
-#: warnquota.c:415
-#, c-format
-msgid "Entry not found for client %s.\n"
-msgstr ""
-
-#: warnquota.c:425
-#, fuzzy, c-format
-msgid "Could not get values for %s.\n"
-msgstr "Impossible d'obtenir le nom de périphérique pour %s\n"
-
-#: warnquota.c:467
-#, c-format
-msgid "Administrator for a group %s not found. Cancelling mail.\n"
-msgstr ""
-"Administrateur pour le groupe %s non trouvé. Abandon de l'envoi du "
-"courrier.\n"
-
-#: warnquota.c:519
-#, c-format
-msgid ""
-"\n"
-"                        Block limits               File limits\n"
-msgstr ""
-"\n"
-"                        Limites bloc               Limites fichiers\n"
-
-#: warnquota.c:520
-#, c-format
-msgid ""
-"Filesystem           used    soft    hard  grace    used  soft  hard  grace\n"
-msgstr ""
-"Système fichiers   utilisé souple stricte sursis utilisé souple stricte "
-"sursis\n"
-
-#: warnquota.c:560
-#, fuzzy, c-format
-msgid "Cannot wait for mailer: %s\n"
-msgstr "Impossible d'attendre le client de messagerie : %s\n"
-
-#: warnquota.c:562
-msgid "Warning: Mailer exitted abnormally.\n"
-msgstr ""
-"Attention : le client de messagerie s'est terminé de manière inattendue.\n"
-
-#: warnquota.c:619
-#, fuzzy, c-format
-msgid ""
-"Cannot open %s: %s\n"
-"Will use device names.\n"
-msgstr ""
-"Impossible d'ouvrir %s : %s\n"
-"Utilisation des noms de périphériques.\n"
-
-#: warnquota.c:642
-#, fuzzy, c-format
-msgid "Cannot parse line %d in quotatab (missing ':')\n"
-msgstr "Impossible d'analyser la ligne %d dans quotatab (il manque « : »)\n"
-
-#: warnquota.c:656
-#, fuzzy, c-format
-msgid "Cannot stat device %s (maybe typo in quotatab)\n"
-msgstr ""
-"Impossible d'exécuter stat() sur le périphérique %s (erreur de syntaxe dans "
-"quotatab ?)\n"
-
-#: warnquota.c:676
-#, c-format
-msgid ""
-"Incorrect format string for variable %s.\n"
-"Unrecognized expression %%%c.\n"
-msgstr ""
-
-#: warnquota.c:722
-#, fuzzy, c-format
-msgid "Cannot open %s: %s\n"
-msgstr "Impossible d'ouvrir %s : %s\n"
-
-#: warnquota.c:742
-#, c-format
-msgid "Line %d too long. Truncating.\n"
-msgstr "Ligne %d trop longue. Tronquée.\n"
-
-#: warnquota.c:814
-#, c-format
-msgid "Cannot parse time at CC_BEFORE variable (line %d).\n"
-msgstr ""
-
-#: warnquota.c:838
-#, c-format
-msgid "Error in config file (line %d), ignoring\n"
-msgstr "Erreur dans le fichier de configuration (ligne %d), ignorée\n"
-
-#: warnquota.c:841
-#, c-format
-msgid "Possible error in config file (line %d), ignoring\n"
-msgstr "Erreur probable dans le fichier de configuration (ligne %d), ignorée\n"
-
-#: warnquota.c:844
-msgid "Unterminated last line, ignoring\n"
-msgstr "Dernière ligne non terminée, ignorée\n"
-
-#: warnquota.c:850
-#, c-format
-msgid ""
-"LDAP library version >= 2.3 detected. Please use LDAP_URI instead of "
-"hostname and port.\n"
-"Generated URI %s\n"
-msgstr ""
-
-#: warnquota.c:872
-#, fuzzy, c-format
-msgid "Cannot open file with group administrators: %s\n"
-msgstr ""
-"Impossible d'ouvrir le fichier contenant les administrateurs de groupes : "
-"%s\n"
-
-#: warnquota.c:887
-#, fuzzy, c-format
-msgid "Parse error at line %d. Cannot find end of group name.\n"
-msgstr ""
-"Erreur d'analyse à la ligne %d. Impossible de trouver la fin du nom de "
-"groupe.\n"
-
-#: warnquota.c:896
-#, fuzzy, c-format
-msgid "Parse error at line %d. Cannot find administrators name.\n"
-msgstr ""
-"Erreur d'analyse à la ligne %d. Impossible de trouver le nom des "
-"administrateurs.\n"
-
-#: warnquota.c:906
-#, c-format
-msgid ""
-"Parse error at line %d. Trailing characters after administrators name.\n"
-msgstr ""
-"Erreur d'analyse à la ligne %d. Caractères parasites après le nom des "
-"administrateurs.\n"
-
-#: warnquota.c:969
-msgid ""
-"Usage:\n"
-"  warnquota [-ugsid] [-F quotaformat] [-c configfile] [-q quotatabfile] [-a "
-"adminsfile] [filesystem...]\n"
-"\n"
-"-u, --user                      warn users\n"
-"-g, --group                     warn groups\n"
-"-s, --human-readable            send information in more human friendly "
-"units\n"
-"-i, --no-autofs                 avoid autofs mountpoints\n"
-"-d, --no-details                do not send quota information itself\n"
-"-F, --format=formatname         use quotafiles of specific format\n"
-"-c, --config=config-file        non-default config file\n"
-"-q, --quota-tab=quotatab-file   non-default quotatab\n"
-"-a, --admins-file=admins-file   non-default admins file\n"
-"-h, --help                      display this help message and exit\n"
-"-v, --version                   display version information and exit\n"
-"\n"
-msgstr ""
-
-#: warnquota.c:1050
-#, fuzzy, c-format
-msgid "Cannot get host name: %s\n"
-msgstr "Impossible d'obtenir le nom du fichier de quotas pour %s\n"
 
 #: xqmstats.c:32 xqmstats.c:37
 msgid "The running kernel does not support XFS\n"
@@ -3193,8 +2948,268 @@ msgstr "  demandes inactives : %u\n"
 msgid "Maximum %u dquots (currently %u incore, %u on freelist)\n"
 msgstr "Maximum %u dquots (actuellement %u inclus, %u sur liste libre)\n"
 
-#~ msgid "Compiled with "
-#~ msgstr "Compilé avec "
+#: edquota.c:81
+#, c-format
+msgid ""
+"Usage:\n"
+"\tedquota %1$s[-u] [-F formatname] [-p username] [-f filesystem] "
+"username ...\n"
+"\tedquota %1$s-g [-F formatname] [-p groupname] [-f filesystem] "
+"groupname ...\n"
+"\tedquota [-u|g] [-F formatname] [-f filesystem] -t\n"
+"\tedquota [-u|g] [-F formatname] [-f filesystem] -T username|groupname ...\n"
+msgstr ""
+
+#: edquota.c:85
+msgid ""
+"\n"
+"-u, --user                    edit user data\n"
+"-g, --group                   edit group data\n"
+msgstr ""
+
+#: edquota.c:89
+msgid ""
+"-r, --remote                  edit remote quota (via RPC)\n"
+"-m, --no-mixed-pathnames      trim leading slashes from NFSv4 mountpoints\n"
+msgstr ""
+
+#: edquota.c:92
+msgid ""
+"-F, --format=formatname       edit quotas of a specific format\n"
+"-p, --prototype=name          copy data from a prototype user/group\n"
+"    --always-resolve          always try to resolve name, even if it is\n"
+"                              composed only of digits\n"
+"-f, --filesystem=filesystem   edit data only on a specific filesystem\n"
+"-t, --edit-period             edit grace period\n"
+"-T, --edit-times              edit grace time of a user/group\n"
+"-h, --help                    display this help text and exit\n"
+"-V, --version                 display version information and exit\n"
+"\n"
+msgstr ""
+
+#: edquota.c:183
+#, fuzzy
+msgid ""
+"Prototype name does not make sense when editing grace period or times.\n"
+msgstr ""
+"Un prototype d'utilisateur n'a pas lieu d'être pour la modification des "
+"temps de sursis.\n"
+
+#: edquota.c:187
+#, fuzzy
+msgid "Cannot change grace times over RPC protocol.\n"
+msgstr "Impossible d'écrire les temps de sursis dans le fichier.\n"
+
+#: edquota.c:205
+#, fuzzy, c-format
+msgid "Cannot get quota information for user %s\n"
+msgstr "Impossible d'obtenir le nom du fichier de quotas pour %s\n"
+
+#: edquota.c:211
+msgid "fsname mismatch\n"
+msgstr "Incohérence de fsname\n"
+
+#: edquota.c:253
+msgid "No filesystems with quota detected.\n"
+msgstr "Aucun système de fichier avec quotas détecté.\n"
+
+#: edquota.c:269
+#, fuzzy, c-format
+msgid "Cannot create temporary file: %s\n"
+msgstr "Impossible de ré-ouvrir le fichier temporaire : %s\n"
+
+#: edquota.c:274
+#, fuzzy, c-format
+msgid "Cannot change owner of temporary file: %s\n"
+msgstr "Impossible de dupliquer le descripteur du fichier temporaire : %s\n"
+
+#: edquota.c:281
+#, fuzzy
+msgid "Cannot write grace times to file.\n"
+msgstr "Impossible d'écrire les temps de sursis dans le fichier.\n"
+
+#: edquota.c:285
+msgid "Error while editing grace times.\n"
+msgstr "Erreur lors de la modification des temps de sursis.\n"
+
+#: edquota.c:289
+msgid "Failed to parse grace times file.\n"
+msgstr "Échec lors de l'analyse du fichier des temps de sursis.\n"
+
+#: edquota.c:298 edquota.c:324
+#, fuzzy, c-format
+msgid "Cannot get quota information for user %s.\n"
+msgstr "Impossible d'obtenir le nom du fichier de quotas pour %s\n"
+
+#: edquota.c:300
+#, fuzzy
+msgid "Cannot write individual grace times to file.\n"
+msgstr "Impossible d'écrire les temps de sursis individuels dans le fichier.\n"
+
+#: edquota.c:305
+msgid "Error while editing individual grace times.\n"
+msgstr "Erreur lors de la modification des temps de sursis individuels.\n"
+
+#: edquota.c:310
+#, fuzzy
+msgid "Cannot read individual grace times from file.\n"
+msgstr ""
+"Impossible de lire les temps de sursis individuels depuis le fichier.\n"
+
+#: edquota.c:326
+#, fuzzy
+msgid "Cannot write quotas to file.\n"
+msgstr "Impossible d'écrire les quotas dans le fichier.\n"
+
+#: edquota.c:331
+msgid "Error while editing quotas.\n"
+msgstr "Erreur lors de la modification des quotas.\n"
+
+#: edquota.c:341
+#, fuzzy
+msgid "Cannot reopen!"
+msgstr "Impossible d'ouvrir %s : %s\n"
+
+#: edquota.c:343
+#, fuzzy
+msgid "Cannot read quotas from file.\n"
+msgstr "Impossible de lire les quotas depuis le fichier.\n"
+
+#: quota.c:85
+#, fuzzy
+msgid "Usage: quota [-guqvswim] [-l | [-Q | -A]] [-F quotaformat]\n"
+msgstr "Utilisation : quota [-guqvs] [-l | -Q] [-F format_quota]\n"
+
+#: quota.c:86
+#, fuzzy
+msgid "\tquota [-qvswim] [-l | [-Q | -A]] [-F quotaformat] -u username ...\n"
+msgstr "\tquota [-qvs] [-l | -Q] [-F format_quota] -u utilisateur ...\n"
+
+#: quota.c:87
+#, fuzzy
+msgid "\tquota [-qvswim] [-l | [-Q | -A]] [-F quotaformat] -g groupname ...\n"
+msgstr "\tquota [-qvs] [-l | -Q] [-F format_quota] -g groupe ...\n"
+
+#: quota.c:88
+#, fuzzy
+msgid "\tquota [-qvswugQm] [-F quotaformat] -f filesystem ...\n"
+msgstr "\tedquota [-u|g] [-F nom_format] [-f système_fichier] -t\n"
+
+#: quota.c:89
+msgid ""
+"\n"
+"-u, --user                display quota for user\n"
+"-g, --group               display quota for group\n"
+"-q, --quiet               print more terse message\n"
+"-v, --verbose             print more verbose message\n"
+"-s, --human-readable      display numbers in human friendly units (MB, "
+"GB...)\n"
+"    --always-resolve      always try to translate name to id, even if it is\n"
+"\t\t\t  composed of only digits\n"
+"-w, --no-wrap             do not wrap long lines\n"
+"-p, --raw-grace           print grace time in seconds since epoch\n"
+"-l, --local-only          do not query NFS filesystems\n"
+"-Q, --quiet-refuse        do not print error message when NFS server does\n"
+"                          not respond\n"
+"-i, --no-autofs           do not query autofs mountpoints\n"
+"-F, --format=formatname   display quota of a specific format\n"
+"-f, --filesystem-list     display quota information only for given "
+"filesystems\n"
+"-A, --all-nfs             display quota for all NFS mountpoints\n"
+"-m, --no-mixed-pathnames  trim leading slashes from NFSv4 mountpoints\n"
+"    --show-mntpoint       show mount point of the file system in output\n"
+"    --hide-device         do not show file system device in output\n"
+"-h, --help                display this help message and exit\n"
+"-V, --version             display version information and exit\n"
+"\n"
+msgstr ""
+
+#: quota.c:120
+msgid "space"
+msgstr ""
+
+#: quota.c:122
+msgid "blocks"
+msgstr "blocs"
+
+#: quota.c:124
+#, fuzzy, c-format
+msgid "Disk quotas for %s %s (%cid %u): %s\n"
+msgstr "Quotas disque pour %s %s (%cid %d) : %s\n"
+
+#: quota.c:127
+msgid "Filesystem"
+msgstr "Système fichiers"
+
+#: quota.c:128 quota.c:129
+msgid "quota"
+msgstr "quota"
+
+#: quota.c:128 quota.c:129
+msgid "limit"
+msgstr "limite"
+
+#: quota.c:128 quota.c:129
+msgid "grace"
+msgstr "sursis"
+
+#: quota.c:129
+msgid "files"
+msgstr "fichiers"
+
+#: quota.c:201
+msgid "File limit reached on"
+msgstr "Limite de fichiers atteinte"
+
+#: quota.c:207
+msgid "In file grace period on"
+msgstr "Période de sursis fichiers activée"
+
+#: quota.c:211
+msgid "Over file quota on"
+msgstr "Quota dépassement fichiers activé"
+
+#: quota.c:217
+msgid "Block limit reached on"
+msgstr "Limite de blocs atteinte"
+
+#: quota.c:223
+msgid "In block grace period on"
+msgstr "Période de sursis blocs activée"
+
+#: quota.c:227
+msgid "Over block quota on"
+msgstr "Quota dépassement blocs activé"
+
+#: quota.c:396
+#, c-format
+msgid "Warning: Ignoring -%c when filesystem list specified.\n"
+msgstr ""
+
+#: quota.c:403
+#, fuzzy
+msgid "No filesystem specified.\n"
+msgstr "Aucun système de fichier avec quotas détecté.\n"
+
+#: quota.c:411
+#, c-format
+msgid "Gid set allocation (%d): %s\n"
+msgstr ""
+
+#: quota.c:417
+#, fuzzy, c-format
+msgid "getgroups(): %s\n"
+msgstr "quota : getgroups() : %s\n"
+
+#: common.c:124
+#, c-format
+msgid "Quota utilities version %s.\n"
+msgstr "Utilitaires quotas version %s.\n"
+
+#: common.c:125
+#, fuzzy, c-format
+msgid "Compiled with:%s\n"
+msgstr "Compilé avec "
 
 #~ msgid "RPC and EXT2_DIRECT"
 #~ msgstr "RPC et EXT2_DIRECT"
