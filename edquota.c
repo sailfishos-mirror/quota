@@ -290,42 +290,24 @@ int main(int argc, char **argv)
 			ret = -1;
 		}
 	}
-	else if (flags & FL_EDIT_TIMES) {
-		for (; argc > 0; argc--, argv++) {
-			id = name2id(*argv, quotatype, !!(flags & FL_NUMNAMES), NULL);
-			curprivs = getprivs(id, handles, 0);
-			if (!curprivs)
-				die(1, _("Cannot get quota information for user %s.\n"), *argv);
-			if (writeindividualtimes(curprivs, tmpfd, *argv, quotatype) < 0) {
-				errstr(_("Cannot write individual grace times to file.\n"));
-				ret = -1;
-				continue;
-			}
-			if (editprivs(tmpfil) < 0) {
-				errstr(_("Error while editing individual grace times.\n"));
-				ret = -1;
-				continue;
-			}
-			if (readindividualtimes(curprivs, tmpfd) < 0) {
-				errstr(_("Cannot read individual grace times from file.\n"));
-				ret = -1;
-				continue;
-			}
-			if (putprivs(curprivs, COMMIT_TIMES) == -1)
-				ret = -1;
-			freeprivs(curprivs);
-		}
-	}
 	else {
 		for (; argc > 0; argc--, argv++) {
 			id = name2id(*argv, quotatype, !!(flags & FL_NUMNAMES), NULL);
 			curprivs = getprivs(id, handles, 0);
 			if (!curprivs)
 				die(1, _("Cannot get quota information for user %s.\n"), *argv);
-			if (writeprivs(curprivs, tmpfd, *argv, quotatype) < 0) {
-				errstr(_("Cannot write quotas to file.\n"));
-				ret = -1;
-				continue;
+			if (flags & FL_EDIT_TIMES) {
+				if (writeindividualtimes(curprivs, tmpfd, *argv, quotatype) < 0) {
+					errstr(_("Cannot write individual grace times to file.\n"));
+					ret = -1;
+					continue;
+				}
+			} else {
+				if (writeprivs(curprivs, tmpfd, *argv, quotatype) < 0) {
+					errstr(_("Cannot write quotas to file.\n"));
+					ret = -1;
+					continue;
+				}
 			}
 			if (editprivs(tmpfil) < 0) {
 				errstr(_("Error while editing quotas.\n"));
@@ -339,10 +321,18 @@ int main(int argc, char **argv)
 			 */
 			if ((tmpfd = open(tmpfil, O_RDWR)) < 0)
 				die(1, _("Cannot reopen!"));
-			if (readprivs(curprivs, tmpfd) < 0) {
-				errstr(_("Cannot read quotas from file.\n"));
-				ret = -1;
-				continue;
+			if (flags & FL_EDIT_TIMES) {
+				if (readindividualtimes(curprivs, tmpfd) < 0) {
+					errstr(_("Cannot read individual grace times from file.\n"));
+					ret = -1;
+					continue;
+				}
+			} else {
+				if (readprivs(curprivs, tmpfd) < 0) {
+					errstr(_("Cannot read quotas from file.\n"));
+					ret = -1;
+					continue;
+				}
 			}
 			if (putprivs(curprivs, COMMIT_LIMITS) == -1)
 				ret = -1;
