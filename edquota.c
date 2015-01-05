@@ -280,10 +280,12 @@ int main(int argc, char **argv)
 		if (writetimes(handles, tmpfd) < 0) {
 			errstr(_("Cannot write grace times to file.\n"));
 			ret = -1;
+			goto out;
 		}
 		if (editprivs(tmpfil) < 0) {
 			errstr(_("Error while editing grace times.\n"));
 			ret = -1;
+			goto out;
 		}
 		close(tmpfd);
 		/*
@@ -296,6 +298,7 @@ int main(int argc, char **argv)
 		if (readtimes(handles, tmpfd) < 0) {
 			errstr(_("Failed to parse grace times file.\n"));
 			ret = -1;
+			goto out;
 		}
 	}
 	else {
@@ -308,19 +311,19 @@ int main(int argc, char **argv)
 				if (writeindividualtimes(curprivs, tmpfd, *argv, quotatype) < 0) {
 					errstr(_("Cannot write individual grace times to file.\n"));
 					ret = -1;
-					continue;
+					goto next_user;
 				}
 			} else {
 				if (writeprivs(curprivs, tmpfd, *argv, quotatype) < 0) {
 					errstr(_("Cannot write quotas to file.\n"));
 					ret = -1;
-					continue;
+					goto next_user;
 				}
 			}
 			if (editprivs(tmpfil) < 0) {
 				errstr(_("Error while editing quotas.\n"));
 				ret = -1;
-				continue;
+				goto next_user;
 			}
 			close(tmpfd);
 			/*
@@ -334,17 +337,18 @@ int main(int argc, char **argv)
 				if (readindividualtimes(curprivs, tmpfd) < 0) {
 					errstr(_("Cannot read individual grace times from file.\n"));
 					ret = -1;
-					continue;
+					goto next_user;
 				}
 			} else {
 				if (readprivs(curprivs, tmpfd) < 0) {
 					errstr(_("Cannot read quotas from file.\n"));
 					ret = -1;
-					continue;
+					goto next_user;
 				}
 			}
 			if (putprivs(curprivs, COMMIT_LIMITS) == -1)
 				ret = -1;
+next_user:
 			freeprivs(curprivs);
 		}
 	}
