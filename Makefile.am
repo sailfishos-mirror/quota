@@ -224,7 +224,8 @@ quota_nld_CFLAGS = \
 	$(DBUS_CFLAGS) \
 	$(LIBNL3_CFLAGS)
 quota_nld_LDADD = \
-	libquota.a
+	libquota.a \
+	$(RPCLIBS) \
 	$(DBUS_LIBS) \
 	$(LIBNL3_LIBS)
 
