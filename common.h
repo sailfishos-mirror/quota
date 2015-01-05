@@ -7,6 +7,8 @@
 #ifndef GUARD_COMMON_H
 #define GUARD_COMMON_H
 
+#include <time.h>
+
 #ifndef __attribute__
 # if !defined __GNUC__ || __GNUC__ < 2 || (__GNUC__ == 2 && __GNUC_MINOR__ < 8) || __STRICT_ANSI__
 #  define __attribute__(x)
@@ -43,5 +45,8 @@ char *sstrdup(const char *s);
 
 /* Print version string */
 void version(void);
+
+/* Compare two times */
+int timespec_cmp(struct timespec *a, struct timespec *b);
 
 #endif /* GUARD_COMMON_H */

@@ -125,3 +125,16 @@ void version(void)
 	printf(_("Compiled with:%s\n"), COMPILE_OPTS);
 	printf(_("Bugs to %s\n"), PACKAGE_BUGREPORT);
 }
+
+int timespec_cmp(struct timespec *a, struct timespec *b)
+{
+	if (a->tv_sec < b->tv_sec)
+		return -1;
+	if (a->tv_sec > b->tv_sec)
+		return 1;
+	if (a->tv_nsec < b->tv_nsec)
+		return -1;
+	if (a->tv_nsec > b->tv_nsec)
+		return 1;
+	return 0;
+}

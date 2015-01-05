@@ -237,6 +237,8 @@ int main(int argc, char **argv)
 	int tmpfd, ret, id;
 	struct quota_handle **handles;
 	char *tmpfil, *tmpdir = NULL;
+	struct stat st;
+	struct timespec mtime;
 
 	gettexton();
 	progname = basename(argv[0]);
@@ -282,6 +284,12 @@ int main(int argc, char **argv)
 			ret = -1;
 			goto out;
 		}
+		if (stat(tmpfil, &st) < 0) {
+			errstr(_("Cannot stat file with times.\n"));
+			ret = -1;
+			goto out;
+		}
+		mtime = st.st_mtim;
 		if (editprivs(tmpfil) < 0) {
 			errstr(_("Error while editing grace times.\n"));
 			ret = -1;
@@ -295,6 +303,14 @@ int main(int argc, char **argv)
 		 */
 		if ((tmpfd = open(tmpfil, O_RDWR)) < 0)
 			die(1, _("Cannot reopen!"));
+		if (stat(tmpfil, &st) < 0) {
+			errstr(_("Cannot stat file with times.\n"));
+			ret = -1;
+			goto out;
+		}
+		/* File not modified? */
+		if (timespec_cmp(&mtime, &st.st_mtim) <= 0)
+			goto out;
 		if (readtimes(handles, tmpfd) < 0) {
 			errstr(_("Failed to parse grace times file.\n"));
 			ret = -1;
@@ -320,6 +336,12 @@ int main(int argc, char **argv)
 					goto next_user;
 				}
 			}
+			if (stat(tmpfil, &st) < 0) {
+				errstr(_("Cannot stat file with times.\n"));
+				ret = -1;
+				goto out;
+			}
+			mtime = st.st_mtim;
 			if (editprivs(tmpfil) < 0) {
 				errstr(_("Error while editing quotas.\n"));
 				ret = -1;
@@ -333,6 +355,14 @@ int main(int argc, char **argv)
 			 */
 			if ((tmpfd = open(tmpfil, O_RDWR)) < 0)
 				die(1, _("Cannot reopen!"));
+			if (stat(tmpfil, &st) < 0) {
+				errstr(_("Cannot stat file with times.\n"));
+				ret = -1;
+				goto next_user;
+			}
+			/* File not modified? */
+			if (timespec_cmp(&mtime, &st.st_mtim) <= 0)
+				goto next_user;
 			if (flags & FL_EDIT_TIMES) {
 				if (readindividualtimes(curprivs, tmpfd) < 0) {
 					errstr(_("Cannot read individual grace times from file.\n"));
