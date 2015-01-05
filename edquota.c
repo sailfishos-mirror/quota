@@ -285,6 +285,14 @@ int main(int argc, char **argv)
 			errstr(_("Error while editing grace times.\n"));
 			ret = -1;
 		}
+		close(tmpfd);
+		/*
+		 * Reopen the file since editor may have written the
+		 * file in a new place. Open in rw mode because we can
+		 * reuse the file for editting the next user as well.
+		 */
+		if ((tmpfd = open(tmpfil, O_RDWR)) < 0)
+			die(1, _("Cannot reopen!"));
 		if (readtimes(handles, tmpfd) < 0) {
 			errstr(_("Failed to parse grace times file.\n"));
 			ret = -1;
@@ -316,8 +324,9 @@ int main(int argc, char **argv)
 			}
 			close(tmpfd);
 			/*
-			 * Open in rw mode because we can reuse the file for
-			 * editting next user as well.
+			 * Reopen the file since editor may have written the
+			 * file in a new place. Open in rw mode because we can
+			 * reuse the file for editting the next user as well.
 			 */
 			if ((tmpfd = open(tmpfil, O_RDWR)) < 0)
 				die(1, _("Cannot reopen!"));
