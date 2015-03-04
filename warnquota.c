@@ -431,11 +431,15 @@ static char *lookup_user(struct configparams *config, char *user)
 				return NULL;
 			}
 			to = sstrdup(bvals[0]->bv_val);
+			ldap_memfree(a);
+			ldap_value_free_len(bvals);
 			break;
-		} 
+		}
+		ldap_memfree(a);
 	} 
 
-	ber_bvecfree(bvals);
+	ber_free(ber, 0);
+
 	if (to == NULL) {
 		/* 
 		 * use just the name and default domain as we didn't find the
