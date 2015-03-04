@@ -321,6 +321,10 @@ static int should_cc(struct offenderlist *offender, struct configparams *config)
 	struct util_dqblk *dqb;
 	time_t atime;
 
+	/* Noone to send CC to? */
+	if (!strcmp(config->cc_to, ""))
+		return 0;
+
 	if (config->cc_before == -1)
 		return 1;
 	time(&atime);
