@@ -309,7 +309,7 @@ int main(int argc, char **argv)
 			goto out;
 		}
 		/* File not modified? */
-		if (timespec_cmp(&mtime, &st.st_mtim) <= 0)
+		if (timespec_cmp(&mtime, &st.st_mtim) == 0)
 			goto out;
 		if (readtimes(handles, tmpfd) < 0) {
 			errstr(_("Failed to parse grace times file.\n"));
@@ -361,7 +361,7 @@ int main(int argc, char **argv)
 				goto next_user;
 			}
 			/* File not modified? */
-			if (timespec_cmp(&mtime, &st.st_mtim) <= 0)
+			if (timespec_cmp(&mtime, &st.st_mtim) == 0)
 				goto next_user;
 			if (flags & FL_EDIT_TIMES) {
 				if (readindividualtimes(curprivs, tmpfd) < 0) {
