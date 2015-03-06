@@ -249,9 +249,11 @@ rquota_clnt.c: rquota.x
 # --------
 
 install-exec-hook:
+	rm -f $(DESTDIR)$(sbindir)/quotaoff
 	@$(LN_S) quotaon $(DESTDIR)$(sbindir)/quotaoff
 
 install-data-hook:
+	rm -f $(DESTDIR)$(mandir)/man8/quotaoff.8
 	@$(LN_S) quotaon.8 $(DESTDIR)$(mandir)/man8/quotaoff.8
 
 # -------------
