@@ -110,6 +110,9 @@ struct configparams {
 	char *group_message;
 	char *group_signature;
 	int use_ldap_mail; /* 0 */
+	int ldap_starttls; /* 0 */
+	int ldap_tls; /* LDAP_OPT_X_TLS_NEVER */
+	int ldap_vers; /* LDAP_VERSION3 */
 	time_t cc_before;
 #ifdef USE_LDAP_MAIL_LOOKUP
 	int ldap_is_setup; /* 0 */
@@ -184,6 +187,15 @@ static int setup_ldap(struct configparams *config)
 		return -1;
 	}
 
+	if (config->ldap_starttls) {
+		ldap_set_option(ldapconn, LDAP_OPT_PROTOCOL_VERSION, &(config->ldap_vers));
+		ldap_set_option(ldapconn, LDAP_OPT_X_TLS_REQUIRE_CERT, &(config->ldap_tls));
+		ret = ldap_start_tls_s(ldapconn, NULL, NULL);
+		if (ret != LDAP_SUCCESS) {
+			errstr(_("ldap_start_tls_s() failed: %s\n"), ldap_err2string(ret));
+		    return -1;
+		}
+	}
 	ret = ldap_sasl_bind_s(ldapconn, config->ldap_binddn, LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL);
 	if(ret < 0) {
 		errstr(_("ldap_sasl_bind_s() failed: %s\n"), ldap_err2string(ret));
@@ -718,6 +730,9 @@ static int readconfigfile(const char *filename, struct configparams *config)
 	maildev[0] = 0;
 	config->user_signature = config->user_message = config->group_signature = config->group_message = NULL;
 	config->use_ldap_mail = 0;
+	config->ldap_starttls = 0;
+	config->ldap_tls = LDAP_OPT_X_TLS_NEVER;
+	config->ldap_vers = LDAP_VERSION3;
 	config->cc_before = -1;
 
 #ifdef USE_LDAP_MAIL_LOOKUP
@@ -810,6 +825,26 @@ static int readconfigfile(const char *filename, struct configparams *config)
 					config->use_ldap_mail = 1;
 				else
 					config->use_ldap_mail = 0;
+			}
+			else if (!strcmp(var, "LDAP_TLS")) {
+				if (strcasecmp(value, "never") == 0) {
+					config->ldap_starttls = 1;
+					config->ldap_tls = LDAP_OPT_X_TLS_NEVER;
+				}
+				else if (strcasecmp(value, "demand") == 0) {
+					config->ldap_starttls = 1;
+					config->ldap_tls = LDAP_OPT_X_TLS_DEMAND;
+				}
+				else if (strcasecmp(value, "allow") == 0) {
+					config->ldap_starttls = 1;
+					config->ldap_tls = LDAP_OPT_X_TLS_ALLOW;
+				}
+				else if (strcasecmp(value, "try") == 0) {
+					config->ldap_starttls = 1;
+					config->ldap_tls = LDAP_OPT_X_TLS_TRY;
+				}
+				else
+					config->ldap_starttls = 0;
 			}
 			else if (!strcmp(var, "CC_BEFORE")) {
 				int num;
