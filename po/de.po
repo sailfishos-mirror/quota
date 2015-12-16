@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: quota-tools\n"
 "Report-Msgid-Bugs-To: jack@suse.cz\n"
-"POT-Creation-Date: 2014-12-02 14:02+0100\n"
+"POT-Creation-Date: 2015-12-16 18:19+0100\n"
 "PO-Revision-Date: 2010-02-21 13:10+0100\n"
 "Last-Translator: Michael Bunk <mb@computer-leipzig.com>\n"
 "Language-Team: German <translation-team-de@lists.sourceforge.net>\n"
@@ -58,7 +58,7 @@ msgstr ""
 "beenden\n"
 "\n"
 
-#: convertquota.c:48 warnquota.c:981 quotacheck.c:314 repquota.c:66
+#: convertquota.c:48 warnquota.c:1024 quotacheck.c:314 repquota.c:66
 #: common.c:126
 #, c-format
 msgid "Bugs to %s\n"
@@ -220,85 +220,90 @@ msgstr ""
 "Für Unterstützung wenden Sie sich bitte per E-Mail an %s\n"
 "oder per Telefon an %s.\n"
 
-#: warnquota.c:183
+#: warnquota.c:186
 #, c-format
 msgid "ldap_initialize() failed: %s\n"
 msgstr ""
 
-#: warnquota.c:189
+#: warnquota.c:195
+#, c-format
+msgid "ldap_start_tls_s() failed: %s\n"
+msgstr ""
+
+#: warnquota.c:201
 #, c-format
 msgid "ldap_sasl_bind_s() failed: %s\n"
 msgstr ""
 
-#: warnquota.c:204
+#: warnquota.c:216
 #, c-format
 msgid "Cannot get name for uid/gid %u.\n"
 msgstr "Kann Namen für uid/gid %u nicht auflösen.\n"
 
-#: warnquota.c:288
+#: warnquota.c:300
 #, c-format
 msgid "Cannot create pipe: %s\n"
 msgstr "Konnte keine Pipe erzeugen: %s\n"
 
-#: warnquota.c:294
+#: warnquota.c:306
 #, c-format
 msgid "Cannot fork: %s\n"
 msgstr "fork() fehlgeschlagen: %s\n"
 
-#: warnquota.c:299
+#: warnquota.c:311
 #, c-format
 msgid "Cannot duplicate descriptor: %s\n"
 msgstr "Konnte Dateideskriptor nicht duplizieren: %s\n"
 
-#: warnquota.c:303
+#: warnquota.c:315
 #, c-format
 msgid "Cannot execute '%s': %s\n"
 msgstr "Konnte '%s' nicht ausführen: %s\n"
 
-#: warnquota.c:308
+#: warnquota.c:320
 #, fuzzy, c-format
 msgid "Cannot open pipe: %s\n"
 msgstr "Konnte pine nicht öffnen: %s\n"
 
-#: warnquota.c:382
+#: warnquota.c:398
 #, fuzzy
 msgid "Could not setup ldap connection.\n"
 msgstr "Konnte LDAP-Verbindung nicht herstellen, kehre zurück.\n"
 
-#: warnquota.c:404
+#: warnquota.c:420
 #, c-format
 msgid "Error with %s.\n"
 msgstr "Fehler mit %s.\n"
 
-#: warnquota.c:405
+#: warnquota.c:421
 #, c-format
 msgid "ldap_search_ext_s() failed: %s\n"
 msgstr ""
 
-#: warnquota.c:411
+#: warnquota.c:427
 #, fuzzy, c-format
 msgid "Multiple entries found for client %s (%d).\n"
 msgstr ""
 "Mehrere Einträge für Client %s gefunden (nämlich %d).  Sende keine Mail.\n"
 
-#: warnquota.c:415
+#: warnquota.c:431
 #, fuzzy, c-format
 msgid "Entry not found for client %s.\n"
 msgstr ""
 "Eintrag für Client %s nicht gefunden (Gefundene LDAP-Einträge: %d).  Sende "
 "keine Mail.\n"
 
-#: warnquota.c:425
+#: warnquota.c:441
 #, c-format
 msgid "Could not get values for %s.\n"
 msgstr "Konnte keine Werte für %s bekommen.\n"
 
-#: warnquota.c:467
+#: warnquota.c:487
 #, c-format
 msgid "Administrator for a group %s not found. Cancelling mail.\n"
 msgstr "Administrator für Gruppe %s nicht gefunden. Sende keine Mail.\n"
 
-#: warnquota.c:519
+#: warnquota.c:539
 #, c-format
 msgid ""
 "\n"
@@ -307,7 +312,7 @@ msgstr ""
 "\n"
 "                        Blocklimits                Dateilimits\n"
 
-#: warnquota.c:520
+#: warnquota.c:540
 #, c-format
 msgid ""
 "Filesystem           used    soft    hard  grace    used  soft  hard  grace\n"
@@ -315,16 +320,16 @@ msgstr ""
 "Dateisystem          belegt  soft    hart  Gnadenf. belegt soft hart "
 "Gnadenf.\n"
 
-#: warnquota.c:560
+#: warnquota.c:580
 #, c-format
 msgid "Cannot wait for mailer: %s\n"
 msgstr "Kann nicht auf das Mailprogramm warten: %s\n"
 
-#: warnquota.c:562
+#: warnquota.c:582
 msgid "Warning: Mailer exitted abnormally.\n"
 msgstr "Warnung: Mailprogramm hat sich nicht korrekt beendet.\n"
 
-#: warnquota.c:619
+#: warnquota.c:639
 #, c-format
 msgid ""
 "Cannot open %s: %s\n"
@@ -333,19 +338,19 @@ msgstr ""
 "Kann %s nicht öffnen: %s\n"
 "Werde Gerätenamen verwenden.\n"
 
-#: warnquota.c:642
+#: warnquota.c:662
 #, c-format
 msgid "Cannot parse line %d in quotatab (missing ':')\n"
 msgstr "Kann Zeile %d in Quotatabelle nicht verarbeiten (fehlender ':')\n"
 
-#: warnquota.c:656
+#: warnquota.c:676
 #, c-format
 msgid "Cannot stat device %s (maybe typo in quotatab)\n"
 msgstr ""
 "stat()-Aufruf für Gerät %s fehlgeschlagen (vielleicht ein Fehler in der "
 "Quotatabelle)\n"
 
-#: warnquota.c:676
+#: warnquota.c:696
 #, c-format
 msgid ""
 "Incorrect format string for variable %s.\n"
@@ -354,36 +359,36 @@ msgstr ""
 "Ungültige Formatierungsanweisung für Variable %s.\n"
 "Nicht erkannter Ausdruck %%%c.\n"
 
-#: warnquota.c:722
+#: warnquota.c:745
 #, c-format
 msgid "Cannot open %s: %s\n"
 msgstr "Kann %s nicht öffnen: %s\n"
 
-#: warnquota.c:742
+#: warnquota.c:765
 #, c-format
 msgid "Line %d too long. Truncating.\n"
 msgstr "Zeile %d zu lang. Schneide sie ab.\n"
 
-#: warnquota.c:814
+#: warnquota.c:857
 #, c-format
 msgid "Cannot parse time at CC_BEFORE variable (line %d).\n"
 msgstr "Kann die Zeit bei CC_BEFORE-Variable nicht verarbeiten (Zeile %d).\n"
 
-#: warnquota.c:838
+#: warnquota.c:881
 #, c-format
 msgid "Error in config file (line %d), ignoring\n"
 msgstr "Fehler in Konfigurationsdatei (Zeile %d).  Ignoriere.\n"
 
-#: warnquota.c:841
+#: warnquota.c:884
 #, c-format
 msgid "Possible error in config file (line %d), ignoring\n"
 msgstr "Möglicher Fehler in Konfigurationsdatei in Zeile %d.  Ignoriere.\n"
 
-#: warnquota.c:844
+#: warnquota.c:887
 msgid "Unterminated last line, ignoring\n"
 msgstr "Fehlendes Zeilendendezeichen in der letzten Zeile.  Ignoriere.\n"
 
-#: warnquota.c:850
+#: warnquota.c:893
 #, c-format
 msgid ""
 "LDAP library version >= 2.3 detected. Please use LDAP_URI instead of "
@@ -394,22 +399,22 @@ msgstr ""
 "anstelle von Rechnername und Port.\n"
 "Generierte URI %s\n"
 
-#: warnquota.c:872
+#: warnquota.c:915
 #, c-format
 msgid "Cannot open file with group administrators: %s\n"
 msgstr "Kann Datei der Gruppenadministratoren nicht öffnen: %s\n"
 
-#: warnquota.c:887
+#: warnquota.c:930
 #, c-format
 msgid "Parse error at line %d. Cannot find end of group name.\n"
 msgstr "Einlesefehler in Zeile %d.  Kann kein Ende des Gruppennamens finden.\n"
 
-#: warnquota.c:896
+#: warnquota.c:939
 #, c-format
 msgid "Parse error at line %d. Cannot find administrators name.\n"
 msgstr "Einlesefehler in Zeile %d.  Kann Administratornamen nicht finden.\n"
 
-#: warnquota.c:906
+#: warnquota.c:949
 #, c-format
 msgid ""
 "Parse error at line %d. Trailing characters after administrators name.\n"
@@ -417,7 +422,7 @@ msgstr ""
 "Einlesefehler in Zeile %d.  Zusätzliche Zeichen nach dem "
 "Administratornamen.\n"
 
-#: warnquota.c:969
+#: warnquota.c:1012
 #, fuzzy
 msgid ""
 "Usage:\n"
@@ -458,7 +463,7 @@ msgstr ""
 "-v, --version                   Versionsinformationen anzeigen und beenden\n"
 "\n"
 
-#: warnquota.c:1050
+#: warnquota.c:1093
 #, c-format
 msgid "Cannot get host name: %s\n"
 msgstr "Kann Rechnernamen nicht bekommen: %s\n"
@@ -1067,16 +1072,16 @@ msgstr "%s-Quota auf %s (%s) ist %s\n"
 msgid "%s quota sync failed for %s: %s\n"
 msgstr "quotactl auf %s: %s\n"
 
-#: quota.h:21
+#: quota.h:22
 msgid "user"
 msgstr ""
 
-#: quota.h:22
+#: quota.h:23
 #, fuzzy
 msgid "group"
 msgstr "Gruppe"
 
-#: quota.h:23
+#: quota.h:24
 msgid "undefined"
 msgstr ""
 
@@ -3145,62 +3150,63 @@ msgstr "Kann Quota-Informationen für Nutzer %s nicht erhalten\n"
 msgid "fsname mismatch\n"
 msgstr "Dateisystemname paßt nicht\n"
 
-#: edquota.c:253
+#: edquota.c:255
 msgid "No filesystems with quota detected.\n"
 msgstr "Keine Dateisysteme mit Quotainformationen gefunden.\n"
 
-#: edquota.c:269
+#: edquota.c:271
 #, c-format
 msgid "Cannot create temporary file: %s\n"
 msgstr "Kann temporäre Datei nicht anlegen: %s\n"
 
-#: edquota.c:274
+#: edquota.c:276
 #, c-format
 msgid "Cannot change owner of temporary file: %s\n"
 msgstr "Kann Eigentümer einer temporären Datei nicht ändern: %s\n"
 
-#: edquota.c:281
+#: edquota.c:283
 msgid "Cannot write grace times to file.\n"
 msgstr "Kann Gnadenfristen nicht in Datei ablegen.\n"
 
-#: edquota.c:285
+#: edquota.c:288 edquota.c:307 edquota.c:340 edquota.c:359
+#, fuzzy
+msgid "Cannot stat file with times.\n"
+msgstr "Kann keine Datei mit Einhängepunkten öffnen.\n"
+
+#: edquota.c:294
 msgid "Error while editing grace times.\n"
 msgstr "Fehler beim Bearbeiten von Gnadenfristen.\n"
 
-#: edquota.c:289
+#: edquota.c:305 edquota.c:357
+msgid "Cannot reopen!"
+msgstr "Kann Datei nicht zum wiederholten Male öffnen!"
+
+#: edquota.c:315
 msgid "Failed to parse grace times file.\n"
 msgstr "Konnte Gnadenfristendatei nicht parsen.\n"
 
-#: edquota.c:298 edquota.c:324
+#: edquota.c:325
 #, c-format
 msgid "Cannot get quota information for user %s.\n"
 msgstr "Kann Quota-Informationen für Nutzer %s nicht erhalten.\n"
 
-#: edquota.c:300
+#: edquota.c:328
 msgid "Cannot write individual grace times to file.\n"
 msgstr "Kann einzelne Gnadenfristen nicht in Datei schreiben.\n"
 
-#: edquota.c:305
-msgid "Error while editing individual grace times.\n"
-msgstr "Fehler bei Bearbeitung einzelner Gnadenfristen.\n"
-
-#: edquota.c:310
-msgid "Cannot read individual grace times from file.\n"
-msgstr "Kann einzelne Gnadenfristen nicht aus Datei lesen.\n"
-
-#: edquota.c:326
+#: edquota.c:334
 msgid "Cannot write quotas to file.\n"
 msgstr "Kann Quotainformationen nicht in Datei schreiben.\n"
 
-#: edquota.c:331
+#: edquota.c:346
 msgid "Error while editing quotas.\n"
 msgstr "Fehler beim Bearbeiten von Quotas.\n"
 
-#: edquota.c:341
-msgid "Cannot reopen!"
-msgstr "Kann Datei nicht zum wiederholten Male öffnen!"
+#: edquota.c:368
+msgid "Cannot read individual grace times from file.\n"
+msgstr "Kann einzelne Gnadenfristen nicht aus Datei lesen.\n"
 
-#: edquota.c:343
+#: edquota.c:374
 msgid "Cannot read quotas from file.\n"
 msgstr "Kann Quotas nicht aus Datei lesen.\n"
 
@@ -3362,6 +3368,9 @@ msgstr "Quota-Hilfsprogramme Version %s.\n"
 #, c-format
 msgid "Compiled with:%s\n"
 msgstr "Compiliert mit:%s\n"
+
+#~ msgid "Error while editing individual grace times.\n"
+#~ msgstr "Fehler bei Bearbeitung einzelner Gnadenfristen.\n"
 
 #~ msgid ""
 #~ "LDAP library does not support ldap_initialize() but URI is specified."

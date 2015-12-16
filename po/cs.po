@@ -16,7 +16,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: quota-tools 4.01\n"
 "Report-Msgid-Bugs-To: jack@suse.cz\n"
-"POT-Creation-Date: 2014-12-02 14:02+0100\n"
+"POT-Creation-Date: 2015-12-16 18:19+0100\n"
 "PO-Revision-Date: 2012-09-10 16:55+0200\n"
 "Last-Translator: Petr Pisar <petr.pisar@atlas.cz>\n"
 "Language-Team: Czech <translation-team-cs@lists.sourceforge.net>\n"
@@ -64,7 +64,7 @@ msgstr ""
 "-V, --version                       zobrazí informace o verzi a skončí\n"
 "\n"
 
-#: convertquota.c:48 warnquota.c:981 quotacheck.c:314 repquota.c:66
+#: convertquota.c:48 warnquota.c:1024 quotacheck.c:314 repquota.c:66
 #: common.c:126
 #, c-format
 msgid "Bugs to %s\n"
@@ -217,82 +217,87 @@ msgstr ""
 "Potřebujete-li pomoc, napište nám na %s\n"
 "nebo zavolejte na %s.\n"
 
-#: warnquota.c:183
+#: warnquota.c:186
 #, c-format
 msgid "ldap_initialize() failed: %s\n"
 msgstr ""
 
-#: warnquota.c:189
+#: warnquota.c:195
+#, c-format
+msgid "ldap_start_tls_s() failed: %s\n"
+msgstr ""
+
+#: warnquota.c:201
 #, c-format
 msgid "ldap_sasl_bind_s() failed: %s\n"
 msgstr ""
 
-#: warnquota.c:204
+#: warnquota.c:216
 #, c-format
 msgid "Cannot get name for uid/gid %u.\n"
 msgstr "UID/GID %u nelze přeložit na jméno.\n"
 
-#: warnquota.c:288
+#: warnquota.c:300
 #, c-format
 msgid "Cannot create pipe: %s\n"
 msgstr "Nelze vytvořit rouru: %s\n"
 
-#: warnquota.c:294
+#: warnquota.c:306
 #, c-format
 msgid "Cannot fork: %s\n"
 msgstr "Voláni fork() selhalo: %s\n"
 
-#: warnquota.c:299
+#: warnquota.c:311
 #, c-format
 msgid "Cannot duplicate descriptor: %s\n"
 msgstr "Deskriptor nelze zdvojit: %s\n"
 
-#: warnquota.c:303
+#: warnquota.c:315
 #, c-format
 msgid "Cannot execute '%s': %s\n"
 msgstr "„%s“ nelze spustit: %s\n"
 
-#: warnquota.c:308
+#: warnquota.c:320
 #, c-format
 msgid "Cannot open pipe: %s\n"
 msgstr "Nelze otevřít rouru: %s\n"
 
-#: warnquota.c:382
+#: warnquota.c:398
 #, fuzzy
 msgid "Could not setup ldap connection.\n"
 msgstr "Spojení LDAP nelze nastavit.\n"
 
-#: warnquota.c:404
+#: warnquota.c:420
 #, c-format
 msgid "Error with %s.\n"
 msgstr "Chyba u %s.\n"
 
-#: warnquota.c:405
+#: warnquota.c:421
 #, c-format
 msgid "ldap_search_ext_s() failed: %s\n"
 msgstr ""
 
-#: warnquota.c:411
+#: warnquota.c:427
 #, fuzzy, c-format
 msgid "Multiple entries found for client %s (%d).\n"
 msgstr "Nalezeno více záznamů pro klienta %s (%d). E-mail nebude odeslán.\n"
 
-#: warnquota.c:415
+#: warnquota.c:431
 #, fuzzy, c-format
 msgid "Entry not found for client %s.\n"
 msgstr "Záznam pro klienta %s nenalezen. E-mail nebude odeslán.\n"
 
-#: warnquota.c:425
+#: warnquota.c:441
 #, c-format
 msgid "Could not get values for %s.\n"
 msgstr "Hodnoty pro %s nebylo možné získat.\n"
 
-#: warnquota.c:467
+#: warnquota.c:487
 #, c-format
 msgid "Administrator for a group %s not found. Cancelling mail.\n"
 msgstr "Správce skupiny %s nenalezen. E-mail zrušen.\n"
 
-#: warnquota.c:519
+#: warnquota.c:539
 #, c-format
 msgid ""
 "\n"
@@ -301,23 +306,23 @@ msgstr ""
 "\n"
 "                        Limity bloků               Limity souborů\n"
 
-#: warnquota.c:520
+#: warnquota.c:540
 #, c-format
 msgid ""
 "Filesystem           used    soft    hard  grace    used  soft  hard  grace\n"
 msgstr ""
 "Souborový systém    užito   měkký   pevný odklad   užito měkký pevný odklad\n"
 
-#: warnquota.c:560
+#: warnquota.c:580
 #, c-format
 msgid "Cannot wait for mailer: %s\n"
 msgstr "Nelze se dočkat dokončení odeslání pošty: %s\n"
 
-#: warnquota.c:562
+#: warnquota.c:582
 msgid "Warning: Mailer exitted abnormally.\n"
 msgstr "Pozor: Odesílání pošty skončilo mimořádně.\n"
 
-#: warnquota.c:619
+#: warnquota.c:639
 #, c-format
 msgid ""
 "Cannot open %s: %s\n"
@@ -326,17 +331,17 @@ msgstr ""
 "%s nelze otevřít: %s\n"
 "Použijí se názvy zařízení.\n"
 
-#: warnquota.c:642
+#: warnquota.c:662
 #, c-format
 msgid "Cannot parse line %d in quotatab (missing ':')\n"
 msgstr "V souboru quotatab nelze rozebrat řádek %d (chybí „:“)\n"
 
-#: warnquota.c:656
+#: warnquota.c:676
 #, c-format
 msgid "Cannot stat device %s (maybe typo in quotatab)\n"
 msgstr "O zařízení %s nelze získat údaje (možná překlep v souboru quotatab)\n"
 
-#: warnquota.c:676
+#: warnquota.c:696
 #, c-format
 msgid ""
 "Incorrect format string for variable %s.\n"
@@ -345,36 +350,36 @@ msgstr ""
 "Nesprávný formátovací řetězec proměnné %s.\n"
 "Nerozpoznaný výraz %%%c.\n"
 
-#: warnquota.c:722
+#: warnquota.c:745
 #, c-format
 msgid "Cannot open %s: %s\n"
 msgstr "%s nelze otevřít: %s\n"
 
-#: warnquota.c:742
+#: warnquota.c:765
 #, c-format
 msgid "Line %d too long. Truncating.\n"
 msgstr "Řádek %d je příliš dlouhý. Bude zkrácen.\n"
 
-#: warnquota.c:814
+#: warnquota.c:857
 #, c-format
 msgid "Cannot parse time at CC_BEFORE variable (line %d).\n"
 msgstr "Čas v proměnné CC_BEFORE nelze rozebrat (řádek %d).\n"
 
-#: warnquota.c:838
+#: warnquota.c:881
 #, c-format
 msgid "Error in config file (line %d), ignoring\n"
 msgstr "Chyba v konfiguračním souboru (řádek %d), ignoruje se.\n"
 
-#: warnquota.c:841
+#: warnquota.c:884
 #, c-format
 msgid "Possible error in config file (line %d), ignoring\n"
 msgstr "Možná chyba v konfiguračním souboru (řádek %d), ignoruje se.\n"
 
-#: warnquota.c:844
+#: warnquota.c:887
 msgid "Unterminated last line, ignoring\n"
 msgstr "Neukončený poslední řádek, ignoruje se.\n"
 
-#: warnquota.c:850
+#: warnquota.c:893
 #, c-format
 msgid ""
 "LDAP library version >= 2.3 detected. Please use LDAP_URI instead of "
@@ -385,28 +390,28 @@ msgstr ""
 "názvu stroje a portu.\n"
 "Vytvořené URI: %s\n"
 
-#: warnquota.c:872
+#: warnquota.c:915
 #, c-format
 msgid "Cannot open file with group administrators: %s\n"
 msgstr "Soubor se správci skupin nelze otevřít: %s\n"
 
-#: warnquota.c:887
+#: warnquota.c:930
 #, c-format
 msgid "Parse error at line %d. Cannot find end of group name.\n"
 msgstr "Chyba při rozboru řádku %d. Nelze nalézt konec názvu skupiny.\n"
 
-#: warnquota.c:896
+#: warnquota.c:939
 #, c-format
 msgid "Parse error at line %d. Cannot find administrators name.\n"
 msgstr "Chyba při rozboru řádku %d. Nelze nalézt jméno správce.\n"
 
-#: warnquota.c:906
+#: warnquota.c:949
 #, c-format
 msgid ""
 "Parse error at line %d. Trailing characters after administrators name.\n"
 msgstr "Chyba při rozboru řádku %d. Přebytečné znaky za jménem správce.\n"
 
-#: warnquota.c:969
+#: warnquota.c:1012
 msgid ""
 "Usage:\n"
 "  warnquota [-ugsid] [-F quotaformat] [-c configfile] [-q quotatabfile] [-a "
@@ -445,7 +450,7 @@ msgstr ""
 "-v, --version                     zobrazí údaje o verzi a skončí\n"
 "\n"
 
-#: warnquota.c:1050
+#: warnquota.c:1093
 #, c-format
 msgid "Cannot get host name: %s\n"
 msgstr "Nelze získat název stroje: %s\n"
@@ -1061,17 +1066,17 @@ msgid "%s quota sync failed for %s: %s\n"
 msgstr "synchronizace kvóty %s na %s selhala: %s\n"
 
 # kvótový soubor pro třídu %s
-#: quota.h:21
+#: quota.h:22
 msgid "user"
 msgstr "uživatel"
 
 # kvótový soubor pro třídu %s
-#: quota.h:22
+#: quota.h:23
 msgid "group"
 msgstr "skupina"
 
 # kvótový soubor pro třídu %s
-#: quota.h:23
+#: quota.h:24
 msgid "undefined"
 msgstr "neurčeno"
 
@@ -3135,62 +3140,63 @@ msgstr "Údaj o kvótě uživatele %s nelze získat\n"
 msgid "fsname mismatch\n"
 msgstr "fsname (název souborového systému) se neshoduje\n"
 
-#: edquota.c:253
+#: edquota.c:255
 msgid "No filesystems with quota detected.\n"
 msgstr "Nenalezeny žádné souborové systémy s kvótou.\n"
 
-#: edquota.c:269
+#: edquota.c:271
 #, c-format
 msgid "Cannot create temporary file: %s\n"
 msgstr "Nelze vytvořit dočasný soubor: %s\n"
 
-#: edquota.c:274
+#: edquota.c:276
 #, c-format
 msgid "Cannot change owner of temporary file: %s\n"
 msgstr "Nelze změnit vlastníka dočasného souboru: %s\n"
 
-#: edquota.c:281
+#: edquota.c:283
 msgid "Cannot write grace times to file.\n"
 msgstr "Do souboru nelze zapsat doby odkladu.\n"
 
-#: edquota.c:285
+#: edquota.c:288 edquota.c:307 edquota.c:340 edquota.c:359
+#, fuzzy
+msgid "Cannot stat file with times.\n"
+msgstr "Žádný soubor s body připojení nelze otevřít.\n"
+
+#: edquota.c:294
 msgid "Error while editing grace times.\n"
 msgstr "Chyba při úpravě dob odkladu.\n"
 
-#: edquota.c:289
+#: edquota.c:305 edquota.c:357
+msgid "Cannot reopen!"
+msgstr "Nelze znovu otevřít!"
+
+#: edquota.c:315
 msgid "Failed to parse grace times file.\n"
 msgstr "Rozbor souboru s dobami odkladu se nezdařil.\n"
 
-#: edquota.c:298 edquota.c:324
+#: edquota.c:325
 #, c-format
 msgid "Cannot get quota information for user %s.\n"
 msgstr "Údaj o kvótě uživatele %s nelze získat.\n"
 
-#: edquota.c:300
+#: edquota.c:328
 msgid "Cannot write individual grace times to file.\n"
 msgstr "Do souboru nelze zapsat jednotlivé doby odkladu.\n"
 
-#: edquota.c:305
-msgid "Error while editing individual grace times.\n"
-msgstr "Chyba při úpravě jednotlivých dob odkladu.\n"
-
-#: edquota.c:310
-msgid "Cannot read individual grace times from file.\n"
-msgstr "Ze souboru nelze načíst jednotlivé doby odkladu.\n"
-
-#: edquota.c:326
+#: edquota.c:334
 msgid "Cannot write quotas to file.\n"
 msgstr "Kvóty nelze do souboru zapsat.\n"
 
-#: edquota.c:331
+#: edquota.c:346
 msgid "Error while editing quotas.\n"
 msgstr "Chyba při úpravě kvót.\n"
 
-#: edquota.c:341
-msgid "Cannot reopen!"
-msgstr "Nelze znovu otevřít!"
+#: edquota.c:368
+msgid "Cannot read individual grace times from file.\n"
+msgstr "Ze souboru nelze načíst jednotlivé doby odkladu.\n"
 
-#: edquota.c:343
+#: edquota.c:374
 msgid "Cannot read quotas from file.\n"
 msgstr "Kvóty nelze ze souboru.\n"
 
@@ -3359,6 +3365,9 @@ msgstr "Kvótové nástroje (quota-tools) verze %s.\n"
 #, c-format
 msgid "Compiled with:%s\n"
 msgstr "Přeloženo s:%s\n"
+
+#~ msgid "Error while editing individual grace times.\n"
+#~ msgstr "Chyba při úpravě jednotlivých dob odkladu.\n"
 
 #~ msgid ""
 #~ "LDAP library does not support ldap_initialize() but URI is specified."
