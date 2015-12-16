@@ -165,7 +165,7 @@ static int quota_nl_parser(struct nl_msg *msg, void *arg)
 	warn.dev_minor = nla_get_u32(attrs[QUOTA_NL_A_DEV_MINOR]);
 	warn.caused_id = nla_get_u64(attrs[QUOTA_NL_A_CAUSED_ID]);
 
-	if (!(flags & FL_NOCONSOLE))
+	if (!(flags & FL_NOCONSOLE) && warn.qtype != PRJQUOTA)
 		write_console_warning(&warn);
 	if (!(flags & FL_NODBUS))
 		write_dbus_warning(dhandle, &warn);

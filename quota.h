@@ -11,6 +11,7 @@ typedef int64_t qsize_t;	/* Type in which we store size limitations */
 #define MAXQUOTAS 2
 #define USRQUOTA  0		/* element used for user quotas */
 #define GRPQUOTA  1		/* element used for group quotas */
+#define PRJQUOTA  2		/* element used for project quotas */
 
 /*
  * Definitions for the default names of the quotas files.
