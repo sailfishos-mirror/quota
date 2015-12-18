@@ -6,9 +6,8 @@ AC_PREREQ([2.60])
 # Version informations
 # ====================
 m4_define([quota_version_major],[4])
-m4_define([quota_version_minor],[1])
-m4_define([quota_version_micro],[0])
-m4_define([quota_version],[quota_version_major.quota_version_minor.quota_version_micro])
+m4_define([quota_version_minor],[02])
+m4_define([quota_version],[quota_version_major.quota_version_minor])
 
 # =============
 # Automake init
