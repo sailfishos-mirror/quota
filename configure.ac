@@ -258,7 +258,7 @@ Build configuration:
 	bsd-behaviour:   ${enable_bsd_behaviour}
 	ext2-direct:     ${build_ext2direct}
 	ldap-mail:       ${build_ldap}
-        libwrap:         ${build_libwrap}
+	libwrap:         ${build_libwrap}
 	netlink:         ${build_netlink}
 	nls:             ${enable_nls}
 	proc-mounts:     ${with_proc_mounts}
