@@ -53,7 +53,7 @@ AS_IF([test "x${prefix}" = "xNONE"], [
 # ================
 # Check for cflags
 # ================
-CFLAGS="-D_GNU_SOURCE -Wall -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64"
+CFLAGS="$CFLAGS -D_GNU_SOURCE -Wall -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64"
 AC_ARG_ENABLE([werror],
     [AS_HELP_STRING([--enable-werror], [Treat all warnings as errors, useful for development])],
     [enable_werror="$enableval"],
