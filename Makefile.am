@@ -2,7 +2,6 @@ ACLOCAL_AMFLAGS = -I m4
 
 BUILT_SOURCES = rquota.h rquota.c rquota_clnt.c
 
-docdir = $(datadir)/doc/@PACKAGE@
 doc_DATA = \
 	README.mailserver \
 	README.ldap-support \
