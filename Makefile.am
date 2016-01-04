@@ -52,7 +52,8 @@ EXTRA_DIST = \
 	$(man_MANS) \
 	$(rpcsvc_DATA) \
 	autogen.sh \
-	Changelog
+	Changelog \
+	ldap-scripts
 
 noinst_LIBRARIES = \
 	libquota.a \
