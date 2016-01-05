@@ -1,4 +1,5 @@
 ACLOCAL_AMFLAGS = -I m4
+AM_LDFLAGS = -pie
 
 BUILT_SOURCES = rquota.h rquota.c rquota_clnt.c
 
