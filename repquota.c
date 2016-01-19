@@ -90,7 +90,7 @@ static void parse_options(int argcnt, char **argstr)
 		{ NULL, 0, NULL, 0 }
 	};
 
-	while ((ret = getopt_long(argcnt, argstr, "VavughtspncCiFO:", long_opts, NULL)) != -1) {
+	while ((ret = getopt_long(argcnt, argstr, "VavughtspncCiF:O:", long_opts, NULL)) != -1) {
 		switch (ret) {
 			case '?':
 			case 'h':
