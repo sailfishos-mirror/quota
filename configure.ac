@@ -72,17 +72,16 @@ AC_ARG_ENABLE([ldapmail],
     [enable_ldapmail=auto]
 )
 AS_IF([test "x$enable_ldapmail" != "xno"], [
-    build_ldap="yes"
-    AC_CHECK_LIB([ldap], [ldap_initialize], [], [
+    AC_CHECK_LIB([ldap], [ldap_initialize], [
+	build_ldap="yes"
+        LDAP_LIBS="-lldap -llber"
+        AC_DEFINE([USE_LDAP_MAIL_LOOKUP], 1, [Lookup email address using LDAP])
+        COMPILE_OPTS="$COMPILE_OPTS USE_LDAP_MAIL_LOOKUP"
+    ], [
         build_ldap="no"
         AS_IF([test "x$enable_ldapmail" = "xyes"], [
             AC_MSG_ERROR([LDAP support required but library not found.]);
         ])
-    ])
-    AS_IF([test "x$build_ldap" = "xyes"], [
-        LDAP_LIBS="-lldap -llber"
-        AC_DEFINE([USE_LDAP_MAIL_LOOKUP], 1, [Lookup email address using LDAP])
-        COMPILE_OPTS="$COMPILE_OPTS USE_LDAP_MAIL_LOOKUP"
     ])
 ], [
     build_ldap="no"
@@ -163,19 +162,18 @@ AC_ARG_ENABLE([libwrap],
     [enable_libwrap=auto]
 )
 AS_IF([test "x$enable_libwrap" != "xno"], [
-    build_libwrap="yes"
-    AC_CHECK_HEADER([tcpd.h],[], [
+    AC_CHECK_HEADER([tcpd.h], [
+    	build_libwrap="yes"
+        WRAP_LIBS="-lwrap"
+        AC_DEFINE([HOSTS_ACCESS], 1, [Use hosts.allow and hosts.deny for access checking of rpc.rquotad])
+        COMPILE_OPTS="$COMPILE_OPTS HOSTS_ACCESS"
+    ], [
         build_libwrap="no"
         AS_IF([test "x$enable_libwrap" = "xyes"] , [
             AC_MSG_ERROR([tcpd.h not found and requested])
         ], [
             AC_MSG_WARN([tcpd.h not found])
         ])
-    ])
-    AS_IF([test "x$build_libwrap" != "xno"], [
-        WRAP_LIBS="-lwrap"
-        AC_DEFINE([HOSTS_ACCESS], 1, [Use hosts.allow and hosts.deny for access checking of rpc.rquotad])
-        COMPILE_OPTS="$COMPILE_OPTS HOSTS_ACCESS"
     ])
 ], [
     build_libwrap="no"
