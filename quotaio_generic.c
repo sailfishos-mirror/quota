@@ -161,3 +161,37 @@ int generic_scan_dquots(struct quota_handle *h,
 	free(dquot);
 	return ret;
 }
+
+int vfs_scan_dquots(struct quota_handle *h,
+		    int (*process_dquot)(struct dquot *dquot, char *dqname))
+{
+	struct dquot *dquot = get_empty_dquot();
+	qid_t id = 0;
+	struct if_nextdqblk kdqblk;
+	int ret;
+
+	dquot->dq_h = h;
+	while (1) {
+		ret = quotactl(QCMD(Q_GETNEXTQUOTA, h->qh_type),
+			       h->qh_quotadev, id, (void *)&kdqblk);
+		if (ret < 0)
+			break;
+
+		/*
+		 * This is a slight hack but we know struct if_dqblk is a
+		 * subset of struct if_nextdqblk
+		 */
+		generic_kern2utildqblk(&dquot->dq_dqb,
+				       (struct if_dqblk *)&kdqblk);
+		dquot->dq_id = kdqblk.dqb_id;
+		ret = process_dquot(dquot, NULL);
+		if (ret < 0)
+			break;
+		id = kdqblk.dqb_id + 1;
+	}
+	free(dquot);
+
+	if (errno == ENOENT)
+		return 0;
+	return ret;
+}

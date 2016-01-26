@@ -27,4 +27,8 @@ int generic_scan_dquots(struct quota_handle *h,
 			int (*process_dquot)(struct dquot *dquot, char *dqname),
 			int (*get_dquot)(struct dquot *dquot));
 
+/* Scan all dquots using kernel quotactl to get existing ids */
+int vfs_scan_dquots(struct quota_handle *h,
+		    int (*process_dquot)(struct dquot *dquot, char *dqname));
+
 #endif

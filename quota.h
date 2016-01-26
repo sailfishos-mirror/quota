@@ -63,6 +63,7 @@ typedef int64_t qsize_t;	/* Type in which we store size limitations */
 #define Q_SETINFO  0x800006	/* set information about quota files */
 #define Q_GETQUOTA 0x800007	/* get user quota structure */
 #define Q_SETQUOTA 0x800008	/* set user quota structure */
+#define Q_GETNEXTQUOTA 0x800009	/* get disk limits and usage >= ID */
 
 /*
  * Quota structure used for communication with userspace via quotactl
@@ -89,6 +90,19 @@ struct if_dqblk {
 	u_int64_t dqb_btime;
 	u_int64_t dqb_itime;
 	u_int32_t dqb_valid;
+};
+
+struct if_nextdqblk {
+	u_int64_t dqb_bhardlimit;
+	u_int64_t dqb_bsoftlimit;
+	u_int64_t dqb_curspace;
+	u_int64_t dqb_ihardlimit;
+	u_int64_t dqb_isoftlimit;
+	u_int64_t dqb_curinodes;
+	u_int64_t dqb_btime;
+	u_int64_t dqb_itime;
+	u_int32_t dqb_valid;
+	u_int32_t dqb_id;
 };
 
 /*

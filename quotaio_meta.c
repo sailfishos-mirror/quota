@@ -8,6 +8,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #include <sys/types.h>
 
@@ -55,7 +56,18 @@ static int meta_commit_dquot(struct dquot *dquot, int flags)
 
 static int meta_scan_dquots(struct quota_handle *h, int (*process_dquot)(struct dquot *dquot, char *dqname))
 {
-	return generic_scan_dquots(h, process_dquot, vfs_get_dquot);
+	struct if_nextdqblk kdqblk;
+	int ret;
+
+	ret = quotactl(QCMD(Q_GETNEXTQUOTA, h->qh_type), h->qh_quotadev, 0,
+		       (void *)&kdqblk);
+	/*
+	 * Fall back to scanning using passwd if Q_GETNEXTQUOTA is not
+	 * supported
+	 */
+	if (ret < 0 && (errno == ENOSYS || errno == EINVAL))
+		return generic_scan_dquots(h, process_dquot, vfs_get_dquot);
+	return vfs_scan_dquots(h, process_dquot);
 }
 
 struct quotafile_ops quotafile_ops_meta = {
