@@ -191,15 +191,51 @@ static int xfs_get_dquot(struct dquot *dq)
 	return 0;
 }
 
+static int xfs_kernel_scan_dquots(struct quota_handle *h,
+		int (*process_dquot)(struct dquot *dquot, char *dqname))
+{
+	struct dquot *dquot = get_empty_dquot();
+	qid_t id = 0;
+	struct xfs_kern_dqblk xdqblk;
+	int ret;
+
+	dquot->dq_h = h;
+	while (1) {
+		ret = quotactl(QCMD(Q_XGETNEXTQUOTA, h->qh_type),
+			       h->qh_quotadev, id, (void *)&xdqblk);
+		if (ret < 0)
+			break;
+
+		xfs_kern2utildqblk(&dquot->dq_dqb, &xdqblk);
+		dquot->dq_id = xdqblk.d_id;
+		ret = process_dquot(dquot, NULL);
+		if (ret < 0)
+			break;
+		id = xdqblk.d_id + 1;
+	}
+	free(dquot);
+
+	if (errno == ENOENT)
+		return 0;
+	return ret;
+}
+
 /*
  *	Scan all known dquots and call callback on each
  */
 static int xfs_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct dquot *dquot, char *dqname))
 {
-	if (!XFS_USRQUOTA(h) && !XFS_GRPQUOTA(h))
-		return 0;
+	int ret;
+	struct xfs_kern_dqblk xdqblk;
 
-	return generic_scan_dquots(h, process_dquot, xfs_get_dquot);
+	ret = quotactl(QCMD(Q_XGETNEXTQUOTA, h->qh_type), h->qh_quotadev, 0,
+		       (void *)&xdqblk);
+	if (ret < 0 && (errno == ENOSYS || errno == EINVAL)) {
+		if (!XFS_USRQUOTA(h) && !XFS_GRPQUOTA(h))
+			return 0;
+		return generic_scan_dquots(h, process_dquot, xfs_get_dquot);
+	}
+	return xfs_kernel_scan_dquots(h, process_dquot);
 }
 
 /*

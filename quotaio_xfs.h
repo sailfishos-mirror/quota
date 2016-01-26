@@ -46,6 +46,7 @@
 #define Q_XSETQLIM   XQM_CMD(0x4)	/* set disk limits only */
 #define Q_XGETQSTAT  XQM_CMD(0x5)	/* returns fs_quota_stat_t struct */
 #define Q_XQUOTARM   XQM_CMD(0x6)	/* free quota files' space */
+#define Q_XGETNEXTQUOTA	XQM_CMD(0x9)	/* get disk limits and usage >= ID */
 
 /*
  * fs_disk_quota structure:
