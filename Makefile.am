@@ -116,8 +116,11 @@ sbin_PROGRAMS = \
 	xqmstats \
 	edquota \
 	setquota \
-	convertquota \
+	convertquota
+if WITH_RPC
+sbin_PROGRAMS += \
 	rpc.rquotad
+endif
 if WITH_NETLINK
 sbin_PROGRAMS += \
 	quota_nld
