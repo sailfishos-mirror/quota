@@ -9,6 +9,7 @@ missing
 *~
 *.swp
 *.bak
+.*.d
 config.h
 config.h.in
 config.log
@@ -31,6 +32,8 @@ rquota.h
 rquota_clnt.c
 convertquota
 edquota
+po/*.mo
+rquota_xdr.c
 quot
 quota
 quotacheck
