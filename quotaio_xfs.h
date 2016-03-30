@@ -121,6 +121,8 @@ typedef struct fs_disk_quota {
 #define XFS_QUOTA_UDQ_ENFD	(1<<1)	/* user quota limits enforcement */
 #define XFS_QUOTA_GDQ_ACCT	(1<<2)	/* group quota accounting */
 #define XFS_QUOTA_GDQ_ENFD	(1<<3)	/* group quota limits enforcement */
+#define XFS_QUOTA_PDQ_ACCT	(1<<4)	/* group quota accounting */
+#define XFS_QUOTA_PDQ_ENFD	(1<<5)	/* group quota limits enforcement */
 
 #define XFS_USER_QUOTA		(1<<0)	/* user quota type */
 #define XFS_PROJ_QUOTA		(1<<1)	/* (IRIX) project quota type */

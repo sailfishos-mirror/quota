@@ -23,6 +23,8 @@
 			(h)->qh_info.u.xfs_mdqi.qs_flags & XFS_QUOTA_UDQ_ACCT)
 #define XFS_GRPQUOTA(h)	((h)->qh_type == GRPQUOTA && \
 			(h)->qh_info.u.xfs_mdqi.qs_flags & XFS_QUOTA_GDQ_ACCT)
+#define XFS_PRJQUOTA(h)	((h)->qh_type == PRJQUOTA && \
+			(h)->qh_info.u.xfs_mdqi.qs_flags & XFS_QUOTA_PDQ_ACCT)
 
 static int xfs_init_io(struct quota_handle *h);
 static int xfs_write_info(struct quota_handle *h);
@@ -97,7 +99,7 @@ static int xfs_write_info(struct quota_handle *h)
 	struct xfs_kern_dqblk xdqblk;
 	int qcmd;
 
-	if (!XFS_USRQUOTA(h) && !XFS_GRPQUOTA(h))
+	if (!XFS_USRQUOTA(h) && !XFS_GRPQUOTA(h) && !XFS_PRJQUOTA(h))
 		return 0;
 
 	memset(&xdqblk, 0, sizeof(struct xfs_kern_dqblk));
@@ -123,7 +125,7 @@ static struct dquot *xfs_read_dquot(struct quota_handle *h, qid_t id)
 	dquot->dq_id = id;
 	dquot->dq_h = h;
 
-	if (!XFS_USRQUOTA(h) && !XFS_GRPQUOTA(h))
+	if (!XFS_USRQUOTA(h) && !XFS_GRPQUOTA(h) && !XFS_PRJQUOTA(h))
 		return dquot;
 
 	qcmd = QCMD(Q_XFS_GETQUOTA, h->qh_type);
@@ -146,11 +148,16 @@ static int xfs_commit_dquot(struct dquot *dquot, int flags)
 	qid_t id = dquot->dq_id;
 	int qcmd;
 
-	if (!XFS_USRQUOTA(h) && !XFS_GRPQUOTA(h))
+	if (!XFS_USRQUOTA(h) && !XFS_GRPQUOTA(h) && !XFS_PRJQUOTA(h))
 		return 0;
 
 	xfs_util2kerndqblk(&xdqblk, &dquot->dq_dqb);
-	xdqblk.d_flags |= XFS_USRQUOTA(h) ? XFS_USER_QUOTA : XFS_GROUP_QUOTA;
+	if (XFS_USRQUOTA(h))
+		xdqblk.d_flags |= XFS_USER_QUOTA;
+	else if (XFS_GRPQUOTA(h))
+		xdqblk.d_flags |= XFS_GROUP_QUOTA;
+	else if (XFS_PRJQUOTA(h))
+		xdqblk.d_flags |= XFS_PROJ_QUOTA;
 	xdqblk.d_id = id;
 	if (strcmp(h->qh_fstype, MNTTYPE_GFS2) == 0) {
 		if (flags & COMMIT_LIMITS) /* warn/limit */
@@ -231,7 +238,7 @@ static int xfs_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct 
 	ret = quotactl(QCMD(Q_XGETNEXTQUOTA, h->qh_type), h->qh_quotadev, 0,
 		       (void *)&xdqblk);
 	if (ret < 0 && (errno == ENOSYS || errno == EINVAL)) {
-		if (!XFS_USRQUOTA(h) && !XFS_GRPQUOTA(h))
+		if (!XFS_USRQUOTA(h) && !XFS_GRPQUOTA(h) && !XFS_PRJQUOTA(h))
 			return 0;
 		return generic_scan_dquots(h, process_dquot, xfs_get_dquot);
 	}
@@ -257,9 +264,13 @@ static int xfs_report(struct quota_handle *h, int verbose)
 		printf(_("Accounting: %s; Enforcement: %s\n"),
 		       XQM_ON(XFS_QUOTA_UDQ_ACCT), XQM_ON(XFS_QUOTA_UDQ_ENFD));
 	}
-	else {			/* qh_type == USRQUOTA */
+	else if (h->qh_type == GRPQUOTA) {
 		printf(_("Accounting: %s; Enforcement: %s\n"),
 		       XQM_ON(XFS_QUOTA_GDQ_ACCT), XQM_ON(XFS_QUOTA_GDQ_ENFD));
+	}
+	else if (h->qh_type == PRJQUOTA) {
+		printf(_("Accounting: %s; Enforcement: %s\n"),
+		       XQM_ON(XFS_QUOTA_PDQ_ACCT), XQM_ON(XFS_QUOTA_PDQ_ENFD));
 	}
 #undef XQM_ON
 
@@ -273,9 +284,13 @@ static int xfs_report(struct quota_handle *h, int verbose)
 			printf(_("Accounting [ondisk]: %s; Enforcement [ondisk]: %s\n"),
 			       XQM_ONDISK(XFS_QUOTA_UDQ_ACCT), XQM_ONDISK(XFS_QUOTA_UDQ_ENFD));
 		}
-		else {		/* qh_type == USRQUOTA */
+		else if (h->qh_type == GRPQUOTA) {
 			printf(_("Accounting [ondisk]: %s; Enforcement [ondisk]: %s\n"),
 			       XQM_ONDISK(XFS_QUOTA_GDQ_ACCT), XQM_ONDISK(XFS_QUOTA_GDQ_ENFD));
+		}
+		else if (h->qh_type == PRJQUOTA) {
+			printf(_("Accounting [ondisk]: %s; Enforcement [ondisk]: %s\n"),
+			       XQM_ONDISK(XFS_QUOTA_PDQ_ACCT), XQM_ONDISK(XFS_QUOTA_PDQ_ENFD));
 		}
 #undef XQM_ONDISK
 	}
@@ -290,7 +305,20 @@ static int xfs_report(struct quota_handle *h, int verbose)
 			       (unsigned long long)info->qs_uquota.qfs_nblks,
 			       info->qs_uquota.qfs_nextents);
 	}
-	else {			/* qh_type == GRPQUOTA */
+	else if (h->qh_type == GRPQUOTA) {
+		if (info->qs_gquota.qfs_ino == -1)
+			printf(_("Inode: none\n"));
+		else
+			printf(_("Inode: #%llu (%llu blocks, %u extents)\n"),
+			       (unsigned long long)info->qs_gquota.qfs_ino,
+			       (unsigned long long)info->qs_gquota.qfs_nblks,
+			       info->qs_gquota.qfs_nextents);
+	}
+	else if (h->qh_type == PRJQUOTA) {
+		/*
+		 * FIXME: Older XFS use group files for project quotas, newer
+		 * have dedicated file and we should detect that.
+		 */
 		if (info->qs_gquota.qfs_ino == -1)
 			printf(_("Inode: none\n"));
 		else

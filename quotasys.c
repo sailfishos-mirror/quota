@@ -80,6 +80,93 @@ char *type2name(int type)
 }
 
 /*
+ *	Project quota handling
+ */
+#define PROJECT_FILE "/etc/projid"
+#define MAX_LINE_LEN 1024
+
+static FILE *project_file;
+
+/* Rewind /etc/projid to the beginning */
+void setprent(void)
+{
+	if (project_file)
+		fclose(project_file);
+	project_file = fopen(PROJECT_FILE, "r");
+}
+
+/* Close /etc/projid file */
+void endprent(void)
+{
+	fclose(project_file);
+	project_file = NULL;
+}
+
+/* Get next entry in /etc/projid */
+struct fs_project *getprent(void)
+{
+	static struct fs_project p;
+	static char linebuf[MAX_LINE_LEN];
+	char *idstart, *idend;
+
+	if (!project_file)
+		return NULL;
+	while (fgets(linebuf, MAX_LINE_LEN, project_file)) {
+		/* Line too long? */
+		if (linebuf[strlen(linebuf) - 1] != '\n')
+			continue;
+		/* Skip comments */
+		if (linebuf[0] == '#')
+			continue;
+		idstart = strchr(linebuf, ':');
+		/* Skip invalid lines... We follow what xfs_quota does */
+		if (!idstart)
+			continue;
+		*idstart = 0;
+		idstart++;
+		/*
+		 * Colon can separate name from something else - follow what
+		 * xfs_quota does
+		 */
+		idend = strchr(idstart, ':');
+		if (idend)
+			*idend = 0;
+		p.pr_name = linebuf;
+		p.pr_id = strtoul(idstart, NULL, 10);
+		return &p;
+	}
+	return NULL;
+}
+
+static struct fs_project *get_project_by_name(char *name)
+{
+	struct fs_project *p;
+
+	setprent();
+	while ((p = getprent())) {
+		if (!strcmp(name, p->pr_name))
+			break;
+	}
+	endprent();
+
+	return p;
+}
+
+static struct fs_project *get_project_by_id(qid_t id)
+{
+	struct fs_project *p;
+
+	setprent();
+	while ((p = getprent())) {
+		if (p->pr_id == id)
+			break;
+	}
+	endprent();
+
+	return p;
+}
+
+/*
  *	Convert name to uid
  */
 uid_t user2uid(char *name, int flag, int *err)
@@ -138,14 +225,46 @@ gid_t group2gid(char *name, int flag, int *err)
 }
 
 /*
+ *	Convert project name to project id
+ */
+qid_t project2pid(char *name, int flag, int *err)
+{
+	qid_t ret;
+	char *errch;
+	struct fs_project *p;
+
+	if (err)
+		*err = 0;
+	if (!flag) {
+		ret = strtoul(name, &errch, 0);
+		if (!*errch)		/* Is name number - we got directly pid? */
+			return ret;
+	}
+	p = get_project_by_name(name);
+	if (!p) {
+		if (!err) {
+			errstr(_("project %s does not exist.\n"), name);
+			exit(1);
+		}
+		else {
+			*err = -1;
+			return 0;
+		}
+	}
+	return p->pr_id;
+}
+
+/*
  *	Convert name to id
  */
 int name2id(char *name, int qtype, int flag, int *err)
 {
 	if (qtype == USRQUOTA)
 		return user2uid(name, flag, err);
-	else
+	else if (qtype == GRPQUOTA)
 		return group2gid(name, flag, err);
+	else
+		return project2pid(name, flag, err);
 }
 
 /*
@@ -181,14 +300,32 @@ int gid2group(gid_t id, char *buf)
 }
 
 /*
+ *	Convert project id to name
+ */
+int pid2project(qid_t id, char *buf)
+{
+	struct fs_project *p;
+
+	if (!(p = get_project_by_id(id))) {
+		snprintf(buf, MAXNAMELEN, "#%u", (uint) id);
+		return 1;
+	}
+	else
+		sstrncpy(buf, p->pr_name, MAXNAMELEN);
+	return 0;
+}
+
+/*
  *	Convert id to user/groupname
  */
 int id2name(int id, int qtype, char *buf)
 {
 	if (qtype == USRQUOTA)
 		return uid2user(id, buf);
-	else
+	else if (qtype == GRPQUOTA)
 		return gid2group(id, buf);
+	else
+		return pid2project(id, buf);
 }
 
 /*
@@ -531,6 +668,8 @@ static int hasxfsquota(const char *dev, struct mntent *mnt, int type, int flags)
 			return QF_XFS;
 		else if (type == GRPQUOTA && (info.qs_flags & XFS_QUOTA_GDQ_ACCT))
 			return QF_XFS;
+		else if (type == PRJQUOTA && (info.qs_flags & XFS_QUOTA_PDQ_ACCT))
+			return QF_XFS;
 #ifdef XFS_ROOTHACK
 		/*
 		 * Old XFS filesystems (up to XFS 1.2 / Linux 2.5.47) had a
@@ -542,6 +681,8 @@ static int hasxfsquota(const char *dev, struct mntent *mnt, int type, int flags)
 		else if (type == USRQUOTA && (sbflags & XFS_QUOTA_UDQ_ACCT))
 			return QF_XFS;
 		else if (type == GRPQUOTA && (sbflags & XFS_QUOTA_GDQ_ACCT))
+			return QF_XFS;
+		else if (type == PRJQUOTA && (sbflags & XFS_QUOTA_PDQ_ACCT))
 			return QF_XFS;
 #endif /* XFS_ROOTHACK */
 	}
@@ -981,6 +1122,8 @@ static int xfs_kern_quota_on(const char *dev, int type)
 			return 1;
 		if (type == GRPQUOTA && (info.qs_flags & XFS_QUOTA_GDQ_ACCT))
 			return 1;
+		if (type == PRJQUOTA && (info.qs_flags & XFS_QUOTA_PDQ_ACCT))
+			return 1;
 	}
 	return 0;
 }
@@ -1137,12 +1280,13 @@ alloc:
 			free((char *)devname);
 			devname = sstrdup(loopdev);
 		}
-
 		/* Further we are not interested in mountpoints without quotas and
 		   we don't want to touch them */
 		qfmt[USRQUOTA] = hasquota(devname, mnt, USRQUOTA, flags);
 		qfmt[GRPQUOTA] = hasquota(devname, mnt, GRPQUOTA, flags);
-		if (qfmt[USRQUOTA] < 0 && qfmt[GRPQUOTA] < 0) {
+		qfmt[PRJQUOTA] = hasquota(devname, mnt, PRJQUOTA, flags);
+		if (qfmt[USRQUOTA] < 0 && qfmt[GRPQUOTA] < 0 &&
+		    qfmt[PRJQUOTA] < 0) {
 			free((char *)devname);
 			continue;
 		}

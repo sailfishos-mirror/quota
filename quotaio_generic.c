@@ -157,6 +157,22 @@ int generic_scan_dquots(struct quota_handle *h,
 				break;
 		}
 		endgrent();
+	} else if (h->qh_type == PRJQUOTA) {
+		struct fs_project *prj;
+
+		setprent();
+		while ((prj = getprent()) != NULL) {
+			dquot->dq_id = prj->pr_id;
+			ret = scan_one_dquot(dquot, get_dquot);
+			if (ret < 0)
+				break;
+			if (ret > 0)
+				continue;
+			ret = process_dquot(dquot, prj->pr_name);
+			if (ret < 0)
+				break;
+		}
+		endprent();
 	}
 	free(dquot);
 	return ret;

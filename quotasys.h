@@ -46,6 +46,11 @@ struct mount_entry {
 	int me_qfmt[MAXQUOTAS];	/* Detected quota formats */
 };
 
+struct fs_project {
+	qid_t pr_id;
+	char *pr_name;
+};
+
 /*
  *	Exported functions
  */
@@ -57,11 +62,23 @@ int meta_qf_fstype(char *type);
 /* Convert quota type to written form */
 char *type2name(int);
 
+/* Rewind /etc/projid to the beginning */
+void setprent(void);
+
+/* Close /etc/projid file */
+void endprent(void);
+
+/* Get next entry in /etc/projid */
+struct fs_project *getprent(void);
+
 /* Convert username to uid */
 uid_t user2uid(char *, int flag, int *err);
 
 /* Convert groupname to gid */
 gid_t group2gid(char *, int flag, int *err);
+
+/* Convert project name to project id */
+qid_t project2pid(char *name, int flag, int *err);
 
 /* Convert user/groupname to id */
 int name2id(char *name, int qtype, int flag, int *err);
@@ -71,6 +88,9 @@ int uid2user(uid_t, char *);
 
 /* Convert gid to groupname */
 int gid2group(gid_t, char *);
+
+/* Convert project id to name */
+int pid2project(qid_t, char *);
 
 /* Convert id to user/group name */
 int id2name(int id, int qtype, char *buf);
