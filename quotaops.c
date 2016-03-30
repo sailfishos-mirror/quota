@@ -52,6 +52,7 @@
 #include <time.h>
 #include <ctype.h>
 #include <limits.h>
+#include <stdlib.h>
 
 #if defined(RPC)
 #include "rquota.h"
