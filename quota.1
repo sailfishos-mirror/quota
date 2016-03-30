@@ -47,6 +47,20 @@ quota \- display disk usage and limits
 .B -F
 .I format-name
 ] [
+.B -qvswi
+] [
+.BR -l \ |
+[
+.BR -QAm
+]]
+.B -P
+.IR project ...
+.br
+.B quota
+[
+.B -F
+.I format-name
+] [
 .B -qvswugQm
 ]
 .B -f
@@ -87,6 +101,9 @@ argument(s) restricts the display to the specified group(s).
 .TP
 .B -u, --user
 flag is equivalent to the default.
+.TP
+.B -P, --project
+Print project quotas for the specified project.
 .TP
 .B -v, --verbose
 will display quotas on filesystems
@@ -164,8 +181,9 @@ Only the super-user may use the
 .B \-u
 flag and the optional
 .B user
-argument to view the limits of other users.
-Non-super-users can use the the
+argument to view the limits of other users. Also viewing of project quota
+usage and limits is limited to super-user only.
+Non-super-users can use the
 .B \-g
 flag and optional
 .B group

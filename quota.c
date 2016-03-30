@@ -76,6 +76,7 @@
 #define FL_NO_MIXED_PATHS 8192
 #define FL_SHOW_MNTPOINT 16384
 #define FL_SHOW_DEVICE 32768
+#define FL_PROJECT 65536
 
 static int flags, fmt = -1;
 char *progname;
@@ -83,13 +84,14 @@ char *progname;
 static void usage(void)
 {
 	errstr( "%s%s%s%s%s",
-		_("Usage: quota [-guqvswim] [-l | [-Q | -A]] [-F quotaformat]\n"),
+		_("Usage: quota [-guPqvswim] [-l | [-Q | -A]] [-F quotaformat]\n"),
 		_("\tquota [-qvswim] [-l | [-Q | -A]] [-F quotaformat] -u username ...\n"),
 		_("\tquota [-qvswim] [-l | [-Q | -A]] [-F quotaformat] -g groupname ...\n"),
-		_("\tquota [-qvswugQm] [-F quotaformat] -f filesystem ...\n"),
+		_("\tquota [-qvswugPQm] [-F quotaformat] -f filesystem ...\n"),
 		_("\n\
 -u, --user                display quota for user\n\
 -g, --group               display quota for group\n\
+-P, --project             display quota for project\n\
 -q, --quiet               print more terse message\n\
 -v, --verbose             print more verbose message\n\
 -s, --human-readable      display numbers in human friendly units (MB, GB...)\n\
@@ -298,12 +300,13 @@ int main(int argc, char **argv)
 {
 	int ngroups;
 	gid_t gidset[NGROUPS_MAX], *gidsetp;
-	int i, ret;
+	int i, ret, type = 0;
 	struct option long_opts[] = {
 		{ "help", 0, NULL, 'h' },
 		{ "version", 0, NULL, 'V' },
 		{ "user", 0, NULL, 'u' },
 		{ "group", 0, NULL, 'g' },
+		{ "project", 0, NULL, 'P' },
 		{ "quiet", 0, NULL, 'q' },
 		{ "verbose", 0, NULL, 'v' },
 		{ "human-readable", 0, NULL, 's' },
@@ -326,13 +329,16 @@ int main(int argc, char **argv)
 	progname = basename(argv[0]);
 
 	flags |= FL_SHOW_DEVICE;
-	while ((ret = getopt_long(argc, argv, "hguqvsVliQF:wfApm", long_opts, NULL)) != -1) {
+	while ((ret = getopt_long(argc, argv, "hguqvsPVliQF:wfApm", long_opts, NULL)) != -1) {
 		switch (ret) {
 		  case 'g':
 			  flags |= FL_GROUP;
 			  break;
 		  case 'u':
 			  flags |= FL_USER;
+			  break;
+		  case 'P':
+			  flags |= FL_PROJECT;
 			  break;
 		  case 'q':
 			  flags |= FL_QUIET;
@@ -391,7 +397,7 @@ int main(int argc, char **argv)
 	argc -= optind;
 	argv += optind;
 
-	if (!(flags & FL_USER) && !(flags & FL_GROUP))
+	if (!(flags & FL_USER) && !(flags & FL_GROUP) && !(flags & FL_PROJECT))
 		flags |= FL_USER;
 	if (flags & FL_FSLIST && flags & (FL_LOCALONLY | FL_NOAUTOFS))
 		errstr(_("Warning: Ignoring -%c when filesystem list specified.\n"), flags & FL_LOCALONLY ? 'l' : 'i');
@@ -419,10 +425,18 @@ int main(int argc, char **argv)
 			for (i = 0; i < ngroups; i++)
 				ret |= showquotas(GRPQUOTA, gidsetp[i], argc, argv);
 		}
+		if (flags & FL_PROJECT)
+			die(1, _("Project reports not supported without project name"));
 		exit(ret);
 	}
 
-	if ((flags & FL_USER) && (flags & FL_GROUP))
+	if (flags & FL_USER)
+		type++;
+	if (flags & FL_GROUP)
+		type++;
+	if (flags & FL_PROJECT)
+		type++;
+	if (type > 1)
 		usage();
 
 	if (flags & FL_USER)
@@ -431,5 +445,8 @@ int main(int argc, char **argv)
 	else if (flags & FL_GROUP)
 		for (; argc > 0; argc--, argv++)
 			ret |= showquotas(GRPQUOTA, group2gid(*argv, !!(flags & FL_NUMNAMES), NULL), 0, NULL);
+	else if (flags & FL_PROJECT)
+		for (; argc > 0; argc--, argv++)
+			ret |= showquotas(PRJQUOTA, project2pid(*argv, !!(flags & FL_NUMNAMES), NULL), 0, NULL);
 	return ret;
 }
