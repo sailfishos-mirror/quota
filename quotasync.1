@@ -4,13 +4,13 @@ quotasync \- synchronize in-kernel file system usage and limits to disk format
 .SH SYNOPSIS
 .B quotasync
 [
-.B -ug
+.B -ugP
 ] 
 .IR mount-point ...
 .br
 .B quotasync
 [
-.B -ug
+.B -ugP
 ] 
 .B -a
 .br
@@ -33,6 +33,9 @@ Synchronize user usage and limits.
 .TP
 .B -g, --group
 Synchronize group usage and limits.
+.TP
+.B -P, --project
+Synchronize project usage and limits.
 .TP
 .B -a, --all
 Synchronize usage and limits on all file systems. You have to specify this
