@@ -39,6 +39,7 @@
 #define FL_NUMNAMES 256
 #define FL_NO_MIXED_PATHS 512
 #define FL_CONTINUE_BATCH 1024
+#define FL_PROJECT 2048
 
 static int flags, fmt = -1;
 static char **mnt;
@@ -56,19 +57,20 @@ static void usage(void)
 	char *ropt = "";
 #endif
 	errstr(_("Usage:\n\
-  setquota [-u|-g] %1$s[-F quotaformat] <user|group>\n\
+  setquota [-u|-g|-P] %1$s[-F quotaformat] <user|group|project>\n\
 \t<block-softlimit> <block-hardlimit> <inode-softlimit> <inode-hardlimit> -a|<filesystem>...\n\
-  setquota [-u|-g] %1$s[-F quotaformat] <-p protouser|protogroup> <user|group> -a|<filesystem>...\n\
-  setquota [-u|-g] %1$s[-F quotaformat] -b [-c] -a|<filesystem>...\n\
-  setquota [-u|-g] [-F quotaformat] -t <blockgrace> <inodegrace> -a|<filesystem>...\n\
-  setquota [-u|-g] [-F quotaformat] <user|group> -T <blockgrace> <inodegrace> -a|<filesystem>...\n\n\
+  setquota [-u|-g|-P] %1$s[-F quotaformat] <-p protouser|protogroup|protoproject> <user|group|project> -a|<filesystem>...\n\
+  setquota [-u|-g|-P] %1$s[-F quotaformat] -b [-c] -a|<filesystem>...\n\
+  setquota [-u|-g|-P] [-F quotaformat] -t <blockgrace> <inodegrace> -a|<filesystem>...\n\
+  setquota [-u|-g|-P] [-F quotaformat] <user|group|project> -T <blockgrace> <inodegrace> -a|<filesystem>...\n\n\
 -u, --user                 set limits for user\n\
 -g, --group                set limits for group\n\
+-P, --project              set limits for project\n\
 -a, --all                  set limits for all filesystems\n\
     --always-resolve       always try to resolve name, even if is\n\
                            composed only of digits\n\
 -F, --format=formatname    operate on specific quota format\n\
--p, --prototype=protoname  copy limits from user/group\n\
+-p, --prototype=protoname  copy limits from user/group/project\n\
 -b, --batch                read limits from standard input\n\
 -c, --continue-batch       continue in input processing in case of an error\n"), ropt);
 #if defined(RPC_SETQUOTA)
@@ -76,7 +78,7 @@ static void usage(void)
 -m, --no-mixed-pathnames      trim leading slashes from NFSv4 mountpoints\n"), stderr);
 #endif
 	fputs(_("-t, --edit-period          edit grace period\n\
--T, --edit-times           edit grace times for user/group\n\
+-T, --edit-times           edit grace times for user/group/project\n\
 -h, --help                 display this help text and exit\n\
 -V, --version              display version information and exit\n\n"), stderr);
 	fprintf(stderr, _("Bugs to: %s\n"), PACKAGE_BUGREPORT);
@@ -129,6 +131,8 @@ static inline int flag2type(int flags)
 		return USRQUOTA;
 	if (flags & FL_GROUP)
 		return GRPQUOTA;
+	if (flags & FL_PROJECT)
+		return PRJQUOTA;
 	return -1;
 }
 
@@ -137,15 +141,16 @@ static void parse_options(int argcnt, char **argstr)
 {
 	int ret, otherargs;
 	char *protoname = NULL;
-
+	int type = 0;
 #ifdef RPC_SETQUOTA
-	char *opts = "ghp:urmVF:taTbc";
+	char *opts = "ghp:uPrmVF:taTbc";
 #else
-	char *opts = "ghp:uVF:taTbc";
+	char *opts = "ghp:uPVF:taTbc";
 #endif
 	struct option long_opts[] = {
 		{ "user", 0, NULL, 'u' },
 		{ "group", 0, NULL, 'g' },
+		{ "project", 0, NULL, 'P' },
 		{ "prototype", 1, NULL, 'p' },
 #ifdef RPC_SETQUOTA
 		{ "remote", 0, NULL, 'r' },
@@ -173,6 +178,9 @@ static void parse_options(int argcnt, char **argstr)
 			  break;
 		  case 'u':
 			  flags |= FL_USER;
+			  break;
+		  case 'P':
+			  flags |= FL_PROJECT;
 			  break;
 		  case 'p':
 			  flags |= FL_PROTO;
@@ -211,8 +219,14 @@ static void parse_options(int argcnt, char **argstr)
 			  exit(0);
 		}
 	}
-	if (flags & FL_USER && flags & FL_GROUP) {
-		errstr(_("Group and user quotas cannot be used together.\n"));
+	if (flags & FL_USER)
+		type++;
+	if (flags & FL_GROUP)
+		type++;
+	if (flags & FL_PROJECT)
+		type++;
+	if (type > 1) {
+		errstr(_("Group/user/project quotas cannot be used together.\n"));
 		usage();
 	}
 	if (flags & FL_PROTO && flags & FL_GRACE) {
@@ -250,7 +264,7 @@ static void parse_options(int argcnt, char **argstr)
 		errstr(_("Bad number of arguments.\n"));
 		usage();
 	}
-	if (!(flags & (FL_USER | FL_GROUP)))
+	if (!(flags & (FL_USER | FL_GROUP | FL_PROJECT)))
 		flags |= FL_USER;
 	if (!(flags & (FL_GRACE | FL_BATCH))) {
 		id = name2id(argstr[optind++], flag2type(flags), !!(flags & FL_NUMNAMES), NULL);
@@ -472,7 +486,15 @@ static int setindivgraces(struct quota_handle **handles)
 			errstr(_("Not setting inode grace time on %s because softlimit is not exceeded.\n"), q->dq_h->qh_quotadev);
 	}
 	if (putprivs(curprivs, COMMIT_TIMES) == -1) {
-		errstr(_("cannot write times for %s. Maybe kernel does not support such operation?\n"), _(type2name(flags & FL_USER ? USRQUOTA : GRPQUOTA)));
+		int type;
+
+		if (flags & FL_USER)
+			type = USRQUOTA;
+		else if (flags & FL_GROUP)
+			type = GRPQUOTA;
+		else
+			type = PRJQUOTA;
+		errstr(_("cannot write times for %s. Maybe kernel does not support such operation?\n"), _(type2name(type)));
 		ret = -1;
 	}
 	freeprivs(curprivs);
