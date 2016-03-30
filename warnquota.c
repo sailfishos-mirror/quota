@@ -30,7 +30,9 @@
 #include <time.h>
 #include <getopt.h>
 #include <locale.h>
+#ifdef HAVE_NL_LANGINFO
 #include <langinfo.h>
+#endif
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/utsname.h>
@@ -723,10 +725,12 @@ static int readconfigfile(const char *filename, struct configparams *config)
 	(config->charset)[0] = '\0';
 	setlocale(LC_ALL, NULL);
 	locale = setlocale(LC_MESSAGES, NULL);
+#ifdef HAVE_NL_LANGINFO
 	if (locale && strcasecmp(locale, "posix") && strcasecmp(locale, "c")) {
 		locale = nl_langinfo(CODESET);
 		sstrncpy(config->charset, locale, CNF_BUFFER);
 	}
+#endif
 	maildev[0] = 0;
 	config->user_signature = config->user_message = config->group_signature = config->group_message = NULL;
 	config->cc_before = -1;

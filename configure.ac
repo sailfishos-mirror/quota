@@ -32,6 +32,9 @@ PKG_PROG_PKG_CONFIG([0.20])
 
 AC_C_CONST
 AC_C_INLINE
+AC_CHECK_FUNC([nl_langinfo], [
+    AC_DEFINE([HAVE_NL_LANGINFO], 1, [Use nl_langinfo for querying locale])
+])
 
 # ===============
 # Gettext support
