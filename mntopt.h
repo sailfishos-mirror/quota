@@ -21,6 +21,10 @@
 #define MNTTYPE_OCFS2		"ocfs2"	/* Oracle Cluster filesystem */
 #define MNTTYPE_GFS2		"gfs2"	/* Red Hat Global filesystem 2 */
 
+#ifndef MNTTYPE_NFS
+#define MNTTYPE_NFS	"nfs"		/* Network file system.  */
+#endif
+
 /* mount options */
 #define MNTOPT_NOQUOTA		"noquota"	/* don't enforce quota */
 #define MNTOPT_QUOTA		"quota"	/* enforce user quota */
@@ -32,5 +36,9 @@
 #define MNTOPT_BIND		"bind"		/* binded mount */
 #define MNTOPT_LOOP		"loop"		/* loopback mount */
 #define MNTOPT_JQFMT		"jqfmt"		/* journaled quota format */
+
+#ifndef MNTOPT_NOAUTO
+#define MNTOPT_NOAUTO	"noauto"	/* Do not auto mount.  */
+#endif
 
 #endif
