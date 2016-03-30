@@ -8,7 +8,8 @@ edquota \- edit user quotas
 .I protoname
 ] [
 .BR \-u \ |
-.B \-g
+.BR \-g \ |
+.B \-P
 ] [
 .B \-rm
 ] [
@@ -18,12 +19,15 @@ edquota \- edit user quotas
 .B \-f
 .I filesystem
 ]
-.IR username .\|.\|.
+.IR username \ |
+.IR groupname \ |
+.IR projectname .\|.\|.
 .LP
 .B edquota
 [
 .BR \-u \ |
-.B \-g
+.BR \-g \ |
+.B \-P
 ] [
 .B \-F
 .I format-name
@@ -36,7 +40,8 @@ edquota \- edit user quotas
 .B edquota
 [
 .BR \-u \ |
-.B \-g
+.BR \-g \ |
+.B \-P
 ] [
 .B \-F
 .I format-name
@@ -46,7 +51,8 @@ edquota \- edit user quotas
 ]
 .B \-T
 .IR username \ |
-.IR groupname .\|.\|.
+.IR groupname \ |
+.IR projectname .\|.\|.
 .SH DESCRIPTION
 .IX  "edquota command"  ""  "\fLedquota\fP \(em edit user quotas"
 .IX  edit "user quotas \(em \fLedquota\fP"
@@ -55,16 +61,17 @@ edquota \- edit user quotas
 .IX  "quotas"  "edquota command"  ""  "\fLedquota\fP \(em edit user quotas"
 .IX  "filesystem"  "edquota command"  ""  "\fLedquota\fP \(em edit user quotas"
 .B edquota
-is a quota editor.  One or more users or groups may be specified on the command
-line. If a number is given in the place of user/group name it is treated as
-an UID/GID. For each user or group a temporary file is created with an
+is a quota editor.  One or more users, groups, or projects may be specified
+on the command line. If a number is given in the place of user/group/project
+name it is treated as an UID/GID/Project ID. For each user, group, or project
+a temporary file is created with an
 .SM ASCII
-representation of the current disk quotas for that user or group and an editor
-is then invoked on the file.  The quotas may then be modified, new
+representation of the current disk quotas for that user, group, or project and
+an editor is then invoked on the file.  The quotas may then be modified, new
 quotas added, etc.
 Setting a quota to zero indicates that no quota should be imposed.
 .PP
-Block usage and limits are reported and interpereted as multiples of kibibyte
+Block usage and limits are reported and interpreted as multiples of kibibyte
 (1024 bytes) blocks by default. Symbols K, M, G, and T can be appended to
 numeric value to express kibibytes, mebibytes, gibibytes, and tebibytes.
 .PP
@@ -119,6 +126,9 @@ Edit the user quota. This is the default.
 .B -g, --group
 Edit the group quota.
 .TP
+.B -P, --project
+Edit the project quota.
+.TP
 .B -p, --prototype=\f2protoname\f1
 Duplicate the quotas of the prototypical user
 specified for each user specified.  This is the normal
@@ -156,7 +166,7 @@ are understood. Time limits are printed in the greatest possible time unit such 
 the value is greater than or equal to one.
 .TP
 .B \-T, --edit-times
-Edit time for the user/group when softlimit is enforced. Possible values
+Edit time for the user/group/project when softlimit is enforced. Possible values
 are 'unset' or number and unit. Units are the same as in
 .B \-t
 option.

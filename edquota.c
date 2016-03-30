@@ -80,11 +80,14 @@ static void usage(void)
 #endif
 	errstr(_("Usage:\n\tedquota %1$s[-u] [-F formatname] [-p username] [-f filesystem] username ...\n\
 \tedquota %1$s-g [-F formatname] [-p groupname] [-f filesystem] groupname ...\n\
-\tedquota [-u|g] [-F formatname] [-f filesystem] -t\n\
-\tedquota [-u|g] [-F formatname] [-f filesystem] -T username|groupname ...\n"), rpcflag);
+\tedquota %1$s-P [-F formatname] [-p projectname] [-f filesystem] projectname ...\n\
+\tedquota [-u|g|-P] [-F formatname] [-f filesystem] -t\n\
+\tedquota [-u|g|-P] [-F formatname] [-f filesystem] -T username|groupname|projectname ...\n"), rpcflag);
 	fputs(_("\n\
 -u, --user                    edit user data\n\
--g, --group                   edit group data\n"), stderr);
+-g, --group                   edit group data\n\
+-P, --project                 edit project data\n\
+"), stderr);
 #if defined(RPC_SETQUOTA)
 	fputs(_("-r, --remote                  edit remote quota (via RPC)\n\
 -m, --no-mixed-pathnames      trim leading slashes from NFSv4 mountpoints\n"), stderr);
@@ -111,6 +114,7 @@ static int parse_options(int argc, char **argv)
 		{ "prototype", 1, NULL, 'p' },
 		{ "user", 0, NULL, 'u' },
 		{ "group", 0, NULL, 'g' },
+		{ "project", 0, NULL, 'P' },
 		{ "format", 1, NULL, 'F' },
 		{ "filesystem", 1, NULL, 'f' },
 #if defined(RPC_SETQUOTA)
@@ -128,9 +132,9 @@ static int parse_options(int argc, char **argv)
 
 	quotatype = USRQUOTA;
 #if defined(RPC_SETQUOTA)
-	while ((ret = getopt_long(argc, argv, "ughrmntTVp:F:f:", long_opts, NULL)) != -1) {
+	while ((ret = getopt_long(argc, argv, "ugPhrmntTVp:F:f:", long_opts, NULL)) != -1) {
 #else
-	while ((ret = getopt_long(argc, argv, "ughtTVp:F:f:", long_opts, NULL)) != -1) {
+	while ((ret = getopt_long(argc, argv, "ugPhtTVp:F:f:", long_opts, NULL)) != -1) {
 #endif
 		switch (ret) {
 		  case 'p':
@@ -138,6 +142,9 @@ static int parse_options(int argc, char **argv)
 			  break;
 		  case 'g':
 			  quotatype = GRPQUOTA;
+			  break;
+		  case 'P':
+			  quotatype = PRJQUOTA;
 			  break;
 #if defined(RPC_SETQUOTA)
 		  case 'n':
