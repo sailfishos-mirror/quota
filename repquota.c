@@ -37,6 +37,7 @@
 #define FL_NOCACHE 128	/* Don't cache dquots before resolving */
 #define FL_NOAUTOFS 256	/* Ignore autofs mountpoints */
 #define FL_RAWGRACE 512	/* Print grace times in seconds since epoch */
+#define FL_PROJECT 1024
 
 static int flags, fmt = -1, ofmt = QOF_DEFAULT;
 static char **mnt;
@@ -51,6 +52,7 @@ static void usage(void)
 -v, --verbose               display also users/groups without any usage\n\
 -u, --user                  display information about users\n\
 -g, --group                 display information about groups\n\
+-P, --project               display information about projects\n\
 -s, --human-readable        show numbers in human friendly units (MB, GB, ...)\n\
 -t, --truncate-names        truncate names to 9 characters\n\
 -p, --raw-grace             print grace time in seconds since epoch\n\
@@ -77,6 +79,7 @@ static void parse_options(int argcnt, char **argstr)
 		{ "verbose", 0, NULL, 'v' },
 		{ "user", 0, NULL, 'u' },
 		{ "group", 0, NULL, 'g' },
+		{ "project", 0, NULL, 'P' },
 		{ "help", 0, NULL, 'h' },
 		{ "truncate-names", 0, NULL, 't' },
 		{ "raw-grace", 0, NULL, 'p' },
@@ -90,7 +93,7 @@ static void parse_options(int argcnt, char **argstr)
 		{ NULL, 0, NULL, 0 }
 	};
 
-	while ((ret = getopt_long(argcnt, argstr, "VavughtspncCiF:O:", long_opts, NULL)) != -1) {
+	while ((ret = getopt_long(argcnt, argstr, "VavugPhtspncCiF:O:", long_opts, NULL)) != -1) {
 		switch (ret) {
 			case '?':
 			case 'h':
@@ -103,6 +106,9 @@ static void parse_options(int argcnt, char **argstr)
 				break;
 			case 'g':
 				flags |= FL_GROUP;
+				break;
+			case 'P':
+				flags |= FL_PROJECT;
 				break;
 			case 'v':
 				flags |= FL_VERBOSE;
@@ -156,7 +162,7 @@ static void parse_options(int argcnt, char **argstr)
 		fputs(_("Specified both -n and -t but only one of them can be used.\n"), stderr);
 		exit(1);
 	}
-	if (!(flags & (FL_USER | FL_GROUP)))
+	if (!(flags & (FL_USER | FL_GROUP | FL_PROJECT)))
 		flags |= FL_USER;
 	if (!(flags & FL_ALL)) {
 		mnt = argstr + optind;
@@ -290,7 +296,7 @@ static void dump_cached_dquots(int type)
 		}
 		endpwent();
 	}
-	else {
+	else if (type == GRPQUOTA) {
 		struct group *grent;
 
 		setgrent();
@@ -302,6 +308,18 @@ static void dump_cached_dquots(int type)
 			}
 		}
 		endgrent();
+	} else {
+		struct fs_project *prent;
+
+		setprent();
+		while ((prent = getprent())) {
+			for (i = 0; i < cached_dquots && prent->pr_id != dquot_cache[i].dq_id; i++);
+			if (i < cached_dquots && !(dquot_cache[i].dq_flags & DQ_PRINTED)) {
+				print(dquot_cache+i, prent->pr_name);
+				dquot_cache[i].dq_flags |= DQ_PRINTED;
+			}
+		}
+		endprent();
 	}
 	for (i = 0; i < cached_dquots; i++)
 		if (!(dquot_cache[i].dq_flags & DQ_PRINTED)) {
@@ -346,8 +364,10 @@ static void report_it(struct quota_handle *h, int type)
 
 	if (type == USRQUOTA)
 		typestr = _("User");
-	else
+	else if (type == GRPQUOTA)
 		typestr = _("Group");
+	else
+		typestr = _("Project");
 
 	if (ofmt == QOF_DEFAULT )
 		printf(_("*** Report for %s quotas on device %s\n"), _(type2name(type)), h->qh_quotadev);
@@ -419,6 +439,9 @@ int main(int argc, char **argv)
 
 	if (flags & FL_GROUP)
 		report(GRPQUOTA);
+
+	if (flags & FL_PROJECT)
+		report(PRJQUOTA);
 
 	if (ofmt == QOF_XML)
 		printf("</repquota>\n");

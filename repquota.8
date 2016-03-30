@@ -5,7 +5,7 @@ repquota \- summarize quotas for a filesystem
 .SH SYNOPSIS
 .B /usr/sbin/repquota
 [
-.B \-vspiug
+.B \-vspiugP
 ] [
 .B \-c
 |
@@ -22,7 +22,7 @@ repquota \- summarize quotas for a filesystem
 .LP
 .B /usr/sbin/repquota
 [
-.B \-avtpsiug
+.B \-avtpsiugP
 ] [
 .B \-c
 |
@@ -59,7 +59,7 @@ printed is '-'. The second character denotes the state of inode usage
 analogously.
 
 .B repquota
-has to translate ids of all users/groups to names (unless option
+has to translate ids of all users/groups/projects to names (unless option
 .B -n
 was specified) so it may take a while to
 print all the information. To make translating as fast as possible
@@ -124,6 +124,9 @@ Quota format with 64-bit quota limits and usage,
 .TP
 .B -g, --group
 Report quotas for groups.
+.TP
+.B -P, --project
+Report quotas for projects.
 .TP
 .B -u, --user
 Report quotas for users. This is the default.
