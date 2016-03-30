@@ -48,6 +48,7 @@
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
+#include <limits.h>
 #ifdef RPC
 #include <rpc/rpc.h>
 #include "rquota.h"
@@ -296,7 +297,7 @@ static int showquotas(int type, qid_t id, int mntcnt, char **mnt)
 int main(int argc, char **argv)
 {
 	int ngroups;
-	gid_t gidset[NGROUPS], *gidsetp;
+	gid_t gidset[NGROUPS_MAX], *gidsetp;
 	int i, ret;
 	struct option long_opts[] = {
 		{ "help", 0, NULL, 'h' },
@@ -405,7 +406,7 @@ int main(int argc, char **argv)
 			ret |= showquotas(USRQUOTA, getuid(), argc, argv);
 		if (flags & FL_GROUP) {
 			ngroups = sysconf(_SC_NGROUPS_MAX);
-			if (ngroups > NGROUPS) {
+			if (ngroups > NGROUPS_MAX) {
 				gidsetp = malloc(ngroups * sizeof(gid_t));
 				if (!gidsetp)
 					die(1, _("Gid set allocation (%d): %s\n"), ngroups, strerror(errno));

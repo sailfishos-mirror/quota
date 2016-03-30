@@ -51,6 +51,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <ctype.h>
+#include <limits.h>
 
 #if defined(RPC)
 #include "rquota.h"
@@ -97,7 +98,7 @@ struct dquot *getprivs(qid_t id, struct quota_handle **handles, int quiet)
 #if defined(BSD_BEHAVIOUR)
 	int j, ngroups;
 	uid_t euid;
-	gid_t gidset[NGROUPS], *gidsetp;
+	gid_t gidset[NGROUPS_MAX], *gidsetp;
 #endif
 
 	for (i = 0; handles[i]; i++) {
@@ -115,7 +116,7 @@ struct dquot *getprivs(qid_t id, struct quota_handle **handles, int quiet)
 				if (geteuid() == 0)
 					break;
 				ngroups = sysconf(_SC_NGROUPS_MAX);
-				if (ngroups > NGROUPS) {
+				if (ngroups > NGROUPS_MAX) {
 					gidsetp = malloc(ngroups * sizeof(gid_t));
 					if (!gidsetp) {
 						gid2group(id, name);
