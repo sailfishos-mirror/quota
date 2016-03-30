@@ -14,7 +14,7 @@ quotaon, quotaoff \- turn filesystem quotas on and off
 .br
 .B quotaon
 [
-.B \-avugfp
+.B \-avugPfp
 ] [
 .B \-F
 .I format-name
@@ -22,7 +22,7 @@ quotaon, quotaoff \- turn filesystem quotas on and off
 .LP
 .B quotaoff
 [
-.B \-vugp
+.B \-vugPp
 ]
 [
 .B \-x
@@ -109,6 +109,9 @@ Manipulate user quotas. This is the default.
 .B -g, --group
 Manipulate group quotas.
 .TP
+.B -P, --project
+Manipulate project quotas.
+.TP
 .B -p, --print-state
 Instead of turning quotas on just print state of quotas (ie. whether. quota is on or off)
 .TP
@@ -147,6 +150,9 @@ Manipulate user quotas. This is the default.
 .TP
 .B -g, --group
 Manipulate group quotas.
+.TP
+.B -P, --project
+Manipulate project quotas.
 .TP
 .B -p, --print-state
 Instead of turning quotas off just print state of quotas (ie. whether. quota is on or off)

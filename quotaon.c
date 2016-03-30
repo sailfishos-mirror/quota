@@ -54,6 +54,7 @@
 #define FL_ALL 8
 #define FL_STAT 16
 #define FL_OFF 32
+#define FL_PROJECT 64
 
 static int flags, fmt = -1;
 char *progname;
@@ -63,12 +64,13 @@ static char *xarg = NULL;
 
 static void usage(void)
 {
-	errstr(_("Usage:\n\t%s [-guvp] [-F quotaformat] [-x state] -a\n\
-\t%s [-guvp] [-F quotaformat] [-x state] filesys ...\n\n\
+	errstr(_("Usage:\n\t%s [-guPvp] [-F quotaformat] [-x state] -a\n\
+\t%s [-guPvp] [-F quotaformat] [-x state] filesys ...\n\n\
 -a, --all                %s\n\
 -f, --off                turn quotas off\n\
 -u, --user               operate on user quotas\n\
 -g, --group              operate on group quotas\n\
+-P, --project            operate on project quotas\n\
 -p, --print-state        print whether quotas are on or off\n\
 -x, --xfs-command=cmd    perform XFS quota command\n\
 -F, --format=formatname  operate on specific quota format\n\
@@ -90,6 +92,7 @@ static void parse_options(int argcnt, char **argstr)
 		{ "verbose", 0, NULL, 'v' },
 		{ "user", 0, NULL, 'u' },
 		{ "group", 0, NULL, 'g' },
+		{ "project", 0, NULL, 'P' },
 		{ "print-state", 0, NULL, 'p' },
 		{ "xfs-command", 1, NULL, 'x' },
 		{ "format", 1, NULL, 'F' },
@@ -98,7 +101,7 @@ static void parse_options(int argcnt, char **argstr)
 		{ NULL, 0, NULL, 0 }
 	};
 
-	while ((c = getopt_long(argcnt, argstr, "afvugpx:VF:h", long_opts, NULL)) != -1) {
+	while ((c = getopt_long(argcnt, argstr, "afvugpPx:VF:h", long_opts, NULL)) != -1) {
 		switch (c) {
 		  case 'a':
 			  flags |= FL_ALL;
@@ -111,6 +114,9 @@ static void parse_options(int argcnt, char **argstr)
 			  break;
 		  case 'u':
 			  flags |= FL_USER;
+			  break;
+		  case 'P':
+			  flags |= FL_PROJECT;
 			  break;
 		  case 'v':
 			  flags |= FL_VERBOSE;
@@ -141,8 +147,8 @@ static void parse_options(int argcnt, char **argstr)
 		fputs(_("Cannot turn on/off quotas via RPC.\n"), stderr);
 		exit(1);
 	}
-	if (!(flags & (FL_USER | FL_GROUP)))
-		flags |= FL_USER | FL_GROUP;
+	if (!(flags & (FL_USER | FL_GROUP | FL_PROJECT)))
+		flags |= FL_USER | FL_GROUP | FL_PROJECT;
 	if (!(flags & FL_ALL)) {
 		mntpoints = argstr + optind;
 		mntcnt = argcnt - optind;
@@ -380,12 +386,16 @@ int main(int argc, char **argv)
 				errs += newstate(mnt, GRPQUOTA, xarg);
 			if (flags & FL_USER)
 				errs += newstate(mnt, USRQUOTA, xarg);
+			if (flags & FL_PROJECT)
+				errs += newstate(mnt, PRJQUOTA, xarg);
 		}
 		else {
 			if (flags & FL_GROUP)
 				errs += print_state(mnt, GRPQUOTA);
 			if (flags & FL_USER)
 				errs += print_state(mnt, USRQUOTA);
+			if (flags & FL_PROJECT)
+				errs += print_state(mnt, PRJQUOTA);
 		}
 	}
 	end_mounts_scan();

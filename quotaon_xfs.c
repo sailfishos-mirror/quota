@@ -45,10 +45,16 @@ static int xfs_state_check(int qcmd, int type, int flags, const char *dev, int r
 		if (info.qs_flags & XFS_QUOTA_UDQ_ENFD)
 			state = ENFD;
 	}
-	else {			/* GRPQUOTA */
+	else if (type == GRPQUOTA) {
 		if (info.qs_flags & XFS_QUOTA_GDQ_ACCT)
 			state = ACCT;
 		if (info.qs_flags & XFS_QUOTA_GDQ_ENFD)
+			state = ENFD;
+	}
+	else if (type == PRJQUOTA) {
+		if (info.qs_flags & XFS_QUOTA_PDQ_ACCT)
+			state = ACCT;
+		if (info.qs_flags & XFS_QUOTA_PDQ_ENFD)
 			state = ENFD;
 	}
 
@@ -83,7 +89,9 @@ static int xfs_state_check(int qcmd, int type, int flags, const char *dev, int r
 					    " (reboot to take effect)\n"), _(type2name(type)));
 				    return 1;
 			    }
-			    if (xopts & XFS_QUOTA_UDQ_ENFD || xopts & XFS_QUOTA_GDQ_ENFD) {
+			    if (xopts & XFS_QUOTA_UDQ_ENFD ||
+				xopts & XFS_QUOTA_GDQ_ENFD ||
+				xopts & XFS_QUOTA_PDQ_ENFD) {
 				    pinfo(_("Enabling %s quota enforcement on %s\n"), _(type2name(type)), dev);
 				    return 1;
 			    }
@@ -91,7 +99,9 @@ static int xfs_state_check(int qcmd, int type, int flags, const char *dev, int r
 					_(type2name(type)), dev);
 			    return -1;
 		    case Q_XFS_QUOTAOFF:
-			    if (xopts & XFS_QUOTA_UDQ_ACCT || xopts & XFS_QUOTA_GDQ_ACCT) {
+			    if (xopts & XFS_QUOTA_UDQ_ACCT ||
+				xopts & XFS_QUOTA_GDQ_ACCT ||
+				xopts & XFS_QUOTA_PDQ_ACCT) {
 				    pinfo(_("Disabling %s quota accounting on %s\n"),
 					   _(type2name(type)), dev);
 			    	    return 1;
@@ -114,13 +124,17 @@ static int xfs_state_check(int qcmd, int type, int flags, const char *dev, int r
 				    _(type2name(type)), dev);
 			    return -1;
 		    case Q_XFS_QUOTAOFF:
-			    if (xopts == XFS_QUOTA_UDQ_ACCT || xopts == XFS_QUOTA_GDQ_ACCT) {
+			    if (xopts == XFS_QUOTA_UDQ_ACCT ||
+				xopts == XFS_QUOTA_GDQ_ACCT ||
+				xopts == XFS_QUOTA_PDQ_ACCT) {
 				    errstr(_("Cannot switch off %s quota "
 					"accounting on %s when enforcement is on\n"),
 					_(type2name(type)), dev);
 				    return -1;
 			    }
-			    if (xopts & XFS_QUOTA_UDQ_ACCT || xopts & XFS_QUOTA_GDQ_ACCT)
+			    if (xopts & XFS_QUOTA_UDQ_ACCT ||
+				xopts & XFS_QUOTA_GDQ_ACCT ||
+				xopts & XFS_QUOTA_PDQ_ACCT)
 		    		    acctstr = _("and accounting ");
 			    pinfo(_("Disabling %s quota enforcement %son %s\n"),
 				  _(type2name(type)), acctstr, dev);
@@ -203,21 +217,31 @@ int xfs_newstate(struct mount_entry *mnt, int type, char *xarg, int flags)
 	}
 #endif /* XFS_ROOTHACK */
 
-	if (xarg == NULL) {	/* only enfd on/off */
-		xopts |= (type == USRQUOTA) ? XFS_QUOTA_UDQ_ENFD :
-			XFS_QUOTA_GDQ_ENFD;
+	if (xarg == NULL || strcmp(xarg, "enforce") == 0) {	/* only enfd on/off */
+		if (type == USRQUOTA)
+			xopts |= XFS_QUOTA_UDQ_ENFD;
+		else if (type == GRPQUOTA)
+			xopts |= XFS_QUOTA_GDQ_ENFD;
+		else if (type == PRJQUOTA)
+			xopts |= XFS_QUOTA_PDQ_ENFD;
 		err = xfs_onoff(mnt->me_devname, type, flags, roothack, xopts);
 	}
 	else if (strcmp(xarg, "account") == 0) {
-		xopts |= (type == USRQUOTA) ? XFS_QUOTA_UDQ_ACCT : XFS_QUOTA_GDQ_ACCT;
-		err = xfs_onoff(mnt->me_devname, type, flags, roothack, xopts);
-	}
-	else if (strcmp(xarg, "enforce") == 0) {
-		xopts |= (type == USRQUOTA) ? XFS_QUOTA_UDQ_ENFD : XFS_QUOTA_GDQ_ENFD;
+		if (type == USRQUOTA)
+			xopts |= XFS_QUOTA_UDQ_ACCT;
+		else if (type == GRPQUOTA)
+			xopts |= XFS_QUOTA_GDQ_ACCT;
+		else if (type == PRJQUOTA)
+			xopts |= XFS_QUOTA_PDQ_ACCT;
 		err = xfs_onoff(mnt->me_devname, type, flags, roothack, xopts);
 	}
 	else if (strcmp(xarg, "delete") == 0) {
-		xopts |= (type == USRQUOTA) ? XFS_USER_QUOTA : XFS_GROUP_QUOTA;
+		if (type == USRQUOTA)
+			xopts |= XFS_USER_QUOTA;
+		else if (type == GRPQUOTA)
+			xopts |= XFS_GROUP_QUOTA;
+		else if (type == PRJQUOTA)
+			xopts |= XFS_PROJ_QUOTA;
 		err = xfs_delete(mnt->me_devname, type, flags, roothack, xopts);
 	}
 	else
