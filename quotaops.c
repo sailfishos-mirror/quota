@@ -34,7 +34,9 @@
 
 #include "config.h"
 
+#if defined(RPC)
 #include <rpc/rpc.h>
+#endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/file.h>

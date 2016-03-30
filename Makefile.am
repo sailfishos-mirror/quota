@@ -1,8 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4
 AM_LDFLAGS = -pie
 
-BUILT_SOURCES = rquota.h rquota.c rquota_clnt.c
-
 doc_DATA = \
 	README.mailserver \
 	README.ldap-support \
@@ -11,11 +9,6 @@ doc_DATA = \
 	doc/quotas.ms \
 	doc/quotas.preformated \
 	doc/quotas-1.eps
-
-rpcsvcdir = $(includedir)/rpcsvc
-rpcsvc_DATA = \
-	rquota.h \
-	rquota.x
 
 sysconf_DATA = \
 	warnquota.conf \
@@ -35,14 +28,11 @@ man_MANS = \
 	quota.1 \
 	quot.8 \
 	repquota.8 \
-	rpc.rquotad.8 \
 	rquota.3 \
 	setquota.8 \
 	warnquota.conf.5 \
 	warnquota.8 \
 	xqmstats.8
-
-CLEANFILES = rquota.c rquota.h rquota_clnt.c
 
 SUBDIRS = po
 
@@ -55,9 +45,15 @@ EXTRA_DIST = \
 	Changelog \
 	ldap-scripts
 
-noinst_LIBRARIES = \
-	libquota.a \
-	librpcclient.a
+noinst_LIBRARIES = libquota.a
+
+if WITH_RPC
+rpcsvcdir = $(includedir)/rpcsvc
+rpcsvc_DATA = \
+	rquota.h \
+	rquota.x
+
+noinst_LIBRARIES += librpcclient.a
 
 librpcclient_a_SOURCES = \
 	rquota.c \
@@ -67,8 +63,10 @@ librpcclient_a_SOURCES = \
 	rquota_clnt.c
 librpcclient_a_CFLAGS = -Wno-unused
 
-if WITH_RPC
 RPCLIBS = librpcclient.a
+BUILT_SOURCES = rquota.h rquota.c rquota_clnt.c
+CLEANFILES = rquota.c rquota.h rquota_clnt.c
+man_MANS += rpc.rquotad.8
 endif
 
 libquota_a_SOURCES = \
@@ -217,6 +215,7 @@ convertquota_LDADD = \
 	libquota.a \
 	$(RPCLIBS)
 
+if WITH_RPC
 rpc_rquotad_SOURCES = \
 	rquota_server.c \
 	rquota_svc.c \
@@ -225,6 +224,7 @@ rpc_rquotad_LDADD = \
 	libquota.a \
 	$(WRAP_LIBS) \
 	$(RPCLIBS)
+endif
 
 quota_nld_SOURCES = quota_nld.c
 quota_nld_CFLAGS = \
@@ -236,6 +236,7 @@ quota_nld_LDADD = \
 	$(DBUS_LIBS) \
 	$(LIBNL3_LIBS)
 
+if WITH_RPC
 # ------------------
 # Rpcgen conversions
 # ------------------
@@ -250,6 +251,7 @@ quota_nld_LDADD = \
 rquota_clnt.c: rquota.x
 	@rm -f $@
 	@$(RPCGEN) -l -o $@ $<
+endif
 
 # --------
 # Quotaoff

@@ -7,7 +7,9 @@
 
 #include "config.h"
 
+#if defined(RPC)
 #include <rpc/rpc.h>
+#endif
 #include <sys/types.h>
 #include <errno.h>
 #include <stdio.h>
