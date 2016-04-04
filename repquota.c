@@ -400,9 +400,10 @@ static void report_it(struct quota_handle *h, int type)
 	if (h->qh_ops->scan_dquots(h, output) < 0)
 		return;
 	dump_cached_dquots(type);
-	if (h->qh_ops->report && ofmt == QOF_DEFAULT) {
+	if (ofmt == QOF_DEFAULT) {
 		putchar('\n');
-		h->qh_ops->report(h, flags & FL_VERBOSE);
+		if (h->qh_ops->report)
+			h->qh_ops->report(h, flags & FL_VERBOSE);
 		putchar('\n');
 	}
 	if (ofmt == QOF_XML)
