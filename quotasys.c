@@ -98,8 +98,10 @@ void setprent(void)
 /* Close /etc/projid file */
 void endprent(void)
 {
-	fclose(project_file);
-	project_file = NULL;
+	if (project_file) {
+		fclose(project_file);
+		project_file = NULL;
+	}
 }
 
 /* Get next entry in /etc/projid */
