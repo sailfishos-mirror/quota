@@ -233,7 +233,7 @@ static int buffer_entry(dqbuf_t buf, uint blk, int *corrupted, uint * lblk, int 
 
 static void check_read_blk(int fd, uint blk, dqbuf_t buf)
 {
-	size_t rd;
+	ssize_t rd;
 
 	lseek(fd, blk << QT_BLKSIZE_BITS, SEEK_SET);
 	rd = read(fd, buf, QT_BLKSIZE);
