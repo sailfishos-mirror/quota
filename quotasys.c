@@ -1025,18 +1025,11 @@ void init_kernel_interface(void)
 		die(2, _("Cannot set signal handler: %s\n"), strerror(errno));
 
 	kernel_qfmt_num = 0;
-	if (!stat("/proc/fs/xfs/stat", &st))
-		kernel_qfmt[kernel_qfmt_num++] = QF_XFS;
-	else {
-		fs_quota_stat_t dummy;
-
-		if (!quotactl(QCMD(Q_XGETQSTAT, 0), "/dev/root", 0, (void *)&dummy) || (errno != EINVAL && errno != ENOSYS))
-			kernel_qfmt[kernel_qfmt_num++] = QF_XFS;
-	}
 	/* Detect new kernel interface; Assume generic interface unless we can prove there is not one... */
 	if (!stat("/proc/sys/fs/quota", &st) || errno != ENOENT) {
 		kernel_iface = IFACE_GENERIC;
 		kernel_qfmt[kernel_qfmt_num++] = QF_META;
+		kernel_qfmt[kernel_qfmt_num++] = QF_XFS;
 		kernel_qfmt[kernel_qfmt_num++] = QF_VFSOLD;
 		kernel_qfmt[kernel_qfmt_num++] = QF_VFSV0;
 		kernel_qfmt[kernel_qfmt_num++] = QF_VFSV1;
@@ -1044,6 +1037,15 @@ void init_kernel_interface(void)
 	else {
 		struct v2_dqstats v2_stats;
 
+		if (!stat("/proc/fs/xfs/stat", &st))
+			kernel_qfmt[kernel_qfmt_num++] = QF_XFS;
+		else {
+			fs_quota_stat_t dummy;
+
+			if (!quotactl(QCMD(Q_XGETQSTAT, 0), "/dev/root", 0, (void *)&dummy) ||
+			    (errno != EINVAL && errno != ENOSYS))
+				kernel_qfmt[kernel_qfmt_num++] = QF_XFS;
+		}
 		if (quotactl(QCMD(Q_V2_GETSTATS, 0), NULL, 0, (void *)&v2_stats) >= 0) {
 			kernel_qfmt[kernel_qfmt_num++] = QF_VFSV0;
 			kernel_iface = IFACE_VFSV0;
