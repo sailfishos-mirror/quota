@@ -332,23 +332,39 @@ static int newstate(struct mount_entry *mnt, int type, char *extra)
 static int print_state(struct mount_entry *mnt, int type)
 {
 	int on = 0;
+	char *state;
 
-	if (!strcmp(mnt->me_type, MNTTYPE_XFS) ||
-	    !strcmp(mnt->me_type, MNTTYPE_GFS2)) {
-		if (kern_qfmt_supp(QF_XFS))
-			on = kern_quota_on(mnt, type, QF_XFS) != -1;
+	if (kern_qfmt_supp(QF_XFS)) {
+		on = kern_quota_state_xfs(mnt->me_devname, type);
+		if (!strcmp(mnt->me_type, MNTTYPE_XFS) ||
+		    !strcmp(mnt->me_type, MNTTYPE_GFS2) || on >= 0) {
+			if (on < 0)
+				on = 0;
+			if (!(flags & FL_VERBOSE))
+				goto print_state;
+			if (on == 0)
+				state = _("off");
+			else if (on == 1)
+				state = _("on (accounting)");
+			else
+				state = _("on (enforced)");
+			goto print;
+		}
 	}
-	else if (kernel_iface == IFACE_GENERIC)
+	if (kernel_iface == IFACE_GENERIC)
 		on = kern_quota_on(mnt, type, -1) != -1;
 	else if (kern_qfmt_supp(QF_VFSV0))
 		on = kern_quota_on(mnt, type, QF_VFSV0) != -1;
 	else if (kern_qfmt_supp(QF_VFSOLD))
 		on = kern_quota_on(mnt, type, QF_VFSOLD) != -1;
 
-	printf(_("%s quota on %s (%s) is %s\n"), _(type2name(type)), mnt->me_dir, mnt->me_devname,
-	  on ? _("on") : _("off"));
+print_state:
+	state = on ? _("on") : _("off");
+print:
+	printf(_("%s quota on %s (%s) is %s\n"), _(type2name(type)),
+		mnt->me_dir, mnt->me_devname, state);
 	
-	return on;
+	return on > 0;
 }
 
 int main(int argc, char **argv)

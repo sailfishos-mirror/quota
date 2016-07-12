@@ -1114,20 +1114,34 @@ static int v2_kern_quota_on(const char *dev, int type)
 	return 0;
 }
 
-/* Check whether XFS quota is turned on on given device */
-static int xfs_kern_quota_on(const char *dev, int type)
+/*
+ * Check whether quota is turned on on given device. This quotactl always
+ * worked for XFS and it works even for VFS quotas for kernel 4.1 and newer.
+ *
+ * We return 0 when quota is not turned on, 1 when only accounting is turned
+ * on, and 2 when both accounting and enforcement is turned on. We return -1
+ * on error.
+ */
+int kern_quota_state_xfs(const char *dev, int type)
 {
 	struct xfs_mem_dqinfo info;
 
 	if (!quotactl(QCMD(Q_XFS_GETQSTAT, type), dev, 0, (void *)&info)) {
-		if (type == USRQUOTA && (info.qs_flags & XFS_QUOTA_UDQ_ACCT))
-			return 1;
-		if (type == GRPQUOTA && (info.qs_flags & XFS_QUOTA_GDQ_ACCT))
-			return 1;
-		if (type == PRJQUOTA && (info.qs_flags & XFS_QUOTA_PDQ_ACCT))
-			return 1;
+		if (type == USRQUOTA) {
+			return !!(info.qs_flags & XFS_QUOTA_UDQ_ACCT) +
+			       !!(info.qs_flags & XFS_QUOTA_UDQ_ENFD);
+		}
+		if (type == GRPQUOTA) {
+			return !!(info.qs_flags & XFS_QUOTA_GDQ_ACCT) +
+			       !!(info.qs_flags & XFS_QUOTA_GDQ_ENFD);
+		}
+		if (type == PRJQUOTA) {
+			return !!(info.qs_flags & XFS_QUOTA_PDQ_ACCT) +
+			       !!(info.qs_flags & XFS_QUOTA_PDQ_ENFD);
+		}
+		return 0;
 	}
-	return 0;
+	return -1;
 }
 
 /*
@@ -1141,7 +1155,7 @@ int kern_quota_on(struct mount_entry *mnt, int type, int fmt)
 		return -1;
 	if (mnt->me_qfmt[type] == QF_XFS) {
 		if ((fmt == -1 || fmt == QF_XFS) &&
-	    	    xfs_kern_quota_on(mnt->me_devname, type))	/* XFS quota format */
+		    kern_quota_state_xfs(mnt->me_devname, type) > 0)
 			return QF_XFS;
 		return -1;
 	}
