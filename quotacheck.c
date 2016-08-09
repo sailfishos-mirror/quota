@@ -959,7 +959,10 @@ Please stop all programs writing to filesystem or use -m flag to force checking.
 start_scan:
 	debug(FL_VERBOSE | FL_DEBUG, _("Scanning %s [%s] "), mnt->me_devname, mnt->me_dir);
 #if defined(EXT2_DIRECT)
-	if (!strcmp(mnt->me_type, MNTTYPE_EXT2) || !strcmp(mnt->me_type, MNTTYPE_EXT3) || !strcmp(mnt->me_type, MNTTYPE_NEXT3)) {
+	if (!strcmp(mnt->me_type, MNTTYPE_EXT2) ||
+	    !strcmp(mnt->me_type, MNTTYPE_EXT3) ||
+	    !strcmp(mnt->me_type, MNTTYPE_NEXT3) ||
+	    !strcmp(mnt->me_type, MNTTYPE_EXT4)) {
 		if ((failed = ext2_direct_scan(mnt->me_devname)) < 0)
 			goto out;
 	}
