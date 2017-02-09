@@ -309,7 +309,7 @@ int main(int argc, char **argv)
 		 * reuse the file for editting the next user as well.
 		 */
 		if ((tmpfd = open(tmpfil, O_RDWR)) < 0)
-			die(1, _("Cannot reopen!"));
+			die(1, _("Cannot reopen!\n"));
 		if (stat(tmpfil, &st) < 0) {
 			errstr(_("Cannot stat file with times.\n"));
 			ret = -1;
@@ -361,7 +361,7 @@ int main(int argc, char **argv)
 			 * reuse the file for editting the next user as well.
 			 */
 			if ((tmpfd = open(tmpfil, O_RDWR)) < 0)
-				die(1, _("Cannot reopen!"));
+				die(1, _("Cannot reopen!\n"));
 			if (stat(tmpfil, &st) < 0) {
 				errstr(_("Cannot stat file with times.\n"));
 				ret = -1;

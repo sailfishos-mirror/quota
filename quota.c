@@ -426,7 +426,7 @@ int main(int argc, char **argv)
 				ret |= showquotas(GRPQUOTA, gidsetp[i], argc, argv);
 		}
 		if (flags & FL_PROJECT)
-			die(1, _("Project reports not supported without project name"));
+			die(1, _("Project reports not supported without project name\n"));
 		exit(ret);
 	}
 
