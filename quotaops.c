@@ -252,6 +252,28 @@ int editprivs(char *tmpfile)
 }
 
 /*
+ * Duplicate a file descriptor, resetting the file offset.
+ * If it's a write descriptor, also truncate the file.
+ */
+static FILE *dup_file(int fd, int is_write)
+{
+	FILE *fp;
+
+	if (is_write && ftruncate(fd, 0))
+		die(1, _("Cannot truncate a file: %s\n"), strerror(errno));
+	if (lseek(fd, 0, SEEK_SET))
+		die(1, _("Cannot reset a file offset: %s\n"), strerror(errno));
+	if ((fd = dup(fd)) < 0)
+		die(1, _("Cannot duplicate a file descriptor: %s\n"), strerror(errno));
+	if (!(fp = fdopen(fd, is_write ? "w" : "r")))
+		die(1, is_write ? _("Cannot open a stream to write to: %s\n")
+				: _("Cannot open a stream to read from: %s\n"),
+		    strerror(errno));
+
+	return fp;
+}
+
+/*
  * Convert a dquot list to an ASCII file.
  */
 int writeprivs(struct dquot *qlist, int outfd, char *name, int quotatype)
@@ -259,10 +281,7 @@ int writeprivs(struct dquot *qlist, int outfd, char *name, int quotatype)
 	struct dquot *q;
 	FILE *fd;
 
-	ftruncate(outfd, 0);
-	lseek(outfd, 0, SEEK_SET);
-	if (!(fd = fdopen(dup(outfd), "w")))
-		die(1, _("Cannot duplicate descriptor of file to write to: %s\n"), strerror(errno));
+	fd = dup_file(outfd, 1);
 
 	fprintf(fd, _("Disk quotas for %s %s (%cid %d):\n"),
 		_(type2name(quotatype)), name, *type2name(quotatype), qlist->dq_id);
@@ -323,9 +342,7 @@ int readprivs(struct dquot *qlist, int infd)
 	char inodesstring[BUFSIZ], isoftstring[BUFSIZ], ihardstring[BUFSIZ];
 	const char *error;
 
-	lseek(infd, 0, SEEK_SET);
-	if (!(fd = fdopen(dup(infd), "r")))
-		die(1, _("Cannot duplicate descriptor of temp file: %s\n"), strerror(errno));
+	fd = dup_file(infd, 0);
 
 	/*
 	 * Discard title lines, then read lines to process.
@@ -435,10 +452,7 @@ int writeindividualtimes(struct dquot *qlist, int outfd, char *name, int quotaty
 	time_t now;
 	char btimestr[MAXTIMELEN], itimestr[MAXTIMELEN];
 
-	ftruncate(outfd, 0);
-	lseek(outfd, 0, SEEK_SET);
-	if (!(fd = fdopen(dup(outfd), "w")))
-		die(1, _("Cannot duplicate descriptor of file to write to: %s\n"), strerror(errno));
+	fd = dup_file(outfd, 1);
 
 	fprintf(fd, _("Times to enforce softlimit for %s %s (%cid %d):\n"),
 		_(type2name(quotatype)), name, *type2name(quotatype), qlist->dq_id);
@@ -478,9 +492,7 @@ int readindividualtimes(struct dquot *qlist, int infd)
 	char iunits[BUFSIZ], bunits[BUFSIZ];
 	time_t now, bseconds, iseconds;
 
-	lseek(infd, 0, SEEK_SET);
-	if (!(fd = fdopen(dup(infd), "r")))
-		die(1, _("Cannot duplicate descriptor of temp file: %s\n"), strerror(errno));
+	fd = dup_file(infd, 0);
 
 	/*
 	 * Discard title lines, then read lines to process.
@@ -543,10 +555,7 @@ int writetimes(struct quota_handle **handles, int outfd)
 	if (!handles[0])
 		return 0;
 
-	ftruncate(outfd, 0);
-	lseek(outfd, 0, SEEK_SET);
-	if ((fd = fdopen(dup(outfd), "w")) == NULL)
-		die(1, _("Cannot duplicate descriptor of file to edit: %s\n"), strerror(errno));
+	fd = dup_file(outfd, 1);
 
 	fprintf(fd, _("Grace period before enforcing soft limits for %ss:\n"),
 		_(type2name(handles[0]->qh_type)));
@@ -575,12 +584,8 @@ int readtimes(struct quota_handle **handles, int infd)
 
 	if (!handles[0])
 		return 0;
-	lseek(infd, 0, SEEK_SET);
-	if (!(fd = fdopen(dup(infd), "r"))) {
-		errstr(_("Cannot reopen temp file: %s\n"),
-			strerror(errno));
-		return -1;
-	}
+
+	fd = dup_file(infd, 0);
 
 	/* Set all grace times to default values */
 	for (i = 0; handles[i]; i++) {
