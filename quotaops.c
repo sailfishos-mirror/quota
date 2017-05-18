@@ -218,8 +218,10 @@ int editprivs(char *tmpfile)
 		int i;
 
 		sigprocmask(SIG_SETMASK, &omask, NULL);
-		setgid(getgid());
-		setuid(getuid());
+		if (setgid(getgid()))
+			die(1, _("%s failed: %s\n"), "setgid", strerror(errno));
+		if (setuid(getuid()))
+			die(1, _("%s failed: %s\n"), "setuid", strerror(errno));
 		if (!(ed = getenv("VISUAL")))
 			if (!(ed = getenv("EDITOR")))
 				ed = _PATH_VI;
