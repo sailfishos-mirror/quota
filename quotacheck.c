@@ -508,10 +508,15 @@ static int scan_dir(const char *pathname)
 		add_to_quota(GRPQUOTA, st.st_ino, st.st_uid, st.st_gid, st.st_mode,
 			     st.st_nlink, qspace, 0);
 
-	if ((dp = opendir(pathname)) == (DIR *) NULL)
-		die(2, _("\nCan open directory %s: %s\n"), pathname, strerror(errno));
+	if (chdir(pathname) == -1) {
+		errstr(_("Cannot chdir to %s: %s\n"), pathname, strerror(errno));
+		goto out;
+	}
 
-	chdir(pathname);
+	if ((dp = opendir(".")) == (DIR *) NULL)
+		die(2, _("\nCannot open directory %s: %s\n"),
+		    pathname, strerror(errno));
+
 	if (flags & FL_VERYVERBOSE)
 		blit(pathname);
 	while ((de = readdir(dp)) != (struct dirent *)NULL) {
