@@ -600,8 +600,7 @@ int ask_yn(char *q, int def)
 
 	printf("%s [%c]: ", q, def ? 'y' : 'n');
 	fflush(stdout);
-	while (1) {
-		fgets(a, sizeof(a)-1, stdin);
+	while (fgets(a, sizeof(a)-1, stdin)) {
 		if (a[0] == '\n')
 			return def;
 		if (!strcasecmp(a, "y\n"))
@@ -611,6 +610,7 @@ int ask_yn(char *q, int def)
 		printf("Illegal answer. Please answer y/n: ");
 		fflush(stdout);
 	}
+	return def;
 }
 
 /* Do checks and buffer quota file into memory */
