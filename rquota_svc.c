@@ -169,15 +169,38 @@ static void parse_options(int argc, char **argv)
  * good_client checks if an quota client should be allowed to
  * execute the requested rpc call.
  */
-static int good_client(struct sockaddr_in *addr, ulong rq_proc)
+static int good_client(struct svc_req *rqstp)
 {
 #ifdef HOSTS_ACCESS
 	struct request_info req;
 #endif
-	char *remote = inet_ntoa(addr->sin_addr);
+	ulong rq_proc = rqstp->rq_proc;
+	struct sockaddr_storage *addr;
+	void *sin_addr;
+	in_port_t sin_port;
+	char remote[128];
 
-	if (rq_proc==RQUOTAPROC_SETQUOTA ||
-	     rq_proc==RQUOTAPROC_SETACTIVEQUOTA) {
+	addr = (struct sockaddr_storage *)svc_getcaller(rqstp->rq_xprt);
+	if (addr->ss_family == AF_INET) {
+		sin_addr = &((struct sockaddr_in *)addr)->sin_addr;
+		sin_port = ((struct sockaddr_in *)addr)->sin_port;
+	} else if (addr->ss_family == AF_INET6) {
+		sin_addr = &((struct sockaddr_in6 *)addr)->sin6_addr;
+		sin_port = ((struct sockaddr_in6 *)addr)->sin6_port;
+	} else {
+		errstr(_("unknown address family %u for RPC request\n"),
+			(unsigned int)addr->ss_family);
+		return 0;
+	}
+
+	if (!inet_ntop(addr->ss_family, sin_addr, remote, sizeof(remote))) {
+		errstr(_("failed to translate address for RPC request: %s\n"),
+			strerror(errno));
+		return 0;
+	}
+
+	if (rq_proc == RQUOTAPROC_SETQUOTA ||
+	     rq_proc == RQUOTAPROC_SETACTIVEQUOTA) {
 		/* If setquota is disabled, fail always */
 		if (!(flags & FL_SETQUOTA)) {
 			errstr(_("host %s attempted to call setquota when disabled\n"),
@@ -186,7 +209,7 @@ static int good_client(struct sockaddr_in *addr, ulong rq_proc)
 			return 0;
 		}
 		/* Require that SETQUOTA calls originate from port < 1024 */
-		if (ntohs(addr->sin_port)>=1024) {
+		if (ntohs(sin_port) >= 1024) {
 			errstr(_("host %s attempted to call setquota from port >= 1024\n"),
 			       remote);
 			return 0;
@@ -225,7 +248,7 @@ static void rquotaprog_1(struct svc_req *rqstp, register SVCXPRT * transp)
 	/*
 	 *  Authenticate host
 	 */
-	if (!good_client(svc_getcaller(rqstp->rq_xprt),rqstp->rq_proc)) {
+	if (!good_client(rqstp)) {
 		svcerr_auth (transp, AUTH_FAILED);
 		return;
 	}
@@ -311,7 +334,7 @@ static void rquotaprog_2(struct svc_req *rqstp, register SVCXPRT * transp)
 	/*
 	 *  Authenticate host
 	 */
-	if (!good_client(svc_getcaller(rqstp->rq_xprt),rqstp->rq_proc)) {
+	if (!good_client(rqstp)) {
 		svcerr_auth (transp, AUTH_FAILED);
 		return;
 	}
