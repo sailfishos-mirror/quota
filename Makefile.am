@@ -20,7 +20,6 @@ man_MANS = \
 	edquota.8 \
 	quotagrpadmins.5 \
 	quotacheck.8 \
-	quota_nld.8 \
 	quotaon.8 \
 	quotastats.8 \
 	quotasync.1 \
@@ -33,6 +32,10 @@ man_MANS = \
 	warnquota.conf.5 \
 	warnquota.8 \
 	xqmstats.8
+
+if WITH_NETLINK
+man_MANS += quota_nld.8
+endif
 
 SUBDIRS = po
 
