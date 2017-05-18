@@ -19,6 +19,9 @@ AM_INIT_AUTOMAKE([1.11 foreign dist-xz dist-bzip2])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 AC_LANG([C])
 
+AC_USE_SYSTEM_EXTENSIONS
+AC_SYS_LARGEFILE
+
 # ===========================
 # Find required base packages
 # ===========================
@@ -56,7 +59,7 @@ AS_IF([test "x${prefix}" = "xNONE"], [
 # ================
 # Check for cflags
 # ================
-CFLAGS="$CFLAGS -D_GNU_SOURCE -Wall -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -fPIC"
+CFLAGS="$CFLAGS -Wall -fPIC"
 AC_ARG_ENABLE([werror],
     [AS_HELP_STRING([--enable-werror], [Treat all warnings as errors, useful for development])],
     [enable_werror="$enableval"],

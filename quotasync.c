@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -7,7 +9,6 @@
 #include <getopt.h>
 
 #include "pot.h"
-#include "config.h"
 #include "common.h"
 #include "quotasys.h"
 #include "quotaio.h"
