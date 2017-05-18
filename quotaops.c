@@ -330,8 +330,12 @@ int readprivs(struct dquot *qlist, int infd)
 	/*
 	 * Discard title lines, then read lines to process.
 	 */
-	fgets(line, sizeof(line), fd);
-	fgets(line, sizeof(line), fd);
+	if (!fgets(line, sizeof(line), fd) ||
+	    !fgets(line, sizeof(line), fd)) {
+		errstr(_("Bad format: two title lines assumed\n"));
+		fclose(fd);
+		return -1;
+	}
 
 	while (fgets(line, sizeof(line), fd)) {
 		cnt = sscanf(line, "%s %s %s %s %s %s %s",
@@ -481,9 +485,13 @@ int readindividualtimes(struct dquot *qlist, int infd)
 	/*
 	 * Discard title lines, then read lines to process.
 	 */
-	fgets(line, sizeof(line), fd);
-	fgets(line, sizeof(line), fd);
-	fgets(line, sizeof(line), fd);
+	if (!fgets(line, sizeof(line), fd) ||
+	    !fgets(line, sizeof(line), fd) ||
+	    !fgets(line, sizeof(line), fd)) {
+		errstr(_("Bad format: three title lines assumed\n"));
+		fclose(fd);
+		return -1;
+	}
 
 	time(&now);
 	while (fgets(line, sizeof(line), fd)) {
@@ -583,9 +591,13 @@ int readtimes(struct quota_handle **handles, int infd)
 	/*
 	 * Discard three title lines, then read lines to process.
 	 */
-	fgets(line, sizeof(line), fd);
-	fgets(line, sizeof(line), fd);
-	fgets(line, sizeof(line), fd);
+	if (!fgets(line, sizeof(line), fd) ||
+	    !fgets(line, sizeof(line), fd) ||
+	    !fgets(line, sizeof(line), fd)) {
+		errstr(_("Bad format: three title lines assumed\n"));
+		fclose(fd);
+		return -1;
+	}
 
 	while (fgets(line, sizeof(line), fd)) {
 		cnt = sscanf(line, "%s %d %s %d %s", fsp, &btime, bunits, &itime, iunits);
