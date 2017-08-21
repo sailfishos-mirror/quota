@@ -421,6 +421,7 @@ static int ext2_direct_scan(const char *device)
 	ext2fs_inode_bitmap inode_dir_map;
 	uid_t uid;
 	gid_t gid;
+	int ret = -1;
 
 	if ((error = ext2fs_open(device, 0, 0, 0, unix_io_manager, &fs))) {
 		errstr(_("error (%d) while opening %s\n"), (int)error, device);
@@ -429,22 +430,22 @@ static int ext2_direct_scan(const char *device)
 
 	if ((error = ext2fs_allocate_inode_bitmap(fs, "in-use inode map", &inode_used_map))) {
 		errstr(_("error (%d) while allocating file inode bitmap\n"), (int)error);
-		return -1;
+		goto out_free;
 	}
 
 	if ((error = ext2fs_allocate_inode_bitmap(fs, "directory inode map", &inode_dir_map))) {
 		errstr(_("errstr (%d) while allocating directory inode bitmap\n"), (int)error);
-		return -1;
+		goto out_used_map;
 	}
 
 	if ((error = ext2fs_open_inode_scan(fs, inode_buffer_blocks, &scan))) {
 		errstr(_("error (%d) while opening inode scan\n"), (int)error);
-		return -1;
+		goto out_dir_map;
 	}
 
 	if ((error = ext2fs_get_next_inode(scan, &i_num, &inode))) {
 		errstr(_("error (%d) while starting inode scan\n"), (int)error);
-		return -1;
+		goto out_scan;
 	}
 
 	while (i_num) {
@@ -474,10 +475,19 @@ static int ext2_direct_scan(const char *device)
 
 		if ((error = ext2fs_get_next_inode(scan, &i_num, &inode))) {
 			errstr(_("Something weird happened while scanning. Error %d\n"), (int)error);
-			return -1;
+			goto out_scan;
 		}
 	}
-	return 0;
+	ret = 0;
+out_scan:
+	ext2fs_close_inode_scan(scan);
+out_dir_map:
+	ext2fs_free_inode_bitmap(inode_dir_map);
+out_used_map:
+	ext2fs_free_inode_bitmap(inode_used_map);
+out_free:
+	ext2fs_free(fs);
+	return ret;
 }
 #endif
 
