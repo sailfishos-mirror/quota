@@ -193,6 +193,10 @@ static int showquotas(int type, qid_t id, int mntcnt, char **mnt)
 		| ((flags & FL_LOCALONLY) ? MS_LOCALONLY : 0)
 		| ((flags & FL_NFSALL) ? MS_NFS_ALL : 0));
 	qlist = getprivs(id, handles, !!(flags & FL_QUIETREFUSE));
+	if (!qlist) {
+		over = 1;
+		goto out_handles;
+	}
 	over = 0;
 	for (q = qlist; q; q = q->dq_next) {
 		bover = iover = 0;
@@ -292,6 +296,7 @@ static int showquotas(int type, qid_t id, int mntcnt, char **mnt)
 	if (!(flags & FL_QUIET) && !lines && qlist)
 		heading(type, id, name, _("none"));
 	freeprivs(qlist);
+out_handles:
 	dispose_handle_list(handles);
 	return over > 0 ? 1 : 0;
 }
