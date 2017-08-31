@@ -29,13 +29,39 @@
 #include "common.h"
 #include "pot.h"
 
-static int svc_socket (u_long number, int type, int protocol, int port, int reuse)
+static int get_service_port(u_long number, const char *proto)
 {
-	struct sockaddr_in addr;
 	char rpcdata [1024], servdata [1024];
 	struct rpcent rpcbuf, *rpcp = NULL;
 	struct servent servbuf, *servp = NULL;
-	int sock, ret;
+	int ret;
+
+	ret = getrpcbynumber_r(number, &rpcbuf, rpcdata, sizeof(rpcdata), &rpcp);
+	if (ret == 0 && rpcp != NULL) {
+		/* First try name */
+		ret = getservbyname_r(rpcp->r_name, proto, &servbuf, servdata,
+		                       sizeof servdata, &servp);
+		if ((ret != 0 || servp == NULL) && rpcp->r_aliases) {
+			const char **a;
+
+			/* Then we try aliases.	*/
+			for (a = (const char **) rpcp->r_aliases; *a != NULL; a++) {
+				ret = getservbyname_r(*a, proto, &servbuf, servdata,
+						 sizeof servdata, &servp);
+				if (ret == 0 && servp != NULL)
+					break;
+			}
+		}
+		if (ret == 0 && servp != NULL)
+			return ntohs(servp->s_port);
+	}
+	return 0;
+}
+
+static int svc_socket (u_long number, int type, int protocol, int port, int reuse)
+{
+	struct sockaddr_in addr;
+	int sock;
 	const char *proto = protocol == IPPROTO_TCP ? "tcp" : "udp";
 
 	if ((sock = socket (AF_INET, type, protocol)) < 0) {
@@ -44,8 +70,9 @@ static int svc_socket (u_long number, int type, int protocol, int port, int reus
 	}
 
 	if (reuse) {
-		ret = 1;
-		if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &ret, sizeof(ret)) < 0) {
+		int optval = 1;
+
+		if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0) {
 			errstr(_("Cannot set socket options: %s\n"), strerror(errno));
 			return -1;
 		}
@@ -54,32 +81,11 @@ static int svc_socket (u_long number, int type, int protocol, int port, int reus
 	memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
 
-	if (!port) {
-		ret = getrpcbynumber_r(number, &rpcbuf, rpcdata, sizeof(rpcdata), &rpcp);
-		if (ret == 0 && rpcp != NULL) {
-			/* First try name */
-			ret = getservbyname_r(rpcp->r_name, proto, &servbuf, servdata,
-			                       sizeof servdata, &servp);
-			if ((ret != 0 || servp == NULL) && rpcp->r_aliases) {
-				const char **a;
-
-				/* Then we try aliases.	*/
-				for (a = (const char **) rpcp->r_aliases; *a != NULL; a++) {
-					ret = getservbyname_r(*a, proto, &servbuf, servdata,
-							 sizeof servdata, &servp);
-					if (ret == 0 && servp != NULL)
-						break;
-				}
-			}
-			if (ret == 0 && servp != NULL)
-				port = servp->s_port;
-		}
-	}
-	else
-		port = htons(port);
+	if (!port)
+		port = get_service_port(number, proto);
 
 	if (port) {
-		addr.sin_port = port;
+		addr.sin_port = htons(port);
 		if (bind(sock, (struct sockaddr *) &addr, sizeof(struct sockaddr_in)) < 0) {
 			errstr(_("Cannot bind to given address: %s\n"), strerror(errno));
 			close (sock);
