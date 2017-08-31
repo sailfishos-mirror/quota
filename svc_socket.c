@@ -58,61 +58,108 @@ static int get_service_port(u_long number, const char *proto)
 	return 0;
 }
 
-static int svc_socket (u_long number, int type, int protocol, int port, int reuse)
+static struct addrinfo *svc_create_bindaddr(struct netconfig *nconf, int port)
 {
-	struct sockaddr_in addr;
-	int sock;
-	const char *proto = protocol == IPPROTO_TCP ? "tcp" : "udp";
+	struct addrinfo *ai = NULL;
+	struct addrinfo hint = {
+		.ai_flags = AI_PASSIVE | AI_NUMERICSERV,
+	};
+	char portbuf[16];
+	int err;
 
-	if ((sock = socket (AF_INET, type, protocol)) < 0) {
-		errstr(_("Cannot create socket: %s\n"), strerror(errno));
+	if (!strcmp(nconf->nc_protofmly, NC_INET))
+		hint.ai_family = AF_INET;
+	else if (!strcmp(nconf->nc_protofmly, NC_INET6))
+		hint.ai_family = AF_INET6;
+	else {
+		errstr(_("Unrecognized bind address family: %s\n"),
+			nconf->nc_protofmly);
+		return NULL;
+	}
+
+	if (!strcmp(nconf->nc_proto, NC_UDP))
+		hint.ai_protocol = IPPROTO_UDP;
+	else if (!strcmp(nconf->nc_proto, NC_TCP))
+		hint.ai_protocol = IPPROTO_TCP;
+	else {
+		errstr(_("Unrecognized bind address protocol: %s\n"),
+			nconf->nc_proto);
+		return NULL;
+	}
+
+	if (nconf->nc_semantics == NC_TPI_CLTS)
+		hint.ai_socktype = SOCK_DGRAM;
+	else if (nconf->nc_semantics == NC_TPI_COTS_ORD)
+		hint.ai_socktype = SOCK_STREAM;
+	else {
+		errstr(_("Unrecognized address semantics: %lu\n"),
+			nconf->nc_semantics);
+		return NULL;
+	}
+
+	snprintf(portbuf, sizeof(portbuf), "%u", port);
+	err = getaddrinfo(NULL, portbuf, &hint, &ai);
+	if (err) {
+		errstr(_("Failed to construct bind address: %s\n"),
+			gai_strerror(err));
+		return NULL;
+	}
+	return ai;
+}
+
+static int svc_create_sock(struct addrinfo *ai)
+{
+	int fd;
+	int optval = 1;
+
+	fd = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
+	if (fd < 0) {
+		errstr(_("Error creating socket: %s\n"), strerror(errno));
 		return -1;
 	}
 
-	if (reuse) {
-		int optval = 1;
-
-		if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0) {
-			errstr(_("Cannot set socket options: %s\n"), strerror(errno));
-			return -1;
-		}
+	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0) {
+		errstr(_("Cannot set socket options: %s\n"), strerror(errno));
+		close(fd);
+		return -1;
 	}
 
-	memset(&addr, 0, sizeof(addr));
-	addr.sin_family = AF_INET;
+	if (bind(fd, ai->ai_addr, ai->ai_addrlen) < 0) {
+		errstr(_("Cannot bind to address: %s\n"), strerror(errno));
+		close(fd);
+		return -1;
+	}
+	return fd;
+}
+
+/*
+ * Create service structure based on passed netconfig and port
+ */
+SVCXPRT *svc_create_nconf(rpcprog_t program, struct netconfig *nconf, int port)
+{
+	SVCXPRT *xprt;
 
 	if (!port)
-		port = get_service_port(number, proto);
+		port = get_service_port(program, nconf->nc_proto);
 
 	if (port) {
-		addr.sin_port = htons(port);
-		if (bind(sock, (struct sockaddr *) &addr, sizeof(struct sockaddr_in)) < 0) {
-			errstr(_("Cannot bind to given address: %s\n"), strerror(errno));
-			close (sock);
-			return -1;
+		struct addrinfo *ai = svc_create_bindaddr(nconf, port);
+		int fd;
+
+		if (!ai)
+			return NULL;
+
+		fd = svc_create_sock(ai);
+		freeaddrinfo(ai);
+		if (fd < 0)
+			return NULL;
+		xprt = svc_tli_create(fd, nconf, NULL, 0, 0);
+		if (!xprt) {
+			close(fd);
+			return NULL;
 		}
+	} else {
+		xprt = svc_tli_create(RPC_ANYFD, nconf, NULL, 0, 0);
 	}
-	else {
-		/* Service not found? */
-		close(sock);
-		return -1;
-	}
-
-	return sock;
-}
-
-/*
- * Create and bind a TCP socket based on program number
- */
-int svctcp_socket(u_long number, int port, int reuse)
-{
-	return svc_socket(number, SOCK_STREAM, IPPROTO_TCP, port, reuse);
-}
-
-/*
- * Create and bind a UDP socket based on program number
- */
-int svcudp_socket(u_long number, int port, int reuse)
-{
-	return svc_socket(number, SOCK_DGRAM, IPPROTO_UDP, port, reuse);
+	return xprt;
 }

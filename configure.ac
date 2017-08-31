@@ -206,6 +206,15 @@ AS_IF([test x"$enable_rpc" != "xno"], [
 	])
 	build_rpc="no"
     ])
+
+    PKG_CHECK_MODULES([TIRPC], [libtirpc], [], [
+	AS_IF([test x"$enable_rpc" = "xyes"], [
+	    AC_MSG_ERROR([could not locate required libtirpc])
+	], [
+	    AC_MSG_WARN([libtirpc not found])
+	])
+	build_rpc="no"
+    ])
 	
     AS_IF([test x"$build_rpc" != "xno"], [
 	AC_DEFINE([RPC], 1, [Support for RPC])

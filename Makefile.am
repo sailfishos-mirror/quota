@@ -223,10 +223,12 @@ rpc_rquotad_SOURCES = \
 	rquota_server.c \
 	rquota_svc.c \
 	svc_socket.c
+rpc_rquotad_CFLAGS = $(TIRPC_CFLAGS)
 rpc_rquotad_LDADD = \
 	libquota.a \
 	$(WRAP_LIBS) \
-	$(RPCLIBS)
+	$(RPCLIBS) \
+	$(TIRPC_LIBS)
 endif
 
 quota_nld_SOURCES = quota_nld.c

@@ -21,10 +21,10 @@
 #include "config.h"
 
 #include <rpc/rpc.h>
+#include <rpc/rpc_com.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <rpc/pmap_clnt.h>	/* for pmap_unset */
 #include <stdio.h>
 #include <stdlib.h>		/* getenv, exit */
 #include <string.h>		/* strcmp */
@@ -33,6 +33,7 @@
 #include <getopt.h>
 #include <signal.h>
 #include <errno.h>
+#include <netconfig.h>
 #ifdef HOSTS_ACCESS
 #include <tcpd.h>
 #include <netdb.h>
@@ -43,9 +44,6 @@ int deny_severity, allow_severity;	/* Needed by some versions of libwrap */
 #ifdef __STDC__
 #define SIG_PF void(*)(int)
 #endif
-
-extern int svctcp_socket (u_long __number, int __port, int __reuse);
-extern int svcudp_socket (u_long __number, int __port, int __reuse);
 
 #include "pot.h"
 #include "common.h"
@@ -408,8 +406,8 @@ static void rquotaprog_2(struct svc_req *rqstp, register SVCXPRT * transp)
 static void
 unregister (int sig)
 {
-	pmap_unset(RQUOTAPROG, RQUOTAVERS);
-	pmap_unset(RQUOTAPROG, EXT_RQUOTAVERS);
+	rpcb_unset(RQUOTAPROG, RQUOTAVERS, NULL);
+	rpcb_unset(RQUOTAPROG, EXT_RQUOTAVERS, NULL);
 	exit(0);
 }
 
@@ -446,11 +444,71 @@ static void get_pseudoroot(void)
 	fclose(f);
 }
 
+extern SVCXPRT *svc_create_nconf(rpcprog_t program, struct netconfig *nconf,
+				 int port);
+
+static void rquota_svc_create(int port)
+{
+	int maxrec = RPC_MAXDATASIZE;
+	void *handlep;
+	int visible = 0;
+	struct netconfig *nconf;
+	SVCXPRT *xprt;
+
+	/*
+	 * Setting MAXREC also enables non-blocking mode for tcp connections.
+	 * This avoids DOS attacks by a client sending many requests but never
+	 * reading the reply:
+	 * - if a second request already is present for reading in the socket,
+	 *   after the first request just was read, libtirpc will break the
+	 *   connection. Thus an attacker can't simply send requests as fast as
+	 *   he can without waiting for the response.
+	 * - if the write buffer of the socket is full, the next write() will
+	 *   fail with EAGAIN. libtirpc will retry the write in a loop for max.
+	 *   2 seconds. If write still fails, the connection will be closed.
+	 */   
+	rpc_control(RPC_SVC_CONNMAXREC_SET, &maxrec);
+
+	handlep = setnetconfig();
+	if (!handlep) {
+		errstr(_("Failed to access local netconfig database: %s\n"),
+			nc_sperror());
+		exit(1);
+	}
+	while ((nconf = getnetconfig(handlep)) != NULL) {
+		if (!(nconf->nc_flag & NC_VISIBLE))
+			continue;
+		xprt = svc_create_nconf(RQUOTAPROG, nconf, port);
+		if (!xprt) {
+			errstr(_("Failed to create %s service.\n"),
+				nconf->nc_netid);
+			exit(1);
+		}
+		if (!svc_reg(xprt, RQUOTAPROG, RQUOTAVERS, rquotaprog_1, nconf)) {
+			errstr(_("Unable to register (RQUOTAPROG, RQUOTAVERS, %s).\n"),
+				nconf->nc_netid);
+		} else {
+			visible++;
+		}
+		if (!svc_reg(xprt, RQUOTAPROG, EXT_RQUOTAVERS, rquotaprog_2, nconf)) {
+			errstr(_("Unable to register (RQUOTAPROG, EXT_RQUOTAVERS, %s).\n"),
+				nconf->nc_netid);
+		} else {
+			visible++;
+		}
+	}
+
+	if (visible == 0) {
+		errstr("Failed to register any service.\n");
+		exit(1);
+	}
+
+	endnetconfig(handlep);
+}
+
 int main(int argc, char **argv)
 {
-	register SVCXPRT *transp;
 	struct sigaction sa;
-	int sock;
 
 	gettexton();
 	progname = basename(argv[0]);
@@ -458,8 +516,8 @@ int main(int argc, char **argv)
 
 	init_kernel_interface();
 	get_pseudoroot();
-	pmap_unset(RQUOTAPROG, RQUOTAVERS);
-	pmap_unset(RQUOTAPROG, EXT_RQUOTAVERS);
+	rpcb_unset(RQUOTAPROG, RQUOTAVERS, NULL);
+	rpcb_unset(RQUOTAPROG, EXT_RQUOTAVERS, NULL);
 
 	sa.sa_handler = SIG_IGN;
 	sa.sa_flags = 0;
@@ -471,35 +529,7 @@ int main(int argc, char **argv)
 	sigaction(SIGINT, &sa, NULL);
 	sigaction(SIGTERM, &sa, NULL);
 
-	sock = svcudp_socket(RQUOTAPROG, port, 1);
-	transp = svcudp_create(sock == -1 ? RPC_ANYSOCK : sock);
-	if (transp == NULL) {
-		errstr(_("cannot create udp service.\n"));
-		exit(1);
-	}
-	if (!svc_register(transp, RQUOTAPROG, RQUOTAVERS, rquotaprog_1, IPPROTO_UDP)) {
-		errstr(_("unable to register (RQUOTAPROG, RQUOTAVERS, UDP).\n"));
-		exit(1);
-	}
-	if (!svc_register(transp, RQUOTAPROG, EXT_RQUOTAVERS, rquotaprog_2, IPPROTO_UDP)) {
-		errstr(_("unable to register (RQUOTAPROG, EXT_RQUOTAVERS, UDP).\n"));
-		exit(1);
-	}
-
-	sock = svctcp_socket(RQUOTAPROG, port, 1);
-	transp = svctcp_create(sock == -1 ? RPC_ANYSOCK : sock, 0, 0);
-	if (transp == NULL) {
-		errstr(_("cannot create TCP service.\n"));
-		exit(1);
-	}
-	if (!svc_register(transp, RQUOTAPROG, RQUOTAVERS, rquotaprog_1, IPPROTO_TCP)) {
-		errstr(_("unable to register (RQUOTAPROG, RQUOTAVERS, TCP).\n"));
-		exit(1);
-	}
-	if (!svc_register(transp, RQUOTAPROG, EXT_RQUOTAVERS, rquotaprog_2, IPPROTO_TCP)) {
-		errstr(_("unable to register (RQUOTAPROG, EXT_RQUOTAVERS, TCP).\n"));
-		exit(1);
-	}
+	rquota_svc_create(port);
 
 	if (!(flags & FL_NODAEMON)) {
 		use_syslog();
