@@ -100,6 +100,8 @@ libquota_a_SOURCES = \
 	mntopt.h \
 	pot.c \
 	pot.h
+libquota_a_CFLAGS = \
+	$(TIRPC_CFLAGS)
 libquota_a_LIBADD = \
 	$(RPCLIBS)
 
@@ -133,7 +135,8 @@ quotaon_SOURCES = \
 	quotaon_xfs.c
 quotaon_LDADD = \
 	libquota.a \
-	$(RPCLIBS)
+	$(RPCLIBS) \
+	$(TIRPC_LIBS)
 
 quotacheck_SOURCES = \
 	quotacheck.c \
@@ -149,7 +152,8 @@ quotacheck_LDADD = \
 	libquota.a \
 	$(EXT2FS_LIBS) \
 	$(COM_ERR_LIBS) \
-	$(RPCLIBS)
+	$(RPCLIBS) \
+	$(TIRPC_LIBS)
 
 quota_SOURCES = \
 	quota.c \
@@ -158,30 +162,35 @@ quota_SOURCES = \
 	quotaops.h
 quota_LDADD = \
 	libquota.a \
-	$(RPCLIBS)
+	$(RPCLIBS) \
+	$(TIRPC_LIBS)
 
 quotasync_SOURCES = quotasync.c
 quotasync_LDADD = \
 	libquota.a \
-	$(RPCLIBS)
+	$(RPCLIBS) \
+	$(TIRPC_LIBS)
 
 quot_SOURCES = \
 	quot.c \
 	quot.h
 quot_LDADD = \
 	libquota.a \
-	$(RPCLIBS)
+	$(RPCLIBS) \
+	$(TIRPC_LIBS)
 
 repquota_SOURCES = repquota.c
 repquota_LDADD = \
 	libquota.a \
-	$(RPCLIBS)
+	$(RPCLIBS) \
+	$(TIRPC_LIBS)
 
 warnquota_SOURCES = warnquota.c
 warnquota_LDADD = \
 	libquota.a \
 	$(LDAP_LIBS) \
-	$(RPCLIBS)
+	$(RPCLIBS) \
+	$(TIRPC_LIBS)
 
 quotastats_SOURCES = \
 	quotastats.c \
@@ -203,7 +212,8 @@ edquota_SOURCES = \
 	quotaops.h
 edquota_LDADD = \
 	libquota.a \
-	$(RPCLIBS)
+	$(RPCLIBS) \
+	$(TIRPC_LIBS)
 
 setquota_SOURCES = \
 	setquota.c \
@@ -211,12 +221,14 @@ setquota_SOURCES = \
 	quotaops.h
 setquota_LDADD = \
 	libquota.a \
-	$(RPCLIBS)
+	$(RPCLIBS) \
+	$(TIRPC_LIBS)
 
 convertquota_SOURCES = convertquota.c
 convertquota_LDADD = \
 	libquota.a \
-	$(RPCLIBS)
+	$(RPCLIBS) \
+	$(TIRPC_LIBS)
 
 if WITH_RPC
 rpc_rquotad_SOURCES = \
@@ -238,6 +250,7 @@ quota_nld_CFLAGS = \
 quota_nld_LDADD = \
 	libquota.a \
 	$(RPCLIBS) \
+	$(TIRPC_LIBS) \
 	$(DBUS_LIBS) \
 	$(LIBNL3_LIBS)
 
