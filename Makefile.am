@@ -27,7 +27,6 @@ man_MANS = \
 	quota.1 \
 	quot.8 \
 	repquota.8 \
-	rquota.3 \
 	setquota.8 \
 	warnquota.conf.5 \
 	warnquota.8 \
@@ -69,7 +68,10 @@ librpcclient_a_CFLAGS = -Wno-unused
 RPCLIBS = librpcclient.a
 BUILT_SOURCES = rquota.h rquota.c rquota_clnt.c
 CLEANFILES = rquota.c rquota.h rquota_clnt.c
-man_MANS += rpc.rquotad.8
+man_MANS += \
+	rpc.rquotad.8 \
+	rquota.3
+
 endif
 
 libquota_a_SOURCES = \
