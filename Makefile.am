@@ -50,6 +50,8 @@ EXTRA_DIST = \
 noinst_LIBRARIES = libquota.a
 
 if WITH_RPC
+CFLAGS += $(TIRPC_CFLAGS)
+
 rpcsvcdir = $(includedir)/rpcsvc
 rpcsvc_DATA = \
 	rquota.h \
@@ -102,8 +104,6 @@ libquota_a_SOURCES = \
 	mntopt.h \
 	pot.c \
 	pot.h
-libquota_a_CFLAGS = \
-	$(TIRPC_CFLAGS)
 libquota_a_LIBADD = \
 	$(RPCLIBS)
 
@@ -237,7 +237,6 @@ rpc_rquotad_SOURCES = \
 	rquota_server.c \
 	rquota_svc.c \
 	svc_socket.c
-rpc_rquotad_CFLAGS = $(TIRPC_CFLAGS)
 rpc_rquotad_LDADD = \
 	libquota.a \
 	$(WRAP_LIBS) \
