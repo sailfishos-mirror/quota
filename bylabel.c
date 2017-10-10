@@ -65,6 +65,14 @@ struct reiserfs_super_block {
 	u_char s_volume_name[16];
 };
 
+#define F2FS_SUPER_MAGIC	"0xF2F52010"
+struct f2fs_super_block {
+	u_char s_magic[8];
+	u_char s_dummy[144];
+	u_char s_uuid[16];
+	u_char s_volume_name[512];
+};
+
 static inline unsigned short swapped(unsigned short a)
 {
 	return (a >> 8) | (a << 8);
@@ -81,6 +89,7 @@ static int get_label_uuid(const char *device, char **label, char *uuid)
 	struct ext2_super_block e2sb;
 	struct xfs_super_block xfsb;
 	struct reiserfs_super_block reisersb;
+	struct f2fs_super_block f2fssb;
 
 	fd = open(device, O_RDONLY);
 	if (fd < 0)
@@ -112,6 +121,15 @@ static int get_label_uuid(const char *device, char **label, char *uuid)
 		namesize = sizeof(reisersb.s_volume_name);
 		*label = smalloc(namesize + 1);
 		sstrncpy(*label, (char *)reisersb.s_volume_name, namesize);
+		rv = 0;
+	}
+	else if (lseek(fd, 65536, SEEK_SET) == 65536
+		&& read(fd, (char *)&f2fssb, sizeof(f2fssb)) == sizeof(f2fssb)
+		&& !strncmp((char *)&f2fssb.s_magic, F2FS_SUPER_MAGIC, 8)) {
+		memcpy(uuid, f2fssb.s_uuid, sizeof(f2fssb.s_uuid));
+		namesize = sizeof(f2fssb.s_volume_name);
+		*label = smalloc(namesize + 1);
+		sstrncpy(*label, (char *)f2fssb.s_volume_name, namesize);
 		rv = 0;
 	}
 	close(fd);

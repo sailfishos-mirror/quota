@@ -769,7 +769,7 @@ static int hasquota(const char *dev, struct mntent *mnt, int type, int flags)
 	 * standard GETFMT quotactl because that does not distinguish between
 	 * quota in system file and quota in ordinary file.
 	 */
-	if (!strcmp(mnt->mnt_type, MNTTYPE_EXT4)) {
+	if (!strcmp(mnt->mnt_type, MNTTYPE_EXT4) || !strcmp(mnt->mnt_type, MNTTYPE_F2FS)) {
 		struct if_dqinfo kinfo;
 
 		if (quotactl(QCMD(Q_GETINFO, type), dev, 0, (void *)&kinfo) == 0) {
