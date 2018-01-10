@@ -204,6 +204,11 @@ int vfs_scan_dquots(struct quota_handle *h,
 		if (ret < 0)
 			break;
 		id = kdqblk.dqb_id + 1;
+		/* id -1 is invalid and the last one... */
+		if (id == -1) {
+			errno = ENOENT;
+			break;
+		}
 	}
 	free(dquot);
 
