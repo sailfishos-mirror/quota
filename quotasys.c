@@ -18,8 +18,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
-#include <ctype.h>
 #include <paths.h>
+#include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/vfs.h>
@@ -532,30 +532,39 @@ int str2timeunits(time_t num, char *unit, time_t *res)
 /*
  * Convert number in quota blocks to some nice short form for printing
  */
-void space2str(qsize_t space, char *buf, int format)
+void space2str(qsize_t space, char *buf, enum s2s_unit format)
 {
 	int i;
-	char suffix[8] = " MGT";
-	qsize_t aspace = space >= 0 ? space : -space;
+	char suffix[8] = "KMGT";
+	qsize_t aspace;
+	int sign = 1;
+	long long unit;
 
-	space = qb2kb(space);
-	if (format) {
-		for (i = 3; i > 0; i--) {
-			long long unit = 1LL << (QUOTABLOCK_BITS*i);
-
-			if (aspace >= unit * 100) {
-				int sign = aspace != space ? -1 : 1;
-
-				sprintf(buf, "%lld%c", (long long)
-					DIV_ROUND_UP(aspace, unit) * sign,
-					suffix[i]);
-				return;
-			}
-		}
-		sprintf(buf, "%lldK", (long long)space);
+	aspace = space = qb2kb(space);
+	if (format == S2S_NONE) {
+		sprintf(buf, "%lld", (long long)space);
 		return;
 	}
-	sprintf(buf, "%lld", (long long)space);
+ 	if (aspace < 0) {
+		aspace = -space;
+		sign = -1;
+	}
+	if (format == S2S_AUTO) {
+		for (i = 3; i >= 0; i--) {
+			 unit = 1LL << (QUOTABLOCK_BITS*i);
+
+			if (aspace >= unit * 100)
+				goto print;
+		}
+		unit = 1;
+		i = 0;
+	} else {
+		i = format - S2S_KB;
+		unit = 1LL << (QUOTABLOCK_BITS*i);
+	}
+print:
+	sprintf(buf, "%lld%c", (long long)DIV_ROUND_UP(aspace, unit) * sign,
+		suffix[i]);
 }
 
 /*
@@ -593,25 +602,38 @@ const char *str2space(const char *string, qsize_t *space)
 /*
  *  Convert number to some nice short form for printing
  */
-void number2str(long long num, char *buf, int format)
+void number2str(long long num, char *buf, enum s2s_unit format)
 {
 	int i;
-	unsigned long long div;
+	unsigned long long div;;
 	char suffix[8] = " kmgt";
+	long long anum = num;
+	int sign = 1;
 
-	if (format) {
-		long long anum = num >= 0 ? num : -num;
-		int sign = num != anum ? -1 : 1;
-
-		for (i = 4, div = 1000000000000LL; i > 0; i--, div /= 1000)
-			if (anum >= 100*div) {
-				sprintf(buf, "%lld%c",
-					DIV_ROUND_UP(anum, div) * sign,
-					suffix[i]);
-				return;
-			}
+	if (format == S2S_NONE) {
+		sprintf(buf, "%lld", num);
+		return;
 	}
-	sprintf(buf, "%lld", num);
+
+	if (num < 0) {
+		anum = -num;
+		sign = -1;
+	}
+	if (format == S2S_AUTO) {
+		for (i = 4, div = 1000000000000LL; i > 0; i--, div /= 1000)
+			if (anum >= 100*div)
+				break;
+	} else {
+		div = 1;
+		for (i = 0; i < format - S2S_NONE; i++)
+			div *= 1000;
+	}
+	if (suffix[i] != ' ') {
+		sprintf(buf, "%lld%c", DIV_ROUND_UP(anum, div) * sign,
+			suffix[i]);
+	} else {
+		sprintf(buf, "%lld", DIV_ROUND_UP(anum, div) * sign);
+	}
 }
 
 /*

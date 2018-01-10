@@ -98,9 +98,15 @@ there are such names.
 .B -n, --no-names
 Don't resolve UIDs/GIDs to names. This can speedup printing a lot.
 .TP
-.B -s, --human-readable
-Try to report used space, number of used inodes and limits in more appropriate units
-than the default ones.
+.B -s, --human-readable[=\f2units\f1]
+Try to report used space, number of used inodes and limits in more appropriate
+units than the default ones. Units can be also specified explicitely by an
+optional argument in format [
+.BR kgt
+],[
+.BR kgt
+] where the first character specifies space units and the second character
+specifies inode units.
 .TP
 .B -p, --raw-grace
 When user is in grace period, report time in seconds since epoch when his grace

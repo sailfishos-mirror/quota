@@ -46,7 +46,21 @@ char *sstrdup(const char *s);
 /* Print version string */
 void version(void);
 
+/* Desired output unit */
+enum s2s_unit {
+	S2S_NONE = 0,
+	S2S_KB,
+	S2S_MB,
+	S2S_GB,
+	S2S_TB,
+	S2S_AUTO,
+	S2S_INVALID
+};
+
 /* Compare two times */
 int timespec_cmp(struct timespec *a, struct timespec *b);
+
+/* Convert command line option to desired output unit */
+int unitopt2unit(char *opt, enum s2s_unit *space_unit, enum s2s_unit *inode_unit);
 
 #endif /* GUARD_COMMON_H */

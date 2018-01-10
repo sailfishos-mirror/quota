@@ -32,7 +32,6 @@
 #define FL_VERBOSE 4
 #define FL_ALL 8		/* Dump quota files on all filesystems */
 #define FL_TRUNCNAMES 16	/* Truncate names to fit into the screen */
-#define FL_SHORTNUMS 32	/* Try to print space in appropriate units */
 #define FL_NONAME 64	/* Don't translate ids to names */
 #define FL_NOCACHE 128	/* Don't cache dquots before resolving */
 #define FL_NOAUTOFS 256	/* Ignore autofs mountpoints */
@@ -44,27 +43,33 @@ static char **mnt;
 static int mntcnt;
 static int cached_dquots;
 static struct dquot dquot_cache[MAX_CACHE_DQUOTS];
+static enum s2s_unit spaceunit = S2S_NONE, inodeunit = S2S_NONE;
 char *progname;
 
 static void usage(void)
 {
 	errstr(_("Utility for reporting quotas.\nUsage:\n%s [-vugsi] [-c|C] [-t|n] [-F quotaformat] [-O (default | xml | csv)] (-a | mntpoint)\n\n\
--v, --verbose               display also users/groups without any usage\n\
--u, --user                  display information about users\n\
--g, --group                 display information about groups\n\
--P, --project               display information about projects\n\
--s, --human-readable        show numbers in human friendly units (MB, GB, ...)\n\
--t, --truncate-names        truncate names to 9 characters\n\
--p, --raw-grace             print grace time in seconds since epoch\n\
--n, --no-names              do not translate uid/gid to name\n\
--i, --no-autofs             avoid autofs mountpoints\n\
--c, --cache                 translate big number of ids at once\n\
--C, --no-cache              translate ids one by one\n\
--F, --format=formatname     report information for specific format\n\
--O, --output=format         format output as xml or csv\n\
--a, --all                   report information for all mount points with quotas\n\
--h, --help                  display this help message and exit\n\
--V, --version               display version information and exit\n\n"), progname);
+-v, --verbose                 display also users/groups without any usage\n\
+-u, --user                    display information about users\n\
+-g, --group                   display information about groups\n\
+-P, --project                 display information about projects\n\
+-s, --human-readable[=units]  display numbers in human friendly units (MB, GB,\n\
+                              ...). Units can be also specified explicitely by\n\
+                              an optional argument in format [kgt],[kgt] where\n\
+                              the first character specifies space units and the\n\
+                              second character specifies inode units\n\
+-t, --truncate-names          truncate names to 9 characters\n\
+-p, --raw-grace               print grace time in seconds since epoch\n\
+-n, --no-names                do not translate uid/gid to name\n\
+-i, --no-autofs               avoid autofs mountpoints\n\
+-c, --cache                   translate big number of ids at once\n\
+-C, --no-cache                translate ids one by one\n\
+-F, --format=formatname       report information for specific format\n\
+-O, --output=format           format output as xml or csv\n\
+-a, --all                     report information for all mount points with\n\
+                              quotas\n\
+-h, --help                    display this help message and exit\n\
+-V, --version                 display version information and exit\n\n"), progname);
 	fprintf(stderr, _("Bugs to %s\n"), PACKAGE_BUGREPORT);
 	exit(1);
 }
@@ -83,7 +88,7 @@ static void parse_options(int argcnt, char **argstr)
 		{ "help", 0, NULL, 'h' },
 		{ "truncate-names", 0, NULL, 't' },
 		{ "raw-grace", 0, NULL, 'p' },
-		{ "human-readable", 0, NULL, 's' },
+		{ "human-readable", 2, NULL, 's' },
 		{ "no-names", 0, NULL, 'n' },
 		{ "cache", 0, NULL, 'c' },
 		{ "no-cache", 0, NULL, 'C' },
@@ -93,7 +98,7 @@ static void parse_options(int argcnt, char **argstr)
 		{ NULL, 0, NULL, 0 }
 	};
 
-	while ((ret = getopt_long(argcnt, argstr, "VavugPhtspncCiF:O:", long_opts, NULL)) != -1) {
+	while ((ret = getopt_long(argcnt, argstr, "VavugPhts::pncCiF:O:", long_opts, NULL)) != -1) {
 		switch (ret) {
 			case '?':
 			case 'h':
@@ -123,7 +128,11 @@ static void parse_options(int argcnt, char **argstr)
 				flags |= FL_RAWGRACE;
 				break;
 			case 's':
-				flags |= FL_SHORTNUMS;
+				inodeunit = spaceunit = S2S_AUTO;
+				if (optarg) {
+					if (unitopt2unit(optarg, &spaceunit, &inodeunit) < 0)
+						die(1, _("Bad output format units for human readable output: %s\n"), optarg);
+				}
 				break;
 			case 'C':
 				flags |= FL_NOCACHE;
@@ -215,9 +224,9 @@ static void print(struct dquot *dquot, char *name)
 			strcpy(time, "0");
 		else
 			time[0] = 0;
-	space2str(toqb(entry->dqb_curspace), numbuf[0], flags & FL_SHORTNUMS);
-	space2str(entry->dqb_bsoftlimit, numbuf[1], flags & FL_SHORTNUMS);
-	space2str(entry->dqb_bhardlimit, numbuf[2], flags & FL_SHORTNUMS);
+	space2str(toqb(entry->dqb_curspace), numbuf[0], spaceunit);
+	space2str(entry->dqb_bsoftlimit, numbuf[1], spaceunit);
+	space2str(entry->dqb_bhardlimit, numbuf[2], spaceunit);
 
 	if (ofmt == QOF_DEFAULT) {
 		printf("%-*s %c%c %7s %7s %7s %6s", PRINTNAMELEN, pname,
@@ -236,7 +245,7 @@ static void print(struct dquot *dquot, char *name)
 	} else if (ofmt == QOF_XML) {
 		char *spacehdr;
 
-		if (flags & FL_SHORTNUMS)
+		if (spaceunit != S2S_NONE)
 			spacehdr = "space";
 		else
 			spacehdr = "block";
@@ -264,9 +273,9 @@ static void print(struct dquot *dquot, char *name)
 			strcpy(time, "0");
 		else
 			time[0] = 0;
-	number2str(entry->dqb_curinodes, numbuf[0], flags & FL_SHORTNUMS);
-	number2str(entry->dqb_isoftlimit, numbuf[1], flags & FL_SHORTNUMS);
-	number2str(entry->dqb_ihardlimit, numbuf[2], flags & FL_SHORTNUMS);
+	number2str(entry->dqb_curinodes, numbuf[0], inodeunit);
+	number2str(entry->dqb_isoftlimit, numbuf[1], inodeunit);
+	number2str(entry->dqb_ihardlimit, numbuf[2], inodeunit);
 	if (ofmt == QOF_DEFAULT)
 		printf(" %7s %5s %5s %6s\n", numbuf[0], numbuf[1], numbuf[2], time);
 	else if (ofmt == QOF_CSV)
@@ -378,7 +387,7 @@ static void report_it(struct quota_handle *h, int type)
 	time2str(h->qh_info.dqi_igrace, igbuf, TF_ROUND);
 
 	if (ofmt == QOF_DEFAULT) {
-		if (flags & FL_SHORTNUMS)
+		if (spaceunit != S2S_NONE)
 			spacehdr = _("Space");
 		else
 			spacehdr = _("Block");
@@ -389,7 +398,7 @@ static void report_it(struct quota_handle *h, int type)
 	} else if (ofmt == QOF_XML) {
 		printf(" <BlockGraceTime>%s</BlockGraceTime>\n <InodeGraceTime>%s</InodeGraceTime>\n", bgbuf, igbuf);
 	} else if (ofmt == QOF_CSV) {
-		if (flags & FL_SHORTNUMS)
+		if (spaceunit != S2S_NONE)
 			spacehdr = "Space";
 		else
 			spacehdr = "Block";

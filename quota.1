@@ -109,10 +109,16 @@ Print project quotas for the specified project.
 will display quotas on filesystems
 where no storage is allocated.
 .TP
-.B -s, --human-readable
+.B -s, --human-readable[=\f2units\f1]
 option will make
 .BR quota (1)
-try to choose units for showing limits, used space and used inodes.
+try to choose units for showing limits, used space and used inodes. Units can
+be also specified explicitely by an optional argument in format [
+.BR kgt
+],[
+.BR kgt
+] where the first character specifies space units and the second character
+specifies inode units.
 .TP
 .B --always-resolve
 Always try to translate user / group name to uid / gid even if the name

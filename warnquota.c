@@ -86,7 +86,6 @@
 #define FL_USER 1
 #define FL_GROUP 2
 #define FL_NOAUTOFS 4
-#define FL_SHORTNUMS 8
 #define FL_NODETAILS 16
 
 struct usage {
@@ -157,6 +156,7 @@ static char *hostname, *domainname;
 static quotatable_t *quotatable;
 static int adminscnt, adminsalloc;
 static struct adminstable *adminstable;
+static enum s2s_unit spaceunit = S2S_NONE, inodeunit = S2S_NONE;
 
 /*
  * Global pointers to list.
@@ -548,9 +548,9 @@ static int mail_user(struct offenderlist *offender, struct configparams *config)
 				difftime2str(dqb->dqb_btime, timebuf);
 			else
 				timebuf[0] = '\0';
-			space2str(toqb(dqb->dqb_curspace), numbuf[0], flags & FL_SHORTNUMS);
-			space2str(dqb->dqb_bsoftlimit, numbuf[1], flags & FL_SHORTNUMS);
-			space2str(dqb->dqb_bhardlimit, numbuf[2], flags & FL_SHORTNUMS);
+			space2str(toqb(dqb->dqb_curspace), numbuf[0], spaceunit);
+			space2str(dqb->dqb_bsoftlimit, numbuf[1], spaceunit);
+			space2str(dqb->dqb_bhardlimit, numbuf[2], spaceunit);
 			fprintf(fp, "%c%c %7s %7s %7s %6s",
 			        dqb->dqb_bsoftlimit && toqb(dqb->dqb_curspace) >= dqb->dqb_bsoftlimit ? '+' : '-',
 				dqb->dqb_isoftlimit && dqb->dqb_curinodes >= dqb->dqb_isoftlimit ? '+' : '-',
@@ -559,9 +559,9 @@ static int mail_user(struct offenderlist *offender, struct configparams *config)
 				difftime2str(dqb->dqb_itime, timebuf);
 			else
 				timebuf[0] = '\0';
-			number2str(dqb->dqb_curinodes, numbuf[0], flags & FL_SHORTNUMS);
-			number2str(dqb->dqb_isoftlimit, numbuf[1], flags & FL_SHORTNUMS);
-			number2str(dqb->dqb_ihardlimit, numbuf[2], flags & FL_SHORTNUMS);
+			number2str(dqb->dqb_curinodes, numbuf[0], inodeunit);
+			number2str(dqb->dqb_isoftlimit, numbuf[1], inodeunit);
+			number2str(dqb->dqb_ihardlimit, numbuf[2], inodeunit);
 			fprintf(fp, " %7s %5s %5s %6s\n\n", numbuf[0], numbuf[1], numbuf[2], timebuf);
 		}
 	}
@@ -1016,7 +1016,12 @@ static void usage(void)
 	errstr(_("Usage:\n  warnquota [-ugsid] [-F quotaformat] [-c configfile] [-q quotatabfile] [-a adminsfile] [filesystem...]\n\n\
 -u, --user                      warn users\n\
 -g, --group                     warn groups\n\
--s, --human-readable            send information in more human friendly units\n\
+-s, --human-readable[=units]    display numbers in human friendly units (MB,\n\
+                                GB, ...). Units can be also specified\n\
+                                explicitely by an optional argument in format\n\
+                                [kgt],[kgt] where the first character specifies\n\
+                                space units and the second character specifies\n\
+                                inode units\n\
 -i, --no-autofs                 avoid autofs mountpoints\n\
 -d, --no-details                do not send quota information itself\n\
 -F, --format=formatname         use quotafiles of specific format\n\
@@ -1042,12 +1047,12 @@ static void parse_options(int argcnt, char **argstr)
 		{ "quota-tab", 1, NULL, 'q' },
 		{ "admins-file", 1, NULL, 'a' },
 		{ "no-autofs", 0, NULL, 'i' },
-		{ "human-readable", 0, NULL, 's' },
+		{ "human-readable", 2, NULL, 's' },
 		{ "no-details", 0, NULL, 'd' },
 		{ NULL, 0, NULL, 0 }
 	};
  
-	while ((ret = getopt_long(argcnt, argstr, "ugVF:hc:q:a:isd", long_opts, NULL)) != -1) {
+	while ((ret = getopt_long(argcnt, argstr, "ugVF:hc:q:a:is::d", long_opts, NULL)) != -1) {
 		switch (ret) {
 		  case '?':
 		  case 'h':
@@ -1078,7 +1083,11 @@ static void parse_options(int argcnt, char **argstr)
 			flags |= FL_NOAUTOFS;
 			break;
 		  case 's':
-			flags |= FL_SHORTNUMS;
+			inodeunit = spaceunit = S2S_AUTO;
+			if (optarg) {
+				if (unitopt2unit(optarg, &spaceunit, &inodeunit) < 0)
+					die(1, _("Bad output format units for human readable output: %s\n"), optarg);
+			}
 			break;
 		  case 'd':
 			flags |= FL_NODETAILS;

@@ -14,6 +14,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <syslog.h>
+#include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -138,3 +139,41 @@ int timespec_cmp(struct timespec *a, struct timespec *b)
 		return 1;
 	return 0;
 }
+
+static enum s2s_unit unitstring2unit(char *opt)
+{
+	char unitchar;
+	char *unitstring = "kmgt";
+	int i, len;
+
+	len = strlen(opt);
+	if (!len)
+		return S2S_NONE;
+	if (len > 1)
+		return S2S_INVALID;
+	unitchar = tolower(*opt);
+	for (i = 0; i < strlen(unitstring); i++)
+		if (unitchar == unitstring[i])
+			break;
+	if (i >= strlen(unitstring))
+		return S2S_INVALID;
+	return S2S_KB + i;
+}
+
+int unitopt2unit(char *opt, enum s2s_unit *space_unit, enum s2s_unit *inode_unit)
+{
+	char *sep;
+
+	sep = strchr(opt, ',');
+	if (!sep)
+		return -1;
+	*sep = 0;
+	*space_unit = unitstring2unit(opt);
+	if (*space_unit == S2S_INVALID)
+		return -1;
+	*inode_unit = unitstring2unit(sep + 1);
+	if (*inode_unit == S2S_INVALID)
+		return -1;
+	return 0;
+}
+

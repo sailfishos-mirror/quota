@@ -49,6 +49,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
+#include <ctype.h>
 #ifdef RPC
 #include <rpc/rpc.h>
 #include "rquota.h"
@@ -64,7 +65,6 @@
 #define FL_VERBOSE 2
 #define FL_USER 4
 #define FL_GROUP 8
-#define FL_SMARTSIZE 16
 #define FL_LOCALONLY 32
 #define FL_QUIETREFUSE 64
 #define FL_NOAUTOFS 128
@@ -79,6 +79,7 @@
 #define FL_PROJECT 65536
 
 static int flags, fmt = -1;
+static enum s2s_unit spaceunit = S2S_NONE, inodeunit = S2S_NONE;
 char *progname;
 
 static void usage(void)
@@ -89,28 +90,33 @@ static void usage(void)
 		_("\tquota [-qvswim] [-l | [-Q | -A]] [-F quotaformat] -g groupname ...\n"),
 		_("\tquota [-qvswugPQm] [-F quotaformat] -f filesystem ...\n"),
 		_("\n\
--u, --user                display quota for user\n\
--g, --group               display quota for group\n\
--P, --project             display quota for project\n\
--q, --quiet               print more terse message\n\
--v, --verbose             print more verbose message\n\
--s, --human-readable      display numbers in human friendly units (MB, GB...)\n\
-    --always-resolve      always try to translate name to id, even if it is\n\
-			  composed of only digits\n\
--w, --no-wrap             do not wrap long lines\n\
--p, --raw-grace           print grace time in seconds since epoch\n\
--l, --local-only          do not query NFS filesystems\n\
--Q, --quiet-refuse        do not print error message when NFS server does\n\
-                          not respond\n\
--i, --no-autofs           do not query autofs mountpoints\n\
--F, --format=formatname   display quota of a specific format\n\
--f, --filesystem-list     display quota information only for given filesystems\n\
--A, --all-nfs             display quota for all NFS mountpoints\n\
--m, --no-mixed-pathnames  trim leading slashes from NFSv4 mountpoints\n\
-    --show-mntpoint       show mount point of the file system in output\n\
-    --hide-device         do not show file system device in output\n\
--h, --help                display this help message and exit\n\
--V, --version             display version information and exit\n\n"));
+-u, --user                    display quota for user\n\
+-g, --group                   display quota for group\n\
+-P, --project                 display quota for project\n\
+-q, --quiet                   print more terse message\n\
+-v, --verbose                 print more verbose message\n\
+-s, --human-readable[=units]  display numbers in human friendly units (MB, GB,\n\
+                              ...). Units can be also specified explicitely by\n\
+                              an optional argument in format [kgt],[kgt] where\n\
+                              the first character specifies space units and the\n\
+                              second character specifies inode units\n\
+    --always-resolve          always try to translate name to id, even if it is\n\
+			      composed of only digits\n\
+-w, --no-wrap                 do not wrap long lines\n\
+-p, --raw-grace               print grace time in seconds since epoch\n\
+-l, --local-only              do not query NFS filesystems\n\
+-Q, --quiet-refuse            do not print error message when NFS server does\n\
+                              not respond\n\
+-i, --no-autofs               do not query autofs mountpoints\n\
+-F, --format=formatname       display quota of a specific format\n\
+-f, --filesystem-list         display quota information only for given\n\
+                              filesystems\n\
+-A, --all-nfs                 display quota for all NFS mountpoints\n\
+-m, --no-mixed-pathnames      trim leading slashes from NFSv4 mountpoints\n\
+    --show-mntpoint           show mount point of the file system in output\n\
+    --hide-device             do not show file system device in output\n\
+-h, --help                    display this help message and exit\n\
+-V, --version                 display version information and exit\n\n"));
 	fprintf(stderr, _("Bugs to: %s\n"), PACKAGE_BUGREPORT);
 	exit(1);
 }
@@ -119,7 +125,7 @@ static void heading(int type, qid_t id, char *name, char *tag)
 {
 	char *spacehdr;
 
-	if (flags & FL_SMARTSIZE)
+	if (spaceunit != S2S_NONE)
 		spacehdr = _("space");
 	else
 		spacehdr = _("blocks");
@@ -267,9 +273,9 @@ static int showquotas(int type, qid_t id, int mntcnt, char **mnt)
 				else
 					strcpy(timebuf, "0");
 			}
-			space2str(toqb(q->dq_dqb.dqb_curspace), numbuf[0], !!(flags & FL_SMARTSIZE));
-			space2str(q->dq_dqb.dqb_bsoftlimit, numbuf[1], !!(flags & FL_SMARTSIZE));
-			space2str(q->dq_dqb.dqb_bhardlimit, numbuf[2], !!(flags & FL_SMARTSIZE));
+			space2str(toqb(q->dq_dqb.dqb_curspace), numbuf[0], spaceunit);
+			space2str(q->dq_dqb.dqb_bsoftlimit, numbuf[1], spaceunit);
+			space2str(q->dq_dqb.dqb_bhardlimit, numbuf[2], spaceunit);
 			printf(" %7s%c %6s %7s %7s", numbuf[0], bover ? '*' : ' ', numbuf[1],
 			       numbuf[2], timebuf);
 
@@ -285,9 +291,9 @@ static int showquotas(int type, qid_t id, int mntcnt, char **mnt)
 				else
 					strcpy(timebuf, "0");
 			}
-			number2str(q->dq_dqb.dqb_curinodes, numbuf[0], !!(flags & FL_SMARTSIZE));
-			number2str(q->dq_dqb.dqb_isoftlimit, numbuf[1], !!(flags & FL_SMARTSIZE));
-			number2str(q->dq_dqb.dqb_ihardlimit, numbuf[2], !!(flags & FL_SMARTSIZE));
+			number2str(q->dq_dqb.dqb_curinodes, numbuf[0], inodeunit);
+			number2str(q->dq_dqb.dqb_isoftlimit, numbuf[1], inodeunit);
+			number2str(q->dq_dqb.dqb_ihardlimit, numbuf[2], inodeunit);
 			printf(" %7s%c %6s %7s %7s\n", numbuf[0], iover ? '*' : ' ', numbuf[1],
 			       numbuf[2], timebuf);
 			continue;
@@ -314,7 +320,7 @@ int main(int argc, char **argv)
 		{ "project", 0, NULL, 'P' },
 		{ "quiet", 0, NULL, 'q' },
 		{ "verbose", 0, NULL, 'v' },
-		{ "human-readable", 0, NULL, 's' },
+		{ "human-readable", 2, NULL, 's' },
 		{ "always-resolve", 0, NULL, 256 },
 		{ "raw-grace", 0, NULL, 'p' },
 		{ "local-only", 0, NULL, 'l' },
@@ -334,7 +340,7 @@ int main(int argc, char **argv)
 	progname = basename(argv[0]);
 
 	flags |= FL_SHOW_DEVICE;
-	while ((ret = getopt_long(argc, argv, "hguqvsPVliQF:wfApm", long_opts, NULL)) != -1) {
+	while ((ret = getopt_long(argc, argv, "hguqvs::PVliQF:wfApm", long_opts, NULL)) != -1) {
 		switch (ret) {
 		  case 'g':
 			  flags |= FL_GROUP;
@@ -356,7 +362,11 @@ int main(int argc, char **argv)
 				  exit(1);
 			  break;
 		  case 's':
-			  flags |= FL_SMARTSIZE;
+			  inodeunit = spaceunit = S2S_AUTO;
+			  if (optarg) {
+				if (unitopt2unit(optarg, &spaceunit, &inodeunit) < 0)
+					die(1, _("Bad output format units for human readable output: %s\n"), optarg);
+			  }
 			  break;
 		  case 'p':
 			  flags |= FL_RAWGRACE;

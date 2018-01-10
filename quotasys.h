@@ -11,6 +11,7 @@
 #include <inttypes.h>
 #include "mntopt.h"
 #include "quota.h"
+#include "common.h"
 
 #define MAXNAMELEN 64		/* Maximal length of user/group name */
 #define MAXTIMELEN 40		/* Maximal length of time string */
@@ -129,13 +130,13 @@ void time2str(time_t, char *, int);
 int str2timeunits(time_t, char *, time_t *);
 
 /* Convert number in quota blocks to short printable form */
-void space2str(qsize_t, char *, int);
+void space2str(qsize_t, char *, enum s2s_unit);
 
 /* Convert block number with unit from string to quota blocks */
 const char *str2space(const char *string, qsize_t *space);
 
 /* Convert number to short printable form */
-void number2str(long long, char *, int);
+void number2str(long long, char *, enum s2s_unit);
 
 /* Convert inode number with unit from string to quota inodes. */
 const char *str2number(const char *string, qsize_t *inodes);

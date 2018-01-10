@@ -16,7 +16,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: quota-tools 4.01\n"
 "Report-Msgid-Bugs-To: jack@suse.cz\n"
-"POT-Creation-Date: 2015-12-16 18:19+0100\n"
+"POT-Creation-Date: 2017-09-05 16:53+0200\n"
 "PO-Revision-Date: 2012-09-10 16:55+0200\n"
 "Last-Translator: Petr Pisar <petr.pisar@atlas.cz>\n"
 "Language-Team: Czech <translation-team-cs@lists.sourceforge.net>\n"
@@ -64,7 +64,7 @@ msgstr ""
 "-V, --version                       zobrazí informace o verzi a skončí\n"
 "\n"
 
-#: convertquota.c:48 warnquota.c:1024 quotacheck.c:314 repquota.c:66
+#: convertquota.c:48 warnquota.c:1028 quotacheck.c:314 repquota.c:68
 #: common.c:126
 #, c-format
 msgid "Bugs to %s\n"
@@ -74,8 +74,8 @@ msgstr "Chyby hlaste na <%s>\n"
 msgid "You have to specify source and target format of conversion.\n"
 msgstr "Musíte zadat zdrojový a cílový formát převodu.\n"
 
-#: convertquota.c:112 quotacheck.c:400 quotasync.c:81 repquota.c:148
-#: quotaon.c:137 setquota.c:247
+#: convertquota.c:112 quotacheck.c:400 quotasync.c:88 repquota.c:154
+#: quotaon.c:143 setquota.c:264
 msgid "Bad number of arguments.\n"
 msgstr "Špatný počet argumentů.\n"
 
@@ -112,7 +112,7 @@ msgstr "Údaje o starém kvótovém souboru nelze přečíst.\n"
 msgid "Cannot get name of new quotafile.\n"
 msgstr "Nelze získat název nového souboru s kvótami.\n"
 
-#: convertquota.c:302 quotacheck.c:749
+#: convertquota.c:302 quotacheck.c:764
 #, c-format
 msgid "Cannot rename new quotafile %s to name %s: %s\n"
 msgstr "Nový kvótový soubor %s nelze přejmenovat na %s: %s\n"
@@ -136,7 +136,7 @@ msgstr "Nelze otevřít starý kvótový soubor na %s: %s\n"
 msgid "Unknown action should be performed.\n"
 msgstr "Provedena by měla být neznámá akce.\n"
 
-#: warnquota.c:56
+#: warnquota.c:58
 msgid ""
 "Hi,\n"
 "\n"
@@ -150,7 +150,7 @@ msgstr ""
 "Nalezeny byly následující porušení pravidel:\n"
 "\n"
 
-#: warnquota.c:58
+#: warnquota.c:60
 #, c-format
 msgid ""
 "\n"
@@ -175,7 +175,7 @@ msgstr ""
 "Potřebujete-li pomoc, napište nám na %s\n"
 "nebo zavolejte na %s.\n"
 
-#: warnquota.c:65
+#: warnquota.c:67
 #, c-format
 msgid ""
 "Hi,\n"
@@ -190,7 +190,7 @@ msgstr ""
 "stroji systém kvót. Byla nalezena následující porušení:\n"
 "\n"
 
-#: warnquota.c:67
+#: warnquota.c:69
 #, c-format
 msgid ""
 "\n"
@@ -217,87 +217,87 @@ msgstr ""
 "Potřebujete-li pomoc, napište nám na %s\n"
 "nebo zavolejte na %s.\n"
 
-#: warnquota.c:186
+#: warnquota.c:188
 #, c-format
 msgid "ldap_initialize() failed: %s\n"
 msgstr ""
 
-#: warnquota.c:195
+#: warnquota.c:197
 #, c-format
 msgid "ldap_start_tls_s() failed: %s\n"
 msgstr ""
 
-#: warnquota.c:201
+#: warnquota.c:203
 #, c-format
 msgid "ldap_sasl_bind_s() failed: %s\n"
 msgstr ""
 
-#: warnquota.c:216
+#: warnquota.c:218
 #, c-format
 msgid "Cannot get name for uid/gid %u.\n"
 msgstr "UID/GID %u nelze přeložit na jméno.\n"
 
-#: warnquota.c:300
+#: warnquota.c:302
 #, c-format
 msgid "Cannot create pipe: %s\n"
 msgstr "Nelze vytvořit rouru: %s\n"
 
-#: warnquota.c:306
+#: warnquota.c:308
 #, c-format
 msgid "Cannot fork: %s\n"
 msgstr "Voláni fork() selhalo: %s\n"
 
-#: warnquota.c:311
+#: warnquota.c:313
 #, c-format
 msgid "Cannot duplicate descriptor: %s\n"
 msgstr "Deskriptor nelze zdvojit: %s\n"
 
-#: warnquota.c:315
+#: warnquota.c:317
 #, c-format
 msgid "Cannot execute '%s': %s\n"
 msgstr "„%s“ nelze spustit: %s\n"
 
-#: warnquota.c:320
+#: warnquota.c:322
 #, c-format
 msgid "Cannot open pipe: %s\n"
 msgstr "Nelze otevřít rouru: %s\n"
 
-#: warnquota.c:398
+#: warnquota.c:400
 #, fuzzy
 msgid "Could not setup ldap connection.\n"
 msgstr "Spojení LDAP nelze nastavit.\n"
 
-#: warnquota.c:420
+#: warnquota.c:422
 #, c-format
 msgid "Error with %s.\n"
 msgstr "Chyba u %s.\n"
 
-#: warnquota.c:421
+#: warnquota.c:423
 #, c-format
 msgid "ldap_search_ext_s() failed: %s\n"
 msgstr ""
 
-#: warnquota.c:427
+#: warnquota.c:429
 #, fuzzy, c-format
 msgid "Multiple entries found for client %s (%d).\n"
 msgstr "Nalezeno více záznamů pro klienta %s (%d). E-mail nebude odeslán.\n"
 
-#: warnquota.c:431
+#: warnquota.c:433
 #, fuzzy, c-format
 msgid "Entry not found for client %s.\n"
 msgstr "Záznam pro klienta %s nenalezen. E-mail nebude odeslán.\n"
 
-#: warnquota.c:441
+#: warnquota.c:443
 #, c-format
 msgid "Could not get values for %s.\n"
 msgstr "Hodnoty pro %s nebylo možné získat.\n"
 
-#: warnquota.c:487
+#: warnquota.c:489
 #, c-format
 msgid "Administrator for a group %s not found. Cancelling mail.\n"
 msgstr "Správce skupiny %s nenalezen. E-mail zrušen.\n"
 
-#: warnquota.c:539
+#: warnquota.c:541
 #, c-format
 msgid ""
 "\n"
@@ -306,23 +306,23 @@ msgstr ""
 "\n"
 "                        Limity bloků               Limity souborů\n"
 
-#: warnquota.c:540
+#: warnquota.c:542
 #, c-format
 msgid ""
 "Filesystem           used    soft    hard  grace    used  soft  hard  grace\n"
 msgstr ""
 "Souborový systém    užito   měkký   pevný odklad   užito měkký pevný odklad\n"
 
-#: warnquota.c:580
+#: warnquota.c:582
 #, c-format
 msgid "Cannot wait for mailer: %s\n"
 msgstr "Nelze se dočkat dokončení odeslání pošty: %s\n"
 
-#: warnquota.c:582
+#: warnquota.c:584
 msgid "Warning: Mailer exitted abnormally.\n"
 msgstr "Pozor: Odesílání pošty skončilo mimořádně.\n"
 
-#: warnquota.c:639
+#: warnquota.c:641
 #, c-format
 msgid ""
 "Cannot open %s: %s\n"
@@ -331,17 +331,17 @@ msgstr ""
 "%s nelze otevřít: %s\n"
 "Použijí se názvy zařízení.\n"
 
-#: warnquota.c:662
+#: warnquota.c:664
 #, c-format
 msgid "Cannot parse line %d in quotatab (missing ':')\n"
 msgstr "V souboru quotatab nelze rozebrat řádek %d (chybí „:“)\n"
 
-#: warnquota.c:676
+#: warnquota.c:678
 #, c-format
 msgid "Cannot stat device %s (maybe typo in quotatab)\n"
 msgstr "O zařízení %s nelze získat údaje (možná překlep v souboru quotatab)\n"
 
-#: warnquota.c:696
+#: warnquota.c:698
 #, c-format
 msgid ""
 "Incorrect format string for variable %s.\n"
@@ -350,36 +350,36 @@ msgstr ""
 "Nesprávný formátovací řetězec proměnné %s.\n"
 "Nerozpoznaný výraz %%%c.\n"
 
-#: warnquota.c:745
+#: warnquota.c:749
 #, c-format
 msgid "Cannot open %s: %s\n"
 msgstr "%s nelze otevřít: %s\n"
 
-#: warnquota.c:765
+#: warnquota.c:769
 #, c-format
 msgid "Line %d too long. Truncating.\n"
 msgstr "Řádek %d je příliš dlouhý. Bude zkrácen.\n"
 
-#: warnquota.c:857
+#: warnquota.c:835
 #, c-format
 msgid "Cannot parse time at CC_BEFORE variable (line %d).\n"
 msgstr "Čas v proměnné CC_BEFORE nelze rozebrat (řádek %d).\n"
 
-#: warnquota.c:881
+#: warnquota.c:885
 #, c-format
 msgid "Error in config file (line %d), ignoring\n"
 msgstr "Chyba v konfiguračním souboru (řádek %d), ignoruje se.\n"
 
-#: warnquota.c:884
+#: warnquota.c:888
 #, c-format
 msgid "Possible error in config file (line %d), ignoring\n"
 msgstr "Možná chyba v konfiguračním souboru (řádek %d), ignoruje se.\n"
 
-#: warnquota.c:887
+#: warnquota.c:891
 msgid "Unterminated last line, ignoring\n"
 msgstr "Neukončený poslední řádek, ignoruje se.\n"
 
-#: warnquota.c:893
+#: warnquota.c:897
 #, c-format
 msgid ""
 "LDAP library version >= 2.3 detected. Please use LDAP_URI instead of "
@@ -390,28 +390,28 @@ msgstr ""
 "názvu stroje a portu.\n"
 "Vytvořené URI: %s\n"
 
-#: warnquota.c:915
+#: warnquota.c:919
 #, c-format
 msgid "Cannot open file with group administrators: %s\n"
 msgstr "Soubor se správci skupin nelze otevřít: %s\n"
 
-#: warnquota.c:930
+#: warnquota.c:934
 #, c-format
 msgid "Parse error at line %d. Cannot find end of group name.\n"
 msgstr "Chyba při rozboru řádku %d. Nelze nalézt konec názvu skupiny.\n"
 
-#: warnquota.c:939
+#: warnquota.c:943
 #, c-format
 msgid "Parse error at line %d. Cannot find administrators name.\n"
 msgstr "Chyba při rozboru řádku %d. Nelze nalézt jméno správce.\n"
 
-#: warnquota.c:949
+#: warnquota.c:953
 #, c-format
 msgid ""
 "Parse error at line %d. Trailing characters after administrators name.\n"
 msgstr "Chyba při rozboru řádku %d. Přebytečné znaky za jménem správce.\n"
 
-#: warnquota.c:1012
+#: warnquota.c:1016
 msgid ""
 "Usage:\n"
 "  warnquota [-ugsid] [-F quotaformat] [-c configfile] [-q quotatabfile] [-a "
@@ -450,7 +450,7 @@ msgstr ""
 "-v, --version                     zobrazí údaje o verzi a skončí\n"
 "\n"
 
-#: warnquota.c:1093
+#: warnquota.c:1097
 #, c-format
 msgid "Cannot get host name: %s\n"
 msgstr "Nelze získat název stroje: %s\n"
@@ -529,60 +529,65 @@ msgstr ""
 "-V, --version             zobrazit údaje o verzi a skončit\n"
 "\n"
 
-#: quotacheck.c:426
+#: quotacheck.c:427
 #, c-format
 msgid "error (%d) while opening %s\n"
 msgstr "chyba (%d) při otevírání %s\n"
 
-#: quotacheck.c:431
+#: quotacheck.c:432
 #, c-format
 msgid "error (%d) while allocating file inode bitmap\n"
 msgstr "chyba (%d) při alokaci bitmapy iuzlů souborů\n"
 
-#: quotacheck.c:436
+#: quotacheck.c:437
 #, c-format
 msgid "errstr (%d) while allocating directory inode bitmap\n"
 msgstr "chyba (%d) při alokaci bitmapy iuzlů adresářů\n"
 
-#: quotacheck.c:441
+#: quotacheck.c:442
 #, c-format
 msgid "error (%d) while opening inode scan\n"
 msgstr "chyba (%d) při otevírání vyhledávače iuzlů\n"
 
-#: quotacheck.c:446
+#: quotacheck.c:447
 #, c-format
 msgid "error (%d) while starting inode scan\n"
 msgstr "chyba (%d) při zahájení prohledávání iuzlů\n"
 
-#: quotacheck.c:454
+#: quotacheck.c:455
 #, c-format
 msgid "Found i_num %ld, blocks %ld\n"
 msgstr "Nalezen i_num %ld, bloků %ld\n"
 
-#: quotacheck.c:460
+#: quotacheck.c:461
 msgid "High uid detected.\n"
 msgstr "Nalezeno vysoké UID.\n"
 
-#: quotacheck.c:476
+#: quotacheck.c:477
 #, c-format
 msgid "Something weird happened while scanning. Error %d\n"
 msgstr "Při prohledávání se stalo něco divného. Chyba %d\n"
 
-#: quotacheck.c:500
+#: quotacheck.c:510
 #, c-format
 msgid "Cannot stat directory %s: %s\n"
 msgstr "Údaje o adresáři %s nelze získat: %s\n"
 
-#: quotacheck.c:512
-#, c-format
+#: quotacheck.c:522
+#, fuzzy, c-format
+msgid "Cannot chdir to %s: %s\n"
+msgstr "Údaje o adresáři %s nelze získat: %s\n"
+
+#: quotacheck.c:527
+#, fuzzy, c-format
 msgid ""
 "\n"
-"Can open directory %s: %s\n"
+"Cannot open directory %s: %s\n"
 msgstr ""
 "\n"
 "Adresář %s nelze otevřít: %s\n"
 
-#: quotacheck.c:524
+#: quotacheck.c:539
 #, c-format
 msgid ""
 "lstat: Cannot stat `%s/%s': %s\n"
@@ -593,21 +598,21 @@ msgstr ""
 "Bylo by lepší, kdybyste nejprve spustili fsck!\n"
 "Končí se…\n"
 
-#: quotacheck.c:535
+#: quotacheck.c:550
 #, c-format
 msgid "pushd %s/%s\n"
 msgstr "pushd %s/%s\n"
 
-#: quotacheck.c:551
+#: quotacheck.c:566
 #, c-format
 msgid "\tAdding %s size %lld ino %d links %d uid %u gid %u\n"
 msgstr "\tPřidává se %s: velikost %lld iuzel %d odkazů %d, UID %u GID %u\n"
 
-#: quotacheck.c:561
+#: quotacheck.c:576
 msgid "Scanning stored directories from directory stack\n"
 msgstr "Prohledávají se adresáře uložené na zásobníku adresářů\n"
 
-#: quotacheck.c:565
+#: quotacheck.c:580
 #, c-format
 msgid ""
 "popd %s\n"
@@ -616,19 +621,19 @@ msgstr ""
 "popd %s\n"
 "Vstupuje se do adresáře %s\n"
 
-#: quotacheck.c:577
+#: quotacheck.c:592
 #, c-format
 msgid "Leaving %s\n"
 msgstr "Opouští se %s\n"
 
 # FIXME: I18n first argument
-#: quotacheck.c:617
+#: quotacheck.c:632
 #, c-format
 msgid "Going to check %s quota file of %s\n"
 msgstr "Bude se kontrolovat %s kvótový soubor systému %s\n"
 
 # FIXME: I18n first argument
-#: quotacheck.c:623
+#: quotacheck.c:638
 #, c-format
 msgid ""
 "Quota for %ss is enabled on mountpoint %s so quotacheck might damage the "
@@ -637,16 +642,16 @@ msgstr ""
 "Kvóta pro %s je na systému %s zapnuta,\n"
 "takže quotacheck by mohl daný soubor poškodit.\n"
 
-#: quotacheck.c:624 quotacheck.c:942
+#: quotacheck.c:639 quotacheck.c:957
 msgid "Should I continue?"
 msgstr "Má se pokračovat?"
 
-#: quotacheck.c:625 quotacheck.c:943
+#: quotacheck.c:640 quotacheck.c:958
 #, c-format
 msgid "As you wish... Canceling check of this file.\n"
 msgstr "Jak si přejete. Kontrola tohoto souboru se ruší.\n"
 
-#: quotacheck.c:630
+#: quotacheck.c:645
 #, c-format
 msgid ""
 "Quota for %ss is enabled on mountpoint %s so quotacheck might damage the "
@@ -657,129 +662,129 @@ msgstr ""
 "takže quotacheck by mohl daný soubor poškodit. Prosím, kvóty vypněte,\n"
 "nebo kontrolu vynuťte přepínačem „-f“.\n"
 
-#: quotacheck.c:637
+#: quotacheck.c:652
 #, c-format
 msgid "Error while syncing quotas on %s: %s\n"
 msgstr "Chyba při synchronizaci kvót na %s: %s\n"
 
-#: quotacheck.c:642
+#: quotacheck.c:657
 #, c-format
 msgid "Cannot get quotafile name for %s\n"
 msgstr "Nelze získat název kvótového souboru pro %s\n"
 
-#: quotacheck.c:647 quotaio.c:150 quotasys.c:677
+#: quotacheck.c:662 quotaio.c:150 quotasys.c:820
 #, c-format
 msgid "Cannot open quotafile %s: %s\n"
 msgstr "Kvótový soubor %s nelze otevřít: %s\n"
 
-#: quotacheck.c:687
+#: quotacheck.c:702
 msgid "Renaming new files to proper names.\n"
 msgstr "Nové soubory se přejmenovávají na správné názvy.\n"
 
-#: quotacheck.c:689
+#: quotacheck.c:704
 #, c-format
 msgid "Cannot get name of old quotafile on %s.\n"
 msgstr "Nelze zjistit název starého kvótového souboru na %s.\n"
 
-#: quotacheck.c:692
+#: quotacheck.c:707
 msgid "Old file not found.\n"
 msgstr "Starý kvótový soubor nenalezen.\n"
 
-#: quotacheck.c:695
+#: quotacheck.c:710
 #, c-format
 msgid "Error while searching for old quota file %s: %s\n"
 msgstr "Chyba při hledávání starého kvótového souboru %s: %s\n"
 
-#: quotacheck.c:704
+#: quotacheck.c:719
 msgid "Old file found removed during check!\n"
 msgstr "Starý soubor byl během kontroly odstraněn!\n"
 
-#: quotacheck.c:707
+#: quotacheck.c:722
 #, c-format
 msgid "Error while opening old quota file %s: %s\n"
 msgstr "Chyba při otevírání starého kvótového souboru %s: %s\n"
 
-#: quotacheck.c:713
+#: quotacheck.c:728
 #, c-format
 msgid "EXT2_IOC_GETFLAGS failed: %s\n"
 msgstr "Volání EXT2_IOC_GETFLAGS selhalo: %s\n"
 
-#: quotacheck.c:717
+#: quotacheck.c:732
 #, c-format
 msgid "Quota file %s has IMMUTABLE flag set. Clearing.\n"
 msgstr ""
 "Kvótový soubor %s má nastaven příznak\n"
 "NEMĚNITELNOSTI (immutable). Příznak odebrán.\n"
 
-#: quotacheck.c:720
+#: quotacheck.c:735
 #, c-format
 msgid "Failed to remove IMMUTABLE flag from quota file %s: %s\n"
 msgstr "Odebrání příznaku NEMĚNITELNOSTI z kvótového souboru %s selhalo: %s\n"
 
-#: quotacheck.c:729
+#: quotacheck.c:744
 #, c-format
 msgid "Renaming old quotafile to %s~\n"
 msgstr "Starý kvótový soubor se přejmenovává na %s~\n"
 
-#: quotacheck.c:735
+#: quotacheck.c:750
 #, c-format
 msgid "Name of quota file too long. Contact %s.\n"
 msgstr "Název kvótového souboru je příliš dlouhý. Kontaktujte %s.\n"
 
-#: quotacheck.c:737
+#: quotacheck.c:752
 #, c-format
 msgid "Cannot rename old quotafile %s to %s: %s\n"
 msgstr "Starý kvótový soubor %s nelze přejmenovat na %s: %s\n"
 
-#: quotacheck.c:743
+#: quotacheck.c:758
 msgid "Renaming new quotafile\n"
 msgstr "Přejmenovává se nový kvótový soubor\n"
 
-#: quotacheck.c:755
+#: quotacheck.c:770
 #, c-format
 msgid "Cannot change permission of %s: %s\n"
 msgstr "Nelze změnit práva souboru %s: %s\n"
 
-#: quotacheck.c:762
+#: quotacheck.c:777
 #, c-format
 msgid "Cannot open new quota file %s: %s\n"
 msgstr "Nový kvótový soubor %s nelze otevřít: %s\n"
 
-#: quotacheck.c:767
+#: quotacheck.c:782
 #, c-format
 msgid "Warning: Cannot set EXT2 flags on %s: %s\n"
 msgstr "Pozor: Příznak EXT2 nelze u %s nastavit: %s\n"
 
-#: quotacheck.c:787
+#: quotacheck.c:802
 #, c-format
 msgid "Dumping gathered data for %ss.\n"
 msgstr "Zapisují se data nasbíraná pro třídu %s.\n"
 
-#: quotacheck.c:790
+#: quotacheck.c:805
 #, c-format
 msgid "Cannot initialize IO on xfs/gfs2 quotafile: %s\n"
 msgstr "Nelze inicializovat I/O na kvótovém souboru XFS/GFS2: %s\n"
 
-#: quotacheck.c:796
+#: quotacheck.c:811
 #, c-format
 msgid "Cannot initialize IO on new quotafile: %s\n"
 msgstr "Nelze inicializovat I/O na novém kvótovém souboru: %s\n"
 
-#: quotacheck.c:823
+#: quotacheck.c:838
 #, c-format
 msgid "Cannot finish IO on new quotafile: %s\n"
 msgstr "Nelze dokončit I/O na novém kvótovém souboru: %s\n"
 
-#: quotacheck.c:826
+#: quotacheck.c:841
 msgid "Data dumped.\n"
 msgstr "Data zapsána.\n"
 
-#: quotacheck.c:834
+#: quotacheck.c:849
 #, c-format
 msgid "Cannot find checked quota file for %ss on %s!\n"
 msgstr "Nelze najít kontrolovaný kvótový soubor pro třídu %s na %s!\n"
 
-#: quotacheck.c:838
+#: quotacheck.c:853
 #, c-format
 msgid ""
 "Cannot turn %s quotas off on %s: %s\n"
@@ -788,7 +793,7 @@ msgstr ""
 "Kvóty pro třídu %s na %s nelze vypnout: %s\n"
 "Jádro se nedozví o změnách, které nástroj quotacheck provedl.\n"
 
-#: quotacheck.c:851
+#: quotacheck.c:866
 #, c-format
 msgid ""
 "Cannot turn %s quotas on on %s: %s\n"
@@ -797,26 +802,26 @@ msgstr ""
 "Kvóty pro třídu %s na %s nelze zapnout: %s\n"
 "Jádro se nedozví o změnách, které nástroj quotacheck provedl.\n"
 
-#: quotacheck.c:877
+#: quotacheck.c:892
 #, c-format
 msgid "Substracting space used by old %s quota file.\n"
 msgstr "Odečítá se místo zabrané starým kvótovým souborem pro třídu %s.\n"
 
-#: quotacheck.c:879
+#: quotacheck.c:894
 #, c-format
 msgid ""
 "Old %s file name could not been determined. Usage will not be subtracted.\n"
 msgstr ""
 "Název starého souboru pro třídu %s nemohl být určen. Místo nebude odečteno.\n"
 
-#: quotacheck.c:884
+#: quotacheck.c:899
 #, c-format
 msgid "Cannot stat old %s quota file %s: %s. Usage will not be subtracted.\n"
 msgstr ""
 "Nebylo možné zjistit údaje o starém kvótovém souboru %2$s pro třídu %1$s:\n"
 "%3$s. Místo nebude odečteno.\n"
 
-#: quotacheck.c:896
+#: quotacheck.c:911
 #, c-format
 msgid ""
 "Quota structure for %s owning quota file not present! Something is really "
@@ -826,22 +831,22 @@ msgstr ""
 "přítomna! Něco se opravdu pokazilo.\n"
 
 # FIXME: plural
-#: quotacheck.c:901
+#: quotacheck.c:916
 #, c-format
 msgid "Substracted %lu bytes.\n"
 msgstr "Odečteno %'lu bajtů.\n"
 
-#: quotacheck.c:914
+#: quotacheck.c:929
 #, c-format
 msgid "Cannot stat mountpoint %s: %s\n"
 msgstr "Nelze získat údaje o přípojném bodu %s: %s\n"
 
-#: quotacheck.c:916
+#: quotacheck.c:931
 #, c-format
 msgid "Mountpoint %s is not a directory?!\n"
 msgstr "Přípojný bod %s není adresářem?!\n"
 
-#: quotacheck.c:941
+#: quotacheck.c:956
 #, c-format
 msgid ""
 "Cannot remount filesystem mounted on %s read-only. Counted values might not "
@@ -850,7 +855,7 @@ msgstr ""
 "Souborový systém připojený do %s nelze přepojit\n"
 "jen pro čtení. Vypočtené hodnoty nemusí být správné.\n"
 
-#: quotacheck.c:949
+#: quotacheck.c:964
 #, c-format
 msgid ""
 "Cannot remount filesystem mounted on %s read-only so counted values might "
@@ -863,26 +868,26 @@ msgstr ""
 "Prosím, zastavte všechny programy zapisující do souborového systému, nebo\n"
 "kontrolu vynuťte přepínačem -m.\n"
 
-#: quotacheck.c:957
+#: quotacheck.c:972
 msgid "Filesystem remounted read-only\n"
 msgstr "Systém souborů přepojen jen pro čtení\n"
 
-#: quotacheck.c:960
+#: quotacheck.c:975
 #, c-format
 msgid "Scanning %s [%s] "
 msgstr "Prohledává se %s [%s] "
 
-#: quotacheck.c:977
+#: quotacheck.c:995
 msgid "done\n"
 msgstr "hotovo\n"
 
 # FIXME: plurals
-#: quotacheck.c:986
+#: quotacheck.c:1004
 #, c-format
 msgid "Checked %d directories and %d files\n"
 msgstr "Zkontrolováno %d adresářů a %d souborů\n"
 
-#: quotacheck.c:990
+#: quotacheck.c:1008
 #, c-format
 msgid ""
 "Cannot remount filesystem %s read-write. cannot write new quota files.\n"
@@ -890,27 +895,27 @@ msgstr ""
 "Systém souborů %s nelze přepojit pro zápis. Nový soubor\n"
 "s kvótami nelze zapsat.\n"
 
-#: quotacheck.c:991
+#: quotacheck.c:1009
 msgid "Filesystem remounted RW.\n"
 msgstr "Systém souborů přepojen pro zápis.\n"
 
-#: quotacheck.c:1034
+#: quotacheck.c:1052
 #, c-format
 msgid "Cannot find quota option on filesystem %s with quotas!\n"
 msgstr "U souborového systému %s s kvótami nelze nalézt kvótový parametr!\n"
 
-#: quotacheck.c:1040
+#: quotacheck.c:1058
 #, c-format
 msgid "Cannot detect quota format for journalled quota on %s\n"
 msgstr "U žurnálované kvóty na %s nelze určit formát\n"
 
-#: quotacheck.c:1106
+#: quotacheck.c:1124
 #, c-format
 msgid "Cannot get system info: %s\n"
 msgstr "Nelze získat údaje o systému: %s\n"
 
 #  FXIME: msgid misses new lines.
-#: quotacheck.c:1126
+#: quotacheck.c:1144
 msgid ""
 "Your kernel probably supports journaled quota but you are not using it. "
 "Consider switching to journaled quota to avoid running quotacheck after an "
@@ -920,16 +925,16 @@ msgstr ""
 "Zvažte použití žurnálovaných kvót, což umožňuje se vyhnout pouštění\n"
 "quotacheck po nečistém vypnutí systému.\n"
 
-#: quotacheck.c:1140 quotasys.c:767
+#: quotacheck.c:1158 quotasys.c:910
 msgid "Cannot initialize mountpoint scan.\n"
 msgstr "Prohledávání bodu připojení nelze inicializovat.\n"
 
-#: quotacheck.c:1145
+#: quotacheck.c:1163
 #, c-format
 msgid "Skipping %s [%s]\n"
 msgstr "Přeskakuje se %s [%s]\n"
 
-#: quotacheck.c:1162
+#: quotacheck.c:1180
 #, c-format
 msgid ""
 "Cannot guess format from filename on %s. Please specify format on "
@@ -938,12 +943,12 @@ msgstr ""
 "Z názvu souboru na %s nelze uhádnout formát.\n"
 "Prosím, zadejte formát na příkazovém řádku.\n"
 
-#: quotacheck.c:1167
+#: quotacheck.c:1185
 #, c-format
 msgid "Detected quota format %s\n"
 msgstr "Zjištěn formát kvóty %s\n"
 
-#: quotacheck.c:1188
+#: quotacheck.c:1206
 msgid ""
 "Cannot find filesystem to check or filesystem not mounted with quota "
 "option.\n"
@@ -952,7 +957,7 @@ msgstr ""
 "připojen s kvótovým parametrem.\n"
 
 # FIXME: plurals
-#: quotacheck.c:1206
+#: quotacheck.c:1224
 #, c-format
 msgid ""
 "Allocated %d bytes memory\n"
@@ -1018,12 +1023,12 @@ msgstr "%s nelze otevřít: %s\n"
 msgid "XFS_IOC_FSBULKSTAT ioctl failed: %s\n"
 msgstr "IOCTL XFS_IOC_FSBULKSTAT selhalo: %s\n"
 
-#: quotasync.c:27
+#: quotasync.c:29
 #, fuzzy, c-format
 msgid ""
 "%1$s: Utility for syncing quotas.\n"
-"Usage: %1$s [-ug] mount-point...\n"
-"   or: %1$s [-ug] -a\n"
+"Usage: %1$s [-ugP] mount-point...\n"
+"   or: %1$s [-ugP] -a\n"
 "   or: %1$s -h | -V\n"
 "\n"
 msgstr ""
@@ -1032,12 +1037,13 @@ msgstr ""
 "%s [-ug] -a | PŘÍPOJNÝ_BOD…\n"
 "\n"
 
-#: quotasync.c:34
+#: quotasync.c:36
 #, fuzzy, c-format
 msgid ""
 "Options:\n"
 "-u, --user     synchronize user quotas\n"
 "-g, --group    synchronize group quotas\n"
+"-P, --project  synchronize project quotas\n"
 "-a, --all      synchronize quotas for all mounted file systems\n"
 "-h, --help     display this help message and exit\n"
 "-V, --version  display version information and exit\n"
@@ -1049,18 +1055,18 @@ msgstr ""
 "-V, --version              zobrazí údaje o verzi a skončí\n"
 "\n"
 
-#: quotasync.c:42
+#: quotasync.c:45
 #, fuzzy, c-format
 msgid "Report bugs to <%s>.\n"
 msgstr "Chyby hlaste na <%s>\n"
 
 # TODO: quota attribute
-#: quotasync.c:106
+#: quotasync.c:113
 #, c-format
 msgid "%s quota sync failed: %s\n"
 msgstr "synchronizace kvóty %s selhala: %s\n"
 
-#: quotasync.c:119
+#: quotasync.c:126
 #, c-format
 msgid "%s quota sync failed for %s: %s\n"
 msgstr "synchronizace kvóty %s na %s selhala: %s\n"
@@ -1075,8 +1081,12 @@ msgstr "uživatel"
 msgid "group"
 msgstr "skupina"
 
-# kvótový soubor pro třídu %s
 #: quota.h:24
+msgid "project"
+msgstr ""
+
+# kvótový soubor pro třídu %s
+#: quota.h:25
 msgid "undefined"
 msgstr "neurčeno"
 
@@ -1102,7 +1112,7 @@ msgstr ""
 " -D --no-dbus      zprávy nezasílá přes D-bus\n"
 " -F --foreground   spustit na popředí\n"
 
-#: quota_nld.c:119 rquota_svc.c:160
+#: quota_nld.c:119 rquota_svc.c:158
 #, c-format
 msgid "Unknown option '%c'.\n"
 msgstr "Neznámý přepínač „%c“.\n"
@@ -1271,7 +1281,7 @@ msgstr "Odebrání souboru s PID nebylo možné zaregistrovat na signál SIGTER
 msgid "Could not store my PID %jd.\n"
 msgstr "Nebylo možné uložit vlastní PID %jd.\n"
 
-#: repquota.c:50
+#: repquota.c:51
 #, fuzzy, c-format
 msgid ""
 "Utility for reporting quotas.\n"
@@ -1282,6 +1292,7 @@ msgid ""
 "-v, --verbose               display also users/groups without any usage\n"
 "-u, --user                  display information about users\n"
 "-g, --group                 display information about groups\n"
+"-P, --project               display information about projects\n"
 "-s, --human-readable        show numbers in human friendly units (MB, "
 "GB, ...)\n"
 "-t, --truncate-names        truncate names to 9 characters\n"
@@ -1320,49 +1331,53 @@ msgstr ""
 "-V, --version               zobrazí údaje o verzi a skončí\n"
 "\n"
 
-#: repquota.c:152
+#: repquota.c:158
 msgid "Repquota cannot report through RPC calls.\n"
 msgstr "Repquota nedokáže pracovat přes volání RPC.\n"
 
-#: repquota.c:156
+#: repquota.c:162
 msgid "Specified both -n and -t but only one of them can be used.\n"
 msgstr "Zadány přepínače -n i -t, ale použít lze jen jeden z nich.\n"
 
-#: repquota.c:348
+#: repquota.c:366
 msgid "User"
 msgstr "Uživatel"
 
-#: repquota.c:350
+#: repquota.c:368
 msgid "Group"
 msgstr "Skupina"
 
+#: repquota.c:370
+msgid "Project"
+msgstr ""
+
 # TODO: Internationalize first argument
-#: repquota.c:353
+#: repquota.c:373
 #, c-format
 msgid "*** Report for %s quotas on device %s\n"
 msgstr "*** Hlášení pro kvóty %s na zařízení %s\n"
 
 # This is first argument of `%s limits' header
-#: repquota.c:362
+#: repquota.c:382
 msgid "Space"
 msgstr "místa"
 
 # This is first argument of `%s limits' header
-#: repquota.c:364
+#: repquota.c:384
 msgid "Block"
 msgstr "bloků"
 
-#: repquota.c:365
+#: repquota.c:385
 #, c-format
 msgid "Block grace time: %s; Inode grace time: %s\n"
 msgstr "Doba odkladu bloků: %s, Doba odkladu i-uzlů: %s\n"
 
-#: repquota.c:366
+#: repquota.c:386
 #, c-format
 msgid "                        %s limits                File limits\n"
 msgstr "                        Limity %s                Limity souborů\n"
 
-#: repquota.c:367
+#: repquota.c:387
 #, c-format
 msgid "%-9s       used    soft    hard  grace    used  soft  hard  grace\n"
 msgstr "%-9s       užito   měkký   pevný odklad   užito měkký pevný odklad\n"
@@ -1678,11 +1693,11 @@ msgstr "Z jádra nelze získat kvótu pro %s %d na %s: %s\n"
 msgid "Cannot set quota for %s %d from kernel on %s: %s\n"
 msgstr "Z jádra nelze nastavit kvótu pro %s %d na %s: %s\n"
 
-#: quotaio_meta.c:22
+#: quotaio_meta.c:23
 msgid "Metadata init_io called when kernel support is not enabled.\n"
 msgstr "Funkce metadat init_io zavolána, i když podpora jádra není zapnuta.\n"
 
-#: quotaio_meta.c:26
+#: quotaio_meta.c:27
 msgid ""
 "Metadata init_io called when kernel does not support generic quota "
 "interface!\n"
@@ -1785,50 +1800,51 @@ msgstr ""
 "Záznamů: %u\n"
 "Průměrně použito: %f\n"
 
-#: quotaio_xfs.c:217
+#: quotaio_xfs.c:260
 #, c-format
 msgid "*** Status for %s quotas on device %s\n"
 msgstr "*** Stav kvót %s na zařízení %s\n"
 
-#: quotaio_xfs.c:219 quotaio_xfs.c:234
+#: quotaio_xfs.c:262 quotaio_xfs.c:281
 msgid "ON"
 msgstr "ZAPNUTO"
 
-#: quotaio_xfs.c:219 quotaio_xfs.c:234
+#: quotaio_xfs.c:262 quotaio_xfs.c:281
 msgid "OFF"
 msgstr "VYPNUTO"
 
-#: quotaio_xfs.c:221 quotaio_xfs.c:225
+#: quotaio_xfs.c:264 quotaio_xfs.c:268 quotaio_xfs.c:272
 #, c-format
 msgid "Accounting: %s; Enforcement: %s\n"
 msgstr "Účtování: %s; Vynucení: %s\n"
 
-#: quotaio_xfs.c:237 quotaio_xfs.c:241
+#: quotaio_xfs.c:284 quotaio_xfs.c:288 quotaio_xfs.c:292
 #, c-format
 msgid "Accounting [ondisk]: %s; Enforcement [ondisk]: %s\n"
 msgstr "Účtování [ondisk]: %s; Vynucení [ondisk]: %s\n"
 
-#: quotaio_xfs.c:250 quotaio_xfs.c:259
+#: quotaio_xfs.c:301 quotaio_xfs.c:310 quotaio_xfs.c:323
 #, c-format
 msgid "Inode: none\n"
 msgstr "Iuzel: žádný\n"
 
-#: quotaio_xfs.c:252 quotaio_xfs.c:261
+#: quotaio_xfs.c:303 quotaio_xfs.c:312 quotaio_xfs.c:325
 #, c-format
 msgid "Inode: #%llu (%llu blocks, %u extents)\n"
 msgstr "Iuzel: č. %llu (%'llu bloků, %'u rozsahů)\n"
 
-#: quotaon.c:66
-#, c-format
+#: quotaon.c:67
+#, fuzzy, c-format
 msgid ""
 "Usage:\n"
-"\t%s [-guvp] [-F quotaformat] [-x state] -a\n"
-"\t%s [-guvp] [-F quotaformat] [-x state] filesys ...\n"
+"\t%s [-guPvp] [-F quotaformat] [-x state] -a\n"
+"\t%s [-guPvp] [-F quotaformat] [-x state] filesys ...\n"
 "\n"
 "-a, --all                %s\n"
 "-f, --off                turn quotas off\n"
 "-u, --user               operate on user quotas\n"
 "-g, --group              operate on group quotas\n"
+"-P, --project            operate on project quotas\n"
 "-p, --print-state        print whether quotas are on or off\n"
 "-x, --xfs-command=cmd    perform XFS quota command\n"
 "-F, --format=formatname  operate on specific quota format\n"
@@ -1851,119 +1867,128 @@ msgstr ""
 "-h, --help               zobrazí tuto nápovědu a skončí\n"
 "-V, --version            zobrazí údaje o verzi a skončí\n"
 
-#: quotaon.c:79
+#: quotaon.c:81
 msgid "turn quotas off for all filesystems"
 msgstr "vypne kvóty na všech souborových systémech"
 
-#: quotaon.c:80
+#: quotaon.c:82
 msgid "turn quotas on for all filesystems"
 msgstr "zapne kvóty na všech souborových systémech"
 
-#: quotaon.c:141
+#: quotaon.c:147
 msgid "Cannot turn on/off quotas via RPC.\n"
 msgstr "Kvóty nelze přes RPC zapnout/vypnout.\n"
 
-#: quotaon.c:188
+#: quotaon.c:194
 #, c-format
 msgid "set root_squash on %s: %s\n"
 msgstr "nastavení root_squash na %s: %s\n"
 
-#: quotaon.c:192
+#: quotaon.c:198
 #, c-format
 msgid "%s: %s root_squash turned off\n"
 msgstr "%s: root_squash na %s vypnuto\n"
 
-#: quotaon.c:194
+#: quotaon.c:200
 #, c-format
 msgid "%s: %s root_squash turned on\n"
 msgstr "%s: root_squash na %s zapnuto\n"
 
-#: quotaon.c:212
+#: quotaon.c:218
 #, c-format
 msgid "quotactl on %s [%s]: %s\n"
 msgstr "quotactl na %s [%s]: %s\n"
 
 # TODO: quotas attribute
-#: quotaon.c:215
+#: quotaon.c:221
 #, c-format
 msgid "%s [%s]: %s quotas turned off\n"
 msgstr "%s [%s]: kvóty pro %s vypnuty\n"
 
-#: quotaon.c:228
+#: quotaon.c:234
 #, c-format
 msgid "cannot find %s on %s [%s]\n"
 msgstr "%s nelze na %s [%s] nalézt\n"
 
-#: quotaon.c:230
+#: quotaon.c:236
 #, c-format
 msgid "using %s on %s [%s]: %s\n"
 msgstr "použití %s na %s [%s]: %s\n"
 
-#: quotaon.c:232
+#: quotaon.c:238
 msgid "Maybe create new quota files with quotacheck(8)?\n"
 msgstr "Možná vytvořit nové kvótové soubory pomocí quotacheck(8)?\n"
 
-#: quotaon.c:234
+#: quotaon.c:240
 msgid "Quota format not supported in kernel.\n"
 msgstr "Formát kvóty není podporován jádrem.\n"
 
 # TODO: quotas attribute
-#: quotaon.c:237
+#: quotaon.c:243
 #, c-format
 msgid "%s [%s]: %s quotas turned on\n"
 msgstr "%s [%s]: kvóty %s zapnuty\n"
 
-#: quotaon.c:277
+#: quotaon.c:283
 msgid "Cannot change state of GFS2 quota.\n"
 msgstr "Stav kvóty GFS2 nelze změnit.\n"
 
-#: quotaon.c:281
+#: quotaon.c:287
 msgid "Cannot change state of XFS quota. It's not compiled in kernel.\n"
 msgstr "Stav kvóty XFS nelze změnit. Není zakompilováno do jádra.\n"
 
-#: quotaon.c:306
+#: quotaon.c:312
 #, c-format
 msgid "Cannot find quota file on %s [%s] to turn quotas on/off.\n"
 msgstr ""
 "Pro vypnutí/zapnutí kvót je třeba kvótový soubor, který nelze na %s [%s] "
 "nalézt.\n"
 
-#: quotaon.c:311
+#: quotaon.c:317
 #, c-format
 msgid "Quota file on %s [%s] does not exist or has wrong format.\n"
 msgstr "Kvótový soubor na %s [%s] neexistuje nebo má špatný formát.\n"
 
+# kvóta je, změní stav kvót na
+#: quotaon.c:346 quotaon.c:362
+msgid "off"
+msgstr "vypnuto"
+
+#: quotaon.c:348
+#, fuzzy
+msgid "on (accounting)"
+msgstr "a účtování"
+
+#: quotaon.c:350
+msgid "on (enforced)"
+msgstr ""
+
+# kvóta je, změní stav kvót na
+#: quotaon.c:362
+msgid "on"
+msgstr "zapnuto"
+
 # TODO: quota attribute
-#: quotaon.c:342
+#: quotaon.c:364
 #, c-format
 msgid "%s quota on %s (%s) is %s\n"
 msgstr "Kvóta %s na %s (%s) je %s\n"
 
-# kvóta je, změní stav kvót na
-#: quotaon.c:343
-msgid "on"
-msgstr "zapnuto"
-
-# kvóta je, změní stav kvót na
-#: quotaon.c:343
-msgid "off"
-msgstr "vypnuto"
-
-#: quotaon.c:359
+#: quotaon.c:381
 #, c-format
 msgid "Name must be quotaon or quotaoff not %s\n"
 msgstr "Název musí být quotaon nebo quotaoff, ne %s\n"
 
-#: quotaon.c:365
+#: quotaon.c:387
 #, c-format
 msgid "Required format %s not supported by kernel.\n"
 msgstr "Požadovaný formát %s není podporován jádrem.\n"
 
-#: quotaon.c:367
+#: quotaon.c:389
 msgid "Warning: No quota format detected in the kernel.\n"
 msgstr "Pozor: Žádný formát kvóty nebyl v jádře rozpoznán.\n"
 
-#: quotaon.c:374
+#: quotaon.c:396
 #, c-format
 msgid "%s: Quota cannot be turned on on NFS filesystem\n"
 msgstr "%s: Kvótu nelze souborovém systému NFS zapnout.\n"
@@ -1974,7 +1999,7 @@ msgid "quotactl() on %s: %s\n"
 msgstr "quotactl() na %s: %s\n"
 
 # TODO: quota attribute
-#: quotaon_xfs.c:62 quotaon_xfs.c:82
+#: quotaon_xfs.c:68 quotaon_xfs.c:88
 #, c-format
 msgid "Enabling %s quota on root filesystem (reboot to take effect)\n"
 msgstr ""
@@ -1982,43 +2007,43 @@ msgstr ""
 "projevilo, je třeba rebootovat)\n"
 
 # TODO: quota attribute
-#: quotaon_xfs.c:66
+#: quotaon_xfs.c:72
 #, c-format
 msgid "Enable XFS %s quota accounting during mount\n"
 msgstr "Zapněte účtování kvót %s při připojení systému\n"
 
 # TODO: quota attribute
-#: quotaon_xfs.c:76
+#: quotaon_xfs.c:82
 #, c-format
 msgid "Cannot delete %s quota on %s - switch quota accounting off first\n"
 msgstr "Nelze smazat kvótu %s na %s – nejprve vypněte účtování kvót\n"
 
 # TODO: quota attribute
-#: quotaon_xfs.c:87
+#: quotaon_xfs.c:95
 #, c-format
 msgid "Enabling %s quota enforcement on %s\n"
 msgstr "Zapíná se vynucování kvót %s na %s\n"
 
 # TODO: quota attribute
-#: quotaon_xfs.c:90
+#: quotaon_xfs.c:98
 #, c-format
 msgid "Already accounting %s quota on %s\n"
 msgstr "Kvóty %s na %s se již počítají\n"
 
 # TODO: quota attribute
-#: quotaon_xfs.c:95
+#: quotaon_xfs.c:105
 #, c-format
 msgid "Disabling %s quota accounting on %s\n"
 msgstr "Vypíná se účtování kvót %s na %s\n"
 
 # TODO: internationalize first argument
-#: quotaon_xfs.c:99
+#: quotaon_xfs.c:109
 #, c-format
 msgid "Quota enforcement already disabled for %s on %s\n"
 msgstr "Vynucování kvót %s na %s již vypnuto\n"
 
 # TODO: internationalize first argument
-#: quotaon_xfs.c:108
+#: quotaon_xfs.c:118
 #, c-format
 msgid ""
 "Cannot delete %s quota on %s - switch quota enforcement and accounting off "
@@ -2028,115 +2053,141 @@ msgstr ""
 "kvót\n"
 
 # TODO: internationalize first argument
-#: quotaon_xfs.c:113
+#: quotaon_xfs.c:123
 #, c-format
 msgid "Enforcing %s quota already on %s\n"
 msgstr "Kvóta %s se na %s již vynucuje\n"
 
 # TODO: internationalize first argument
-#: quotaon_xfs.c:118
+#: quotaon_xfs.c:130
 #, c-format
 msgid "Cannot switch off %s quota accounting on %s when enforcement is on\n"
 msgstr "Účtování kvóty %s na %s nelze vypnout, je-li vynucování zapnuto\n"
 
-#: quotaon_xfs.c:124
+#: quotaon_xfs.c:138
 msgid "and accounting "
 msgstr "a účtování"
 
-#: quotaon_xfs.c:125
+#: quotaon_xfs.c:139
 #, c-format
 msgid "Disabling %s quota enforcement %son %s\n"
 msgstr "Vypíná se vynucování %2$skvóty %1$s na %3$s\n"
 
-#: quotaon_xfs.c:131
+#: quotaon_xfs.c:145
 #, c-format
 msgid "Unexpected XFS quota state sought on %s\n"
 msgstr "Hledán neočekávaný stav XFS kvóty na %s\n"
 
-#: quotaon_xfs.c:146
+#: quotaon_xfs.c:160
 #, c-format
 msgid "quotactl on %s: %s\n"
 msgstr "quotactl na %s: %s\n"
 
 # TODO: internationalize second argument
-#: quotaon_xfs.c:150
+#: quotaon_xfs.c:164
 #, c-format
 msgid "%s: %s quotas turned off\n"
 msgstr "%s: kvóty %s vypnuty\n"
 
 # TODO: internationalize second argument
-#: quotaon_xfs.c:152
+#: quotaon_xfs.c:166
 #, c-format
 msgid "%s: %s quotas turned on\n"
 msgstr "%s: kvóty %s zapnuty\n"
 
-#: quotaon_xfs.c:166
+#: quotaon_xfs.c:180
 #, c-format
 msgid "Failed to delete quota: %s\n"
 msgstr "Odstranění kvóty selhalo: %s\n"
 
 # TODO: internationalize second argument
-#: quotaon_xfs.c:171
+#: quotaon_xfs.c:185
 #, c-format
 msgid "%s: deleted %s quota blocks\n"
 msgstr "%s: bloky kvóty %s smazány\n"
 
-#: quotaon_xfs.c:224
+#: quotaon_xfs.c:248
 #, c-format
 msgid "Invalid argument \"%s\"\n"
 msgstr "Neplatný argument „%s“\n"
 
-#: quotaops.c:108
+#: quotaops.c:112
 #, c-format
 msgid "%s (uid %d): Permission denied\n"
 msgstr "%s (UID %d): Povolení zamítnuto\n"
 
-#: quotaops.c:120
+#: quotaops.c:124
 #, c-format
 msgid "%s (gid %d): gid set allocation (%d): %s\n"
 msgstr "%s (GID %d): alokace množiny GID (%d): %s\n"
 
-#: quotaops.c:131
+#: quotaops.c:135
 #, c-format
 msgid "%s (gid %d): error while trying getgroups(): %s\n"
 msgstr "%s (GID %d): volání getgroups() skončilo chybou: %s\n"
 
-#: quotaops.c:142
+#: quotaops.c:146
 #, c-format
 msgid "%s (gid %d): Permission denied\n"
 msgstr "%s (GID %d): Povolení zamítnuto\n"
 
-#: quotaops.c:158
+#: quotaops.c:162
 #, c-format
 msgid "error while getting quota from %s for %s (id %u): %s\n"
 msgstr "chyba při zjišťování kvóty z %s pro %s (ID %u): %s\n"
 
-#: quotaops.c:183
+#: quotaops.c:187
 #, c-format
 msgid "Cannot write quota for %u on %s: %s\n"
 msgstr "Kvótu pro %u nelze na %s zapsat: %s\n"
 
-#: quotaops.c:232
+# TODO: quota attribute
+#: quotaops.c:222 quotaops.c:224
+#, fuzzy, c-format
+msgid "%s failed: %s\n"
+msgstr "synchronizace kvóty %s selhala: %s\n"
+
+#: quotaops.c:238
 msgid "Too many parameters to editor.\n"
 msgstr "Příliš mnoho parametrů editoru.\n"
 
-#: quotaops.c:240
+#: quotaops.c:246
 #, c-format
 msgid "Cannot exec %s\n"
 msgstr "%s nelze spustit\n"
 
-#: quotaops.c:259 quotaops.c:431
-#, c-format
-msgid "Cannot duplicate descriptor of file to write to: %s\n"
-msgstr "Deskriptor souboru nelze zmnožit pro zápis: %s\n"
+#: quotaops.c:263
+#, fuzzy, c-format
+msgid "Cannot truncate a file: %s\n"
+msgstr "O souboru s kvótami %s nelze zjistit údaje: %s\n"
+
+#: quotaops.c:265
+#, fuzzy, c-format
+msgid "Cannot reset a file offset: %s\n"
+msgstr "Nelze načíst soubor se statistikou %s: %s\n"
+
+#: quotaops.c:267
+#, fuzzy, c-format
+msgid "Cannot duplicate a file descriptor: %s\n"
+msgstr "Deskriptor nelze zdvojit: %s\n"
+
+#: quotaops.c:269
+#, fuzzy, c-format
+msgid "Cannot open a stream to write to: %s\n"
+msgstr "Dočasný soubor nelze znovu otevřít: %s\n"
+
+#: quotaops.c:270
+#, fuzzy, c-format
+msgid "Cannot open a stream to read from: %s\n"
+msgstr "Dočasný soubor nelze znovu otevřít: %s\n"
 
 # TODO: internationalize first argument
-#: quotaops.c:261
+#: quotaops.c:286
 #, c-format
 msgid "Disk quotas for %s %s (%cid %d):\n"
 msgstr "Diskové kvóty pro %s %s (%cid %d):\n"
 
-#: quotaops.c:265
+#: quotaops.c:290
 #, c-format
 msgid ""
 "  Filesystem                   blocks       soft       hard     inodes     "
@@ -2145,22 +2196,21 @@ msgstr ""
 "  Souborový systém             bloků        měkký      pevný    iuzlů      "
 "měkký    pevný\n"
 
-#: quotaops.c:298
+#: quotaops.c:323
 #, c-format
 msgid "WARNING - %s: cannot change current block allocation\n"
 msgstr "POZOR – %s: množství alokovaných bloků nelze změnit\n"
 
-#: quotaops.c:301
+#: quotaops.c:326
 #, c-format
 msgid "WARNING - %s: cannot change current inode allocation\n"
 msgstr "POZOR – %s: množství alokovaných iuzlů nelze změnit\n"
 
-#: quotaops.c:322 quotaops.c:473
-#, c-format
-msgid "Cannot duplicate descriptor of temp file: %s\n"
-msgstr "Deskriptor dočasného souboru nelze zmnožit: %s\n"
+#: quotaops.c:352
+msgid "Bad format: two title lines assumed\n"
+msgstr ""
 
-#: quotaops.c:336
+#: quotaops.c:363
 #, c-format
 msgid ""
 "Bad format:\n"
@@ -2171,53 +2221,53 @@ msgstr ""
 
 # FIXME: First argument is continuation of sentence. This is not localizable
 # correctly.
-#: quotaops.c:342
+#: quotaops.c:369
 #, fuzzy, c-format
 msgid "Bad block usage: %s: %s\n"
 msgstr "Špatná hodtnota: %s: %s\n"
 
-#: quotaops.c:349
+#: quotaops.c:376
 #, fuzzy, c-format
 msgid "Bad block soft limit: %s: %s\n"
 msgstr "Chybný měkký limit bloků"
 
-#: quotaops.c:356
+#: quotaops.c:383
 #, fuzzy, c-format
 msgid "Bad block hard limit: %s: %s\n"
 msgstr "Chybný pevný limit bloků"
 
 # FIXME: First argument is continuation of sentence. This is not localizable
 # correctly.
-#: quotaops.c:363
+#: quotaops.c:390
 #, fuzzy, c-format
 msgid "Bad inode usage: %s: %s\n"
 msgstr "Špatná hodtnota: %s: %s\n"
 
-#: quotaops.c:370
+#: quotaops.c:397
 #, fuzzy, c-format
 msgid "Bad inode soft limit: %s: %s\n"
 msgstr "Chybný měkký limit iuzlů"
 
-#: quotaops.c:377
+#: quotaops.c:404
 #, fuzzy, c-format
 msgid "Bad inode hard limit: %s: %s\n"
 msgstr "Chybný pevný limit iuzlů"
 
 # TODO: internationalize first argument
-#: quotaops.c:433
+#: quotaops.c:457
 #, c-format
 msgid "Times to enforce softlimit for %s %s (%cid %d):\n"
 msgstr "Časy vynucení měkkého limitu pro %s %s (%cid %d):\n"
 
 # XXX: Keep this message on one line because parser expects exact line numbers
-#: quotaops.c:435 quotaops.c:539
+#: quotaops.c:459 quotaops.c:562
 #, c-format
 msgid "Time units may be: days, hours, minutes, or seconds\n"
 msgstr ""
 "Jednotky času smí být: days (dny), hours (hodiny), minutes (minuty) nebo "
 "seconds (sekundy)\n"
 
-#: quotaops.c:437
+#: quotaops.c:461
 #, c-format
 msgid ""
 "  Filesystem                         block grace               inode grace\n"
@@ -2225,22 +2275,26 @@ msgstr ""
 "  Souborový systém                   odklad pro bloky          odklad pro "
 "iuzly\n"
 
-#: quotaops.c:442 quotaops.c:448 quotaops.c:491 quotaops.c:504 setquota.c:271
-#: setquota.c:277
+#: quotaops.c:466 quotaops.c:472 quotaops.c:517 quotaops.c:530 setquota.c:288
+#: setquota.c:294
 msgid "unset"
 msgstr "nenastaveno"
 
-#: quotaops.c:444 quotaops.c:450
+#: quotaops.c:468 quotaops.c:474
 msgid "0seconds"
 msgstr "0sekund"
 
 # TODO: Pluralize
-#: quotaops.c:446 quotaops.c:452 quotasys.c:364
+#: quotaops.c:470 quotaops.c:476 quotasys.c:503
 #, c-format
 msgid "%useconds"
 msgstr "%usekund"
 
-#: quotaops.c:487 quotaops.c:587
+#: quotaops.c:503 quotaops.c:602
+msgid "Bad format: three title lines assumed\n"
+msgstr ""
+
+#: quotaops.c:513 quotaops.c:610
 #, c-format
 msgid ""
 "bad format:\n"
@@ -2249,32 +2303,22 @@ msgstr ""
 "chybný formát:\n"
 "%s\n"
 
-#: quotaops.c:498 quotaops.c:593
+#: quotaops.c:524 quotaops.c:616
 msgid "Bad time units. Units are 'second', 'minute', 'hour', and 'day'.\n"
 msgstr ""
 "Chybné jednotky času. Jednotky jsou „second“, „minute“, „hour“ a „day“.\n"
 
-#: quotaops.c:535
-#, c-format
-msgid "Cannot duplicate descriptor of file to edit: %s\n"
-msgstr "Deskriptor editovaného souboru nelze zmnožit: %s\n"
-
 # TODO: Internationalize argumentargumentargumentargumentargument
-#: quotaops.c:537
+#: quotaops.c:560
 #, c-format
 msgid "Grace period before enforcing soft limits for %ss:\n"
 msgstr "Perioda odkladu před vynucením měkkého limitu pro %s:\n"
 
-#: quotaops.c:540
+#: quotaops.c:563
 #, c-format
 msgid "  Filesystem             Block grace period     Inode grace period\n"
 msgstr ""
 "  Souborový systém       Perioda odkladu bloků  Perioda odkladu iuzlů\n"
-
-#: quotaops.c:566
-#, c-format
-msgid "Cannot reopen temp file: %s\n"
-msgstr "Dočasný soubor nelze znovu otevřít: %s\n"
 
 #: quotastats.c:48
 #, c-format
@@ -2346,28 +2390,29 @@ msgstr "Počet volných dquot: %ld\n"
 msgid "Number of in use dquot entries (user/group): %ld\n"
 msgstr "Počet použitých záznamů dquot (uživatel/skupina): %ld\n"
 
-#: setquota.c:55
-#, c-format
+#: setquota.c:59
+#, fuzzy, c-format
 msgid ""
 "Usage:\n"
-"  setquota [-u|-g] %1$s[-F quotaformat] <user|group>\n"
+"  setquota [-u|-g|-P] %1$s[-F quotaformat] <user|group|project>\n"
 "\t<block-softlimit> <block-hardlimit> <inode-softlimit> <inode-hardlimit> -a|"
 "<filesystem>...\n"
-"  setquota [-u|-g] %1$s[-F quotaformat] <-p protouser|protogroup> <user|"
-"group> -a|<filesystem>...\n"
-"  setquota [-u|-g] %1$s[-F quotaformat] -b [-c] -a|<filesystem>...\n"
-"  setquota [-u|-g] [-F quotaformat] -t <blockgrace> <inodegrace> -a|"
+"  setquota [-u|-g|-P] %1$s[-F quotaformat] <-p protouser|protogroup|"
+"protoproject> <user|group|project> -a|<filesystem>...\n"
+"  setquota [-u|-g|-P] %1$s[-F quotaformat] -b [-c] -a|<filesystem>...\n"
+"  setquota [-u|-g|-P] [-F quotaformat] -t <blockgrace> <inodegrace> -a|"
 "<filesystem>...\n"
-"  setquota [-u|-g] [-F quotaformat] <user|group> -T <blockgrace> "
+"  setquota [-u|-g|-P] [-F quotaformat] <user|group|project> -T <blockgrace> "
 "<inodegrace> -a|<filesystem>...\n"
 "\n"
 "-u, --user                 set limits for user\n"
 "-g, --group                set limits for group\n"
+"-P, --project              set limits for project\n"
 "-a, --all                  set limits for all filesystems\n"
 "    --always-resolve       always try to resolve name, even if is\n"
 "                           composed only of digits\n"
 "-F, --format=formatname    operate on specific quota format\n"
-"-p, --prototype=protoname  copy limits from user/group\n"
+"-p, --prototype=protoname  copy limits from user/group/project\n"
 "-b, --batch                read limits from standard input\n"
 "-c, --continue-batch       continue in input processing in case of an error\n"
 msgstr ""
@@ -2394,7 +2439,7 @@ msgstr ""
 "-b, --batch                limity načte v dávce ze standardního vstupu\n"
 "-c, --continue-batch       pokračuje ve zpracování vstupu i v případě chyby\n"
 
-#: setquota.c:72
+#: setquota.c:77
 msgid ""
 "-r, --remote               set remote quota (via RPC)\n"
 "-m, --no-mixed-pathnames      trim leading slashes from NFSv4 mountpoints\n"
@@ -2402,10 +2447,11 @@ msgstr ""
 "-r, --remote               nastaví vzdálenou kvótu (přes RPC)\n"
 "-m, --no-mixed-pathnames   odstraní úvodní lomítka z systému NFSv4\n"
 
-#: setquota.c:75
+#: setquota.c:80
+#, fuzzy
 msgid ""
 "-t, --edit-period          edit grace period\n"
-"-T, --edit-times           edit grace times for user/group\n"
+"-T, --edit-times           edit grace times for user/group/project\n"
 "-h, --help                 display this help text and exit\n"
 "-V, --version              display version information and exit\n"
 "\n"
@@ -2416,133 +2462,134 @@ msgstr ""
 "-V, --version              zobrazí údaje o verzi a skončí\n"
 "\n"
 
-#: setquota.c:79 edquota.c:101 quota.c:111
+#: setquota.c:84 edquota.c:104 quota.c:114
 #, c-format
 msgid "Bugs to: %s\n"
 msgstr ""
 "Chyby v programu zasílejte (anglicky) na: %s\n"
 "Chyby v překladu (česky) na: <translation-team-cs@lists.sourceforge.net>\n"
 
-#: setquota.c:90
+#: setquota.c:95
 #, c-format
 msgid "%s: %s\n"
 msgstr "%s: %s\n"
 
-#: setquota.c:103 setquota.c:116
+#: setquota.c:108 setquota.c:121
 #, fuzzy, c-format
 msgid "%s: %s: %s\n"
 msgstr "%s: %s\n"
 
-#: setquota.c:212
-msgid "Group and user quotas cannot be used together.\n"
+#: setquota.c:229
+#, fuzzy
+msgid "Group/user/project quotas cannot be used together.\n"
 msgstr "Kvóty skupiny a uživatele nelze použít společně.\n"
 
-#: setquota.c:216
+#: setquota.c:233
 msgid "Prototype user has no sense when editing grace times.\n"
 msgstr "Vzorový uživatel nemá smysl, když se mění doba odkladu.\n"
 
-#: setquota.c:220
+#: setquota.c:237
 msgid "Cannot set both individual and global grace time.\n"
 msgstr "Jednotlivé a globální doby odkladu nelze nastavit najednou.\n"
 
-#: setquota.c:224
+#: setquota.c:241
 msgid "Batch mode cannot be used for setting grace times.\n"
 msgstr "Dobu odkladu nelze v dávkovém režimu nastavit.\n"
 
-#: setquota.c:228
+#: setquota.c:245
 msgid "Batch mode and prototype user cannot be used together.\n"
 msgstr "Dávkový režim a vzorového uživatele nelze nastavit najednou.\n"
 
-#: setquota.c:232
+#: setquota.c:249
 msgid "Cannot set grace times over RPC protocol.\n"
 msgstr "Doby odkladu nelze nastavit přes protokol RPC.\n"
 
-#: setquota.c:255
+#: setquota.c:272
 msgid "Bad block softlimit"
 msgstr "Chybný měkký limit bloků"
 
-#: setquota.c:256
+#: setquota.c:273
 msgid "Bad block hardlimit"
 msgstr "Chybný pevný limit bloků"
 
-#: setquota.c:257
+#: setquota.c:274
 msgid "Bad inode softlimit"
 msgstr "Chybný měkký limit iuzlů"
 
-#: setquota.c:258
+#: setquota.c:275
 msgid "Bad inode hardlimit"
 msgstr "Chybný pevný limit iuzlů"
 
-#: setquota.c:264 setquota.c:276
+#: setquota.c:281 setquota.c:293
 msgid "Bad block grace time"
 msgstr "Chybná doba odkladu bloků"
 
-#: setquota.c:265 setquota.c:282
+#: setquota.c:282 setquota.c:299
 msgid "Bad inode grace time"
 msgstr "Chybná doba odkladu iuzlů"
 
-#: setquota.c:288
+#: setquota.c:305
 msgid "Mountpoint not specified.\n"
 msgstr "Nebyl zadán bod připojení.\n"
 
-#: setquota.c:345
+#: setquota.c:362
 #, c-format
 msgid "Line %d too long.\n"
 msgstr "Řádek %d je příliš dlouhý.\n"
 
-#: setquota.c:357
+#: setquota.c:374
 #, c-format
 msgid "Cannot parse input line %d.\n"
 msgstr "Vstupní řádek %d nelze rozebrat.\n"
 
-#: setquota.c:359 setquota.c:367 setquota.c:376 setquota.c:385 setquota.c:394
-#: setquota.c:403
+#: setquota.c:376 setquota.c:384 setquota.c:393 setquota.c:402 setquota.c:411
+#: setquota.c:420
 msgid "Exitting.\n"
 msgstr "Končí se.\n"
 
-#: setquota.c:360 setquota.c:368 setquota.c:377 setquota.c:386 setquota.c:395
-#: setquota.c:404
+#: setquota.c:377 setquota.c:385 setquota.c:394 setquota.c:403 setquota.c:412
+#: setquota.c:421
 msgid "Skipping line.\n"
 msgstr "Řádek bude přeskočen.\n"
 
-#: setquota.c:365
+#: setquota.c:382
 #, c-format
 msgid "Unable to resolve name '%s' on line %d.\n"
 msgstr "Jméno „%s“ na řádku %d nelze přeložit.\n"
 
-#: setquota.c:373
+#: setquota.c:390
 #, fuzzy, c-format
 msgid "Unable to parse block soft limit '%s' on line %d: %s\n"
 msgstr "Jméno „%s“ na řádku %d nelze přeložit.\n"
 
-#: setquota.c:382
+#: setquota.c:399
 #, fuzzy, c-format
 msgid "Unable to parse block hard limit '%s' on line %d: %s\n"
 msgstr "Jméno „%s“ na řádku %d nelze přeložit.\n"
 
-#: setquota.c:391
+#: setquota.c:408
 #, fuzzy, c-format
 msgid "Unable to parse inode soft limit '%s' on line %d: %s\n"
 msgstr "Jméno „%s“ na řádku %d nelze přeložit.\n"
 
-#: setquota.c:400
+#: setquota.c:417
 #, fuzzy, c-format
 msgid "Unable to parse inode hard limit '%s' on line %d: %s\n"
 msgstr "Jméno „%s“ na řádku %d nelze přeložit.\n"
 
-#: setquota.c:443
+#: setquota.c:460
 #, c-format
 msgid "Setting grace period on %s is not supported.\n"
 msgstr "Nastavování periody odkladu na %s není podporováno.\n"
 
-#: setquota.c:465
+#: setquota.c:482
 #, c-format
 msgid "Not setting block grace time on %s because softlimit is not exceeded.\n"
 msgstr ""
 "Doba odkladu bloků na %s nebude nastavena, protože měkký limit není "
 "překročen.\n"
 
-#: setquota.c:469
+#: setquota.c:486
 #, c-format
 msgid "Not setting inode grace time on %s because softlimit is not exceeded.\n"
 msgstr ""
@@ -2550,23 +2597,28 @@ msgstr ""
 "překročen.\n"
 
 # TODO: Internationalize first argument
-#: setquota.c:472
+#: setquota.c:497
 #, c-format
 msgid ""
 "cannot write times for %s. Maybe kernel does not support such operation?\n"
 msgstr "Doby pro %s nelze zapsat. Možná jádro takovou operaci nepodporuje.\n"
 
-#: quotasys.c:100
+#: quotasys.c:189
 #, c-format
 msgid "user %s does not exist.\n"
 msgstr "uživatel %s neexistuje.\n"
 
-#: quotasys.c:129
+#: quotasys.c:218
 #, c-format
 msgid "group %s does not exist.\n"
 msgstr "skupina %s neexistuje.\n"
 
-#: quotasys.c:231
+#: quotasys.c:248
+#, fuzzy, c-format
+msgid "project %s does not exist.\n"
+msgstr "skupina %s neexistuje.\n"
+
+#: quotasys.c:370
 #, c-format
 msgid ""
 "Unknown quota format: %s\n"
@@ -2585,7 +2637,7 @@ msgstr ""
 "  rpc – použijí se volání RPC\n"
 "  xfs – formát kvót XFS\n"
 
-#: quotasys.c:258
+#: quotasys.c:397
 #, c-format
 msgid ""
 "Unknown output format: %s\n"
@@ -2598,189 +2650,189 @@ msgstr ""
 # FIXME: context
 # None limit
 # None grace
-#: quotasys.c:320 quota.c:290
+#: quotasys.c:459 quota.c:297
 msgid "none"
 msgstr "žádný"
 
 # TODO: Pluralize
-#: quotasys.c:352
+#: quotasys.c:491
 #, c-format
 msgid "%ddays"
 msgstr "%ddnů"
 
-#: quotasys.c:354
+#: quotasys.c:493
 #, c-format
 msgid "%02d:%02d"
 msgstr "%02d:%02d"
 
 # TODO: Pluralize
-#: quotasys.c:366
+#: quotasys.c:505
 #, c-format
 msgid "%uminutes"
 msgstr "%uminut"
 
 # TODO: Pluralize
-#: quotasys.c:368
+#: quotasys.c:507
 #, c-format
 msgid "%uhours"
 msgstr "%uhodin"
 
 # TODO: Pluralize
-#: quotasys.c:370
+#: quotasys.c:509
 #, c-format
 msgid "%udays"
 msgstr "%udnů"
 
 # TODO: Pluralize
-#: quotasys.c:379
+#: quotasys.c:518
 msgid "second"
 msgstr "sekunda"
 
 # TODO: Pluralize
-#: quotasys.c:379
+#: quotasys.c:518
 msgid "seconds"
 msgstr "sekund"
 
 # TODO: Pluralize
-#: quotasys.c:381
+#: quotasys.c:520
 msgid "minute"
 msgstr "minuta"
 
 # TODO: Pluralize
-#: quotasys.c:381
+#: quotasys.c:520
 msgid "minutes"
 msgstr "minut"
 
 # TODO: Pluralize
-#: quotasys.c:383
+#: quotasys.c:522
 msgid "hour"
 msgstr "hodina"
 
 # TODO: Pluralize
-#: quotasys.c:383
+#: quotasys.c:522
 msgid "hours"
 msgstr "hodin"
 
 # TODO: Pluralize
-#: quotasys.c:385
+#: quotasys.c:524
 msgid "day"
 msgstr "den"
 
 # TODO: Pluralize
-#: quotasys.c:385
+#: quotasys.c:524
 msgid "days"
 msgstr "dnů"
 
-#: quotasys.c:434
+#: quotasys.c:573
 msgid "Integer overflow while parsing space number."
 msgstr ""
 
-#: quotasys.c:436
+#: quotasys.c:575
 msgid "K"
 msgstr ""
 
-#: quotasys.c:438
+#: quotasys.c:577
 msgid "M"
 msgstr ""
 
-#: quotasys.c:440
+#: quotasys.c:579
 msgid "G"
 msgstr ""
 
-#: quotasys.c:442
+#: quotasys.c:581
 msgid "T"
 msgstr ""
 
-#: quotasys.c:445
+#: quotasys.c:584
 msgid "Unknown space binary unit. Valid units are K, M, G, T."
 msgstr ""
 
-#: quotasys.c:449
+#: quotasys.c:588
 msgid "Integer overflow while interpreting space unit."
 msgstr ""
 
-#: quotasys.c:489
+#: quotasys.c:628
 msgid "Integer overflow while parsing number."
 msgstr ""
 
-#: quotasys.c:493
+#: quotasys.c:632
 msgid "k"
 msgstr ""
 
-#: quotasys.c:495
+#: quotasys.c:634
 msgid "m"
 msgstr ""
 
-#: quotasys.c:497
+#: quotasys.c:636
 msgid "g"
 msgstr ""
 
-#: quotasys.c:499
+#: quotasys.c:638
 msgid "t"
 msgstr ""
 
-#: quotasys.c:502
+#: quotasys.c:641
 msgid "Unknown decimal unit. Valid units are k, m, g, t."
 msgstr ""
 
-#: quotasys.c:506
+#: quotasys.c:645
 msgid "Integer overflow while interpreting decimal unit."
 msgstr ""
 
-#: quotasys.c:660
+#: quotasys.c:803
 #, c-format
 msgid "Cannot stat quota file %s: %s\n"
 msgstr "O souboru s kvótami %s nelze zjistit údaje: %s\n"
 
-#: quotasys.c:806
+#: quotasys.c:949
 msgid "Not all specified mountpoints are using quota.\n"
 msgstr "Ne všechny použité přípojné body používají kvótu.\n"
 
-#: quotasys.c:820
+#: quotasys.c:963
 #, c-format
 msgid "Error while releasing file on %s\n"
 msgstr "Chyba při uvolňování souboru na %s\n"
 
-#: quotasys.c:879
+#: quotasys.c:1022
 #, c-format
 msgid "Cannot create set for sigaction(): %s\n"
 msgstr "Nelze vytvořit množinu pro sigaction(): %s\n"
 
-#: quotasys.c:882
+#: quotasys.c:1025
 #, c-format
 msgid "Cannot set signal handler: %s\n"
 msgstr "Nelze nastavit obsluhu signálu: %s\n"
 
-#: quotasys.c:935
+#: quotasys.c:1080
 #, c-format
 msgid "Cannot reset signal handler: %s\n"
 msgstr "Nelze znovu nastavit obsluhu signálu: %s\n"
 
-#: quotasys.c:1074
+#: quotasys.c:1235
 msgid "Cannot open any file with mount points.\n"
 msgstr "Žádný soubor s body připojení nelze otevřít.\n"
 
-#: quotasys.c:1092
+#: quotasys.c:1253
 #, c-format
 msgid "Cannot get device name for %s\n"
 msgstr "Nelze získat název zařízení pro %s\n"
 
-#: quotasys.c:1151
+#: quotasys.c:1313
 #, c-format
 msgid "Cannot resolve mountpoint path %s: %s\n"
 msgstr "Nelze přeložit cestu k bodu připojení %s: %s\n"
 
-#: quotasys.c:1157
+#: quotasys.c:1319
 #, c-format
 msgid "Cannot statfs() %s: %s\n"
 msgstr "Nelze vykonat statfs() nad %s: %s\n"
 
-#: quotasys.c:1169
+#: quotasys.c:1331
 #, c-format
 msgid "Cannot stat() mounted device %s: %s\n"
 msgstr "Nelze získat údaje o připojeném zařízení %s: %s\n"
 
-#: quotasys.c:1174
+#: quotasys.c:1336
 #, c-format
 msgid ""
 "Device (%s) filesystem is mounted on unsupported device type. Skipping.\n"
@@ -2788,12 +2840,12 @@ msgstr ""
 "Souborový systém ze zařízení (%s) je připojen na nepodporovaném druhu\n"
 "zařízení. Přeskakuje se.\n"
 
-#: quotasys.c:1184
+#: quotasys.c:1346
 #, c-format
 msgid "Cannot stat() mountpoint %s: %s\n"
 msgstr "Nad bodem připojení %s nelze zavolat stat(): %s\n"
 
-#: quotasys.c:1253
+#: quotasys.c:1415
 #, c-format
 msgid ""
 "Cannot find a device with %s.\n"
@@ -2802,7 +2854,7 @@ msgstr ""
 "Zařízení s %s nelze nalézt.\n"
 "Přeskakuje se…\n"
 
-#: quotasys.c:1257
+#: quotasys.c:1419
 #, c-format
 msgid ""
 "Cannot stat() a mountpoint with %s: %s\n"
@@ -2811,7 +2863,7 @@ msgstr ""
 "Nad bodem připojení s %s nelze zavolat stat(): %s\n"
 "Přeskakuje se…\n"
 
-#: quotasys.c:1265
+#: quotasys.c:1427
 #, c-format
 msgid ""
 "Cannot stat() given mountpoint %s: %s\n"
@@ -2820,36 +2872,36 @@ msgstr ""
 "Nad zadaným bodem připojení %s nelze zavolat stat(): %s\n"
 "Přeskakuje se…\n"
 
-#: quotasys.c:1275
+#: quotasys.c:1437
 #, c-format
 msgid "Cannot find a filesystem mountpoint for directory %s\n"
 msgstr "K adresáři %s nelze přiřadit bod připojení souborového systému.\n"
 
-#: quotasys.c:1281
+#: quotasys.c:1443
 #, c-format
 msgid "Cannot resolve path %s: %s\n"
 msgstr "Cestu %s nelze přeložit: %s\n"
 
-#: quotasys.c:1292
+#: quotasys.c:1454
 #, c-format
 msgid "Cannot find mountpoint for device %s\n"
 msgstr "K zařízení %s nelze přiřadit bod připojení.\n"
 
-#: quotasys.c:1298
+#: quotasys.c:1460
 #, c-format
 msgid "Specified path %s is not directory nor device.\n"
 msgstr "Zadaná cesta %s není ani adresářem ani zařízením.\n"
 
-#: quotasys.c:1306
+#: quotasys.c:1468
 msgid "No correct mountpoint specified.\n"
 msgstr "Nezadán žádný správný bod připojení.\n"
 
-#: quotasys.c:1361
+#: quotasys.c:1523
 #, c-format
 msgid "Mountpoint (or device) %s not found or has no quota enabled.\n"
 msgstr "Bod připojení (nebo zařízení) %s nenalezen nebo nemá zapnuté kvóty.\n"
 
-#: rquota_svc.c:88
+#: rquota_svc.c:86
 #, c-format
 msgid ""
 "Usage: %s [options]\n"
@@ -2875,7 +2927,7 @@ msgstr ""
 " -S --setquota         povolí vzdálené nastavování kvót\n"
 " -x --xtab CESTA       určuje náhradní soubor s tabulkou exportů NFS\n"
 
-#: rquota_svc.c:99
+#: rquota_svc.c:97
 #, c-format
 msgid ""
 "Usage: %s [options]\n"
@@ -2897,37 +2949,47 @@ msgstr ""
 " -p --port PORT        poslouchá na zadaném portu\n"
 " -x --xtab CESTA       určuje náhradní soubor s tabulkou exportů NFS\n"
 
-#: rquota_svc.c:146
+#: rquota_svc.c:144
 #, c-format
 msgid "Illegal port number: %s\n"
 msgstr "Zakázané číslo portu: %s\n"
 
-#: rquota_svc.c:153
+#: rquota_svc.c:151
 #, c-format
 msgid "Cannot access the specified xtab file %s: %s\n"
 msgstr "K zadanému souboru xtab %s nelze přistoupit: %s\n"
 
-#: rquota_svc.c:183
+#: rquota_svc.c:189
+#, c-format
+msgid "unknown address family %u for RPC request\n"
+msgstr ""
+
+#: rquota_svc.c:195
+#, c-format
+msgid "failed to translate address for RPC request: %s\n"
+msgstr ""
+
+#: rquota_svc.c:204
 #, c-format
 msgid "host %s attempted to call setquota when disabled\n"
 msgstr ""
 "Stroj %s se pokusil zavolat setquota, ačkoliv nastavování je zakázáno\n"
 
-#: rquota_svc.c:190
+#: rquota_svc.c:211
 #, c-format
 msgid "host %s attempted to call setquota from port >= 1024\n"
 msgstr "Stroj %s se pokusil zavolat setquota z portu >= 1024\n"
 
-#: rquota_svc.c:205
+#: rquota_svc.c:226
 #, c-format
 msgid "Denied access to host %s\n"
 msgstr "Přístup ke stroji %s zamítnut\n"
 
-#: rquota_svc.c:293 rquota_svc.c:379
+#: rquota_svc.c:314 rquota_svc.c:400
 msgid "unable to free arguments\n"
 msgstr "Argumenty nelze uvolnit\n"
 
-#: rquota_svc.c:402
+#: rquota_svc.c:423
 #, c-format
 msgid ""
 "Warning: Cannot open export table %s: %s\n"
@@ -2936,31 +2998,27 @@ msgstr ""
 "Pozor: Tabulku exportů %s nelze otevřít: %s\n"
 "Jako kořen pseudosystému souborů se použije „/“.\n"
 
-#: rquota_svc.c:454
-msgid "cannot create udp service.\n"
+#: rquota_svc.c:474
+#, fuzzy, c-format
+msgid "Failed to access local netconfig database: %s\n"
+msgstr "Odstranění kvóty selhalo: %s\n"
+
+#: rquota_svc.c:483
+#, fuzzy, c-format
+msgid "Failed to create %s service.\n"
 msgstr "UDP službu nelze vytvořit.\n"
 
-#: rquota_svc.c:458
-msgid "unable to register (RQUOTAPROG, RQUOTAVERS, UDP).\n"
+#: rquota_svc.c:488
+#, fuzzy, c-format
+msgid "Unable to register (RQUOTAPROG, RQUOTAVERS, %s).\n"
 msgstr "nelze zaregistrovat (RQUOTAPROG, RQUOTAVERS, UDP.)\n"
 
-#: rquota_svc.c:462
-msgid "unable to register (RQUOTAPROG, EXT_RQUOTAVERS, UDP).\n"
+#: rquota_svc.c:494
+#, fuzzy, c-format
+msgid "Unable to register (RQUOTAPROG, EXT_RQUOTAVERS, %s).\n"
 msgstr "nelze zaregistrovat (RQUOTAPROG, EXT_RQUOTAVERS, UDP).\n"
 
-#: rquota_svc.c:469
-msgid "cannot create TCP service.\n"
-msgstr "TCP službu nelze vytvořit.\n"
-
-#: rquota_svc.c:473
-msgid "unable to register (RQUOTAPROG, RQUOTAVERS, TCP).\n"
-msgstr "nelze zaregistrovat (RQUOTAPROG, RQUOTAVERS, TCP.)\n"
-
-#: rquota_svc.c:477
-msgid "unable to register (RQUOTAPROG, EXT_RQUOTAVERS, TCP).\n"
-msgstr "nelze zaregistrovat (RQUOTAPROG, EXT_RQUOTAVERS, TCP).\n"
-
-#: rquota_svc.c:486
+#: rquota_svc.c:539
 msgid "svc_run returned\n"
 msgstr "Funkce svc_run() se vrátila.\n"
 
@@ -2989,19 +3047,39 @@ msgstr "copy_group_quota_limits: Nastavení kvót skupině s ID %ld selhalo: %s
 msgid "copy_group_quota_limits: Failed to get groupquota for gid %ld : %s\n"
 msgstr "copy_group_quota_limits: Získání kvót skupiny s ID %ld selhalo: %s\n"
 
-#: svc_socket.c:42
+#: svc_socket.c:75
 #, c-format
-msgid "Cannot create socket: %s\n"
+msgid "Unrecognized bind address family: %s\n"
+msgstr ""
+
+#: svc_socket.c:85
+#, c-format
+msgid "Unrecognized bind address protocol: %s\n"
+msgstr ""
+
+#: svc_socket.c:95
+#, c-format
+msgid "Unrecognized address semantics: %lu\n"
+msgstr ""
+
+#: svc_socket.c:103
+#, fuzzy, c-format
+msgid "Failed to construct bind address: %s\n"
+msgstr "Na zadanou adresu se nelze přilepit: %s\n"
+
+#: svc_socket.c:117
+#, fuzzy, c-format
+msgid "Error creating socket: %s\n"
 msgstr "Socket nelze vytvořit: %s\n"
 
-#: svc_socket.c:49
+#: svc_socket.c:122
 #, c-format
 msgid "Cannot set socket options: %s\n"
 msgstr "Socketu nelze nastavit parametry: %s\n"
 
-#: svc_socket.c:84
-#, c-format
-msgid "Cannot bind to given address: %s\n"
+#: svc_socket.c:128
+#, fuzzy, c-format
+msgid "Cannot bind to address: %s\n"
 msgstr "Na zadanou adresu se nelze přilepit: %s\n"
 
 #: xqmstats.c:32 xqmstats.c:37
@@ -3059,15 +3137,18 @@ msgid "Maximum %u dquots (currently %u incore, %u on freelist)\n"
 msgstr "Maximum %u dquot (nyní %u v jádře, %u na seznamu volných)\n"
 
 #: edquota.c:81
-#, c-format
+#, fuzzy, c-format
 msgid ""
 "Usage:\n"
 "\tedquota %1$s[-u] [-F formatname] [-p username] [-f filesystem] "
 "username ...\n"
 "\tedquota %1$s-g [-F formatname] [-p groupname] [-f filesystem] "
 "groupname ...\n"
-"\tedquota [-u|g] [-F formatname] [-f filesystem] -t\n"
-"\tedquota [-u|g] [-F formatname] [-f filesystem] -T username|groupname ...\n"
+"\tedquota %1$s-P [-F formatname] [-p projectname] [-f filesystem] "
+"projectname ...\n"
+"\tedquota [-u|g|-P] [-F formatname] [-f filesystem] -t\n"
+"\tedquota [-u|g|-P] [-F formatname] [-f filesystem] -T username|groupname|"
+"projectname ...\n"
 msgstr ""
 "Použití:\n"
 "\tedquota %1$s[-u] [-F FORMÁT] [-p UŽIVATEL] [-f SOUBOROVÝ_SYSTÉM] "
@@ -3076,17 +3157,19 @@ msgstr ""
 "\tedquota [-u|g] [-F FORMÁT] [-f SOUBOROVÝ_SYSTÉM] -t\n"
 "\tedquota [-u|g] [-F FORMÁT] [-f SOUBOROVÝ_SYSTÉM] -T UŽIVATEL|SKUPINA…\n"
 
-#: edquota.c:85
+#: edquota.c:86
+#, fuzzy
 msgid ""
 "\n"
 "-u, --user                    edit user data\n"
 "-g, --group                   edit group data\n"
+"-P, --project                 edit project data\n"
 msgstr ""
 "\n"
 "-u, --user                    upraví údaje o uživateli\n"
 "-g, --group                   upraví údaje o skupině\n"
 
-#: edquota.c:89
+#: edquota.c:92
 msgid ""
 "-r, --remote                  edit remote quota (via RPC)\n"
 "-m, --no-mixed-pathnames      trim leading slashes from NFSv4 mountpoints\n"
@@ -3095,7 +3178,7 @@ msgstr ""
 "-m, --no-mixed-pathnames      odstraní z připojovacích míst NFSv4 počáteční\n"
 "                              lomítka\n"
 
-#: edquota.c:92
+#: edquota.c:95
 msgid ""
 "-F, --format=formatname       edit quotas of a specific format\n"
 "-p, --prototype=name          copy data from a prototype user/group\n"
@@ -3122,106 +3205,110 @@ msgstr ""
 "-V, --version                 zobrazí údaje o verzi a skončí\n"
 "\n"
 
-#: edquota.c:183
+#: edquota.c:190
 msgid ""
 "Prototype name does not make sense when editing grace period or times.\n"
 msgstr "Při úpravě periody nebo doby odkladu nedává jméno vzoru smysl.\n"
 
-#: edquota.c:187
+#: edquota.c:194
 msgid "Cannot change grace times over RPC protocol.\n"
 msgstr "Doby odkladu nelze měnit přes protokol RPC.\n"
 
-#: edquota.c:205
+#: edquota.c:212
 #, c-format
 msgid "Cannot get quota information for user %s\n"
 msgstr "Údaj o kvótě uživatele %s nelze získat\n"
 
-#: edquota.c:211
+#: edquota.c:218
 msgid "fsname mismatch\n"
 msgstr "fsname (název souborového systému) se neshoduje\n"
 
-#: edquota.c:255
+#: edquota.c:262
 msgid "No filesystems with quota detected.\n"
 msgstr "Nenalezeny žádné souborové systémy s kvótou.\n"
 
-#: edquota.c:271
+#: edquota.c:278
 #, c-format
 msgid "Cannot create temporary file: %s\n"
 msgstr "Nelze vytvořit dočasný soubor: %s\n"
 
-#: edquota.c:276
+#: edquota.c:283
 #, c-format
 msgid "Cannot change owner of temporary file: %s\n"
 msgstr "Nelze změnit vlastníka dočasného souboru: %s\n"
 
-#: edquota.c:283
+#: edquota.c:290
 msgid "Cannot write grace times to file.\n"
 msgstr "Do souboru nelze zapsat doby odkladu.\n"
 
-#: edquota.c:288 edquota.c:307 edquota.c:340 edquota.c:359
+#: edquota.c:295 edquota.c:314 edquota.c:347 edquota.c:366
 #, fuzzy
 msgid "Cannot stat file with times.\n"
 msgstr "Žádný soubor s body připojení nelze otevřít.\n"
 
-#: edquota.c:294
+#: edquota.c:301
 msgid "Error while editing grace times.\n"
 msgstr "Chyba při úpravě dob odkladu.\n"
 
-#: edquota.c:305 edquota.c:357
-msgid "Cannot reopen!"
+#: edquota.c:312 edquota.c:364
+#, fuzzy
+msgid "Cannot reopen!\n"
 msgstr "Nelze znovu otevřít!"
 
-#: edquota.c:315
+#: edquota.c:322
 msgid "Failed to parse grace times file.\n"
 msgstr "Rozbor souboru s dobami odkladu se nezdařil.\n"
 
-#: edquota.c:325
+#: edquota.c:332
 #, c-format
 msgid "Cannot get quota information for user %s.\n"
 msgstr "Údaj o kvótě uživatele %s nelze získat.\n"
 
-#: edquota.c:328
+#: edquota.c:335
 msgid "Cannot write individual grace times to file.\n"
 msgstr "Do souboru nelze zapsat jednotlivé doby odkladu.\n"
 
-#: edquota.c:334
+#: edquota.c:341
 msgid "Cannot write quotas to file.\n"
 msgstr "Kvóty nelze do souboru zapsat.\n"
 
-#: edquota.c:346
+#: edquota.c:353
 msgid "Error while editing quotas.\n"
 msgstr "Chyba při úpravě kvót.\n"
 
-#: edquota.c:368
+#: edquota.c:375
 msgid "Cannot read individual grace times from file.\n"
 msgstr "Ze souboru nelze načíst jednotlivé doby odkladu.\n"
 
-#: edquota.c:374
+#: edquota.c:381
 msgid "Cannot read quotas from file.\n"
 msgstr "Kvóty nelze ze souboru.\n"
 
-#: quota.c:85
-msgid "Usage: quota [-guqvswim] [-l | [-Q | -A]] [-F quotaformat]\n"
+#: quota.c:87
+#, fuzzy
+msgid "Usage: quota [-guPqvswim] [-l | [-Q | -A]] [-F quotaformat]\n"
 msgstr "Použití: quota [-guqvswim] [-l | [-Q | -A]] [-f FORMÁT]\n"
 
-#: quota.c:86
+#: quota.c:88
 msgid "\tquota [-qvswim] [-l | [-Q | -A]] [-F quotaformat] -u username ...\n"
 msgstr "\tquota [-qvswim] [-l | [-Q | -A]] [-F FORMÁT] -u UŽIVATEL…\n"
 
-#: quota.c:87
+#: quota.c:89
 msgid "\tquota [-qvswim] [-l | [-Q | -A]] [-F quotaformat] -g groupname ...\n"
 msgstr "\tquota [-qvswim] [-l | [-Q | -A]] [-F FORMÁT] -g SKUPINA…\n"
 
-#: quota.c:88
-msgid "\tquota [-qvswugQm] [-F quotaformat] -f filesystem ...\n"
+#: quota.c:90
+#, fuzzy
+msgid "\tquota [-qvswugPQm] [-F quotaformat] -f filesystem ...\n"
 msgstr "\tquota [-qvswugQm] [-F FORMÁT] -f SOUBOROVÝ_SYSTÉM…\n"
 
-#: quota.c:89
+#: quota.c:91
 #, fuzzy
 msgid ""
 "\n"
 "-u, --user                display quota for user\n"
 "-g, --group               display quota for group\n"
+"-P, --project             display quota for project\n"
 "-q, --quiet               print more terse message\n"
 "-v, --verbose             print more verbose message\n"
 "-s, --human-readable      display numbers in human friendly units (MB, "
@@ -3273,88 +3360,93 @@ msgstr ""
 "-V, --version             zobrazí údaje o verzi a skončí\n"
 "\n"
 
-#: quota.c:120
+#: quota.c:123
 msgid "space"
 msgstr "místo"
 
-#: quota.c:122
+#: quota.c:125
 msgid "blocks"
 msgstr "bloky"
 
 # FIXME: third argument is first character of first argument
 # (user/group → u/g-id). This is not localizable.
-#: quota.c:124
+#: quota.c:127
 #, c-format
 msgid "Disk quotas for %s %s (%cid %u): %s\n"
 msgstr "Diskové kvóty pro %s %s (%cid %u): %s\n"
 
 # FIXME: printf(3) counts bytes, not columns
-#: quota.c:127
+#: quota.c:130
 msgid "Filesystem"
 msgstr "Souborovy system"
 
 # FIXME: printf(3) counts bytes, not columns
-#: quota.c:128 quota.c:129
+#: quota.c:131 quota.c:132
 msgid "quota"
 msgstr "kvota"
 
 # FIXME: printf(3) counts bytes, not columns
-#: quota.c:128 quota.c:129
+#: quota.c:131 quota.c:132
 msgid "limit"
 msgstr "limit"
 
 # FIXME: printf(3) counts bytes, not columns
-#: quota.c:128 quota.c:129
+#: quota.c:131 quota.c:132
 msgid "grace"
 msgstr "odklad"
 
 # FIXME: printf(3) counts bytes, not columns
-#: quota.c:129
+#: quota.c:132
 msgid "files"
 msgstr "souboru"
 
-#: quota.c:201
+#: quota.c:208
 msgid "File limit reached on"
 msgstr "Omezení počtu souborů dosaženo na"
 
-#: quota.c:207
+#: quota.c:214
 msgid "In file grace period on"
 msgstr "V periodě odkladu počtu souborů na"
 
-#: quota.c:211
+#: quota.c:218
 msgid "Over file quota on"
 msgstr "Kvóta na počet souborů přesažena na"
 
-#: quota.c:217
+#: quota.c:224
 msgid "Block limit reached on"
 msgstr "Omezení na počet bloků dosaženo na"
 
-#: quota.c:223
+#: quota.c:230
 msgid "In block grace period on"
 msgstr "V periodě odkladu počtu bloků na"
 
-#: quota.c:227
+#: quota.c:234
 msgid "Over block quota on"
 msgstr "Kvóta na počet bloků překročena na"
 
-#: quota.c:396
+#: quota.c:408
 #, c-format
 msgid "Warning: Ignoring -%c when filesystem list specified.\n"
 msgstr "Pozor: Je-li zadán seznam souborových systémů, -%c bude ignorován.\n"
 
-#: quota.c:403
+#: quota.c:415
 msgid "No filesystem specified.\n"
 msgstr "Nezadán žádný systém souborů.\n"
 
-#: quota.c:411
+#: quota.c:423
 #, c-format
 msgid "Gid set allocation (%d): %s\n"
 msgstr "Alokace množiny GID (%d): %s\n"
 
-#: quota.c:417
+#: quota.c:429
 #, c-format
 msgid "getgroups(): %s\n"
 msgstr "getgroups(): %s\n"
+
+#: quota.c:434
+#, fuzzy
+msgid "Project reports not supported without project name\n"
+msgstr "Formát kvóty není podporován jádrem.\n"
 
 #: common.c:124
 #, c-format
@@ -3365,6 +3457,24 @@ msgstr "Kvótové nástroje (quota-tools) verze %s.\n"
 #, c-format
 msgid "Compiled with:%s\n"
 msgstr "Přeloženo s:%s\n"
+
+#~ msgid "Cannot duplicate descriptor of file to write to: %s\n"
+#~ msgstr "Deskriptor souboru nelze zmnožit pro zápis: %s\n"
+
+#~ msgid "Cannot duplicate descriptor of temp file: %s\n"
+#~ msgstr "Deskriptor dočasného souboru nelze zmnožit: %s\n"
+
+#~ msgid "Cannot duplicate descriptor of file to edit: %s\n"
+#~ msgstr "Deskriptor editovaného souboru nelze zmnožit: %s\n"
+
+#~ msgid "cannot create TCP service.\n"
+#~ msgstr "TCP službu nelze vytvořit.\n"
+
+#~ msgid "unable to register (RQUOTAPROG, RQUOTAVERS, TCP).\n"
+#~ msgstr "nelze zaregistrovat (RQUOTAPROG, RQUOTAVERS, TCP.)\n"
+
+#~ msgid "unable to register (RQUOTAPROG, EXT_RQUOTAVERS, TCP).\n"
+#~ msgstr "nelze zaregistrovat (RQUOTAPROG, EXT_RQUOTAVERS, TCP).\n"
 
 #~ msgid "Error while editing individual grace times.\n"
 #~ msgstr "Chyba při úpravě jednotlivých dob odkladu.\n"
