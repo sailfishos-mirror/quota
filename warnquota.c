@@ -412,7 +412,13 @@ static char *lookup_user(struct configparams *config, char *user)
 	}
 
 	/* search for the offender_name in ldap */
-	snprintf(searchbuf, 256, "(%s=%s)", config->ldap_search_attr, user);
+	if (256 <= snprintf(searchbuf, 256, "(%s=%s)", config->ldap_search_attr,
+		    user)) {
+		errstr(_("Could not format LDAP search filter for %s user and "
+			"%s search attribute due to excessive length.\n"),
+			user, config->ldap_search_attr);
+		return NULL;
+	}
 	ret = ldap_search_ext_s(ldapconn,
 		config->ldap_basedn, LDAP_SCOPE_SUBTREE,
 		searchbuf, NULL, 0, NULL, NULL, NULL,
@@ -893,7 +899,14 @@ cc_parse_err:
 	if (config->use_ldap_mail)
 	{
 		if (!config->ldap_uri[0]) {
-			snprintf(config->ldap_uri, CNF_BUFFER, "ldap://%s:%d", config->ldap_host, config->ldap_port);
+			if (CNF_BUFFER <= snprintf(config->ldap_uri, CNF_BUFFER,
+				    "ldap://%s:%d", config->ldap_host,
+				    config->ldap_port)) {
+				errstr(_("Could not format LDAP URI because "
+					    "it's longer than %d bytes.\n"),
+					    CNF_BUFFER);
+				return -1;
+			}
 			errstr(_("LDAP library version >= 2.3 detected. Please use LDAP_URI instead of hostname and port.\nGenerated URI %s\n"), config->ldap_uri);
 		}
 	}
