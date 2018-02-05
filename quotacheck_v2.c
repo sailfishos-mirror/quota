@@ -363,7 +363,8 @@ static int check_header(char *filename, int fd, int type, int version)
 			 "specified on command line (%d). Quota file header "
 			 "may be corrupted.\n"),
 		       le32toh(head.dqh_version), version);
-		if (!ask_yn(_("Continue checking assuming version from command line?"), 1))
+		if (!(flags & FL_INTERACTIVE) ||
+		    !ask_yn(_("Continue checking assuming version from command line?"), 1))
 			return -1;
 		detected_versions[type] = version;
 	} else
