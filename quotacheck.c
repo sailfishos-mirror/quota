@@ -924,6 +924,7 @@ static int check_dir(struct mount_entry *mnt)
 	struct stat st;
 	int remounted = 0;
 	int failed = 0;
+	int ret;
 
 	if (lstat(mnt->me_dir, &st) < 0)
 		die(2, _("Cannot stat mountpoint %s: %s\n"), mnt->me_dir, strerror(errno));
@@ -939,14 +940,22 @@ static int check_dir(struct mount_entry *mnt)
 	 */
 	if (cfmt == QF_XFS)
 		goto start_scan;
-	if (ucheck)
-		if (process_file(mnt, USRQUOTA) < 0)
+	if (ucheck) {
+		ret = process_file(mnt, USRQUOTA);
+		if (ret < 0) {
+			failed |= ret;
 			ucheck = 0;
-	if (gcheck)
-		if (process_file(mnt, GRPQUOTA) < 0)
+		}
+	}
+	if (gcheck) {
+		ret = process_file(mnt, GRPQUOTA);
+		if (ret < 0) {
+			failed |= ret;
 			gcheck = 0;
+		}
+	}
 	if (!ucheck && !gcheck)	/* Nothing to check? */
-		return 0;
+		return failed;
 	if (!(flags & FL_NOREMOUNT)) {
 		/* Now we try to remount fs read-only to prevent races when scanning filesystem */
 		if (mount
@@ -978,8 +987,11 @@ start_scan:
 	    !strcmp(mnt->me_type, MNTTYPE_EXT3) ||
 	    !strcmp(mnt->me_type, MNTTYPE_NEXT3) ||
 	    !strcmp(mnt->me_type, MNTTYPE_EXT4)) {
-		if ((failed = ext2_direct_scan(mnt->me_devname)) < 0)
+		ret = ext2_direct_scan(mnt->me_devname);
+		if (ret < 0) {
+			failed |= ret;
 			goto out;
+		}
 	}
 	else {
 #else
@@ -987,8 +999,11 @@ start_scan:
 #endif
 		if (flags & FL_VERYVERBOSE)
 			putchar('\n');
-		if ((failed = scan_dir(mnt->me_dir)) < 0)
+		ret = scan_dir(mnt->me_dir);
+		if (ret < 0) {
+			failed |= ret;
 			goto out;
+		}
 	}
 	dirs_done++;
 	if (flags & FL_VERBOSE || flags & FL_DEBUG)
