@@ -357,6 +357,9 @@ static int check_header(char *filename, int fd, int type, int version)
 	    le32toh(head.dqh_version) > known_versions[type]) {
 		errstr(_("WARNING - Quota file %s has corrupted headers\n"),
 			filename);
+		if (!(flags & FL_INTERACTIVE) ||
+		    !ask_yn(_("Continue checking assuming format from command line?"), 0))
+			return -1;
 	}
 	if (le32toh(head.dqh_version) != version) {
 		errstr(_("Quota file format version %d does not match the one "
