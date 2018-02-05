@@ -262,6 +262,8 @@ static void write_console_warning(struct quota_warning *warn)
 	    warn->warntype == QUOTA_NL_BSOFTBELOW) && !(flags & FL_PRINTBELOW))
 		return;
 	uid2user(warn->caused_id, user);
+	if (strlen(user) > UT_NAMESIZE)
+		goto skip_utmp;
 	strcpy(dev, "/dev/");
 
 	setutent();
@@ -270,7 +272,7 @@ static void write_console_warning(struct quota_warning *warn)
 		if (uent->ut_type != USER_PROCESS)
 			continue;
 		/* Entry for a different user? */
-		if (strcmp(user, uent->ut_user))
+		if (strncmp(user, uent->ut_user, UT_NAMESIZE))
 			continue;
 		sstrncpy(dev+5, uent->ut_line, PATH_MAX-5);
 		if (stat(dev, &st) < 0)
@@ -281,6 +283,7 @@ static void write_console_warning(struct quota_warning *warn)
 		}
 	}
 	if (!max_atime) {
+skip_utmp:
 		/*
 		 * This can happen quite easily so don't spam syslog with
 		 * the error
