@@ -282,7 +282,8 @@ static int newstate(struct mount_entry *mnt, int type, char *extra)
 	if (!strcmp(mnt->me_type, MNTTYPE_GFS2)) {
 		errstr(_("Cannot change state of GFS2 quota.\n"));
 		return 1;
-	} else if (!strcmp(mnt->me_type, MNTTYPE_XFS)) {	/* XFS filesystem has special handling... */
+	} else if (!strcmp(mnt->me_type, MNTTYPE_XFS) ||
+		   !strcmp(mnt->me_type, MNTTYPE_EXFS)) {	/* XFS filesystem has special handling... */
 		if (!kern_qfmt_supp(QF_XFS)) {
 			errstr(_("Cannot change state of XFS quota. It's not compiled in kernel.\n"));
 			return 1;
@@ -337,7 +338,8 @@ static int print_state(struct mount_entry *mnt, int type)
 	if (kern_qfmt_supp(QF_XFS)) {
 		on = kern_quota_state_xfs(mnt->me_devname, type);
 		if (!strcmp(mnt->me_type, MNTTYPE_XFS) ||
-		    !strcmp(mnt->me_type, MNTTYPE_GFS2) || on >= 0) {
+		    !strcmp(mnt->me_type, MNTTYPE_GFS2) || on >= 0 ||
+		    !strcmp(mnt->me_type, MNTTYPE_EXFS)) {
 			if (on < 0)
 				on = 0;
 			if (!(flags & FL_VERBOSE))

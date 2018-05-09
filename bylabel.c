@@ -48,6 +48,7 @@ struct ext2_super_block {
 
 #define XFS_SUPER_MAGIC "XFSB"
 #define XFS_SUPER_MAGIC2 "BSFX"
+#define EXFS_SUPER_MAGIC "EXFS"
 struct xfs_super_block {
 	u_char s_magic[4];
 	u_char s_dummy[28];
@@ -107,7 +108,8 @@ static int get_label_uuid(const char *device, char **label, char *uuid)
 	else if (lseek(fd, 0, SEEK_SET) == 0
 		 && read(fd, (char *)&xfsb, sizeof(xfsb)) == sizeof(xfsb)
 		 && (strncmp((char *)&xfsb.s_magic, XFS_SUPER_MAGIC, 4) == 0 ||
-		     strncmp((char *)&xfsb.s_magic, XFS_SUPER_MAGIC2, 4) == 0)) {
+		     strncmp((char *)&xfsb.s_magic, XFS_SUPER_MAGIC2, 4) == 0 ||
+		     strncmp((char *)&xfsb.s_magic, EXFS_SUPER_MAGIC, 4) == 0)) {
 		memcpy(uuid, xfsb.s_uuid, sizeof(xfsb.s_uuid));
 		namesize = sizeof(xfsb.s_fsname);
 		*label = smalloc(namesize + 1);

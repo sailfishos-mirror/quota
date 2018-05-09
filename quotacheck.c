@@ -1042,7 +1042,8 @@ static int detect_filename_format(struct mount_entry *mnt, int type)
 	int fmt;
 
 	if (strcmp(mnt->me_type, MNTTYPE_XFS) == 0 ||
-	    strcmp(mnt->me_type, MNTTYPE_GFS2) == 0)
+	    strcmp(mnt->me_type, MNTTYPE_GFS2) == 0 ||
+	    strcmp(mnt->me_type, MNTTYPE_EXFS) == 0)
 		return QF_XFS;
 
 	if (type == USRQUOTA) {
@@ -1116,7 +1117,7 @@ static int compatible_fs_qfmt(char *fstype, int fmt)
 {
 	/* We never check XFS, NFS, and filesystems supporting VFS metaformat */
 	if (!strcmp(fstype, MNTTYPE_XFS) || nfs_fstype(fstype) ||
-	    meta_qf_fstype(fstype))
+	    meta_qf_fstype(fstype) || !strcmp(fstype, MNTTYPE_EXFS))
 		return 0;
 	/* In all other cases we can pick a format... */
 	if (fmt == -1)

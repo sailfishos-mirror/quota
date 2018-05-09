@@ -15,6 +15,7 @@
 #define MNTTYPE_UDF		"udf"	/* OSTA UDF file system */
 #define MNTTYPE_REISER		"reiserfs"	/* Reiser file system */
 #define MNTTYPE_XFS		"xfs"	/* SGI XFS file system */
+#define MNTTYPE_EXFS		"exfs"	/* HPE EXFS file system */
 #define MNTTYPE_AUTOFS		"autofs"	/* Automount mountpoint */
 #define MNTTYPE_JFS		"jfs"	/* JFS file system */
 #define MNTTYPE_NFS4		"nfs4"	/* NFSv4 filesystem */

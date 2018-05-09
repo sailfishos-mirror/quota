@@ -781,7 +781,8 @@ static void copy_mntoptarg(char *buf, const char *optarg, int buflen)
 static int hasquota(const char *dev, struct mntent *mnt, int type, int flags)
 {
 	if (!strcmp(mnt->mnt_type, MNTTYPE_GFS2) ||
-	    !strcmp(mnt->mnt_type, MNTTYPE_XFS))
+	    !strcmp(mnt->mnt_type, MNTTYPE_XFS) ||
+	    !strcmp(mnt->mnt_type, MNTTYPE_EXFS))
 		return hasxfsquota(dev, mnt, type, flags);
 	if (!strcmp(mnt->mnt_type, MNTTYPE_OCFS2))
 		return hasvfsmetaquota(dev, mnt, type, flags);
@@ -953,12 +954,14 @@ add_entry:
 				break;
 			case QF_XFS:
 				if (!strcmp(mnt->me_type, MNTTYPE_XFS) ||
-				    !strcmp(mnt->me_type, MNTTYPE_GFS2))
+				    !strcmp(mnt->me_type, MNTTYPE_GFS2) ||
+				    !strcmp(mnt->me_type, MNTTYPE_EXFS))
 					goto add_entry;
 				break;
 			default:
 				if (strcmp(mnt->me_type, MNTTYPE_XFS) &&
 				    strcmp(mnt->me_type, MNTTYPE_GFS2) &&
+				    strcmp(mnt->me_type, MNTTYPE_EXFS) &&
 				    !nfs_fstype(mnt->me_type))
 					goto add_entry;
 				break;
@@ -1059,7 +1062,8 @@ void init_kernel_interface(void)
 	else {
 		struct v2_dqstats v2_stats;
 
-		if (!stat("/proc/fs/xfs/stat", &st))
+		if (!stat("/proc/fs/xfs/stat", &st) ||
+		    !stat("/proc/fs/exfs/stat", &st))
 			kernel_qfmt[kernel_qfmt_num++] = QF_XFS;
 		else {
 			fs_quota_stat_t dummy;

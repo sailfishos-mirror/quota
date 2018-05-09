@@ -143,7 +143,8 @@ static void mounttable(void)
 
 	while ((mntp = get_next_mount())) {
 		/* Currently, only XFS is implemented... */
-		if (strcmp(mntp->me_type, MNTTYPE_XFS) == 0) {
+		if (strcmp(mntp->me_type, MNTTYPE_XFS) == 0 ||
+		    strcmp(mntp->me_type, MNTTYPE_EXFS) == 0) {
 			checkXFS(mntp->me_devname, mntp->me_dir);
 			doit = 1;
 		}
