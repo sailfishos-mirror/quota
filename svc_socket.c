@@ -118,6 +118,15 @@ static int svc_create_sock(struct addrinfo *ai)
 		return -1;
 	}
 
+	if (ai->ai_family == AF_INET6) {
+		if (setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY,
+				&optval, sizeof(optval)) < 0) {
+			errstr(_("Cannot set IPv6 socket options: %s\n"), strerror(errno));
+			close(fd);
+			return -1;
+		}
+	}
+
 	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0) {
 		errstr(_("Cannot set socket options: %s\n"), strerror(errno));
 		close(fd);
@@ -129,6 +138,15 @@ static int svc_create_sock(struct addrinfo *ai)
 		close(fd);
 		return -1;
 	}
+
+	if (ai->ai_protocol == IPPROTO_TCP) {
+		if (listen(fd, SOMAXCONN) < 0) {
+			errstr(_("Cannot listen to address: %s\n"), strerror(errno));
+			close(fd);
+			return -1;
+		}
+	}
+
 	return fd;
 }
 
