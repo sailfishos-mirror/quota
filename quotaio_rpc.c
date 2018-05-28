@@ -33,7 +33,8 @@ static int rpc_init_io(struct quota_handle *h)
 #ifdef RPC
 	h->qh_info.dqi_max_b_limit = ~(uint32_t)0;
 	h->qh_info.dqi_max_i_limit = ~(uint32_t)0;
-	h->qh_info.dqi_max_b_usage = (~(uint32_t)0) << QUOTABLOCK_BITS;
+	h->qh_info.dqi_max_b_usage = ((uint64_t)(~(uint32_t)0))
+							 << QUOTABLOCK_BITS;
 	h->qh_info.dqi_max_i_usage = ~(uint32_t)0;
 	return 0;
 #else
