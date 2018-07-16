@@ -188,7 +188,7 @@ static int showquotas(int type, qid_t id, int mntcnt, char **mnt)
 	char timebuf[MAXTIMELEN];
 	char name[MAXNAMELEN];
 	struct quota_handle **handles;
-	int lines = 0, bover, iover, over;
+	int lines = 0, bover, iover, over, unlimited;
 	time_t now;
 
 	time(&now);
@@ -204,11 +204,16 @@ static int showquotas(int type, qid_t id, int mntcnt, char **mnt)
 		goto out_handles;
 	}
 	over = 0;
+	unlimited = 1;
 	for (q = qlist; q; q = q->dq_next) {
 		bover = iover = 0;
-		if (!(flags & FL_VERBOSE) && !q->dq_dqb.dqb_isoftlimit && !q->dq_dqb.dqb_ihardlimit
-		    && !q->dq_dqb.dqb_bsoftlimit && !q->dq_dqb.dqb_bhardlimit)
-			continue;
+		if (!q->dq_dqb.dqb_isoftlimit && !q->dq_dqb.dqb_ihardlimit
+		    && !q->dq_dqb.dqb_bsoftlimit && !q->dq_dqb.dqb_bhardlimit) {
+			if (!(flags & FL_VERBOSE))
+				continue;
+		} else {
+			unlimited = 0;
+		}
 		msgi = NULL;
 		if (q->dq_dqb.dqb_ihardlimit && q->dq_dqb.dqb_curinodes >= q->dq_dqb.dqb_ihardlimit) {
 			msgi = _("File limit reached on");
@@ -300,7 +305,7 @@ static int showquotas(int type, qid_t id, int mntcnt, char **mnt)
 		}
 	}
 	if (!(flags & FL_QUIET) && !lines && qlist)
-		heading(type, id, name, _("none"));
+		heading(type, id, name, unlimited ? _("none") : _("no limited resources used"));
 	freeprivs(qlist);
 out_handles:
 	dispose_handle_list(handles);
