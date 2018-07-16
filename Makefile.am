@@ -127,7 +127,8 @@ sbin_PROGRAMS = \
 	xqmstats \
 	edquota \
 	setquota \
-	convertquota
+	convertquota \
+	setproject
 if WITH_RPC
 sbin_PROGRAMS += \
 	rpc.rquotad
@@ -246,6 +247,11 @@ convertquota_LDADD = \
 	$(INTLLIBS) \
 	$(RPCLIBS) \
 	$(TIRPC_LIBS)
+
+setproject_SOURCES = setproject.c
+setproject_LDADD = \
+	libquota.a \
+	$(INTLLIBS)
 
 if WITH_RPC
 rpc_rquotad_SOURCES = \
