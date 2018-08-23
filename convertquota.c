@@ -363,6 +363,7 @@ static int convert_endian(int type, struct mount_entry *mnt)
 	}
 	ret = endian_scan_structures(ofd, type);
 	end_io(qn);
+	close(ofd);
 	if (ret < 0)
 		return ret;
 	
