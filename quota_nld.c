@@ -485,7 +485,10 @@ int main(int argc, char **argv)
 		dhandle = init_dbus();
 	if (!(flags & FL_NODAEMON)) {
 		use_syslog();
-		daemon(0, 0);
+		if (daemon(0, 0)) {
+			errstr(_("Failed to daemonize: %s\n"), strerror(errno));
+			exit(1);
+		};
 		use_pid_file();
 	}
 	run(nsock);
