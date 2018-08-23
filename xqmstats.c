@@ -35,6 +35,7 @@ int main(int argc, char **argv)
 	if ((stats = fopen(XQMSTATS, "r")) == NULL) {
 		if ((stats = fopen(STATFILE, "r")) == NULL) {
 			errstr(_("The running kernel does not support XFS\n"));
+			fclose(xqm);
 			return 1;
 		}
 	}
