@@ -538,6 +538,7 @@ static int scan_dir(const char *pathname)
 		if ((lstat(de->d_name, &st)) == -1) {
 			errstr(_("lstat: Cannot stat `%s/%s': %s\nGuess you'd better run fsck first !\nexiting...\n"),
 				pathname, de->d_name, strerror(errno));
+			closedir(dp);
 			goto out;
 		}
 
