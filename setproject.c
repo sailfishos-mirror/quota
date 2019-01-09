@@ -30,29 +30,18 @@ struct fsxattr {
 };
 #endif
 
+#ifndef BCHFS_IOC_REINHERIT_ATTRS
+#define BCHFS_IOC_REINHERIT_ATTRS	_IOR(0xbc, 64, const char *)
+#endif
+
 #include "pot.h"
 #include "common.h"
 #include "quotasys.h"
 
 char *progname;
 
-static void setproject_recurse(const char *path, unsigned id)
+static void do_setproject(int fd, unsigned id)
 {
-	struct stat st;
-	if (stat(path, &st)) {
-		errstr(_("error statting %s: %m"), path);
-		return;
-	}
-
-	if (!S_ISDIR(st.st_mode) && !S_ISREG(st.st_mode))
-		return;
-
-	int fd = open(path, O_RDONLY|O_NOATIME);
-	if (fd < 0) {
-		errstr(_("error opening %s: %m"), path);
-		return;
-	}
-
 	struct fsxattr fa;
 
 	if (ioctl(fd, FS_IOC_FSGETXATTR, &fa))
@@ -62,25 +51,67 @@ static void setproject_recurse(const char *path, unsigned id)
 
 	if (ioctl(fd, FS_IOC_FSSETXATTR, &fa))
 		die(1, _("FS_IOC_FSSETXATTR: %m\n"));
+}
 
-	if (S_ISDIR(st.st_mode)) {
-		DIR *dir = fdopendir(fd);
-		struct dirent *d;
+static void setproject_recurse(int dirfd, unsigned id, unsigned dev)
+{
+	DIR *dir = fdopendir(dirfd);
+	struct dirent *d;
 
-		while ((errno = 0), (d = readdir(dir))) {
-			if (!strcmp(d->d_name, ".") ||
-			    !strcmp(d->d_name, ".."))
-				continue;
+	while ((errno = 0), (d = readdir(dir))) {
+		if (!strcmp(d->d_name, ".") ||
+		    !strcmp(d->d_name, ".."))
+			continue;
 
-			char *child = malloc(strlen(path) + strlen(d->d_name) + 2);
-			if (!child)
-				die(1, _("malloc error\n"));
-
-			sprintf(child, "%s/%s", path, d->d_name);
-			setproject_recurse(child, id);
-			free(child);
+		struct stat st;
+		if (fstatat(dirfd, d->d_name, &st, AT_SYMLINK_NOFOLLOW)) {
+			errstr(_("error statting %s: %m"), d->d_name);
+			errno = 0;
+			continue;
 		}
+
+		if (!S_ISDIR(st.st_mode) && !S_ISREG(st.st_mode))
+			continue;
+
+		int fd = openat(dirfd, d->d_name, AT_SYMLINK_NOFOLLOW);
+		if (fd < 0) {
+			errstr(_("error opening %s: %m"), d->d_name);
+			errno = 0;
+			continue;
+		}
+
+		if (st.st_dev != dev ||
+		    ioctl(dirfd, BCHFS_IOC_REINHERIT_ATTRS, d->d_name) < 0)
+			do_setproject(fd, id);
+
+		if (S_ISDIR(st.st_mode))
+			setproject_recurse(fd, id, st.st_dev);
+
+		close(fd);
 	}
+}
+
+static void setproject(const char *path, unsigned id)
+{
+	int fd = open(path, O_RDONLY|O_NOATIME);
+	if (fd < 0) {
+		errstr(_("error opening %s: %m"), path);
+		return;
+	}
+
+	struct stat st;
+	if (fstat(fd, &st)) {
+		errstr(_("error statting %s: %m"), path);
+		return;
+	}
+
+	if (!S_ISDIR(st.st_mode) && !S_ISREG(st.st_mode))
+		return;
+
+	do_setproject(fd, id);
+
+	if (S_ISDIR(st.st_mode))
+		setproject_recurse(fd, id, st.st_dev);
 
 	close(fd);
 }
@@ -105,7 +136,7 @@ int main(int argc, char *argv[])
 		{ "version",	0, NULL, 'V' },
 		{ NULL,		0, NULL,  0  }
 	};
-	const char *project_name = NULL;
+	char *project_name = NULL;
 	unsigned int project_id;
 	int ret, i;
 
@@ -130,7 +161,7 @@ int main(int argc, char *argv[])
 
 	project_id = project2pid(project_name, 0, NULL);
 	for (i = 0; i < argc; i++)
-		setproject_recurse(argv[i], project_id);
+		setproject(argv[i], project_id);
 
 	return 0;
 }
