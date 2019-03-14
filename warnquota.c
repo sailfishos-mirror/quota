@@ -510,7 +510,7 @@ static int mail_user(struct offenderlist *offender, struct configparams *config)
 		char *cc_to = lookup_user(config, config->cc_to);
 
 		if (cc_to) {
-			fprintf(fp, "Cc: %s\n", config->cc_to);
+			fprintf(fp, "Cc: %s\n", cc_to);
 			free(cc_to);
 		}
 	}
