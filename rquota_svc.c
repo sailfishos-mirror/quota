@@ -533,7 +533,10 @@ int main(int argc, char **argv)
 
 	if (!(flags & FL_NODAEMON)) {
 		use_syslog();
-		daemon(0, 0);
+		if (daemon(0, 0) < 0) {
+			errstr(_("Failed to daemonize: %s\n"), strerror(errno));
+			exit(1);
+		}
 	}
 	svc_run();
 	errstr(_("svc_run returned\n"));
