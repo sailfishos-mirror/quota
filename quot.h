@@ -35,18 +35,18 @@
 #define	SEC24HR	(60*60*24)	/* seconds per day */
 
 typedef struct {
-	__uint32_t id;
+	uint32_t id;
 	char name[UT_NAMESIZE + 1];
 } idcache_t;
 
 typedef struct du {
 	struct du *next;
-	__uint64_t blocks;
-	__uint64_t blocks30;
-	__uint64_t blocks60;
-	__uint64_t blocks90;
-	__uint64_t nfiles;
-	__uint32_t id;
+	uint64_t blocks;
+	uint64_t blocks30;
+	uint64_t blocks60;
+	uint64_t blocks90;
+	uint64_t nfiles;
+	uint32_t id;
 } du_t;
 
 #define	NDU	60000
