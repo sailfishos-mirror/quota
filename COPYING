@@ -1,7 +1,5 @@
 This package, the quota tools, are made available under the GNU Public License
-version 2, with the exception of files quot.c, and quot.h which are made
-available under the BSD license (see headers of these files for details).
-
+version 2.
 ----------------------------------------------------------------------
 
 		    GNU GENERAL PUBLIC LICENSE

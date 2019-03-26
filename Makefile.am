@@ -25,7 +25,6 @@ man_MANS = \
 	quotasync.1 \
 	quotatab.5 \
 	quota.1 \
-	quot.8 \
 	repquota.8 \
 	setquota.8 \
 	warnquota.conf.5 \
@@ -114,7 +113,6 @@ bin_PROGRAMS = \
 sbin_PROGRAMS = \
 	quotacheck \
 	quotaon \
-	quot \
 	repquota \
 	warnquota \
 	quotastats \
@@ -169,14 +167,6 @@ quota_LDADD = \
 
 quotasync_SOURCES = quotasync.c
 quotasync_LDADD = \
-	libquota.a \
-	$(RPCLIBS) \
-	$(TIRPC_LIBS)
-
-quot_SOURCES = \
-	quot.c \
-	quot.h
-quot_LDADD = \
 	libquota.a \
 	$(RPCLIBS) \
 	$(TIRPC_LIBS)
