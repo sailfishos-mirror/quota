@@ -31,13 +31,13 @@
 
 static int get_service_port(u_long number, const char *proto)
 {
-	char rpcdata [1024], servdata [1024];
-	struct rpcent rpcbuf, *rpcp = NULL;
+	char servdata [1024];
+	struct rpcent *rpcp = NULL;
 	struct servent servbuf, *servp = NULL;
 	int ret;
 
-	ret = getrpcbynumber_r(number, &rpcbuf, rpcdata, sizeof(rpcdata), &rpcp);
-	if (ret == 0 && rpcp != NULL) {
+	rpcp = getrpcbynumber(number);
+	if (rpcp != NULL) {
 		/* First try name */
 		ret = getservbyname_r(rpcp->r_name, proto, &servbuf, servdata,
 		                       sizeof servdata, &servp);
