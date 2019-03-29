@@ -8,6 +8,7 @@
 #define GUARD_DQBLK_V2_H
 
 #include <sys/types.h>
+#include <fcntl.h>
 #include "quota_tree.h"
 
 #define Q_V2_GETQUOTA	0x0D00	/* Get limits and usage */

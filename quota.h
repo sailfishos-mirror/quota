@@ -1,6 +1,7 @@
 #ifndef GUARD_QUOTA_H
 #define GUARD_QUOTA_H
 
+#include <sys/cdefs.h>
 #include <sys/types.h>
 #include <stdint.h>
 

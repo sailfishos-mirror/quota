@@ -60,7 +60,7 @@ extern char nfs_pseudoroot[PATH_MAX];
  */
 extern struct authunix_parms *unix_cred;
 
-int in_group(gid_t * gids, u_int len, gid_t gid)
+int in_group(gid_t * gids, uint32_t len, gid_t gid)
 {
 	gid_t *gidsp = gids + len;
 

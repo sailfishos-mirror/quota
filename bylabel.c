@@ -20,6 +20,7 @@
 #include <ctype.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <stdint.h>
 
 #include "bylabel.h"
 #include "common.h"
@@ -37,41 +38,41 @@ static struct uuidCache_s {
 
 #define EXT2_SUPER_MAGIC	0xEF53
 struct ext2_super_block {
-	u_char s_dummy1[56];
-	u_char s_magic[2];
-	u_char s_dummy2[46];
-	u_char s_uuid[16];
-	u_char s_volume_name[16];
+	uint8_t s_dummy1[56];
+	uint8_t s_magic[2];
+	uint8_t s_dummy2[46];
+	uint8_t s_uuid[16];
+	uint8_t s_volume_name[16];
 };
 
-#define ext2magic(s)	((uint) s.s_magic[0] + (((uint) s.s_magic[1]) << 8))
+#define ext2magic(s)	((uint32_t) s.s_magic[0] + (((uint32_t) s.s_magic[1]) << 8))
 
 #define XFS_SUPER_MAGIC "XFSB"
 #define XFS_SUPER_MAGIC2 "BSFX"
 #define EXFS_SUPER_MAGIC "EXFS"
 struct xfs_super_block {
-	u_char s_magic[4];
-	u_char s_dummy[28];
-	u_char s_uuid[16];
-	u_char s_dummy2[60];
-	u_char s_fsname[12];
+	uint8_t s_magic[4];
+	uint8_t s_dummy[28];
+	uint8_t s_uuid[16];
+	uint8_t s_dummy2[60];
+	uint8_t s_fsname[12];
 };
 
 #define REISER_SUPER_MAGIC	"ReIsEr2Fs"
 struct reiserfs_super_block {
-	u_char s_dummy1[52];
-	u_char s_magic[10];
-	u_char s_dummy2[22];
-	u_char s_uuid[16];
-	u_char s_volume_name[16];
+	uint8_t s_dummy1[52];
+	uint8_t s_magic[10];
+	uint8_t s_dummy2[22];
+	uint8_t s_uuid[16];
+	uint8_t s_volume_name[16];
 };
 
 #define F2FS_SUPER_MAGIC	"0xF2F52010"
 struct f2fs_super_block {
-	u_char s_magic[8];
-	u_char s_dummy[144];
-	u_char s_uuid[16];
-	u_char s_volume_name[512];
+	uint8_t s_magic[8];
+	uint8_t s_dummy[144];
+	uint8_t s_uuid[16];
+	uint8_t s_volume_name[512];
 };
 
 static inline unsigned short swapped(unsigned short a)
@@ -242,7 +243,7 @@ static char *get_spec_by_x(int n, const char *t)
 	return NULL;
 }
 
-static u_char fromhex(char c)
+static uint8_t fromhex(char c)
 {
 	if (isdigit(c))
 		return (c - '0');
@@ -254,7 +255,7 @@ static u_char fromhex(char c)
 
 static char *get_spec_by_uuid(const char *s)
 {
-	u_char uuid[16];
+	uint8_t uuid[16];
 	int i;
 
 	if (strlen(s) != 36 || s[8] != '-' || s[13] != '-' || s[18] != '-' || s[23] != '-')

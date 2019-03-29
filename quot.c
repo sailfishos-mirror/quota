@@ -47,6 +47,7 @@
 #include <utmp.h>
 #include <pwd.h>
 #include <grp.h>
+#include <stdint.h>
 
 #include "pot.h"
 #include "quot.h"
@@ -56,8 +57,8 @@
 #include "quotasys.h"
 
 #define	TSIZE	500
-static __uint64_t sizes[TSIZE];
-static __uint64_t overflow;
+static uint64_t sizes[TSIZE];
+static uint64_t overflow;
 
 static int aflag;
 static int cflag;
@@ -72,7 +73,7 @@ static time_t now;
 char *progname;
 
 static void mounttable(void);
-static char *idname(__uint32_t, int);
+static char *idname(uint32_t, int);
 static void report(const char *, const char *, int);
 static void creport(const char *, const char *);
 
@@ -174,7 +175,7 @@ static int qcmp(du_t * p1, du_t * p2)
 static void creport(const char *file, const char *fsdir)
 {
 	int i;
-	__uint64_t t = 0;
+	uint64_t t = 0;
 
 	printf(_("%s (%s):\n"), file, fsdir);
 	for (i = 0; i < TSIZE - 1; i++)
@@ -220,7 +221,7 @@ static void report(const char *file, const char *fsdir, int type)
 	}
 }
 
-static idcache_t *getnextent(int type, __uint32_t id, int byid)
+static idcache_t *getnextent(int type, uint32_t id, int byid)
 {
 	struct passwd *pw;
 	struct group  *gr;
@@ -241,7 +242,7 @@ static idcache_t *getnextent(int type, __uint32_t id, int byid)
 	return &idc;
 }
 
-static char *idname(__uint32_t id, int type)
+static char *idname(uint32_t id, int type)
 {
 	idcache_t *ncp, *idp;
 	static idcache_t nc[2][NID];
@@ -287,8 +288,8 @@ static void acctXFS(xfs_bstat_t *p)
 {
 	register du_t *dp;
 	du_t **hp;
-	__uint64_t size;
-	__uint32_t i, id;
+	uint64_t size;
+	uint32_t i, id;
 
 	if ((p->bs_mode & S_IFMT) == 0)
 		return;
