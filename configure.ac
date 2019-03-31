@@ -59,15 +59,16 @@ AS_IF([test "x${prefix}" = "xNONE"], [
 # ================
 # Check for cflags
 # ================
-CFLAGS="$CFLAGS -Wall -fPIC"
+WARN_CFLAGS="-Wall"
 AC_ARG_ENABLE([werror],
     [AS_HELP_STRING([--enable-werror], [Treat all warnings as errors, useful for development])],
     [enable_werror="$enableval"],
     [enable_werror=no]
 )
 AS_IF([test x"$enable_werror" != "xno"], [
-    CFLAGS="$CFLAGS -Werror"
+    WARN_CFLAGS="$WARN_CFLAGS -Werror"
 ])
+AC_SUBST([WARN_CFLAGS])
 
 # =========
 # Find ldap

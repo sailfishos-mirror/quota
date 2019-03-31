@@ -1,5 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4
 AM_LDFLAGS = -pie
+AM_CFLAGS = -fPIC @WARN_CFLAGS@
 
 doc_DATA = \
 	README.mailserver \
@@ -49,7 +50,7 @@ EXTRA_DIST = \
 noinst_LIBRARIES = libquota.a
 
 if WITH_RPC
-CFLAGS += $(TIRPC_CFLAGS)
+AM_CFLAGS += $(TIRPC_CFLAGS)
 
 rpcsvcdir = $(includedir)/rpcsvc
 rpcsvc_DATA = \
@@ -64,7 +65,7 @@ librpcclient_a_SOURCES = \
 	rquota_client.c \
 	rquota_client.h \
 	rquota_clnt.c
-librpcclient_a_CFLAGS = -Wno-unused
+librpcclient_a_CFLAGS = $(AM_CFLAGS) -Wno-unused
 
 RPCLIBS = librpcclient.a
 BUILT_SOURCES = rquota.h rquota.c rquota_clnt.c
@@ -147,6 +148,7 @@ quotacheck_SOURCES = \
 	quota_tree.h \
 	quotaops.c
 quotacheck_CFLAGS = \
+	$(AM_CFLAGS) \
 	$(EXT2FS_CFLAGS) \
 	$(COM_ERR_CFLAGS)
 quotacheck_LDADD = \
@@ -252,6 +254,7 @@ endif
 
 quota_nld_SOURCES = quota_nld.c
 quota_nld_CFLAGS = \
+	$(AM_CFLAGS) \
 	$(DBUS_CFLAGS) \
 	$(LIBNL3_CFLAGS)
 quota_nld_LDADD = \
