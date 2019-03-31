@@ -135,6 +135,7 @@ quotaon_SOURCES = \
 	quotaon_xfs.c
 quotaon_LDADD = \
 	libquota.a \
+	$(INTLLIBS) \
 	$(RPCLIBS) \
 	$(TIRPC_LIBS)
 
@@ -152,6 +153,7 @@ quotacheck_LDADD = \
 	libquota.a \
 	$(EXT2FS_LIBS) \
 	$(COM_ERR_LIBS) \
+	$(INTLLIBS) \
 	$(RPCLIBS) \
 	$(TIRPC_LIBS)
 
@@ -162,24 +164,28 @@ quota_SOURCES = \
 	quotaops.h
 quota_LDADD = \
 	libquota.a \
+	$(INTLLIBS) \
 	$(RPCLIBS) \
 	$(TIRPC_LIBS)
 
 quotasync_SOURCES = quotasync.c
 quotasync_LDADD = \
 	libquota.a \
+	$(INTLLIBS) \
 	$(RPCLIBS) \
 	$(TIRPC_LIBS)
 
 repquota_SOURCES = repquota.c
 repquota_LDADD = \
 	libquota.a \
+	$(INTLLIBS) \
 	$(RPCLIBS) \
 	$(TIRPC_LIBS)
 
 warnquota_SOURCES = warnquota.c
 warnquota_LDADD = \
 	libquota.a \
+	$(INTLLIBS) \
 	$(LDAP_LIBS) \
 	$(RPCLIBS) \
 	$(TIRPC_LIBS)
@@ -191,6 +197,9 @@ quotastats_SOURCES = \
 	pot.c \
 	pot.h
 
+quotastats_LDADD = \
+	$(INTLLIBS)
+
 xqmstats_SOURCES = \
 	xqmstats.c \
 	common.c \
@@ -198,12 +207,16 @@ xqmstats_SOURCES = \
 	pot.c \
 	pot.h
 
+xqmstats_LDADD = \
+	$(INTLLIBS)
+
 edquota_SOURCES = \
 	edquota.c \
 	quotaops.c \
 	quotaops.h
 edquota_LDADD = \
 	libquota.a \
+	$(INTLLIBS) \
 	$(RPCLIBS) \
 	$(TIRPC_LIBS)
 
@@ -213,12 +226,14 @@ setquota_SOURCES = \
 	quotaops.h
 setquota_LDADD = \
 	libquota.a \
+	$(INTLLIBS) \
 	$(RPCLIBS) \
 	$(TIRPC_LIBS)
 
 convertquota_SOURCES = convertquota.c
 convertquota_LDADD = \
 	libquota.a \
+	$(INTLLIBS) \
 	$(RPCLIBS) \
 	$(TIRPC_LIBS)
 
@@ -229,6 +244,7 @@ rpc_rquotad_SOURCES = \
 	svc_socket.c
 rpc_rquotad_LDADD = \
 	libquota.a \
+	$(INTLLIBS) \
 	$(WRAP_LIBS) \
 	$(RPCLIBS) \
 	$(TIRPC_LIBS)
@@ -240,6 +256,7 @@ quota_nld_CFLAGS = \
 	$(LIBNL3_CFLAGS)
 quota_nld_LDADD = \
 	libquota.a \
+	$(INTLLIBS) \
 	$(RPCLIBS) \
 	$(TIRPC_LIBS) \
 	$(DBUS_LIBS) \
