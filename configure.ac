@@ -104,13 +104,13 @@ AC_ARG_ENABLE([ext2direct],
 )
 AS_IF([test "x$enable_ext2direct" != "xno"], [
     build_ext2direct="yes"
-    PKG_CHECK_MODULES([COM_ERR],[com_err], [CFLAGS="$CFLAGS $COM_ERR_CFLAGS" LIBS="$LIBS $COMM_ERR_LIBS"], [
+    PKG_CHECK_MODULES([COM_ERR],[com_err], [], [
         build_ext2direct="no"
         AS_IF([test "x$enable_ext2direct" = "xyes"], [
             AC_MSG_ERROR([Ext2direct requested but required com_err library not found])
         ])
     ])
-    PKG_CHECK_MODULES([EXT2FS],[ext2fs], [CFLAGS="$CFLAGS $EXT2FS_CFLAGS" LIBS="$LIBS $EXT2FS_LIBS"], [
+    PKG_CHECK_MODULES([EXT2FS],[ext2fs], [], [
         build_ext2direct="no"
         AS_IF([test "x$enable_ext2direct" = "xyes"], [
             AC_MSG_ERROR([Ext2direct requested but required ext2fs library not found])
@@ -138,13 +138,13 @@ AC_ARG_ENABLE([netlink],
 )
 AS_IF([test "x$enable_netlink" != "xno"], [
     build_netlink="yes"
-    PKG_CHECK_MODULES([DBUS], [dbus-1], [CFLAGS="$CFLAGS $DBUS_CFLAGS" LIBS="$LIBS $DBUS_LIBS"], [
+    PKG_CHECK_MODULES([DBUS], [dbus-1], [], [
         build_netlink="no"
         AS_IF([test "x$enable_netlink" = "xyes"] , [
             AC_MSG_ERROR([Required dbus libraries for quota netlink daemon not found.])
         ])
     ])
-    PKG_CHECK_MODULES([LIBNL3], [libnl-3.0 >= 3.1 libnl-genl-3.0], [CFLAGS="$CFLAGS $LIBNL3_CFLAGS" LIBS="$LIBS $LIBNL3_LIBS"], [
+    PKG_CHECK_MODULES([LIBNL3], [libnl-3.0 >= 3.1 libnl-genl-3.0], [], [
         build_netlink="no"
         AS_IF([test "x$enable_netlink" = "xyes"] , [
             AC_MSG_ERROR([Required libnl3 libraries for quota netlink daemon not found.])
@@ -207,7 +207,7 @@ AS_IF([test x"$enable_rpc" != "xno"], [
 	build_rpc="no"
     ])
 
-    PKG_CHECK_MODULES([TIRPC], [libtirpc], [CFLAGS="$CFLAGS $TIRPC_CFLAGS" LIBS="$LIBS $TIRPC_LIBS"], [
+    PKG_CHECK_MODULES([TIRPC], [libtirpc], [], [
 	AS_IF([test x"$enable_rpc" = "xyes"], [
 	    AC_MSG_ERROR([could not locate required libtirpc])
 	], [
