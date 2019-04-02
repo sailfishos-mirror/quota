@@ -55,6 +55,18 @@ AS_IF([test "x${prefix}" = "xNONE"], [
   AC_DEFINE_UNQUOTED(PACKAGE_LOCALE_DIR, "${prefix}/share/locale", [Locale-specific data directory])
 ])
 
+# ================
+# Check for ldflags
+# ================
+AC_ARG_ENABLE([pie],
+   [AS_HELP_STRING([--disable-pie], [Disable Position Independent Executable])],
+   [enable_pie="$enableval"],
+   [enable_pie=yes]
+)
+AS_IF([test x"$enable_pie" != "xno"], [
+    PIE_LDFLAGS="-pie"
+])
+AC_SUBST([PIE_LDFLAGS])
 
 # ================
 # Check for cflags
