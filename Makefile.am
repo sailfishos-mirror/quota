@@ -6,10 +6,7 @@ doc_DATA = \
 	README.mailserver \
 	README.ldap-support \
 	set_limits_example.c \
-	doc/quotadoc.sgml \
-	doc/quotas.ms \
-	doc/quotas.preformated \
-	doc/quotas-1.eps
+	doc/quotadoc.sgml
 
 sysconf_DATA = \
 	warnquota.conf \
