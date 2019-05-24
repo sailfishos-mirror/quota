@@ -168,7 +168,7 @@ static int showquotas(int type, qid_t id, int mntcnt, char **mnt)
 		((flags & FL_NOAUTOFS) ? MS_NO_AUTOFS : 0)
 		| ((flags & FL_LOCALONLY) ? MS_LOCALONLY : 0)
 		| ((flags & FL_NFSALL) ? MS_NFS_ALL : 0));
-	qlist = getprivs(id, handles, !!(flags & FL_QUIETREFUSE));
+	qlist = getprivs(id, handles, !mntcnt || (flags & FL_QUIETREFUSE));
 	if (!qlist) {
 		over = 1;
 		goto out_handles;

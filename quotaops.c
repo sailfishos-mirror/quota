@@ -125,7 +125,7 @@ struct dquot *getprivs(qid_t id, struct quota_handle **handles, int quiet)
 
 		if (!(q = handles[i]->qh_ops->read_dquot(handles[i], id))) {
 			/* If rpc.rquotad is not running filesystem might be just without quotas... */
-			if (errno != ENOENT && (errno != ECONNREFUSED || !quiet)) {
+			if (!quiet || (errno != ENOENT && errno != ECONNREFUSED)) {
 				int olderrno = errno;
 
 				id2name(id, handles[i]->qh_type, name);

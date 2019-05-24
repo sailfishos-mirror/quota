@@ -314,7 +314,7 @@ static int setlimits(struct quota_handle **handles)
 	struct dquot *q, *protoq, *protoprivs = NULL, *curprivs;
 	int ret = 0;
 
-	curprivs = getprivs(id, handles, 0);
+	curprivs = getprivs(id, handles, !!(flags & FL_ALL));
 	if (flags & FL_PROTO) {
 		protoprivs = getprivs(protoid, handles, 0);
 		for (q = curprivs, protoq = protoprivs; q && protoq; q = q->dq_next, protoq = protoq->dq_next) {
@@ -435,7 +435,7 @@ static int batch_setlimits(struct quota_handle **handles)
 	int ret = 0;
 
 	while (!read_entry(&id, &isoftlimit, &ihardlimit, &bsoftlimit, &bhardlimit)) {
-		curprivs = getprivs(id, handles, 0);
+		curprivs = getprivs(id, handles, !!(flags & FL_ALL));
 		for (q = curprivs; q; q = q->dq_next) {
 			q->dq_dqb.dqb_bsoftlimit = bsoftlimit;
 			q->dq_dqb.dqb_bhardlimit = bhardlimit;
@@ -474,7 +474,7 @@ static int setindivgraces(struct quota_handle **handles)
 	int ret = 0;
 	struct dquot *q, *curprivs;
 
-	curprivs = getprivs(id, handles, 0);
+	curprivs = getprivs(id, handles, !!(flags & FL_ALL));
 	for (q = curprivs; q; q = q->dq_next) {
 		if (q->dq_dqb.dqb_bsoftlimit && toqb(q->dq_dqb.dqb_curspace) > q->dq_dqb.dqb_bsoftlimit)
 			q->dq_dqb.dqb_btime = toset.dqb_btime;

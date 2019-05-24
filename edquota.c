@@ -176,7 +176,7 @@ static void copy_prototype(int argc, char **argv, struct quota_handle **handles)
 	protoprivs = getprivs(protoid, handles, 0);
 	while (argc-- > 0) {
 		id = name2id(*argv, quotatype, !!(flags & FL_NUMNAMES), NULL);
-		curprivs = getprivs(id, handles, 0);
+		curprivs = getprivs(id, handles, !dirname);
 		if (!curprivs)
 			die(1, _("Cannot get quota information for user %s\n"), *argv);
 		argv++;
@@ -296,7 +296,7 @@ int main(int argc, char **argv)
 	else {
 		for (; argc > 0; argc--, argv++) {
 			id = name2id(*argv, quotatype, !!(flags & FL_NUMNAMES), NULL);
-			curprivs = getprivs(id, handles, 0);
+			curprivs = getprivs(id, handles, !dirname);
 			if (!curprivs)
 				die(1, _("Cannot get quota information for user %s.\n"), *argv);
 			if (flags & FL_EDIT_TIMES) {
