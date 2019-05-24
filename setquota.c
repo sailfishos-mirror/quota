@@ -315,8 +315,17 @@ static int setlimits(struct quota_handle **handles)
 	int ret = 0;
 
 	curprivs = getprivs(id, handles, !!(flags & FL_ALL));
+	if (!curprivs) {
+		errstr(_("Error getting quota information to update.\n"));
+		return -1;
+	}
 	if (flags & FL_PROTO) {
 		protoprivs = getprivs(protoid, handles, 0);
+		if (!protoprivs) {
+			errstr(_("Error getting prototype quota information.\n"));
+			ret = -1;
+			goto out;
+		}
 		for (q = curprivs, protoq = protoprivs; q && protoq; q = q->dq_next, protoq = protoq->dq_next) {
 			q->dq_dqb.dqb_bsoftlimit = protoq->dq_dqb.dqb_bsoftlimit;
 			q->dq_dqb.dqb_bhardlimit = protoq->dq_dqb.dqb_bhardlimit;
@@ -337,6 +346,7 @@ static int setlimits(struct quota_handle **handles)
 	}
 	if (putprivs(curprivs, COMMIT_LIMITS) == -1)
 		ret = -1;
+out:
 	freeprivs(curprivs);
 	return ret;
 }
@@ -436,6 +446,10 @@ static int batch_setlimits(struct quota_handle **handles)
 
 	while (!read_entry(&id, &isoftlimit, &ihardlimit, &bsoftlimit, &bhardlimit)) {
 		curprivs = getprivs(id, handles, !!(flags & FL_ALL));
+		if (!curprivs) {
+			errstr(_("Error getting quota information to update.\n"));
+			return -1;
+		}
 		for (q = curprivs; q; q = q->dq_next) {
 			q->dq_dqb.dqb_bsoftlimit = bsoftlimit;
 			q->dq_dqb.dqb_bhardlimit = bhardlimit;
@@ -475,6 +489,10 @@ static int setindivgraces(struct quota_handle **handles)
 	struct dquot *q, *curprivs;
 
 	curprivs = getprivs(id, handles, !!(flags & FL_ALL));
+	if (!curprivs) {
+		errstr(_("Error getting quota information to update.\n"));
+		return -1;
+	}
 	for (q = curprivs; q; q = q->dq_next) {
 		if (q->dq_dqb.dqb_bsoftlimit && toqb(q->dq_dqb.dqb_curspace) > q->dq_dqb.dqb_bsoftlimit)
 			q->dq_dqb.dqb_btime = toset.dqb_btime;
