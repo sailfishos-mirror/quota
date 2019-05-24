@@ -61,7 +61,7 @@ void update_grace_times(struct dquot *q)
 /*
  * Collect the requested quota information.
  */
-struct dquot *getprivs(qid_t id, struct quota_handle **handles, int quiet)
+struct dquot *getprivs(qid_t id, struct quota_handle **handles, int ignore_noquota)
 {
 	struct dquot *q, *qtail = NULL, *qhead = NULL;
 	int i;
@@ -124,15 +124,18 @@ struct dquot *getprivs(qid_t id, struct quota_handle **handles, int quiet)
 #endif
 
 		if (!(q = handles[i]->qh_ops->read_dquot(handles[i], id))) {
-			/* If rpc.rquotad is not running filesystem might be just without quotas... */
-			if (!quiet || (errno != ENOENT && errno != ECONNREFUSED)) {
-				int olderrno = errno;
+			int olderrno = errno;
 
-				id2name(id, handles[i]->qh_type, name);
-				errstr(_("error while getting quota from %s for %s (id %u): %s\n"),
-					handles[i]->qh_quotadev, name, id, strerror(olderrno));
-			}
-			continue;
+			/* If rpc.rquotad is not running filesystem might be just without quotas... */
+			if (ignore_noquota &&
+			    (errno == ENOENT || errno == ECONNREFUSED))
+				continue;
+
+			id2name(id, handles[i]->qh_type, name);
+			errstr(_("error while getting quota from %s for %s (id %u): %s\n"),
+				handles[i]->qh_quotadev, name, id, strerror(olderrno));
+			freeprivs(qhead);
+			return NULL;
 		}
 		if (qhead == NULL)
 			qhead = q;
