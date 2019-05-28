@@ -148,7 +148,6 @@ int rpc_rquota_get(struct dquot *dquot)
 	} args;
 	char *fsname_tmp, *host, *pathname;
 	struct timeval timeout = { 2, 0 };
-	int rquotaprog_not_registered = 0;
 	int ret;
 
 	/*
@@ -210,8 +209,6 @@ int rpc_rquota_get(struct dquot *dquot)
 	}
 	else {
 		result = NULL;
-		if (rpc_createerr.cf_stat == RPC_PROGNOTREGISTERED)
-			rquotaprog_not_registered = 1;
 	}
 
 	if (result == NULL || !result->status) {
@@ -251,16 +248,12 @@ int rpc_rquota_get(struct dquot *dquot)
 				clnt_destroy(clnt);
 			} else {
 				result = NULL;
-				if (rpc_createerr.cf_stat == RPC_PROGNOTREGISTERED)
-					    rquotaprog_not_registered = 1;
 			}
 		}
 	}
 	free(fsname_tmp);
 	if (result)
 		ret = result->status;
-	else if (rquotaprog_not_registered)
-		ret = Q_NOQUOTA;
 	else
 		ret = -1;
 	return rquota_err(ret);
@@ -280,7 +273,6 @@ int rpc_rquota_set(int qcmd, struct dquot *dquot)
 	} args;
 	char *fsname_tmp, *host, *pathname;
 	struct timeval timeout = { 2, 0 };
-	int rquotaprog_not_registered = 0;
 	int ret;
 
 	/* RPC limits values to 32b variables. Prevent value wrapping. */
@@ -340,8 +332,6 @@ int rpc_rquota_set(int qcmd, struct dquot *dquot)
 	}
 	else {
 		result = NULL;
-		if (rpc_createerr.cf_stat == RPC_PROGNOTREGISTERED)
-			rquotaprog_not_registered = 1;
 	}
 
 	if (result == NULL || !result->status) {
@@ -383,16 +373,12 @@ int rpc_rquota_set(int qcmd, struct dquot *dquot)
 				clnt_destroy(clnt);
 			} else {
 				result = NULL;
-				if (rpc_createerr.cf_stat == RPC_PROGNOTREGISTERED)
-					rquotaprog_not_registered = 1;
 			}
 		}
 	}
 	free(fsname_tmp);
 	if (result)
 		ret = result->status;
-	else if (rquotaprog_not_registered)
-		ret = Q_NOQUOTA;
 	else
 		ret = -1;
 	return rquota_err(ret);

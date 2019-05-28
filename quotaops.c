@@ -124,16 +124,20 @@ struct dquot *getprivs(qid_t id, struct quota_handle **handles, int ignore_noquo
 #endif
 
 		if (!(q = handles[i]->qh_ops->read_dquot(handles[i], id))) {
-			int olderrno = errno;
+			char *estr;
 
-			/* If rpc.rquotad is not running filesystem might be just without quotas... */
-			if (ignore_noquota &&
-			    (errno == ENOENT || errno == ECONNREFUSED))
+			/* If rpc.rquotad is not running, filesystem might be just without quotas... */
+			if (ignore_noquota && errno == ECONNREFUSED)
 				continue;
 
+			if (errno == ECONNREFUSED) {
+				estr = "Cannot connect to RPC quota service";
+			} else {
+				estr = strerror(errno);
+			}
 			id2name(id, handles[i]->qh_type, name);
 			errstr(_("error while getting quota from %s for %s (id %u): %s\n"),
-				handles[i]->qh_quotadev, name, id, strerror(olderrno));
+				handles[i]->qh_quotadev, name, id, estr);
 out_err:
 			freeprivs(qhead);
 			return NULL;
