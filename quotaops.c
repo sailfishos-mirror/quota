@@ -131,7 +131,7 @@ struct dquot *getprivs(qid_t id, struct quota_handle **handles, int ignore_noquo
 				continue;
 
 			if (errno == ECONNREFUSED) {
-				estr = "Cannot connect to RPC quota service";
+				estr = _("Cannot connect to RPC quota service");
 			} else {
 				estr = strerror(errno);
 			}
