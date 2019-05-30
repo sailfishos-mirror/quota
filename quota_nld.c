@@ -403,12 +403,12 @@ static char *build_pid_file_name(void)
 		errstr(_("Undefined program name.\n"));
 		return NULL;
 	}
-	pid_name = malloc(9 + strlen(progname) + 4 + 1);
+	pid_name = malloc(strlen(PID_DIR) + 1 + strlen(progname) + 4 + 1);
 	if (!pid_name) {
 		errstr(_("Not enough memory to build PID file name.\n"));
 		return NULL;
 	}
-	sprintf(pid_name, "/var/run/%s.pid", progname);
+	sprintf(pid_name, "%s/%s.pid", PID_DIR, progname);
 	return pid_name;
 }
 

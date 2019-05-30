@@ -277,6 +277,15 @@ AS_IF([test "$with_proc_mounts" != "no"], [
     AC_DEFINE_UNQUOTED([ALT_MTAB], ["$with_proc_mounts"], [File with mounted filesystems])
 ])
 
+AC_ARG_WITH([pid-dir],
+    [AS_HELP_STRING([--with-pid-dir=DIRECTORY], [Create PID files in this directory instead of /var/run])],
+    [with_pid_dir="$withval"]
+)
+AS_IF([test "X$with_pid_dir" == "X" -o "$with_pid_dir" == "yes" -o "$with_pid_dir" == "no"],[
+    with_pid_dir="/var/run"
+])
+AC_DEFINE_UNQUOTED([PID_DIR], ["$with_pid_dir"], [Directory for PID files])
+
 AC_DEFINE_UNQUOTED([COMPILE_OPTS], ["$COMPILE_OPTS"], [Configuration options])
 
 AC_CONFIG_FILES([
@@ -297,6 +306,7 @@ Build configuration:
 	libwrap:         ${build_libwrap}
 	netlink:         ${build_netlink}
 	nls:             ${enable_nls}
+	pid-dir:         ${with_pid_dir}
 	proc-mounts:     ${with_proc_mounts}
 	rpc:             ${build_rpc}
 	rpcsetquota:     ${enable_rpcsetquota}
