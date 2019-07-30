@@ -1181,11 +1181,11 @@ static int check_all(void)
 			continue;
 		}
 		cfmt = fmt;
-		if (uwant && me_hasquota(mnt, USRQUOTA))
+		if (uwant && me_hasquota(mnt, USRQUOTA) && mnt->me_qfmt[USRQUOTA] != QF_META)
 			ucheck = 1;
 		else
 			ucheck = 0;
-		if (gwant && me_hasquota(mnt, GRPQUOTA))
+		if (gwant && me_hasquota(mnt, GRPQUOTA) && mnt->me_qfmt[GRPQUOTA] != QF_META)
 			gcheck = 1;
 		else
 			gcheck = 0;
