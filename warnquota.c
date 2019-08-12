@@ -1042,7 +1042,7 @@ static void usage(void)
 -q, --quota-tab=quotatab-file   non-default quotatab\n\
 -a, --admins-file=admins-file   non-default admins file\n\
 -h, --help                      display this help message and exit\n\
--v, --version                   display version information and exit\n\n"));
+-V, --version                   display version information and exit\n\n"));
 	errstr(_("Bugs to %s\n"), PACKAGE_BUGREPORT);
 	wc_exit(1);
 }
