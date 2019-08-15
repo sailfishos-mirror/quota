@@ -61,17 +61,22 @@ void die(int ret, char *fmtstr, ...)
 	exit(ret);
 }
 
-void errstr(char *fmtstr, ...)
+void errstrv(char *fmtstr, va_list args)
 {
-	va_list args;
-
-	va_start(args, fmtstr);
 	if (enable_syslog)
 		do_syslog(LOG_ERR, fmtstr, args);
 	else {
 		fprintf(stderr, "%s: ", progname);
 		vfprintf(stderr, fmtstr, args);
 	}
+}
+
+void errstr(char *fmtstr, ...)
+{
+	va_list args;
+
+	va_start(args, fmtstr);
+	errstrv(fmtstr, args);
 	va_end(args);
 }
 

@@ -8,6 +8,7 @@
 #define GUARD_COMMON_H
 
 #include <time.h>
+#include <stdarg.h>
 
 #ifndef __attribute__
 # if !defined __GNUC__ || __GNUC__ < 2 || (__GNUC__ == 2 && __GNUC_MINOR__ < 8) || __STRICT_ANSI__
@@ -20,6 +21,9 @@ extern char *progname;
 
 /* Finish programs being */
 void __attribute ((noreturn)) die(int, char *, ...) __attribute__ ((__format__ (__printf__, 2, 3)));
+
+/* Print error from va_list */
+void errstrv(char *, va_list);
 
 /* Print an error */
 void errstr(char *, ...) __attribute__ ((__format__ (__printf__, 1, 2)));
