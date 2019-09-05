@@ -201,7 +201,7 @@ static int setup_ldap(struct configparams *config)
 		}
 	}
 	ret = ldap_sasl_bind_s(ldapconn, config->ldap_binddn, LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL);
-	if(ret < 0) {
+	if (ret != LDAP_SUCCESS) {
 		errstr(_("ldap_sasl_bind_s() failed: %s\n"), ldap_err2string(ret));
 		return -1;
 	}
@@ -426,7 +426,7 @@ static char *lookup_user(struct configparams *config, char *user)
 		searchbuf, NULL, 0, NULL, NULL, NULL,
 		0, &result);
 
-	if (ret < 0) {
+	if (ret != LDAP_SUCCESS) {
 		errstr(_("Error with %s.\n"), user);
 		errstr(_("ldap_search_ext_s() failed: %s\n"), ldap_err2string(ret));
 		return NULL;
