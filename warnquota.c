@@ -178,6 +178,22 @@ static void wc_exit(int ex_stat)
 }
 
 #ifdef USE_LDAP_MAIL_LOOKUP
+
+#define LDAP_ERR_BUF_SIZE 1024
+
+static void print_ldap_error(int err, char *prefix)
+{
+	char *msg = NULL;
+	char outbuf[LDAP_ERR_BUF_SIZE];
+
+	sstrncpy(outbuf, prefix, LDAP_ERR_BUF_SIZE);
+	sstrncat(outbuf, ": %s\n", LDAP_ERR_BUF_SIZE);
+	errstr(outbuf, ldap_err2string(err));
+	ldap_get_option(ldapconn, LDAP_OPT_DIAGNOSTIC_MESSAGE, (void *)&msg);
+	if (msg && strcmp(msg, ""))
+		errstr(_("Additional error info: %s\n"), msg);
+}
+
 static int setup_ldap(struct configparams *config)
 {
 	int ret;
@@ -187,7 +203,7 @@ static int setup_ldap(struct configparams *config)
 	ret = ldap_initialize(&ldapconn, config->ldap_uri);
 
 	if (ret != LDAP_SUCCESS) {
-		errstr(_("ldap_initialize() failed: %s\n"), ldap_err2string(ret));
+		print_ldap_error(ret, _("ldap_initialize() failed"));
 		return -1;
 	}
 
@@ -196,13 +212,13 @@ static int setup_ldap(struct configparams *config)
 		ldap_set_option(ldapconn, LDAP_OPT_X_TLS_REQUIRE_CERT, &(config->ldap_tls));
 		ret = ldap_start_tls_s(ldapconn, NULL, NULL);
 		if (ret != LDAP_SUCCESS) {
-			errstr(_("ldap_start_tls_s() failed: %s\n"), ldap_err2string(ret));
-		    return -1;
+			print_ldap_error(ret, _("ldap_start_tls_s() failed"));
+			return -1;
 		}
 	}
 	ret = ldap_sasl_bind_s(ldapconn, config->ldap_binddn, LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL);
 	if (ret != LDAP_SUCCESS) {
-		errstr(_("ldap_sasl_bind_s() failed: %s\n"), ldap_err2string(ret));
+		print_ldap_error(ret, _("ldap_sasl_bind_s() failed"));
 		return -1;
 	}
 	return 0;
@@ -428,7 +444,7 @@ static char *lookup_user(struct configparams *config, char *user)
 
 	if (ret != LDAP_SUCCESS) {
 		errstr(_("Error with %s.\n"), user);
-		errstr(_("ldap_search_ext_s() failed: %s\n"), ldap_err2string(ret));
+		print_ldap_error(ret, _("ldap_search_ext_s() failed"));
 		return NULL;
 	}
 		
