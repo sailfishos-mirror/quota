@@ -759,13 +759,13 @@ static int readconfigfile(const char *filename, struct configparams *config)
 	char *locale;
 
 	/* set default values */
+	memset(config, 0, sizeof(*config));
 	sstrncpy(config->mail_cmd, MAIL_CMD, CNF_BUFFER);
 	sstrncpy(config->from, FROM, CNF_BUFFER);
 	sstrncpy(config->subject, SUBJECT, CNF_BUFFER);
 	sstrncpy(config->cc_to, CC_TO, CNF_BUFFER);
 	sstrncpy(config->support, SUPPORT, CNF_BUFFER);
 	sstrncpy(config->phone, PHONE, CNF_BUFFER);
-	(config->charset)[0] = '\0';
 	setlocale(LC_ALL, NULL);
 	locale = setlocale(LC_MESSAGES, NULL);
 #ifdef HAVE_NL_LANGINFO
@@ -775,17 +775,11 @@ static int readconfigfile(const char *filename, struct configparams *config)
 	}
 #endif
 	maildev[0] = 0;
-	config->user_signature = config->user_message = config->group_signature = config->group_message = NULL;
 	config->cc_before = -1;
 
 #ifdef USE_LDAP_MAIL_LOOKUP
-	config->use_ldap_mail = 0;
-	config->ldap_starttls = 0;
 	config->ldap_tls = LDAP_OPT_X_TLS_NEVER;
 	config->ldap_vers = LDAP_VERSION3;
-	config->ldap_port = config->ldap_is_setup = 0;
-	config->ldap_host[0] = 0;
-	config->ldap_uri[0] = 0;
 #endif
 
 	if (!(fp = fopen(filename, "r"))) {
