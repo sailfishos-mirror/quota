@@ -190,8 +190,11 @@ static void print_ldap_error(int err, char *prefix)
 	sstrncat(outbuf, ": %s\n", LDAP_ERR_BUF_SIZE);
 	errstr(outbuf, ldap_err2string(err));
 	ldap_get_option(ldapconn, LDAP_OPT_DIAGNOSTIC_MESSAGE, (void *)&msg);
-	if (msg && strcmp(msg, ""))
+	if (msg) {
+	    if (strcmp(msg, ""))
 		errstr(_("Additional error info: %s\n"), msg);
+	    ldap_memfree(msg);
+	}
 }
 
 static int setup_ldap(struct configparams *config)
