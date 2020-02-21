@@ -127,11 +127,13 @@ struct dquot *getprivs(qid_t id, struct quota_handle **handles, int ignore_noquo
 			char *estr;
 
 			/* If rpc.rquotad is not running, filesystem might be just without quotas... */
-			if (ignore_noquota && errno == ECONNREFUSED)
+			if (ignore_noquota && (errno == ENOENT || errno == ECONNREFUSED))
 				continue;
 
 			if (errno == ECONNREFUSED) {
 				estr = _("Cannot connect to RPC quota service");
+			} else if (errno == ENOENT) {
+				estr = _("Quota not enabled");
 			} else {
 				estr = strerror(errno);
 			}
