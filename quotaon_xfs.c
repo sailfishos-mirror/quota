@@ -32,7 +32,7 @@ static int xfs_state_check(int qcmd, int type, int flags, const char *dev, int r
 	if (flags & STATEFLAG_ALL)
 		return 0;	/* noop */
 
-	if (quotactl(QCMD(Q_XFS_GETQSTAT, 0), dev, 0, (void *)&info) < 0) {
+	if (quotactl(QCMD(Q_XFS_GETQSTAT, type), dev, 0, (void *)&info) < 0) {
 		errstr(_("quotactl() on %s: %s\n"), dev, strerror(errno));
 		return -1;
 	}

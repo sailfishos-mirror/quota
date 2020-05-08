@@ -81,7 +81,7 @@ static int xfs_init_io(struct quota_handle *h)
 	struct xfs_mem_dqinfo info;
 	int qcmd;
 
-	qcmd = QCMD(Q_XFS_GETQSTAT, 0);
+	qcmd = QCMD(Q_XFS_GETQSTAT, h->qh_type);
 	memset(&info, 0, sizeof(struct xfs_mem_dqinfo));
 	if (quotactl(qcmd, h->qh_quotadev, 0, (void *)&info) < 0)
 		return -1;
