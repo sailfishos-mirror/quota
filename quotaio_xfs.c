@@ -165,7 +165,9 @@ static int xfs_commit_dquot(struct dquot *dquot, int flags)
 		if (flags & COMMIT_USAGE) /* block usage */
 			xdqblk.d_fieldmask |= FS_DQ_BCOUNT;
 	} else {
-		xdqblk.d_fieldmask |= FS_DQ_LIMIT_MASK;
+		if (flags & COMMIT_LIMITS) /* warn/limit */
+			xdqblk.d_fieldmask |= FS_DQ_BSOFT | FS_DQ_BHARD |
+						FS_DQ_ISOFT | FS_DQ_IHARD;
 		if (flags & COMMIT_TIMES) /* indiv grace period */
 			xdqblk.d_fieldmask |= FS_DQ_TIMER_MASK;
 	}
