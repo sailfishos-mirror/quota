@@ -42,6 +42,29 @@ scan_dquots:	xfs_scan_dquots,
 report:		xfs_report
 };
 
+static inline time_t xfs_kern2utildqblk_ts(const struct xfs_kern_dqblk *k,
+		__s32 timer, __s8 timer_hi)
+{
+	if (k->d_fieldmask & FS_DQ_BIGTIME)
+		return (__u32)timer | (__s64)timer_hi << 32;
+	return timer;
+}
+
+static inline void xfs_util2kerndqblk_ts(const struct xfs_kern_dqblk *k,
+		__s32 *timer_lo, __s8 *timer_hi, time_t timer)
+{
+	*timer_lo = timer;
+	if (k->d_fieldmask & FS_DQ_BIGTIME)
+		*timer_hi = timer >> 32;
+	else
+		*timer_hi = 0;
+}
+
+static inline int want_bigtime(time_t timer)
+{
+	return timer > INT32_MAX || timer < INT32_MIN;
+}
+
 /*
  *	Convert XFS kernel quota format to utility format
  */
@@ -53,8 +76,8 @@ static inline void xfs_kern2utildqblk(struct util_dqblk *u, struct xfs_kern_dqbl
 	u->dqb_bsoftlimit = k->d_blk_softlimit >> 1;
 	u->dqb_curinodes = k->d_icount;
 	u->dqb_curspace = ((qsize_t)k->d_bcount) << 9;
-	u->dqb_itime = k->d_itimer;
-	u->dqb_btime = k->d_btimer;
+	u->dqb_itime = xfs_kern2utildqblk_ts(k, k->d_itimer, k->d_itimer_hi);
+	u->dqb_btime = xfs_kern2utildqblk_ts(k, k->d_btimer, k->d_btimer_hi);
 }
 
 /*
@@ -69,8 +92,10 @@ static inline void xfs_util2kerndqblk(struct xfs_kern_dqblk *k, struct util_dqbl
 	k->d_blk_softlimit = u->dqb_bsoftlimit << 1;
 	k->d_icount = u->dqb_curinodes;
 	k->d_bcount = u->dqb_curspace >> 9;
-	k->d_itimer = u->dqb_itime;
-	k->d_btimer = u->dqb_btime;
+	if (want_bigtime(u->dqb_itime) || want_bigtime(u->dqb_btime))
+		k->d_fieldmask |= FS_DQ_BIGTIME;
+	xfs_util2kerndqblk_ts(k, &k->d_itimer, &k->d_itimer_hi, u->dqb_itime);
+	xfs_util2kerndqblk_ts(k, &k->d_btimer, &k->d_btimer_hi, u->dqb_btime);
 }
 
 /*
