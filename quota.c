@@ -82,6 +82,9 @@ static void usage(void)
 -F, --format=formatname       display quota of a specific format\n\
 -f, --filesystem-list         display quota information only for given\n\
                               filesystems\n\
+    --filesystem=path         display quota information only for given\n\
+                              filesystem, remaining command line arguments\n\
+                              are still treated as user/group/project names\n\
 -A, --all-nfs                 display quota for all NFS mountpoints\n\
 -m, --no-mixed-pathnames      trim leading slashes from NFSv4 mountpoints\n\
     --show-mntpoint           show mount point of the file system in output\n\
@@ -287,6 +290,8 @@ int main(int argc, char **argv)
 {
 	int ngroups;
 	gid_t gidset[NGROUPS_MAX], *gidsetp;
+	char **fsnames = NULL;
+	int fscount = 0;
 	int i, ret, type = 0;
 	struct option long_opts[] = {
 		{ "help", 0, NULL, 'h' },
@@ -309,6 +314,7 @@ int main(int argc, char **argv)
 		{ "no-mixed-pathnames", 0, NULL, 'm' },
 		{ "show-mntpoint", 0, NULL, 257 },
 		{ "hide-device", 0, NULL, 258 },
+		{ "filesystem", 1, NULL, 259 },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -377,6 +383,13 @@ int main(int argc, char **argv)
 		  case 258:
 			  flags &= ~FL_SHOW_DEVICE;
 			  break;
+		  case 259:
+			  fscount++;
+			  fsnames = reallocarray(fsnames, fscount, sizeof(char *));
+			  if (!fsnames)
+				die(1, _("Not enough memory for filesystem names"));
+			  fsnames[fscount - 1] = optarg;
+			  break;
 		  case 'V':
 			  version();
 			  exit(0);
@@ -390,8 +403,10 @@ int main(int argc, char **argv)
 
 	if (!(flags & FL_USER) && !(flags & FL_GROUP) && !(flags & FL_PROJECT))
 		flags |= FL_USER;
-	if (flags & FL_FSLIST && flags & (FL_LOCALONLY | FL_NOAUTOFS))
+	if (((flags & FL_FSLIST) || fscount) && flags & (FL_LOCALONLY | FL_NOAUTOFS))
 		errstr(_("Warning: Ignoring -%c when filesystem list specified.\n"), flags & FL_LOCALONLY ? 'l' : 'i');
+	if (fscount && flags & FL_FSLIST)
+		die(1, "Cannot use both --filesystem and -f");
 
 	init_kernel_interface();
 
@@ -432,12 +447,12 @@ int main(int argc, char **argv)
 
 	if (flags & FL_USER)
 		for (; argc > 0; argc--, argv++)
-			ret |= showquotas(USRQUOTA, user2uid(*argv, !!(flags & FL_NUMNAMES), NULL), 0, NULL);
+			ret |= showquotas(USRQUOTA, user2uid(*argv, !!(flags & FL_NUMNAMES), NULL), fscount, fsnames);
 	else if (flags & FL_GROUP)
 		for (; argc > 0; argc--, argv++)
-			ret |= showquotas(GRPQUOTA, group2gid(*argv, !!(flags & FL_NUMNAMES), NULL), 0, NULL);
+			ret |= showquotas(GRPQUOTA, group2gid(*argv, !!(flags & FL_NUMNAMES), NULL), fscount, fsnames);
 	else if (flags & FL_PROJECT)
 		for (; argc > 0; argc--, argv++)
-			ret |= showquotas(PRJQUOTA, project2pid(*argv, !!(flags & FL_NUMNAMES), NULL), 0, NULL);
+			ret |= showquotas(PRJQUOTA, project2pid(*argv, !!(flags & FL_NUMNAMES), NULL), fscount, fsnames);
 	return ret;
 }

@@ -142,6 +142,15 @@ device.
 .B -f, --filesystem-list
 report quotas only for filesystems specified on command line.
 .TP
+.B --filesystem=\f2path\f1
+report quotas only for filesystem
+.BR path .
+This option can be specified multiple types and quota will be reported for each
+specified filesystem. Unlike command line option
+.B -f
+remaining command like arguments are still treated as user / group / project names
+to report.
+.TP
 .B -m, --no-mixed-pathnames
 Currently, pathnames of NFSv4 mountpoints are sent without leading slash in the path.
 .BR rpc.rquotad
