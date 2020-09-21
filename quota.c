@@ -54,10 +54,11 @@ char *progname;
 
 static void usage(void)
 {
-	errstr( "%s%s%s%s%s",
+	errstr( "%s%s%s%s%s%s",
 		_("Usage: quota [-guPqvswim] [-l | [-Q | -A]] [-F quotaformat]\n"),
 		_("\tquota [-qvswim] [-l | [-Q | -A]] [-F quotaformat] -u username ...\n"),
 		_("\tquota [-qvswim] [-l | [-Q | -A]] [-F quotaformat] -g groupname ...\n"),
+		_("\tquota [-qvswim] [-l | [-Q | -A]] [-F quotaformat] -P projectname ...\n"),
 		_("\tquota [-qvswugPQm] [-F quotaformat] -f filesystem ...\n"),
 		_("\n\
 -u, --user                    display quota for user\n\
