@@ -65,6 +65,11 @@ static inline int want_bigtime(time_t timer)
 	return timer > INT32_MAX || timer < INT32_MIN;
 }
 
+static inline int timer_fits_xfs_dqblk(time_t timer)
+{
+	return timer >= FS_DQUOT_TIMER_MIN && timer <= FS_DQUOT_TIMER_MAX;
+}
+
 /*
  *	Convert XFS kernel quota format to utility format
  */
@@ -83,7 +88,7 @@ static inline void xfs_kern2utildqblk(struct util_dqblk *u, struct xfs_kern_dqbl
 /*
  *	Convert utility quota format to XFS kernel format
  */
-static inline void xfs_util2kerndqblk(struct xfs_kern_dqblk *k, struct util_dqblk *u)
+static inline int xfs_util2kerndqblk(struct xfs_kern_dqblk *k, struct util_dqblk *u)
 {
 	memset(k, 0, sizeof(struct xfs_kern_dqblk));
 	k->d_ino_hardlimit = u->dqb_ihardlimit;
@@ -92,10 +97,16 @@ static inline void xfs_util2kerndqblk(struct xfs_kern_dqblk *k, struct util_dqbl
 	k->d_blk_softlimit = u->dqb_bsoftlimit << 1;
 	k->d_icount = u->dqb_curinodes;
 	k->d_bcount = u->dqb_curspace >> 9;
+	if (!timer_fits_xfs_dqblk(u->dqb_itime) ||
+	    !timer_fits_xfs_dqblk(u->dqb_btime)) {
+		errno = ERANGE;
+		return -1;
+	}
 	if (want_bigtime(u->dqb_itime) || want_bigtime(u->dqb_btime))
 		k->d_fieldmask |= FS_DQ_BIGTIME;
 	xfs_util2kerndqblk_ts(k, &k->d_itimer, &k->d_itimer_hi, u->dqb_itime);
 	xfs_util2kerndqblk_ts(k, &k->d_btimer, &k->d_btimer_hi, u->dqb_btime);
+	return 0;
 }
 
 /*
@@ -176,7 +187,8 @@ static int xfs_commit_dquot(struct dquot *dquot, int flags)
 	if (!XFS_USRQUOTA(h) && !XFS_GRPQUOTA(h) && !XFS_PRJQUOTA(h))
 		return 0;
 
-	xfs_util2kerndqblk(&xdqblk, &dquot->dq_dqb);
+	if (xfs_util2kerndqblk(&xdqblk, &dquot->dq_dqb) < 0)
+		return -1;
 	if (XFS_USRQUOTA(h))
 		xdqblk.d_flags |= XFS_USER_QUOTA;
 	else if (XFS_GRPQUOTA(h))
@@ -198,13 +210,9 @@ static int xfs_commit_dquot(struct dquot *dquot, int flags)
 	}
 
 	qcmd = QCMD(Q_XFS_SETQLIM, h->qh_type);
-	if (quotactl(qcmd, h->qh_quotadev, id, (void *)&xdqblk) < 0) {
-		;
-	}
-	else {
-		return 0;
-	}
-	return -1;
+	if (quotactl(qcmd, h->qh_quotadev, id, (void *)&xdqblk) < 0)
+		return -1;
+	return 0;
 }
 
 /*

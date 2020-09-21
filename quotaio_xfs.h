@@ -85,6 +85,9 @@ typedef struct fs_disk_quota {
 	char d_padding4[8];	/* yet more padding */
 } fs_disk_quota_t;
 
+#define FS_DQUOT_TIMER_MAX (((__s64)1 << 39) - 1)
+#define FS_DQUOT_TIMER_MIN (-((__s64)1 << 39))
+
 /*
  * These fields are sent to Q_XSETQLIM to specify fields that need to change.
  */
