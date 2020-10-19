@@ -1130,8 +1130,8 @@ static int compatible_fs_qfmt(char *fstype, int fmt)
 	return !!strcmp(fstype, MNTTYPE_GFS2);
 }
 
-/* Parse kernel version and warn if not using journaled quotas */
-static void warn_if_jquota_supported(void)
+/* Parse kernel version and return 1 if journaled quota is supported */
+static int kernel_supports_jquota(void)
 {
 	struct utsname stats;
 	int v;
@@ -1139,28 +1139,25 @@ static void warn_if_jquota_supported(void)
 
 	if (uname(&stats) < 0) {
 		errstr(_("Cannot get system info: %s\n"), strerror(errno));
-		return;
+		return 0;
 	}
 	if (strcmp(stats.sysname, "Linux"))
-		return;
+		return 0;
 
 	v = strtol(stats.release, &errch, 10);
 	if (v < 2)
-		return;
+		return 0;
 	if (v >= 3)
-		goto warn;
+		return 1;
 	if (*errch != '.')
-		return;
+		return 0;
 	v = strtol(errch + 1, &errch, 10);
 	if (*errch != '.' || v < 6)
-		return;
+		return 0;
 	v = strtol(errch + 1, &errch, 10);
 	if (v < 11)
-		return;
-warn:
-	errstr(_("Your kernel probably supports journaled quota but you are "
-		 "not using it. Consider switching to journaled quota to avoid"
-		 " running quotacheck after an unclean shutdown.\n"));
+		return 0;
+	return 1;
 }
 
 /* Return 0 in case of success, non-zero otherwise. */
@@ -1202,17 +1199,31 @@ static int check_all(void)
 			debug(FL_DEBUG, _("Detected quota format %s\n"), fmt2name(cfmt));
 		}
 
-		if (flags & (FL_VERBOSE | FL_DEBUG) &&
-		    !str_hasmntopt(mnt->me_opts, MNTOPT_USRJQUOTA) &&
-		    !str_hasmntopt(mnt->me_opts, MNTOPT_GRPJQUOTA) &&
-		    !warned &&
-		    (!strcmp(mnt->me_type, MNTTYPE_EXT3) ||
-		     !strcmp(mnt->me_type, MNTTYPE_EXT4) ||
-		     !strcmp(mnt->me_type, MNTTYPE_NEXT3) ||
-		     !strcmp(mnt->me_type, MNTTYPE_EXT4DEV) ||
-		     !strcmp(mnt->me_type, MNTTYPE_REISER))) {
-			warned = 1;
-			warn_if_jquota_supported();
+		if (flags & (FL_VERBOSE | FL_DEBUG) && !warned) {
+			if (!strcmp(mnt->me_type, MNTTYPE_EXT4) &&
+			    ext4_supports_quota_feature()) {
+				warned = 1;
+				errstr(_("Your kernel probably supports ext4 "
+					 "quota feature but you are using "
+					 "external quota files. Please switch "
+					 "your filesystem to use ext4 quota "
+					 "feature as external quota files on "
+					 "ext4 are deprecated.\n"));
+			} else if (!str_hasmntopt(mnt->me_opts, MNTOPT_USRJQUOTA) &&
+				   !str_hasmntopt(mnt->me_opts, MNTOPT_GRPJQUOTA) &&
+				   (!strcmp(mnt->me_type, MNTTYPE_EXT3) ||
+				    !strcmp(mnt->me_type, MNTTYPE_EXT4) ||
+				    !strcmp(mnt->me_type, MNTTYPE_NEXT3) ||
+				    !strcmp(mnt->me_type, MNTTYPE_EXT4DEV) ||
+				    !strcmp(mnt->me_type, MNTTYPE_REISER)) &&
+				   kernel_supports_jquota()) {
+				warned = 1;
+				errstr(_("Your kernel probably supports "
+					 "journaled quota but you are not "
+					 "using it. Consider switching to "
+					 "journaled quota to avoid running "
+					 "quotacheck after an unclean shutdown.\n"));
+			}
 		}
 
 		checked++;

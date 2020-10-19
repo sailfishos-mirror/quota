@@ -203,6 +203,9 @@ struct mount_entry *get_next_mount(void);
 /* Free all structures associated with mountpoints scan */
 void end_mounts_scan(void);
 
+/* Parse kernel version and return 1 if ext4 supports quota feature */
+int ext4_supports_quota_feature(void);
+
 /* Quota output formats */
 #define QOF_ERROR	-1
 #define QOF_DEFAULT	0

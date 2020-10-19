@@ -243,6 +243,7 @@ static int v2_newstate(struct mount_entry *mnt, int type, char *file, int flags,
  */
 static int newstate(struct mount_entry *mnt, int type, char *extra)
 {
+	static int warned;
 	int sflags, ret = 0;
 
 	sflags = flags & FL_OFF ? STATEFLAG_OFF : STATEFLAG_ON;
@@ -269,6 +270,16 @@ static int newstate(struct mount_entry *mnt, int type, char *extra)
 
 		if (!me_hasquota(mnt, type))
 			return 0;
+		if (flags & FL_VERBOSE && !warned &&
+		    !strcmp(mnt->me_type, MNTTYPE_EXT4) &&
+		    ext4_supports_quota_feature()) {
+			warned = 1;
+			errstr(_("Your kernel probably supports ext4 quota "
+				 "feature but you are using external quota "
+				 "files. Please switch your filesystem to use "
+				 "ext4 quota feature as external quota files "
+				 "on ext4 are deprecated.\n"));
+		}
 		if (fmt == -1) {
 			if (get_qf_name(mnt, type, QF_VFSV0,
 					NF_FORMAT, &extra) >= 0)

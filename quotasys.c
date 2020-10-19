@@ -24,6 +24,7 @@
 #include <sys/stat.h>
 #include <sys/vfs.h>
 #include <stdint.h>
+#include <sys/utsname.h>
 
 #include "pot.h"
 #include "bylabel.h"
@@ -1596,4 +1597,30 @@ void end_mounts_scan(void)
 	}
 	check_dirs = NULL;
 	check_dirs_cnt = 0;
+}
+
+/* Parse kernel version and return 1 if ext4 supports quota feature */
+int ext4_supports_quota_feature(void)
+{
+	struct utsname stats;
+	int v;
+	char *errch;
+
+	if (uname(&stats) < 0) {
+		errstr(_("Cannot get system info: %s\n"), strerror(errno));
+		return 0;
+	}
+	if (strcmp(stats.sysname, "Linux"))
+		return 0;
+	v = strtol(stats.release, &errch, 10);
+	if (v < 4)
+		return 0;
+	if (v > 4)
+		return 1;
+	if (*errch != '.')
+		return 0;
+	v = strtol(errch + 1, &errch, 10);
+	if (*errch != '.' || v < 9)
+		return 0;
+	return 1;
 }
