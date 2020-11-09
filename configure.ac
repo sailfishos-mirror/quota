@@ -6,7 +6,7 @@ AC_PREREQ([2.60])
 # Version informations
 # ====================
 m4_define([quota_version_major],[4])
-m4_define([quota_version_minor],[05])
+m4_define([quota_version_minor],[06])
 m4_define([quota_version],[quota_version_major.quota_version_minor])
 
 # =============
