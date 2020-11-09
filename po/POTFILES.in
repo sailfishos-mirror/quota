@@ -9,8 +9,6 @@ common.h
 mntopt.h
 warnquota.c
 quotacheck.c
-quot.c
-quot.h
 quotasync.c
 quota.h
 quota_nld.c
