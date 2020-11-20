@@ -672,7 +672,6 @@ Please turn quotas off or use -f to force checking.\n"),
 		}
 	}
 
-	ret = 0;
 	memset(old_info + type, 0, sizeof(old_info[type]));
 	if (is_tree_qfmt(cfmt))
 		ret = v2_buffer_file(qfname, fd, type, cfmt);
