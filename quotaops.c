@@ -140,7 +140,9 @@ struct dquot *getprivs(qid_t id, struct quota_handle **handles, int ignore_noquo
 			id2name(id, handles[i]->qh_type, name);
 			errstr(_("error while getting quota from %s for %s (id %u): %s\n"),
 				handles[i]->qh_quotadev, name, id, estr);
+#if defined(BSD_BEHAVIOUR)
 out_err:
+#endif
 			freeprivs(qhead);
 			return NULL;
 		}
