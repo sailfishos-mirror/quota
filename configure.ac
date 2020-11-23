@@ -82,6 +82,8 @@ AS_IF([test x"$enable_werror" != "xno"], [
 ])
 AC_SUBST([WARN_CFLAGS])
 
+AC_CHECK_SIZEOF([time_t], [], [#include <time.h>])
+
 # =========
 # Find ldap
 # =========

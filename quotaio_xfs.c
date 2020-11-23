@@ -45,8 +45,13 @@ report:		xfs_report
 static inline time_t xfs_kern2utildqblk_ts(const struct xfs_kern_dqblk *k,
 		__s32 timer, __s8 timer_hi)
 {
+#if SIZEOF_TIME_T > 4
 	if (k->d_fieldmask & FS_DQ_BIGTIME)
 		return (__u32)timer | (__s64)timer_hi << 32;
+#else
+	if (k->d_fieldmask & FS_DQ_BIGTIME && timer_hi != 0)
+		errstr(_("Truncating kernel returned time stamp."));
+#endif
 	return timer;
 }
 
@@ -54,10 +59,14 @@ static inline void xfs_util2kerndqblk_ts(const struct xfs_kern_dqblk *k,
 		__s32 *timer_lo, __s8 *timer_hi, time_t timer)
 {
 	*timer_lo = timer;
+#if SIZEOF_TIME_T > 4
 	if (k->d_fieldmask & FS_DQ_BIGTIME)
 		*timer_hi = timer >> 32;
 	else
 		*timer_hi = 0;
+#else
+	*timer_hi = 0;
+#endif
 }
 
 static inline int want_bigtime(time_t timer)
