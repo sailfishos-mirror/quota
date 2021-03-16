@@ -466,7 +466,7 @@ static void use_pid_file(void)
 
 	term_action.sa_handler = remove_pid;
 	term_action.sa_flags = 0;
-	if (sigaction(SIGTERM, &term_action, NULL))
+	if (sigemptyset(&term_action.sa_mask) || sigaction(SIGTERM, &term_action, NULL))
 		errstr(_("Could not register PID file removal on SIGTERM.\n"));
 	if (store_pid())
 		errstr(_("Could not store my PID %jd.\n"), (intmax_t )getpid());
