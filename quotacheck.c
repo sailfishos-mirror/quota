@@ -1198,7 +1198,7 @@ static int check_all(void)
 			debug(FL_DEBUG, _("Detected quota format %s\n"), fmt2name(cfmt));
 		}
 
-		if (flags & (FL_VERBOSE | FL_DEBUG) && !warned) {
+		if (!warned) {
 			if (!strcmp(mnt->me_type, MNTTYPE_EXT4) &&
 			    ext4_supports_quota_feature()) {
 				warned = 1;
@@ -1207,7 +1207,10 @@ static int check_all(void)
 					 "external quota files. Please switch "
 					 "your filesystem to use ext4 quota "
 					 "feature as external quota files on "
-					 "ext4 are deprecated.\n"));
+					 "ext4 are deprecated. You can enable "
+					 "the feature by unmounting the file "
+					 "system and running 'tune2fs -O quota "
+					 "<device>'.\n"));
 			} else if (!str_hasmntopt(mnt->me_opts, MNTOPT_USRJQUOTA) &&
 				   !str_hasmntopt(mnt->me_opts, MNTOPT_GRPJQUOTA) &&
 				   (!strcmp(mnt->me_type, MNTTYPE_EXT3) ||

@@ -270,15 +270,16 @@ static int newstate(struct mount_entry *mnt, int type, char *extra)
 
 		if (!me_hasquota(mnt, type))
 			return 0;
-		if (flags & FL_VERBOSE && !warned &&
-		    !strcmp(mnt->me_type, MNTTYPE_EXT4) &&
+		if (!warned && !strcmp(mnt->me_type, MNTTYPE_EXT4) &&
 		    ext4_supports_quota_feature()) {
 			warned = 1;
 			errstr(_("Your kernel probably supports ext4 quota "
 				 "feature but you are using external quota "
 				 "files. Please switch your filesystem to use "
 				 "ext4 quota feature as external quota files "
-				 "on ext4 are deprecated.\n"));
+				 "on ext4 are deprecated. You can enable the "
+				 "feature by unmounting the file system and "
+				 "running 'tune2fs -O quota <device>'.\n"));
 		}
 		if (fmt == -1) {
 			if (get_qf_name(mnt, type, QF_VFSV0,
