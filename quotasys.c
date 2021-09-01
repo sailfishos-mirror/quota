@@ -771,7 +771,7 @@ static void copy_mntoptarg(char *buf, const char *optarg, int buflen)
 	char *sep = strchr(optarg, ',');
 
 	if (!sep)
-		sstrncpy(buf, optarg, min(buflen, strlen(optarg) + 1));
+		sstrncpy(buf, optarg, buflen);
 	else
 		sstrncpy(buf, optarg, min(buflen, sep - optarg + 1));
 }
