@@ -110,8 +110,7 @@ void sstrncpy(char *d, const char *s, size_t len)
 
 void sstrncat(char *d, const char *s, size_t len)
 {
-	strncat(d, s, len);
-	d[len - 1] = 0;
+	strncat(d, s, len - 1);
 }
 
 char *sstrdup(const char *s)
