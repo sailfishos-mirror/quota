@@ -1,3 +1,14 @@
+Changes in quota-tools from 4.06 to 4.07
+* Fix strncpy() usage in mount option parsing (Dmitry V. Levin)
+* Fix strncat() usage in /proc path construction (Dmitry V. Levin)
+* Warn about usage of old quota files on ext4 filesystems (Jan Kara)
+* Fix initialization of sa_mask in quota_nld (Petr Písař)
+* Don't use __P() in quotactl declaration (2xsaiko)
+* Warn if kernel returns 64-bit time and we have 32-bit time_t (Dmitry V. Levin)
+* Remove unused label (Dmitry V. Levin)
+* Remove dead code from quotacheck (Petr Písař)
+* Use realloc() instead of reallocarray() (Fabrice Fontaine)
+
 Changes in quota-tools from 4.05 to 4.06
 * Remove quot tool (Jan Kara)
 * quotacheck,quotaon: Suggest using quota feature for ext4 (Jan Kara)
