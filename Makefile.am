@@ -13,7 +13,7 @@ sysconf_DATA = \
 	quotatab \
 	quotagrpadmins
 
-man_MANS = \
+dist_MANS = \
 	convertquota.8 \
 	edquota.8 \
 	quotagrpadmins.5 \
@@ -29,8 +29,20 @@ man_MANS = \
 	warnquota.8 \
 	xqmstats.8
 
+man_MANS = $(dist_MANS)
+
+dist_MANS += quota_nld.8
 if WITH_NETLINK
 man_MANS += quota_nld.8
+endif
+
+dist_MANS += \
+	rpc.rquotad.8 \
+	rquota.3
+if WITH_RPC
+man_MANS += \
+	rpc.rquotad.8 \
+	rquota.3
 endif
 
 SUBDIRS = po
@@ -38,7 +50,7 @@ SUBDIRS = po
 EXTRA_DIST = \
 	$(sysconf_DATA) \
 	$(doc_DATA) \
-	$(man_MANS) \
+	$(dist_MANS) \
 	$(rpcsvc_DATA) \
 	autogen.sh \
 	Changelog \
@@ -67,10 +79,6 @@ librpcclient_a_CFLAGS = $(AM_CFLAGS) -Wno-unused
 RPCLIBS = librpcclient.a
 BUILT_SOURCES = rquota.h rquota.c rquota_clnt.c
 CLEANFILES = rquota.c rquota.h rquota_clnt.c
-man_MANS += \
-	rpc.rquotad.8 \
-	rquota.3
-
 endif
 
 libquota_a_SOURCES = \

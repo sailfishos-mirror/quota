@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: quota 4.01\n"
 "Report-Msgid-Bugs-To: jack@suse.cz\n"
-"POT-Creation-Date: 2020-11-09 16:49+0100\n"
+"POT-Creation-Date: 2022-09-16 13:08+0200\n"
 "PO-Revision-Date: 2014-07-23 22:00+0200\n"
 "Last-Translator: Jakub Bogusz <qboosh@pld-linux.org>\n"
 "Language-Team: Polish <translation-team-pl@lists.sourceforge.net>\n"
@@ -58,7 +58,7 @@ msgstr ""
 "\n"
 
 #: convertquota.c:48 warnquota.c:1117 quotacheck.c:314 repquota.c:73
-#: common.c:132
+#: common.c:131
 #, c-format
 msgid "Bugs to %s\n"
 msgstr "Błędy na adres %s\n"
@@ -105,7 +105,7 @@ msgstr "Nie można odczytać informacji o starym pliku limitów.\n"
 msgid "Cannot get name of new quotafile.\n"
 msgstr "Nie można uzyskać nazwy nowego pliku limitów.\n"
 
-#: convertquota.c:302 quotacheck.c:765
+#: convertquota.c:302 quotacheck.c:764
 #, c-format
 msgid "Cannot rename new quotafile %s to name %s: %s\n"
 msgstr "Nie można zmienić nazwy nowego pliku limitów %s na %s: %s\n"
@@ -683,11 +683,11 @@ msgstr ""
 "Limity %s włączone w punkcie montowania %s - quotacheck może uszkodzić "
 "plik.\n"
 
-#: quotacheck.c:640 quotacheck.c:967
+#: quotacheck.c:640 quotacheck.c:966
 msgid "Should I continue?"
 msgstr "Czy kontynuować?"
 
-#: quotacheck.c:641 quotacheck.c:968
+#: quotacheck.c:641 quotacheck.c:967
 #, c-format
 msgid "As you wish... Canceling check of this file.\n"
 msgstr "Wedle życzenia... anulowanie sprawdzania tego pliku.\n"
@@ -718,114 +718,114 @@ msgstr "Nie można uzyskać nazwy pliku limitów dla %s\n"
 msgid "Cannot open quotafile %s: %s\n"
 msgstr "Nie można otworzyć pliku limitów %s: %s\n"
 
-#: quotacheck.c:703
+#: quotacheck.c:702
 msgid "Renaming new files to proper names.\n"
 msgstr "Zmiana nazw nowych plików na właściwe.\n"
 
-#: quotacheck.c:705
+#: quotacheck.c:704
 #, c-format
 msgid "Cannot get name of old quotafile on %s.\n"
 msgstr "Nie można uzyskać nazwy starego pliku limitów na %s.\n"
 
-#: quotacheck.c:708
+#: quotacheck.c:707
 msgid "Old file not found.\n"
 msgstr "Nie znaleziono starego pliku.\n"
 
-#: quotacheck.c:711
+#: quotacheck.c:710
 #, c-format
 msgid "Error while searching for old quota file %s: %s\n"
 msgstr "Błąd podczas poszukiwania starego pliku limitów %s: %s\n"
 
-#: quotacheck.c:720
+#: quotacheck.c:719
 msgid "Old file found removed during check!\n"
 msgstr "Stary plik został usunięty przy sprawdzaniu!\n"
 
-#: quotacheck.c:723
+#: quotacheck.c:722
 #, c-format
 msgid "Error while opening old quota file %s: %s\n"
 msgstr "Błąd podczas otwierania starego pliku limitów %s: %s\n"
 
-#: quotacheck.c:729
+#: quotacheck.c:728
 #, c-format
 msgid "EXT2_IOC_GETFLAGS failed: %s\n"
 msgstr "ioctl XFS_IOC_GETFLAGS nie powiódł się: %s\n"
 
-#: quotacheck.c:733
+#: quotacheck.c:732
 #, c-format
 msgid "Quota file %s has IMMUTABLE flag set. Clearing.\n"
 msgstr ""
 "Plik limitów %s ma ustawioną flagę niezmienności (IMMUTABLE). Czyszczenie.\n"
 
-#: quotacheck.c:736
+#: quotacheck.c:735
 #, c-format
 msgid "Failed to remove IMMUTABLE flag from quota file %s: %s\n"
 msgstr ""
 "Nie udało się usunąć flagi niezmienności (IMMUTABLE) z pliku limitów %s: %s\n"
 
-#: quotacheck.c:745
+#: quotacheck.c:744
 #, c-format
 msgid "Renaming old quotafile to %s~\n"
 msgstr "Zmiana nazwy starego pliku limitów na %s~\n"
 
-#: quotacheck.c:751
+#: quotacheck.c:750
 #, c-format
 msgid "Name of quota file too long. Contact %s.\n"
 msgstr "Nazwa pliku limitów zbyt długa. Proszę o kontakt z %s.\n"
 
-#: quotacheck.c:753
+#: quotacheck.c:752
 #, c-format
 msgid "Cannot rename old quotafile %s to %s: %s\n"
 msgstr "Nie można zmienić nazwy starego pliku limitów %s na %s: %s\n"
 
-#: quotacheck.c:759
+#: quotacheck.c:758
 msgid "Renaming new quotafile\n"
 msgstr "Zmiana nazwy nowego pliku limitów\n"
 
-#: quotacheck.c:771
+#: quotacheck.c:770
 #, c-format
 msgid "Cannot change permission of %s: %s\n"
 msgstr "Nie można zmienić uprawnień %s: %s\n"
 
-#: quotacheck.c:778
+#: quotacheck.c:777
 #, c-format
 msgid "Cannot open new quota file %s: %s\n"
 msgstr "Nie można otworzyć nowego pliku limitów %s: %s\n"
 
-#: quotacheck.c:783
+#: quotacheck.c:782
 #, c-format
 msgid "Warning: Cannot set EXT2 flags on %s: %s\n"
 msgstr "Uwaga: Nie można ustawić flag EXT2 na %s: %s\n"
 
-#: quotacheck.c:803
+#: quotacheck.c:802
 #, c-format
 msgid "Dumping gathered data for %ss.\n"
 msgstr "Zrzucanie zgromadzonych danych typu %s.\n"
 
-#: quotacheck.c:806
+#: quotacheck.c:805
 #, c-format
 msgid "Cannot initialize IO on xfs/gfs2 quotafile: %s\n"
 msgstr "Nie można zainicjować we/wy na pliku limitów xfs/gfs2: %s\n"
 
-#: quotacheck.c:812
+#: quotacheck.c:811
 #, c-format
 msgid "Cannot initialize IO on new quotafile: %s\n"
 msgstr "Nie można zainicjować we/wy na nowym pliku limitów: %s\n"
 
-#: quotacheck.c:839
+#: quotacheck.c:838
 #, c-format
 msgid "Cannot finish IO on new quotafile: %s\n"
 msgstr "Nie można zakończyć we/wy na nowym pliku limitów: %s\n"
 
-#: quotacheck.c:842
+#: quotacheck.c:841
 msgid "Data dumped.\n"
 msgstr "Dane zrzucone.\n"
 
-#: quotacheck.c:850
+#: quotacheck.c:849
 #, c-format
 msgid "Cannot find checked quota file for %ss on %s!\n"
 msgstr "Nie można znaleźć sprawdzonego pliku limitów %s na %s!\n"
 
-#: quotacheck.c:854
+#: quotacheck.c:853
 #, c-format
 msgid ""
 "Cannot turn %s quotas off on %s: %s\n"
@@ -834,7 +834,7 @@ msgstr ""
 "Nie można wyłączyć limitów %s na %s: %s\n"
 "Jądro nie zauważy zmian wykonanych przez checkquota.\n"
 
-#: quotacheck.c:867
+#: quotacheck.c:866
 #, c-format
 msgid ""
 "Cannot turn %s quotas on on %s: %s\n"
@@ -843,26 +843,26 @@ msgstr ""
 "Nie można włączyć limitów %s na %s: %s\n"
 "Jądro nie zauważy zmian wykonanych przez checkquota.\n"
 
-#: quotacheck.c:893
+#: quotacheck.c:892
 #, c-format
 msgid "Substracting space used by old %s quota file.\n"
 msgstr "Odejmowanie miejsca użytego przez stary plik limitów %s.\n"
 
-#: quotacheck.c:895
+#: quotacheck.c:894
 #, c-format
 msgid ""
 "Old %s file name could not been determined. Usage will not be subtracted.\n"
 msgstr ""
 "Nie udało się określić nazwy starego pliku %s. Miejsce nie będzie odjęte.\n"
 
-#: quotacheck.c:900
+#: quotacheck.c:899
 #, c-format
 msgid "Cannot stat old %s quota file %s: %s. Usage will not be subtracted.\n"
 msgstr ""
 "Nie można wykonać stat starego pliku limitów %s %s: %s. Miejsce nie będzie "
 "odjęte.\n"
 
-#: quotacheck.c:912
+#: quotacheck.c:911
 #, c-format
 msgid ""
 "Quota structure for %s owning quota file not present! Something is really "
@@ -871,22 +871,22 @@ msgstr ""
 "Brak struktury limitów %s dla właściciela pliku limitów! Coś jest naprawdę "
 "źle...\n"
 
-#: quotacheck.c:917
+#: quotacheck.c:916
 #, c-format
 msgid "Substracted %lu bytes.\n"
 msgstr "Odjęto %lu bajtów.\n"
 
-#: quotacheck.c:931
+#: quotacheck.c:930
 #, c-format
 msgid "Cannot stat mountpoint %s: %s\n"
 msgstr "Nie można wykonać stat na punkcie montowania %s: %s\n"
 
-#: quotacheck.c:933
+#: quotacheck.c:932
 #, c-format
 msgid "Mountpoint %s is not a directory?!\n"
 msgstr "Punkt montowania %s nie jest katalogiem?!\n"
 
-#: quotacheck.c:966
+#: quotacheck.c:965
 #, c-format
 msgid ""
 "Cannot remount filesystem mounted on %s read-only. Counted values might not "
@@ -895,7 +895,7 @@ msgstr ""
 "Nie można przemontować r/o systemu plików zamontowanego pod %s. Policzone "
 "wartości mogą być błędne.\n"
 
-#: quotacheck.c:974
+#: quotacheck.c:973
 #, c-format
 msgid ""
 "Cannot remount filesystem mounted on %s read-only so counted values might "
@@ -909,25 +909,25 @@ msgstr ""
 "ten\n"
 "system plików lub użyć flagi -m, aby wymusić sprawdzanie.\n"
 
-#: quotacheck.c:982
+#: quotacheck.c:981
 msgid "Filesystem remounted read-only\n"
 msgstr "System plików przemontowany tylko do odczytu\n"
 
-#: quotacheck.c:985
+#: quotacheck.c:984
 #, c-format
 msgid "Scanning %s [%s] "
 msgstr "Skanowanie %s [%s] "
 
-#: quotacheck.c:1011
+#: quotacheck.c:1010
 msgid "done\n"
 msgstr "zrobiono\n"
 
-#: quotacheck.c:1020
+#: quotacheck.c:1019
 #, c-format
 msgid "Checked %d directories and %d files\n"
 msgstr "Sprawdzono %d katalogów i %d plików\n"
 
-#: quotacheck.c:1024
+#: quotacheck.c:1023
 #, c-format
 msgid ""
 "Cannot remount filesystem %s read-write. cannot write new quota files.\n"
@@ -935,35 +935,35 @@ msgstr ""
 "Nie można przemontować r/w systemu plików %s. Nie można zapisać nowych "
 "plików.\n"
 
-#: quotacheck.c:1025
+#: quotacheck.c:1024
 msgid "Filesystem remounted RW.\n"
 msgstr "Przemontowano system plików do zapisu i odczytu.\n"
 
-#: quotacheck.c:1069
+#: quotacheck.c:1068
 #, c-format
 msgid "Cannot find quota option on filesystem %s with quotas!\n"
 msgstr "Nie można znaleźć opcji limitów dla systemu plików %s z limitami!\n"
 
-#: quotacheck.c:1075
+#: quotacheck.c:1074
 #, c-format
 msgid "Cannot detect quota format for journalled quota on %s\n"
 msgstr "Nie można wykryć formatu limitów dla limitów z kroniką na %s\n"
 
-#: quotacheck.c:1141 quotasys.c:1610
+#: quotacheck.c:1140 quotasys.c:1610
 #, c-format
 msgid "Cannot get system info: %s\n"
 msgstr "Nie można uzyskać informacji systemowych: %s\n"
 
-#: quotacheck.c:1172 quotasys.c:934
+#: quotacheck.c:1171 quotasys.c:934
 msgid "Cannot initialize mountpoint scan.\n"
 msgstr "Nie można zainicjować skanu punktów montowania.\n"
 
-#: quotacheck.c:1177
+#: quotacheck.c:1176
 #, c-format
 msgid "Skipping %s [%s]\n"
 msgstr "Pomijanie %s [%s]\n"
 
-#: quotacheck.c:1194
+#: quotacheck.c:1193
 #, c-format
 msgid ""
 "Cannot guess format from filename on %s. Please specify format on "
@@ -972,19 +972,20 @@ msgstr ""
 "Nie można odgadnąć formatu z nazwy pliku na %s. Proszę podać format w "
 "poleceniu.\n"
 
-#: quotacheck.c:1199
+#: quotacheck.c:1198
 #, c-format
 msgid "Detected quota format %s\n"
 msgstr "Wykryto format limitów %s\n"
 
-#: quotacheck.c:1206 quotaon.c:277
+#: quotacheck.c:1205 quotaon.c:276
 msgid ""
 "Your kernel probably supports ext4 quota feature but you are using external "
 "quota files. Please switch your filesystem to use ext4 quota feature as "
-"external quota files on ext4 are deprecated.\n"
+"external quota files on ext4 are deprecated. You can enable the feature by "
+"unmounting the file system and running 'tune2fs -O quota <device>'.\n"
 msgstr ""
 
-#: quotacheck.c:1221
+#: quotacheck.c:1223
 msgid ""
 "Your kernel probably supports journaled quota but you are not using it. "
 "Consider switching to journaled quota to avoid running quotacheck after an "
@@ -994,7 +995,7 @@ msgstr ""
 "Proszę rozważyć przejście na limity z kroniką, aby zapobiec uruchamianiu "
 "quotacheck po każdym nienormalnym zamknięciu systemu.\n"
 
-#: quotacheck.c:1234
+#: quotacheck.c:1236
 msgid ""
 "Cannot find filesystem to check or filesystem not mounted with quota "
 "option.\n"
@@ -1002,7 +1003,7 @@ msgstr ""
 "Nie znaleziono systemu plików do sprawdzenia lub nie jest zamontowany z "
 "obsługą limitów.\n"
 
-#: quotacheck.c:1252
+#: quotacheck.c:1254
 #, c-format
 msgid ""
 "Allocated %d bytes memory\n"
@@ -1060,19 +1061,19 @@ msgstr "Synchronizacja limitów %s nie powiodła się: %s\n"
 msgid "%s quota sync failed for %s: %s\n"
 msgstr "Synchronizacja limitów %s dla %s nie powiodła się: %s\n"
 
-#: quota.h:23
+#: quota.h:22
 msgid "user"
 msgstr "użytkownika"
 
-#: quota.h:24
+#: quota.h:23
 msgid "group"
 msgstr "grupy"
 
-#: quota.h:25
+#: quota.h:24
 msgid "project"
 msgstr ""
 
-#: quota.h:26
+#: quota.h:25
 msgid "undefined"
 msgstr "nieznany"
 
@@ -1803,35 +1804,39 @@ msgstr ""
 "Wpisów: %u\n"
 "Użyte średnio: %f\n"
 
-#: quotaio_xfs.c:302
+#: quotaio_xfs.c:53
+msgid "Truncating kernel returned time stamp."
+msgstr ""
+
+#: quotaio_xfs.c:311
 #, c-format
 msgid "*** Status for %s quotas on device %s\n"
 msgstr "*** Raport dla limitów %s na urządzeniu %s\n"
 
-#: quotaio_xfs.c:304 quotaio_xfs.c:323
+#: quotaio_xfs.c:313 quotaio_xfs.c:332
 msgid "ON"
 msgstr "WŁĄCZONE"
 
-#: quotaio_xfs.c:304 quotaio_xfs.c:323
+#: quotaio_xfs.c:313 quotaio_xfs.c:332
 msgid "OFF"
 msgstr "WYŁĄCZONE"
 
-#: quotaio_xfs.c:306 quotaio_xfs.c:310 quotaio_xfs.c:314
+#: quotaio_xfs.c:315 quotaio_xfs.c:319 quotaio_xfs.c:323
 #, c-format
 msgid "Accounting: %s; Enforcement: %s\n"
 msgstr "Podliczanie: %s; Wymuszanie: %s\n"
 
-#: quotaio_xfs.c:326 quotaio_xfs.c:330 quotaio_xfs.c:334
+#: quotaio_xfs.c:335 quotaio_xfs.c:339 quotaio_xfs.c:343
 #, c-format
 msgid "Accounting [ondisk]: %s; Enforcement [ondisk]: %s\n"
 msgstr "Podliczanie [na dysku]: %s; Wymuszanie [na dysku]: %s\n"
 
-#: quotaio_xfs.c:343 quotaio_xfs.c:352 quotaio_xfs.c:365
+#: quotaio_xfs.c:352 quotaio_xfs.c:361 quotaio_xfs.c:374
 #, c-format
 msgid "Inode: none\n"
 msgstr "I-węzeł: żaden\n"
 
-#: quotaio_xfs.c:345 quotaio_xfs.c:354 quotaio_xfs.c:367
+#: quotaio_xfs.c:354 quotaio_xfs.c:363 quotaio_xfs.c:376
 #, c-format
 msgid "Inode: #%llu (%llu blocks, %u extents)\n"
 msgstr "I-węzeł: #%llu (%llu bloków, %u ekstentów)\n"
@@ -1939,54 +1944,54 @@ msgstr "Nie można zmienić stanu limitów GFS2.\n"
 msgid "Cannot change state of XFS quota. It's not compiled in kernel.\n"
 msgstr "Nie można zmienić stanu limitów XFS. Nie są wkompilowane w jądro.\n"
 
-#: quotaon.c:294
+#: quotaon.c:295
 #, c-format
 msgid "Cannot find quota file on %s [%s] to turn quotas on/off.\n"
 msgstr ""
 "Nie można znaleźć pliku limitów na %s [%s], aby włączyć/wyłączyć limity.\n"
 
-#: quotaon.c:299
+#: quotaon.c:300
 #, c-format
 msgid "Quota file on %s [%s] does not exist or has wrong format.\n"
 msgstr "Plik limitów na %s [%s] nie istnieje lub ma niewłaściwy format.\n"
 
-#: quotaon.c:329 quotaon.c:345
+#: quotaon.c:330 quotaon.c:346
 msgid "off"
 msgstr "wyłączone"
 
-#: quotaon.c:331
+#: quotaon.c:332
 #, fuzzy
 msgid "on (accounting)"
 msgstr "i podliczania "
 
-#: quotaon.c:333
+#: quotaon.c:334
 msgid "on (enforced)"
 msgstr ""
 
-#: quotaon.c:345
+#: quotaon.c:346
 msgid "on"
 msgstr "włączone"
 
-#: quotaon.c:347
+#: quotaon.c:348
 #, c-format
 msgid "%s quota on %s (%s) is %s\n"
 msgstr "Limity %s na %s (%s) są %s\n"
 
-#: quotaon.c:364
+#: quotaon.c:365
 #, c-format
 msgid "Name must be quotaon or quotaoff not %s\n"
 msgstr "Nazwą musi być quotaon, lub quotaoff, nie %s\n"
 
-#: quotaon.c:370
+#: quotaon.c:371
 #, c-format
 msgid "Required format %s not supported by kernel.\n"
 msgstr "Wymagany format %s nie obsługiwany przez jądro.\n"
 
-#: quotaon.c:372
+#: quotaon.c:373
 msgid "Warning: No quota format detected in the kernel.\n"
 msgstr "Uwaga: Nie wykryto formatu limitów w jądrze.\n"
 
-#: quotaon.c:379
+#: quotaon.c:380
 #, c-format
 msgid "%s: Quota cannot be turned on on NFS filesystem\n"
 msgstr "%s: nie można włączyć limitów na systemie plików NFS\n"
@@ -2131,56 +2136,56 @@ msgstr ""
 msgid "error while getting quota from %s for %s (id %u): %s\n"
 msgstr "błąd podczas uzyskiwania limitów z %s dla %s (id %u): %s\n"
 
-#: quotaops.c:167
+#: quotaops.c:169
 #, c-format
 msgid "Cannot write quota for %u on %s: %s\n"
 msgstr "Nie można zapisać limitów dla %u na %s: %s\n"
 
-#: quotaops.c:202 quotaops.c:204
+#: quotaops.c:204 quotaops.c:206
 #, fuzzy, c-format
 msgid "%s failed: %s\n"
 msgstr "Synchronizacja limitów %s nie powiodła się: %s\n"
 
-#: quotaops.c:218
+#: quotaops.c:220
 msgid "Too many parameters to editor.\n"
 msgstr "Zbyt dużo parametrów dla edytora.\n"
 
-#: quotaops.c:226
+#: quotaops.c:228
 #, c-format
 msgid "Cannot exec %s\n"
 msgstr "Nie można uruchomić %s\n"
 
-#: quotaops.c:243
+#: quotaops.c:245
 #, fuzzy, c-format
 msgid "Cannot truncate a file: %s\n"
 msgstr "Nie można wykonać stat na pliku limitów %s: %s\n"
 
-#: quotaops.c:245
+#: quotaops.c:247
 #, fuzzy, c-format
 msgid "Cannot reset a file offset: %s\n"
 msgstr "Nie można odczytać pliku statystyk %s: %s\n"
 
-#: quotaops.c:247
+#: quotaops.c:249
 #, fuzzy, c-format
 msgid "Cannot duplicate a file descriptor: %s\n"
 msgstr "Nie można powielić deskryptora: %s\n"
 
-#: quotaops.c:249
+#: quotaops.c:251
 #, fuzzy, c-format
 msgid "Cannot open a stream to write to: %s\n"
 msgstr "Nie można ponownie otworzyć pliku tymczasowego: %s\n"
 
-#: quotaops.c:250
+#: quotaops.c:252
 #, fuzzy, c-format
 msgid "Cannot open a stream to read from: %s\n"
 msgstr "Nie można ponownie otworzyć pliku tymczasowego: %s\n"
 
-#: quotaops.c:266
+#: quotaops.c:268
 #, c-format
 msgid "Disk quotas for %s %s (%cid %d):\n"
 msgstr "Limity dyskowe %s %s (%cid %d):\n"
 
-#: quotaops.c:270
+#: quotaops.c:272
 #, c-format
 msgid ""
 "  Filesystem                   blocks       soft       hard     inodes     "
@@ -2189,21 +2194,21 @@ msgstr ""
 "  System plików                bloki        miękki     twardy   i-węzły    "
 "miękki   twardy\n"
 
-#: quotaops.c:303
+#: quotaops.c:305
 #, c-format
 msgid "WARNING - %s: cannot change current block allocation\n"
 msgstr "UWAGA - %s: nie można zmienić aktualnego przydziału bloków\n"
 
-#: quotaops.c:306
+#: quotaops.c:308
 #, c-format
 msgid "WARNING - %s: cannot change current inode allocation\n"
 msgstr "UWAGA - %s: nie można zmienić aktualnego przydziału i-węzłów\n"
 
-#: quotaops.c:332
+#: quotaops.c:334
 msgid "Bad format: two title lines assumed\n"
 msgstr ""
 
-#: quotaops.c:343
+#: quotaops.c:345
 #, c-format
 msgid ""
 "Bad format:\n"
@@ -2212,72 +2217,72 @@ msgstr ""
 "Zły format:\n"
 "%s\n"
 
-#: quotaops.c:349
+#: quotaops.c:351
 #, fuzzy, c-format
 msgid "Bad block usage: %s: %s\n"
 msgstr "Nie można odczytać bloku %u: %s\n"
 
-#: quotaops.c:356
+#: quotaops.c:358
 #, fuzzy, c-format
 msgid "Bad block soft limit: %s: %s\n"
 msgstr "Błędny miękki limit bloków"
 
-#: quotaops.c:363
+#: quotaops.c:365
 #, fuzzy, c-format
 msgid "Bad block hard limit: %s: %s\n"
 msgstr "Błędny twardy limit bloków"
 
-#: quotaops.c:370
+#: quotaops.c:372
 #, fuzzy, c-format
 msgid "Bad inode usage: %s: %s\n"
 msgstr "nie można otworzyć %s: %s\n"
 
-#: quotaops.c:377
+#: quotaops.c:379
 #, fuzzy, c-format
 msgid "Bad inode soft limit: %s: %s\n"
 msgstr "Błędny miękki limit i-węzłów"
 
-#: quotaops.c:384
+#: quotaops.c:386
 #, fuzzy, c-format
 msgid "Bad inode hard limit: %s: %s\n"
 msgstr "Błędny twardy limit i-węzłów"
 
-#: quotaops.c:437
+#: quotaops.c:439
 #, c-format
 msgid "Times to enforce softlimit for %s %s (%cid %d):\n"
 msgstr "Okresy wymuszenia miękkich limitów %s %s (%cid %d):\n"
 
-#: quotaops.c:439 quotaops.c:542
+#: quotaops.c:441 quotaops.c:544
 #, c-format
 msgid "Time units may be: days, hours, minutes, or seconds\n"
 msgstr "Jednostkami czasu mogą być: days, hours, minutes, seconds\n"
 
-#: quotaops.c:441
+#: quotaops.c:443
 #, c-format
 msgid ""
 "  Filesystem                         block grace               inode grace\n"
 msgstr ""
 "  System plików         Pobłażliwość dla bloków Pobłażliwość dla i-węzłów\n"
 
-#: quotaops.c:446 quotaops.c:452 quotaops.c:497 quotaops.c:510 setquota.c:288
+#: quotaops.c:448 quotaops.c:454 quotaops.c:499 quotaops.c:512 setquota.c:288
 #: setquota.c:294
 msgid "unset"
 msgstr "nie ustawiona"
 
-#: quotaops.c:448 quotaops.c:454
+#: quotaops.c:450 quotaops.c:456
 msgid "0seconds"
 msgstr "0 sekund"
 
-#: quotaops.c:450 quotaops.c:456 quotasys.c:504
+#: quotaops.c:452 quotaops.c:458 quotasys.c:504
 #, c-format
 msgid "%useconds"
 msgstr "%u sekund"
 
-#: quotaops.c:483 quotaops.c:582
+#: quotaops.c:485 quotaops.c:584
 msgid "Bad format: three title lines assumed\n"
 msgstr ""
 
-#: quotaops.c:493 quotaops.c:590
+#: quotaops.c:495 quotaops.c:592
 #, c-format
 msgid ""
 "bad format:\n"
@@ -2286,17 +2291,17 @@ msgstr ""
 "zły format:\n"
 "%s\n"
 
-#: quotaops.c:504 quotaops.c:596
+#: quotaops.c:506 quotaops.c:598
 msgid "Bad time units. Units are 'second', 'minute', 'hour', and 'day'.\n"
 msgstr ""
 "Złe jednostki czasu. Jednostkami są 'second', 'minute', 'hour' i 'day'.\n"
 
-#: quotaops.c:540
+#: quotaops.c:542
 #, c-format
 msgid "Grace period before enforcing soft limits for %ss:\n"
 msgstr "Okres pobłażliwości przed wymuszeniem miękkich limitów %s:\n"
 
-#: quotaops.c:543
+#: quotaops.c:545
 #, c-format
 msgid "  Filesystem             Block grace period     Inode grace period\n"
 msgstr ""
@@ -3466,12 +3471,12 @@ msgstr "getgroups(): %s\n"
 msgid "Project reports not supported without project name\n"
 msgstr "Format limitów nie obsługiwany przez jądro.\n"
 
-#: common.c:130
+#: common.c:129
 #, c-format
 msgid "Quota utilities version %s.\n"
 msgstr "Narzędzia Quota w wersji %s.\n"
 
-#: common.c:131
+#: common.c:130
 #, c-format
 msgid "Compiled with:%s\n"
 msgstr "Skompilowano z:%s\n"
