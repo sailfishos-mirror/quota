@@ -1,3 +1,6 @@
+Changes in quota-tools from 4.07 to 4.08
+* Include unconfigured manpages into distribution (Jan Kara)
+
 Changes in quota-tools from 4.06 to 4.07
 * Fix strncpy() usage in mount option parsing (Dmitry V. Levin)
 * Fix strncat() usage in /proc path construction (Dmitry V. Levin)
