@@ -13,7 +13,7 @@ sysconf_DATA = \
 	quotatab \
 	quotagrpadmins
 
-dist_MANS = \
+man_MANS = \
 	convertquota.8 \
 	edquota.8 \
 	quotagrpadmins.5 \
@@ -28,22 +28,24 @@ dist_MANS = \
 	warnquota.conf.5 \
 	warnquota.8 \
 	xqmstats.8
+dist_MANS =
 
-man_MANS = $(dist_MANS)
-
-dist_MANS += quota_nld.8
 if WITH_NETLINK
 man_MANS += quota_nld.8
+else
+dist_MANS += quota_nld.8
 endif
 
-dist_MANS += \
-	rpc.rquotad.8 \
-	rquota.3
 if WITH_RPC
 man_MANS += \
 	rpc.rquotad.8 \
 	rquota.3
+else
+dist_MANS += \
+	rpc.rquotad.8 \
+	rquota.3
 endif
+dist_MANS += $(man_MANS)
 
 SUBDIRS = po
 
