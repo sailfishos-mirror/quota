@@ -1,3 +1,6 @@
+Changes in quota-tools from 4.08 to 4.09
+* Avoid including manpages multiple times in man_MANS (Jan Kara)
+
 Changes in quota-tools from 4.07 to 4.08
 * Include unconfigured manpages into distribution (Jan Kara)
 
