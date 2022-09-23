@@ -43,7 +43,7 @@ AC_CHECK_FUNC([nl_langinfo], [
 # Gettext support
 # ===============
 AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION([0.12.1])
+AM_GNU_GETTEXT_VERSION([0.19])
 
 AS_IF([test "$enable_nls" != "no"], [
     enable_nls="yes"
