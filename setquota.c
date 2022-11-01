@@ -494,11 +494,13 @@ static int setindivgraces(struct quota_handle **handles)
 		return -1;
 	}
 	for (q = curprivs; q; q = q->dq_next) {
-		if (q->dq_dqb.dqb_bsoftlimit && toqb(q->dq_dqb.dqb_curspace) > q->dq_dqb.dqb_bsoftlimit)
+		if (!toset.dqb_btime ||
+		    (q->dq_dqb.dqb_bsoftlimit && toqb(q->dq_dqb.dqb_curspace) > q->dq_dqb.dqb_bsoftlimit))
 			q->dq_dqb.dqb_btime = toset.dqb_btime;
 		else
 			errstr(_("Not setting block grace time on %s because softlimit is not exceeded.\n"), q->dq_h->qh_quotadev);
-		if (q->dq_dqb.dqb_isoftlimit && q->dq_dqb.dqb_curinodes > q->dq_dqb.dqb_isoftlimit)
+		if (!toset.dqb_itime ||
+		    (q->dq_dqb.dqb_isoftlimit && q->dq_dqb.dqb_curinodes > q->dq_dqb.dqb_isoftlimit))
 			q->dq_dqb.dqb_itime = toset.dqb_itime;
 		else
 			errstr(_("Not setting inode grace time on %s because softlimit is not exceeded.\n"), q->dq_h->qh_quotadev);
