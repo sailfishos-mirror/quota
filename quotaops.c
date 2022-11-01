@@ -418,8 +418,16 @@ static void merge_times_to_list(struct dquot *qlist, char *dev, time_t btime, ti
 		if (!devcmp_handle(dev, q->dq_h))
 			continue;
 
-		q->dq_dqb.dqb_btime = btime;
-		q->dq_dqb.dqb_itime = itime;
+		if (!btime ||
+		    (q->dq_dqb.dqb_bsoftlimit && toqb(q->dq_dqb.dqb_curspace) > q->dq_dqb.dqb_bsoftlimit))
+			q->dq_dqb.dqb_btime = btime;
+		else
+			errstr(_("Not setting block grace time on %s because softlimit is not exceeded.\n"), q->dq_h->qh_quotadev);
+		if (!itime ||
+		    (q->dq_dqb.dqb_isoftlimit && q->dq_dqb.dqb_curinodes > q->dq_dqb.dqb_isoftlimit))
+			q->dq_dqb.dqb_itime = itime;
+		else
+			errstr(_("Not setting inode grace time on %s because softlimit is not exceeded.\n"), q->dq_h->qh_quotadev);
 		q->dq_flags |= DQ_FOUND;
 	}
 }

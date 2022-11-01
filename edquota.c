@@ -352,7 +352,8 @@ int main(int argc, char **argv)
 					goto next_user;
 				}
 			}
-			if (putprivs(curprivs, COMMIT_LIMITS) == -1)
+			if (putprivs(curprivs,
+			    (flags & FL_EDIT_TIMES) ? COMMIT_TIMES : COMMIT_LIMITS) == -1)
 				ret = -1;
 next_user:
 			freeprivs(curprivs);
