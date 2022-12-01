@@ -413,7 +413,7 @@ static char *build_pid_file_name(void)
 }
 
 /* Store daemon's PID to file */
-static int store_pid(void)
+static int store_pid(pid_t pid)
 {
 	FILE *pid_file;
 	char *pid_name;
@@ -429,7 +429,7 @@ static int store_pid(void)
 		free(pid_name);
 		return -1;
 	}
-	if (fprintf(pid_file, "%jd\n", (intmax_t)getpid()) < 0) {
+	if (fprintf(pid_file, "%d\n", (int)pid) < 0) {
 		errstr(_("Could not write daemon's PID into '%s'.\n"),
 			pid_name);
 		fclose(pid_file);
@@ -459,8 +459,8 @@ static void remove_pid(int signal)
 	exit(EXIT_SUCCESS);
 }
 
-/* Store daemon's PID into file and register its removal on SIGTERM */
-static void use_pid_file(void)
+/* Register daemon's PID file removal on SIGTERM */
+static void setup_sigterm_handler(void)
 {
 	struct sigaction term_action;
 
@@ -468,8 +468,36 @@ static void use_pid_file(void)
 	term_action.sa_flags = 0;
 	if (sigemptyset(&term_action.sa_mask) || sigaction(SIGTERM, &term_action, NULL))
 		errstr(_("Could not register PID file removal on SIGTERM.\n"));
-	if (store_pid())
-		errstr(_("Could not store my PID %jd.\n"), (intmax_t )getpid());
+}
+
+static void fork_daemon(void)
+{
+	pid_t pid = fork();
+	if (pid < 0) {
+		errstr(_("Failed to daemonize: fork: %s\n"), strerror(errno));
+		exit(1);
+	} else if (pid != 0) {
+		if (store_pid(pid)) {
+			errstr(_("Could not store my PID %d.\n"), (int)pid);
+			kill(pid, SIGKILL);
+		}
+		exit(0);
+	}
+
+	setup_sigterm_handler();
+	if (setsid() < 0) {
+		errstr(_("Failed to daemonize: setsid: %s\n"), strerror(errno));
+		exit(1);
+	}
+	if (chdir("/") < 0)
+		errstr(_("Failed to chdir in daemonize\n"));
+	int fd = open("/dev/null", O_RDWR, 0);
+	if (fd >= 0) {
+		dup2(fd, STDIN_FILENO);
+		dup2(fd, STDOUT_FILENO);
+		dup2(fd, STDERR_FILENO);
+		close(fd);
+	}
 }
 
 int main(int argc, char **argv)
@@ -485,11 +513,7 @@ int main(int argc, char **argv)
 		dhandle = init_dbus();
 	if (!(flags & FL_NODAEMON)) {
 		use_syslog();
-		if (daemon(0, 0)) {
-			errstr(_("Failed to daemonize: %s\n"), strerror(errno));
-			exit(1);
-		};
-		use_pid_file();
+		fork_daemon();
 	}
 	run(nsock);
 	return 0;
