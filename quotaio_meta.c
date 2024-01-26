@@ -59,8 +59,8 @@ static int meta_scan_dquots(struct quota_handle *h, int (*process_dquot)(struct 
 	struct if_nextdqblk kdqblk;
 	int ret;
 
-	ret = quotactl(QCMD(Q_GETNEXTQUOTA, h->qh_type), h->qh_quotadev, 0,
-		       (void *)&kdqblk);
+	ret = do_quotactl(QCMD(Q_GETNEXTQUOTA, h->qh_type), h->qh_quotadev,
+			  h->qh_dir, 0, (void *)&kdqblk);
 	/*
 	 * Fall back to scanning using passwd if Q_GETNEXTQUOTA is not
 	 * supported

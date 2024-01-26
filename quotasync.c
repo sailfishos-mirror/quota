@@ -100,7 +100,7 @@ static int sync_one(int type, char *dev)
 {
 	int qcmd = QCMD(Q_SYNC, type);
 
-	return quotactl(qcmd, dev, 0, NULL);
+	return do_quotactl(qcmd, dev, NULL, 0, NULL);
 }
 
 static int syncquotas(int type)

@@ -207,6 +207,7 @@ quotastats_SOURCES = \
 	pot.h
 
 quotastats_LDADD = \
+	libquota.a \
 	$(INTLLIBS)
 
 xqmstats_SOURCES = \

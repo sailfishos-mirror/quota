@@ -50,7 +50,7 @@ int vfs_get_info(struct quota_handle *h)
 {
 	struct if_dqinfo kinfo;
 
-	if (quotactl(QCMD(Q_GETINFO, h->qh_type), h->qh_quotadev, 0, (void *)&kinfo) < 0) {
+	if (do_quotactl(QCMD(Q_GETINFO, h->qh_type), h->qh_quotadev, h->qh_dir, 0, (void *)&kinfo) < 0) {
 		errstr(_("Cannot get info for %s quota file from kernel on %s: %s\n"), type2name(h->qh_type), h->qh_quotadev, strerror(errno));
 		return -1;
 	}
@@ -68,7 +68,7 @@ int vfs_set_info(struct quota_handle *h, int flags)
 	kinfo.dqi_igrace = h->qh_info.dqi_igrace;
 	kinfo.dqi_valid = flags;
 
-	if (quotactl(QCMD(Q_SETINFO, h->qh_type), h->qh_quotadev, 0, (void *)&kinfo) < 0) {
+	if (do_quotactl(QCMD(Q_SETINFO, h->qh_type), h->qh_quotadev, h->qh_dir, 0, (void *)&kinfo) < 0) {
 		errstr(_("Cannot set info for %s quota file from kernel on %s: %s\n"), type2name(h->qh_type), h->qh_quotadev, strerror(errno));
 		return -1;
 	}
@@ -80,7 +80,7 @@ int vfs_get_dquot(struct dquot *dquot)
 {
 	struct if_dqblk kdqblk;
 
-	if (quotactl(QCMD(Q_GETQUOTA, dquot->dq_h->qh_type), dquot->dq_h->qh_quotadev, dquot->dq_id, (void *)&kdqblk) < 0) {
+	if (do_quotactl(QCMD(Q_GETQUOTA, dquot->dq_h->qh_type), dquot->dq_h->qh_quotadev, dquot->dq_h->qh_dir, dquot->dq_id, (void *)&kdqblk) < 0) {
 		errstr(_("Cannot get quota for %s %d from kernel on %s: %s\n"), type2name(dquot->dq_h->qh_type), dquot->dq_id, dquot->dq_h->qh_quotadev, strerror(errno));
 		return -1;
 	}
@@ -95,7 +95,7 @@ int vfs_set_dquot(struct dquot *dquot, int flags)
 
 	generic_util2kerndqblk(&kdqblk, &dquot->dq_dqb);
 	kdqblk.dqb_valid = flags;
-	if (quotactl(QCMD(Q_SETQUOTA, dquot->dq_h->qh_type), dquot->dq_h->qh_quotadev, dquot->dq_id, (void *)&kdqblk) < 0) {
+	if (do_quotactl(QCMD(Q_SETQUOTA, dquot->dq_h->qh_type), dquot->dq_h->qh_quotadev, dquot->dq_h->qh_dir, dquot->dq_id, (void *)&kdqblk) < 0) {
 		errstr(_("Cannot set quota for %s %d from kernel on %s: %s\n"), type2name(dquot->dq_h->qh_type), dquot->dq_id, dquot->dq_h->qh_quotadev, strerror(errno));
 		return -1;
 	}
@@ -188,8 +188,8 @@ int vfs_scan_dquots(struct quota_handle *h,
 
 	dquot->dq_h = h;
 	while (1) {
-		ret = quotactl(QCMD(Q_GETNEXTQUOTA, h->qh_type),
-			       h->qh_quotadev, id, (void *)&kdqblk);
+		ret = do_quotactl(QCMD(Q_GETNEXTQUOTA, h->qh_type),
+			       h->qh_quotadev, h->qh_dir, id, (void *)&kdqblk);
 		if (ret < 0)
 			break;
 

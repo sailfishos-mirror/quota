@@ -206,6 +206,9 @@ void end_mounts_scan(void);
 /* Parse kernel version and return 1 if ext4 supports quota feature */
 int ext4_supports_quota_feature(void);
 
+/* Wrapper around quota syscalls, either call quotactl or quotactl_fd */
+int do_quotactl(int cmd, const char *dev, const char *mnt, int id, caddr_t addr);
+
 /* Quota output formats */
 #define QOF_ERROR	-1
 #define QOF_DEFAULT	0

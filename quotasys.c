@@ -25,6 +25,7 @@
 #include <sys/vfs.h>
 #include <stdint.h>
 #include <sys/utsname.h>
+#include <sys/syscall.h>
 
 #include "pot.h"
 #include "bylabel.h"
@@ -671,6 +672,36 @@ const char *str2number(const char *string, qsize_t *inodes)
 }
 
 /*
+ * Wrappers for quotactl syscalls
+ */
+#ifdef SYS_quotactl_fd
+int do_quotactl(int cmd, const char *dev, const char *mnt, int id, caddr_t addr)
+{
+	int ret = -EINVAL;
+
+	if (mnt && !dev) {
+		int fd = open(mnt, O_DIRECTORY | O_PATH);
+
+		if (fd < 0) {
+			errstr(_("Unable to get a filedescriptor from mountpoint: %s\n"), mnt);
+			return fd;
+		}
+
+		ret = syscall(SYS_quotactl_fd, fd, cmd, id, addr);
+		close(fd);
+		return ret;
+	}
+
+	return quotactl(cmd, dev, id, addr);
+}
+#else
+int do_quotactl(int cmd, const char *dev, const char *mnt, int id, caddr_t addr)
+{
+	return quotactl(cmd, dev, id, addr);
+}
+#endif
+
+/*
  *	Wrappers for mount options processing functions
  */
 
@@ -685,7 +716,7 @@ static int hasxfsquota(const char *dev, struct mntent *mnt, int type, int flags)
 		return QF_XFS;
 
 	memset(&info, 0, sizeof(struct xfs_mem_dqinfo));
-	if (!quotactl(QCMD(Q_XFS_GETQSTAT, type), dev, 0, (void *)&info)) {
+	if (!do_quotactl(QCMD(Q_XFS_GETQSTAT, type), dev, mnt->mnt_dir, 0, (void *)&info)) {
 #ifdef XFS_ROOTHACK
 		int sbflags = (info.qs_flags & 0xff00) >> 8;
 #endif /* XFS_ROOTHACK */
@@ -719,7 +750,7 @@ static int hasvfsmetaquota(const char *dev, struct mntent *mnt, int type, int fl
 {
 	uint32_t fmt;
 
-	if (!quotactl(QCMD(Q_GETFMT, type), dev, 0, (void *)&fmt))
+	if (!do_quotactl(QCMD(Q_GETFMT, type), dev, mnt->mnt_dir, 0, (void *)&fmt))
 		return QF_META;
 	return QF_ERROR;
 }
@@ -796,7 +827,7 @@ static int hasquota(const char *dev, struct mntent *mnt, int type, int flags)
 	if (!strcmp(mnt->mnt_type, MNTTYPE_EXT4) || !strcmp(mnt->mnt_type, MNTTYPE_F2FS)) {
 		struct if_dqinfo kinfo;
 
-		if (quotactl(QCMD(Q_GETINFO, type), dev, 0, (void *)&kinfo) == 0) {
+		if (do_quotactl(QCMD(Q_GETINFO, type), dev, mnt->mnt_dir, 0, (void *)&kinfo) == 0) {
 			if (kinfo.dqi_flags & DQF_SYS_FILE)
 				return QF_META;
 		}
@@ -1069,11 +1100,11 @@ void init_kernel_interface(void)
 		else {
 			fs_quota_stat_t dummy;
 
-			if (!quotactl(QCMD(Q_XGETQSTAT, 0), "/dev/root", 0, (void *)&dummy) ||
+			if (!do_quotactl(QCMD(Q_XGETQSTAT, 0), "/dev/root", NULL, 0, (void *)&dummy) ||
 			    (errno != EINVAL && errno != ENOSYS))
 				kernel_qfmt[kernel_qfmt_num++] = QF_XFS;
 		}
-		if (quotactl(QCMD(Q_V2_GETSTATS, 0), NULL, 0, (void *)&v2_stats) >= 0) {
+		if (do_quotactl(QCMD(Q_V2_GETSTATS, 0), NULL, NULL, 0, (void *)&v2_stats) >= 0) {
 			kernel_qfmt[kernel_qfmt_num++] = QF_VFSV0;
 			kernel_iface = IFACE_VFSV0;
 		}
@@ -1085,9 +1116,9 @@ void init_kernel_interface(void)
 			int err_quota = 0;
  			char tmp[1024];         /* Just temporary buffer */
 
-			if (quotactl(QCMD(Q_V1_GETSTATS, 0), NULL, 0, tmp))
+			if (do_quotactl(QCMD(Q_V1_GETSTATS, 0), NULL, NULL, 0, tmp))
 				err_stat = errno;
-			if (quotactl(QCMD(Q_V1_GETQUOTA, 0), "/dev/null", 0, tmp))
+			if (do_quotactl(QCMD(Q_V1_GETQUOTA, 0), "/dev/null", NULL, 0, tmp))
 				err_quota = errno;
 
 			/* On a RedHat 2.4.2-2 	we expect 0, EINVAL
@@ -1127,7 +1158,7 @@ static int v1_kern_quota_on(const char *dev, int type)
 	char tmp[1024];		/* Just temporary buffer */
 	qid_t id = (type == USRQUOTA) ? getuid() : getgid();
 
-	if (!quotactl(QCMD(Q_V1_GETQUOTA, type), dev, id, tmp))	/* OK? */
+	if (!do_quotactl(QCMD(Q_V1_GETQUOTA, type), dev, NULL, id, tmp))	/* OK? */
 		return 1;
 	return 0;
 }
@@ -1138,7 +1169,7 @@ static int v2_kern_quota_on(const char *dev, int type)
 	char tmp[1024];		/* Just temporary buffer */
 	qid_t id = (type == USRQUOTA) ? getuid() : getgid();
 
-	if (!quotactl(QCMD(Q_V2_GETQUOTA, type), dev, id, tmp))	/* OK? */
+	if (!do_quotactl(QCMD(Q_V2_GETQUOTA, type), dev, NULL, id, tmp))	/* OK? */
 		return 1;
 	return 0;
 }
@@ -1155,7 +1186,7 @@ int kern_quota_state_xfs(const char *dev, int type)
 {
 	struct xfs_mem_dqinfo info;
 
-	if (!quotactl(QCMD(Q_XFS_GETQSTAT, type), dev, 0, (void *)&info)) {
+	if (!do_quotactl(QCMD(Q_XFS_GETQSTAT, type), dev, NULL, 0, (void *)&info)) {
 		if (type == USRQUOTA) {
 			return !!(info.qs_flags & XFS_QUOTA_UDQ_ACCT) +
 			       !!(info.qs_flags & XFS_QUOTA_UDQ_ENFD);
@@ -1199,8 +1230,8 @@ int kern_quota_on(struct mount_entry *mnt, int type, int fmt)
 	if (kernel_iface == IFACE_GENERIC) {
 		int actfmt;
 
-		if (quotactl(QCMD(Q_GETFMT, type), mnt->me_devname, 0,
-			     (void *)&actfmt) >= 0) {
+		if (do_quotactl(QCMD(Q_GETFMT, type), mnt->me_devname,
+				mnt->me_dir, 0, (void *)&actfmt) >= 0) {
 			actfmt = kern2utilfmt(actfmt);
 			if (actfmt >= 0)
 				return actfmt;

@@ -140,8 +140,8 @@ struct quota_handle *init_io(struct mount_entry *mnt, int type, int fmt, int fla
 		if (QIO_ENABLED(h)) {	/* Kernel uses same file? */
 			unsigned int cmd =
 				(kernel_iface == IFACE_GENERIC) ? Q_SYNC : Q_6_5_SYNC;
-			if (quotactl(QCMD(cmd, h->qh_type), h->qh_quotadev,
-				     0, NULL) < 0) {
+			if (do_quotactl(QCMD(cmd, h->qh_type), h->qh_quotadev,
+				     h->qh_dir, 0,  NULL) < 0) {
 				die(4, _("Cannot sync quotas on device %s: %s\n"),
 				    h->qh_quotadev, strerror(errno));
 			}

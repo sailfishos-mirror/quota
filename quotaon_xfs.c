@@ -32,7 +32,7 @@ static int xfs_state_check(int qcmd, int type, int flags, const char *dev, int r
 	if (flags & STATEFLAG_ALL)
 		return 0;	/* noop */
 
-	if (quotactl(QCMD(Q_XFS_GETQSTAT, type), dev, 0, (void *)&info) < 0) {
+	if (do_quotactl(QCMD(Q_XFS_GETQSTAT, type), dev, NULL, 0, (void *)&info) < 0) {
 		errstr(_("quotactl() on %s: %s\n"), dev, strerror(errno));
 		return -1;
 	}
@@ -156,7 +156,7 @@ static int xfs_onoff(const char *dev, int type, int flags, int roothack, int xop
 	if (check != 1)
 		return (check < 0);
 
-	if (quotactl(QCMD(qcmd, type), dev, 0, (void *)&xopts) < 0) {
+	if (do_quotactl(QCMD(qcmd, type), dev, NULL, 0, (void *)&xopts) < 0) {
 		errstr(_("quotactl on %s: %s\n"), dev, strerror(errno));
 		return 1;
 	}
@@ -176,7 +176,7 @@ static int xfs_delete(const char *dev, int type, int flags, int roothack, int xo
 	if (check != 1)
 		return (check < 0);
 
-	if (quotactl(QCMD(qcmd, type), dev, 0, (void *)&xopts) < 0) {
+	if (do_quotactl(QCMD(qcmd, type), dev, NULL, 0, (void *)&xopts) < 0) {
 		errstr(_("Failed to delete quota: %s\n"),
 			strerror(errno));
 		return 1;
@@ -208,7 +208,8 @@ int xfs_newstate(struct mount_entry *mnt, int type, char *xarg, int flags)
 		struct xfs_mem_dqinfo info;
 		u_int16_t sbflags = 0;
 
-		if (!quotactl(QCMD(Q_XFS_GETQSTAT, type), mnt->me_devname, 0, (void *)&info))
+		if (!quotactl(QCMD(Q_XFS_GETQSTAT, type), mnt->me_devname,
+			      mnt->me_dir, 0, (void *)&info))
 			sbflags = (info.qs_flags & 0xff00) >> 8;
 
 		if ((type == USRQUOTA && (sbflags & XFS_QUOTA_UDQ_ACCT)) &&

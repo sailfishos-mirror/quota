@@ -152,13 +152,13 @@ static int quotarsquashonoff(const char *quotadev, int type, int flags)
 
 		info.dqi_flags = V1_DQF_RSQUASH;
 		info.dqi_valid = IIF_FLAGS;
-		ret = quotactl(qcmd, quotadev, 0, (void *)&info);
+		ret = do_quotactl(qcmd, quotadev, NULL, 0, (void *)&info);
 	}
 	else {
 		int mode = (flags & STATEFLAG_OFF) ? 0 : 1;
 		int qcmd = QCMD(Q_V1_RSQUASH, type);
 
-		ret = quotactl(qcmd, quotadev, 0, (void *)&mode);
+		ret = do_quotactl(qcmd, quotadev, NULL, 0, (void *)&mode);
 	}
 	if (ret < 0) {
 		errstr(_("set root_squash on %s: %s\n"), quotadev, strerror(errno));
@@ -184,7 +184,7 @@ static int quotaonoff(const char *quotadev, const char *quotadir, char *quotafil
 			qcmd = QCMD(Q_QUOTAOFF, type);
 		else
 			qcmd = QCMD(Q_6_5_QUOTAOFF, type);
-		if (quotactl(qcmd, quotadev, 0, NULL) < 0) {
+		if (do_quotactl(qcmd, quotadev, quotadir, 0, NULL) < 0) {
 			errstr(_("quotactl on %s [%s]: %s\n"), quotadev, quotadir, strerror(errno));
 			return 1;
 		}
@@ -199,7 +199,7 @@ static int quotaonoff(const char *quotadev, const char *quotadir, char *quotafil
 		qcmd = QCMD(Q_6_5_QUOTAON, type);
 		kqf = 0;
 	}
-	if (quotactl(qcmd, quotadev, kqf, (void *)quotafile) < 0) {
+	if (do_quotactl(qcmd, quotadev, quotadir, kqf, (void *)quotafile) < 0) {
 		if (errno == ENOENT)
 			errstr(_("cannot find %s on %s [%s]\n"), quotafile, quotadev, quotadir);
 		else
