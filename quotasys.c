@@ -1223,7 +1223,7 @@ int kern_quota_on(struct mount_entry *mnt, int type, int fmt)
  */
 
 struct searched_dir {
-	int sd_dir;		/* Is searched dir mountpoint or in fact device? */
+	int sd_isdir;		/* Is searched dir mountpoint or in fact device? */
 	dev_t sd_dev;		/* Device mountpoint lies on */
 	ino_t sd_ino;		/* Inode number of mountpoint */
 	const char *sd_name;	/* Name of given dir/device */
@@ -1454,7 +1454,7 @@ static int process_dirs(int dcnt, char **dirs, int flags)
 					errstr(_("Cannot stat() given mountpoint %s: %s\nSkipping...\n"), dirs[i], strerror(errno));
 					continue;
 				}
-			check_dirs[check_dirs_cnt].sd_dir = S_ISDIR(st.st_mode);
+			check_dirs[check_dirs_cnt].sd_isdir = S_ISDIR(st.st_mode);
 			if (S_ISDIR(st.st_mode)) {
 				const char *realmnt = dirs[i];
 
@@ -1538,7 +1538,7 @@ restart:
 		return 0;
 	sd = check_dirs + act_checked;
 	for (i = 0; i < mnt_entries_cnt; i++) {
-		if (sd->sd_dir) {
+		if (sd->sd_isdir) {
 			if (sd->sd_dev == mnt_entries[i].me_dev && sd->sd_ino == mnt_entries[i].me_ino)
 				break;
 		}
