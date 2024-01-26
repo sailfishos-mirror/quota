@@ -128,7 +128,7 @@ static int xfs_init_io(struct quota_handle *h)
 
 	qcmd = QCMD(Q_XFS_GETQSTAT, h->qh_type);
 	memset(&info, 0, sizeof(struct xfs_mem_dqinfo));
-	if (do_quotactl(qcmd, h->qh_quotadev, h->qh_dir, 0, (void *)&info) < 0)
+	if (quotactl_handle(qcmd, h, 0, (void *)&info) < 0)
 		return -1;
 	h->qh_info.dqi_bgrace = info.qs_btimelimit;
 	h->qh_info.dqi_igrace = info.qs_itimelimit;
@@ -153,7 +153,7 @@ static int xfs_write_info(struct quota_handle *h)
 	xdqblk.d_itimer = h->qh_info.dqi_igrace;
 	xdqblk.d_fieldmask |= FS_DQ_TIMER_MASK;
 	qcmd = QCMD(Q_XFS_SETQLIM, h->qh_type);
-	if (do_quotactl(qcmd, h->qh_quotadev, h->qh_dir, 0, (void *)&xdqblk) < 0)
+	if (quotactl_handle(qcmd, h, 0, (void *)&xdqblk) < 0)
 		return -1;
 	return 0;
 }

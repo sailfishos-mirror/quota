@@ -22,6 +22,7 @@
 #define MNTTYPE_MPFS		"mpfs"  /* EMC Celerra MPFS filesystem */
 #define MNTTYPE_OCFS2		"ocfs2"	/* Oracle Cluster filesystem */
 #define MNTTYPE_GFS2		"gfs2"	/* Red Hat Global filesystem 2 */
+#define MNTTYPE_TMPFS		"tmpfs"	/* tmpfs filesystem */
 
 #ifndef MNTTYPE_NFS
 #define MNTTYPE_NFS	"nfs"		/* Network file system.  */

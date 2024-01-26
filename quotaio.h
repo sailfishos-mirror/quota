@@ -182,4 +182,6 @@ struct dquot *get_empty_dquot(void);
 /* Check whether values in current dquot can be stored on disk */
 int check_dquot_range(struct dquot *dquot);
 
+/* Uses do_quotactl() to call quotactl() or quotactl_fd() */
+int quotactl_handle(int cmd, struct quota_handle *h, int id, void *addr);
 #endif /* GUARD_QUOTAIO_H */

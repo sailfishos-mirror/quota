@@ -70,7 +70,15 @@ int nfs_fstype(char *type)
  */
 int meta_qf_fstype(char *type)
 {
-	return !strcmp(type, MNTTYPE_OCFS2);
+	return !strcmp(type, MNTTYPE_OCFS2) || !strcmp(type, MNTTYPE_TMPFS);
+}
+
+/*
+ *	Check whether the filesystem is not using block device as a backing
+ */
+int nodev_fstype(char *type)
+{
+	return !strcmp(type, MNTTYPE_TMPFS) || nfs_fstype(type);
 }
 
 /*
@@ -752,6 +760,7 @@ static int hasvfsmetaquota(const char *dev, struct mntent *mnt, int type, int fl
 
 	if (!do_quotactl(QCMD(Q_GETFMT, type), dev, mnt->mnt_dir, 0, (void *)&fmt))
 		return QF_META;
+
 	return QF_ERROR;
 }
 
@@ -816,8 +825,13 @@ static int hasquota(const char *dev, struct mntent *mnt, int type, int flags)
 	    !strcmp(mnt->mnt_type, MNTTYPE_XFS) ||
 	    !strcmp(mnt->mnt_type, MNTTYPE_EXFS))
 		return hasxfsquota(dev, mnt, type, flags);
+
 	if (!strcmp(mnt->mnt_type, MNTTYPE_OCFS2))
 		return hasvfsmetaquota(dev, mnt, type, flags);
+
+	/* tmpfs has no device, pass null here so quotactl_fd() is called */
+	if (!strcmp(mnt->mnt_type, MNTTYPE_TMPFS))
+		return hasvfsmetaquota(NULL, mnt, type, flags);
 	/*
 	 * For ext4 we check whether it has quota in system files and if not,
 	 * we fall back on checking standard quotas. Furthermore we cannot use
@@ -1384,7 +1398,7 @@ alloc:
 			continue;
 		}
 
-		if (!nfs_fstype(mnt->mnt_type)) {
+		if (!nodev_fstype(mnt->mnt_type)) {
 			if (stat(devname, &st) < 0) {	/* Can't stat mounted device? */
 				errstr(_("Cannot stat() mounted device %s: %s\n"), devname, strerror(errno));
 				free((char *)devname);
@@ -1398,15 +1412,16 @@ alloc:
 			dev = st.st_rdev;
 			for (i = 0; i < mnt_entries_cnt && mnt_entries[i].me_dev != dev; i++);
 		}
-		/* Cope with network filesystems or new mountpoint */
-		if (nfs_fstype(mnt->mnt_type) || i == mnt_entries_cnt) {
+
+		/* Cope with filesystems without a block device or new mountpoint */
+		if (nodev_fstype(mnt->mnt_type) || i == mnt_entries_cnt) {
 			if (stat(mnt->mnt_dir, &st) < 0) {	/* Can't stat mountpoint? We have better ignore it... */
 				errstr(_("Cannot stat() mountpoint %s: %s\n"), mnt->mnt_dir, strerror(errno));
 				free((char *)devname);
 				continue;
 			}
-			if (nfs_fstype(mnt->mnt_type)) {
-				/* For network filesystems we must get device from root */
+			if (nodev_fstype(mnt->mnt_type)) {
+				/* For filesystems without block device we must get device from root */
 				dev = st.st_dev;
 				if (!(flags & MS_NFS_ALL)) {
 					for (i = 0; i < mnt_entries_cnt && mnt_entries[i].me_dev != dev; i++);

@@ -34,6 +34,22 @@ struct disk_dqheader {
 	u_int32_t dqh_version;
 } __attribute__ ((packed));
 
+int quotactl_handle(int cmd, struct quota_handle *h, int id, void *addr)
+{
+	int err = -EINVAL;
+
+	if (!h)
+		return err;
+
+	if (!strcmp(h->qh_fstype, MNTTYPE_TMPFS))
+		err = do_quotactl(QCMD(cmd, h->qh_type), NULL, h->qh_dir,
+					id, addr);
+	else
+		err = do_quotactl(QCMD(cmd, h->qh_type), h->qh_quotadev,
+					h->qh_dir, id, addr);
+
+	return err;
+}
 /*
  *	Detect quota format and initialize quota IO
  */
@@ -140,8 +156,7 @@ struct quota_handle *init_io(struct mount_entry *mnt, int type, int fmt, int fla
 		if (QIO_ENABLED(h)) {	/* Kernel uses same file? */
 			unsigned int cmd =
 				(kernel_iface == IFACE_GENERIC) ? Q_SYNC : Q_6_5_SYNC;
-			if (do_quotactl(QCMD(cmd, h->qh_type), h->qh_quotadev,
-				     h->qh_dir, 0,  NULL) < 0) {
+			if (quotactl_handle(cmd, h, 0,  NULL) < 0) {
 				die(4, _("Cannot sync quotas on device %s: %s\n"),
 				    h->qh_quotadev, strerror(errno));
 			}
