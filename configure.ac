@@ -263,7 +263,7 @@ AS_IF([test x"$enable_xfs_roothack" = "xyes"], [
 AC_ARG_ENABLE([bsd-behaviour],
     [AS_HELP_STRING([--disable-bsd-behaviour], [Mimic BSD behaviour])],
     [enable_bsd_behaviour="$enableval"],
-    [enable_bsd_behaviour=yes]
+    [enable_bsd_behaviour="no"]
 )
 AS_IF([test x"$enable_bsd_behaviour" != "xno"], [
     AC_DEFINE([BSD_BEHAVIOUR], 1, [Check rights to query / set quotas before calling quotactl])
