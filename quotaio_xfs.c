@@ -161,7 +161,6 @@ static struct dquot *xfs_read_dquot(struct quota_handle *h, qid_t id)
 {
 	struct dquot *dquot = get_empty_dquot();
 	struct xfs_kern_dqblk xdqblk;
-	int qcmd;
 
 	dquot->dq_id = id;
 	dquot->dq_h = h;
@@ -169,9 +168,7 @@ static struct dquot *xfs_read_dquot(struct quota_handle *h, qid_t id)
 	if (!XFS_USRQUOTA(h) && !XFS_GRPQUOTA(h) && !XFS_PRJQUOTA(h))
 		return dquot;
 
-	qcmd = QCMD(Q_XFS_GETQUOTA, h->qh_type);
-	if (do_quotactl(qcmd, h->qh_quotadev, h->qh_dir,
-			id, (void *)&xdqblk) < 0) {
+	if (quotactl_handle(Q_XFS_GETQUOTA, h, id, (void *)&xdqblk) < 0) {
 		/*
 		 * ENOENT means the structure just does not exist - return all
 		 * zeros. Otherwise return failure.
@@ -194,7 +191,6 @@ static int xfs_commit_dquot(struct dquot *dquot, int flags)
 	struct quota_handle *h = dquot->dq_h;
 	struct xfs_kern_dqblk xdqblk;
 	qid_t id = dquot->dq_id;
-	int qcmd;
 
 	if (!XFS_USRQUOTA(h) && !XFS_GRPQUOTA(h) && !XFS_PRJQUOTA(h))
 		return 0;
@@ -221,8 +217,7 @@ static int xfs_commit_dquot(struct dquot *dquot, int flags)
 			xdqblk.d_fieldmask |= FS_DQ_TIMER_MASK;
 	}
 
-	qcmd = QCMD(Q_XFS_SETQLIM, h->qh_type);
-	if (do_quotactl(qcmd, h->qh_quotadev, h->qh_dir, id, (void *)&xdqblk) < 0)
+	if (quotactl_handle(Q_XFS_SETQLIM, h, id, (void *)&xdqblk) < 0)
 		return -1;
 	return 0;
 }
@@ -233,12 +228,10 @@ static int xfs_commit_dquot(struct dquot *dquot, int flags)
 static int xfs_get_dquot(struct dquot *dq)
 {
 	struct xfs_kern_dqblk d;
-	int qcmd = QCMD(Q_XFS_GETQUOTA, dq->dq_h->qh_type);
 	int ret;
 
 	memset(&d, 0, sizeof(d));
-	ret = do_quotactl(qcmd, dq->dq_h->qh_quotadev, dq->dq_h->qh_dir,
-			  dq->dq_id, (void *)&d);
+	ret = quotactl_handle(Q_XFS_GETQUOTA, dq->dq_h, dq->dq_id, (void *)&d);
 
 	if (ret < 0) {
 		if (errno == ENOENT)
