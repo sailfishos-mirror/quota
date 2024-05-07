@@ -176,7 +176,12 @@ static struct dquot *xfs_read_dquot(struct quota_handle *h, qid_t id)
 	qcmd = QCMD(Q_XFS_GETQUOTA, h->qh_type);
 	if (do_quotactl(qcmd, h->qh_quotadev, h->qh_dir,
 			id, (void *)&xdqblk) < 0) {
-		;
+		/*
+		 * ENOENT means the structure just does not exist - return all
+		 * zeros. Otherwise return failure.
+		 */
+		if (errno != ENOENT)
+			return NULL;
 	}
 	else {
 		xfs_kern2utildqblk(&dquot->dq_dqb, &xdqblk);
