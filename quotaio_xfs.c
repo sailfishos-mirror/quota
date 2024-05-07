@@ -124,11 +124,9 @@ static inline int xfs_util2kerndqblk(struct xfs_kern_dqblk *k, struct util_dqblk
 static int xfs_init_io(struct quota_handle *h)
 {
 	struct xfs_mem_dqinfo info;
-	int qcmd;
 
-	qcmd = QCMD(Q_XFS_GETQSTAT, h->qh_type);
 	memset(&info, 0, sizeof(struct xfs_mem_dqinfo));
-	if (quotactl_handle(qcmd, h, 0, (void *)&info) < 0)
+	if (quotactl_handle(Q_XFS_GETQSTAT, h, 0, (void *)&info) < 0)
 		return -1;
 	h->qh_info.dqi_bgrace = info.qs_btimelimit;
 	h->qh_info.dqi_igrace = info.qs_itimelimit;
@@ -142,7 +140,6 @@ static int xfs_init_io(struct quota_handle *h)
 static int xfs_write_info(struct quota_handle *h)
 {
 	struct xfs_kern_dqblk xdqblk;
-	int qcmd;
 
 	if (!XFS_USRQUOTA(h) && !XFS_GRPQUOTA(h) && !XFS_PRJQUOTA(h))
 		return 0;
@@ -152,8 +149,7 @@ static int xfs_write_info(struct quota_handle *h)
 	xdqblk.d_btimer = h->qh_info.dqi_bgrace;
 	xdqblk.d_itimer = h->qh_info.dqi_igrace;
 	xdqblk.d_fieldmask |= FS_DQ_TIMER_MASK;
-	qcmd = QCMD(Q_XFS_SETQLIM, h->qh_type);
-	if (quotactl_handle(qcmd, h, 0, (void *)&xdqblk) < 0)
+	if (quotactl_handle(Q_XFS_SETQLIM, h, 0, (void *)&xdqblk) < 0)
 		return -1;
 	return 0;
 }
@@ -180,8 +176,9 @@ static struct dquot *xfs_read_dquot(struct quota_handle *h, qid_t id)
 		 * ENOENT means the structure just does not exist - return all
 		 * zeros. Otherwise return failure.
 		 */
-		if (errno != ENOENT)
+		if (errno != ENOENT) {
 			return NULL;
+		}
 	}
 	else {
 		xfs_kern2utildqblk(&dquot->dq_dqb, &xdqblk);
