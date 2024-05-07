@@ -86,6 +86,9 @@ struct dquot *getprivs(qid_t id, struct quota_handle **handles, int ignore_noquo
 			case GRPQUOTA:
 				if (geteuid() == 0)
 					break;
+				/* Effective gid needn't be in getgroups() output */
+				if (getegid() == id)
+					break;
 				ngroups = sysconf(_SC_NGROUPS_MAX);
 				if (ngroups > NGROUPS_MAX) {
 					gidsetp = malloc(ngroups * sizeof(gid_t));
