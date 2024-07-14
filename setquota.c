@@ -18,6 +18,7 @@
 #include <time.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <libgen.h>
 
 #if defined(RPC)
 #include "rquota.h"

@@ -34,6 +34,7 @@
 #include <signal.h>
 #include <errno.h>
 #include <netconfig.h>
+#include <libgen.h>
 #ifdef HOSTS_ACCESS
 #include <tcpd.h>
 #include <netdb.h>

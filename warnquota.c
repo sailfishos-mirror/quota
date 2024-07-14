@@ -31,6 +31,7 @@
 #include <time.h>
 #include <getopt.h>
 #include <locale.h>
+#include <libgen.h>
 #ifdef HAVE_NL_LANGINFO
 #include <langinfo.h>
 #endif

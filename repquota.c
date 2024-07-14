@@ -18,6 +18,7 @@
 #include <pwd.h>
 #include <grp.h>
 #include <getopt.h>
+#include <libgen.h>
 
 #include "pot.h"
 #include "common.h"

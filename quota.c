@@ -20,6 +20,7 @@
 #include <unistd.h>
 #include <limits.h>
 #include <ctype.h>
+#include <libgen.h>
 #ifdef RPC
 #include <rpc/rpc.h>
 #include "rquota.h"

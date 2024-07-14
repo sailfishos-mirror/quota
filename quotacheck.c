@@ -19,6 +19,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <libgen.h>
 
 #include <sys/stat.h>
 #include <sys/types.h>

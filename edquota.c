@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <getopt.h>
+#include <libgen.h>
 
 #include "pot.h"
 #include "quotaops.h"
@@ -38,7 +39,7 @@ char *progname;
 static int flags, quotatype;
 static int fmt = -1;
 static char *protoname;
-static char *dirname;
+static char *dir_name;
 
 static void usage(void)
 {
@@ -138,7 +139,7 @@ static int parse_options(int argc, char **argv)
 				  exit(1);
 			  break;
 		  case 'f':
-			  dirname = optarg;
+			  dir_name = optarg;
 			  break;
 		  case 256:
 			  flags |= FL_NUMNAMES;
@@ -176,7 +177,7 @@ static void copy_prototype(int argc, char **argv, struct quota_handle **handles)
 	protoprivs = getprivs(protoid, handles, 0);
 	while (argc-- > 0) {
 		id = name2id(*argv, quotatype, !!(flags & FL_NUMNAMES), NULL);
-		curprivs = getprivs(id, handles, !dirname);
+		curprivs = getprivs(id, handles, !dir_name);
 		if (!curprivs)
 			die(1, _("Cannot get quota information for user %s\n"), *argv);
 		argv++;
@@ -223,7 +224,7 @@ int main(int argc, char **argv)
 	argv += ret;
 
 	init_kernel_interface();
-	handles = create_handle_list(dirname ? 1 : 0, dirname ? &dirname : NULL, quotatype, fmt,
+	handles = create_handle_list(dir_name ? 1 : 0, dir_name ? &dir_name : NULL, quotatype, fmt,
 			(flags & FL_NO_MIXED_PATHS) ? 0 : IOI_NFS_MIXED_PATHS,
 			(flags & FL_REMOTE) ? 0 : MS_LOCALONLY);
 	if (!handles[0]) {
@@ -296,7 +297,7 @@ int main(int argc, char **argv)
 	else {
 		for (; argc > 0; argc--, argv++) {
 			id = name2id(*argv, quotatype, !!(flags & FL_NUMNAMES), NULL);
-			curprivs = getprivs(id, handles, !dirname);
+			curprivs = getprivs(id, handles, !dir_name);
 			if (!curprivs)
 				die(1, _("Cannot get quota information for user %s.\n"), *argv);
 			if (flags & FL_EDIT_TIMES) {

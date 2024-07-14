@@ -14,6 +14,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <getopt.h>
+#include <libgen.h>
 
 #include <endian.h>
 

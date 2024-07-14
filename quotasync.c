@@ -7,6 +7,7 @@
 #include <string.h>
 #include <errno.h>
 #include <getopt.h>
+#include <libgen.h>
 
 #include "pot.h"
 #include "common.h"
