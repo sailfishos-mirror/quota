@@ -41,7 +41,8 @@ int quotactl_handle(int cmd, struct quota_handle *h, int id, void *addr)
 	if (!h)
 		return err;
 
-	if (!strcmp(h->qh_fstype, MNTTYPE_TMPFS))
+	if (!strcmp(h->qh_fstype, MNTTYPE_TMPFS) ||
+	    !strcmp(h->qh_fstype, MNTTYPE_BCACHEFS))
 		err = do_quotactl(QCMD(cmd, h->qh_type), NULL, h->qh_dir,
 					id, addr);
 	else

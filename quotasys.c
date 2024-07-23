@@ -70,7 +70,8 @@ int nfs_fstype(char *type)
  */
 int meta_qf_fstype(char *type)
 {
-	return !strcmp(type, MNTTYPE_OCFS2) || !strcmp(type, MNTTYPE_TMPFS);
+	return !strcmp(type, MNTTYPE_OCFS2) || !strcmp(type, MNTTYPE_TMPFS) ||
+	       !strcmp(type, MNTTYPE_BCACHEFS);
 }
 
 /*
@@ -78,7 +79,8 @@ int meta_qf_fstype(char *type)
  */
 int nodev_fstype(char *type)
 {
-	return !strcmp(type, MNTTYPE_TMPFS) || nfs_fstype(type);
+	return !strcmp(type, MNTTYPE_TMPFS) ||
+	       !strcmp(type, MNTTYPE_BCACHEFS) || nfs_fstype(type);
 }
 
 /*
@@ -829,8 +831,10 @@ static int hasquota(const char *dev, struct mntent *mnt, int type, int flags)
 	if (!strcmp(mnt->mnt_type, MNTTYPE_OCFS2))
 		return hasvfsmetaquota(dev, mnt, type, flags);
 
-	/* tmpfs has no device, pass null here so quotactl_fd() is called */
-	if (!strcmp(mnt->mnt_type, MNTTYPE_TMPFS))
+	/* tmpfs has no device, bcachefs has possibly many devices. Pass null
+	 * here so quotactl_fd() is called */
+	if (!strcmp(mnt->mnt_type, MNTTYPE_TMPFS) ||
+	    !strcmp(mnt->mnt_type, MNTTYPE_BCACHEFS))
 		return hasvfsmetaquota(NULL, mnt, type, flags);
 	/*
 	 * For ext4 we check whether it has quota in system files and if not,
