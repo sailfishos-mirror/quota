@@ -67,4 +67,44 @@ int timespec_cmp(struct timespec *a, struct timespec *b);
 /* Convert command line option to desired output unit */
 int unitopt2unit(char *opt, enum s2s_unit *space_unit, enum s2s_unit *inode_unit);
 
+#define MAXNAMELEN 64		/* Maximal length of user/group name */
+
+struct fs_project {
+	unsigned int pr_id;
+	char *pr_name;
+};
+
+/* Rewind /etc/projid to the beginning */
+void setprent(void);
+
+/* Close /etc/projid file */
+void endprent(void);
+
+/* Get next entry in /etc/projid */
+struct fs_project *getprent(void);
+
+/* Convert username to uid */
+uid_t user2uid(char *, int flag, int *err);
+
+/* Convert groupname to gid */
+gid_t group2gid(char *, int flag, int *err);
+
+/* Convert project name to project id */
+unsigned int project2pid(char *name, int flag, int *err);
+
+/* Convert uid to username */
+int uid2user(uid_t, char *);
+
+/* Convert gid to groupname */
+int gid2group(gid_t, char *);
+
+/* Convert project id to name */
+int pid2project(unsigned int, char *);
+
+/* Possible default passwd handling */
+#define PASSWD_FILES 0
+#define PASSWD_DB 1
+/* Parse /etc/nsswitch.conf and return type of default passwd handling */
+int passwd_handling(void);
+
 #endif /* GUARD_COMMON_H */
