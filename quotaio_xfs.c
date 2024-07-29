@@ -174,6 +174,7 @@ static struct dquot *xfs_read_dquot(struct quota_handle *h, qid_t id)
 		 * zeros. Otherwise return failure.
 		 */
 		if (errno != ENOENT) {
+			free(dquot);
 			return NULL;
 		}
 	}
