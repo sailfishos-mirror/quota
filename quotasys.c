@@ -504,9 +504,16 @@ static int hasxfsquota(const char *dev, struct mntent *mnt, int type, int flags)
 
 static int hasvfsmetaquota(const char *dev, struct mntent *mnt, int type, int flags)
 {
-	uint32_t fmt;
+	struct if_dqinfo info;
 
-	if (!do_quotactl(QCMD(Q_GETFMT, type), dev, mnt->mnt_dir, 0, (void *)&fmt))
+	/*
+	 * Some filesystems such as bcachefs do support QF_META format but
+	 * they don't use generic infrastructure for tracking quotas and
+	 * hence they don't set quota format. Q_GETINFO is a reliable way to
+	 * detect both such filesystems and all other filesystems using QF_META
+	 * format.
+	 */
+	if (!do_quotactl(QCMD(Q_GETINFO, type), dev, mnt->mnt_dir, 0, (void *)&info))
 		return QF_META;
 
 	return QF_ERROR;
