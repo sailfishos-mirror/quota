@@ -1,14 +1,14 @@
 # Polish translation for quota.
 # Copyright (C) 2000, 2003, 2004, 2005 Free Software Foundation, Inc.
 # PAUL NIEWIADOMSKI <lilo@free.poltronic.net>, 2000.
-# Jakub Bogusz <qboosh@pld-linux.org>, 2003-2014.
+# Jakub Bogusz <qboosh@pld-linux.org>, 2003-2025.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: quota 4.01\n"
+"Project-Id-Version: quota 4.09\n"
 "Report-Msgid-Bugs-To: jack@suse.cz\n"
 "POT-Creation-Date: 2022-09-16 13:08+0200\n"
-"PO-Revision-Date: 2014-07-23 22:00+0200\n"
+"PO-Revision-Date: 2025-04-20 13:15+0200\n"
 "Last-Translator: Jakub Bogusz <qboosh@pld-linux.org>\n"
 "Language-Team: Polish <translation-team-pl@lists.sourceforge.net>\n"
 "Language: pl\n"
@@ -61,7 +61,7 @@ msgstr ""
 #: common.c:131
 #, c-format
 msgid "Bugs to %s\n"
-msgstr "Błędy na adres %s\n"
+msgstr "Błędy prosimy zgłaszać na adres <%s>.\n"
 
 #: convertquota.c:97
 msgid "You have to specify source and target format of conversion.\n"
@@ -211,19 +211,19 @@ msgstr ""
 #: warnquota.c:195
 #, c-format
 msgid "Additional error info: %s\n"
-msgstr ""
+msgstr "Dodatkowe informacje o błędzie: %s\n"
 
 #: warnquota.c:209
 msgid "ldap_initialize() failed"
-msgstr ""
+msgstr "ldap_initialize() nie powiodło się"
 
 #: warnquota.c:218
 msgid "ldap_start_tls_s() failed"
-msgstr ""
+msgstr "ldap_start_tls_s() nie powiodło się"
 
 #: warnquota.c:224
 msgid "ldap_sasl_bind_s() failed"
-msgstr ""
+msgstr "ldap_sasl_bind_s() nie powiodło się"
 
 #: warnquota.c:239
 #, c-format
@@ -256,9 +256,8 @@ msgid "Cannot open pipe: %s\n"
 msgstr "Nie można otworzyć potoku: %s\n"
 
 #: warnquota.c:421
-#, fuzzy
 msgid "Could not setup ldap connection.\n"
-msgstr "Nie można nawiązać połączenia LDAP, powrót.\n"
+msgstr "Nie udało się ustanowić połączenia LDAP.\n"
 
 #: warnquota.c:438
 #, c-format
@@ -266,6 +265,7 @@ msgid ""
 "Could not format LDAP search filter for %s user and %s search attribute due "
 "to excessive length.\n"
 msgstr ""
+"Nie udało się sformatować filtru wyszukiwania LDAP dla użytkownika %s i atrybutu %s z powodu nadmiernej długości.\n"
 
 #: warnquota.c:449
 #, c-format
@@ -274,17 +274,17 @@ msgstr "Błąd przy %s.\n"
 
 #: warnquota.c:450
 msgid "ldap_search_ext_s() failed"
-msgstr ""
+msgstr "ldap_search_ext_s() nie powiodło się"
 
 #: warnquota.c:456
-#, fuzzy, c-format
+#, c-format
 msgid "Multiple entries found for client %s (%d).\n"
-msgstr "Znaleziono wiele wpisów dla klienta %s (%d). Nie wysłano wiadomości.\n"
+msgstr "Znaleziono wiele wpisów dla klienta %s (%d).\n"
 
 #: warnquota.c:460
-#, fuzzy, c-format
+#, c-format
 msgid "Entry not found for client %s.\n"
-msgstr "Nie znaleziono wpisu dla klienta %s. Nie wysłano wiadomości.\n"
+msgstr "Nie znaleziono wpisu dla klienta %s.\n"
 
 #: warnquota.c:470
 #, c-format
@@ -351,13 +351,14 @@ msgstr ""
 
 #: warnquota.c:739
 msgid "Ignoring error in config file.\n"
-msgstr ""
+msgstr "Błąd w pliku konfiguracyjnym zignorowany.\n"
 
 #: warnquota.c:741
 msgid ""
 "Aborting. Use option -I if you want warnquota to ignore errors in the config "
 "file as it used to in older versions.\n"
 msgstr ""
+"Przerwano. Można użyć opcji -I, aby zignorować błędy w pliku konfiguracyjnym, jak to się działo w starszych wersjach warnquota.\n"
 
 #: warnquota.c:786
 #, c-format
@@ -367,7 +368,7 @@ msgstr "nie można otworzyć %s: %s\n"
 #: warnquota.c:808
 #, c-format
 msgid "line %d: Line too long! Maximum is %d.\n"
-msgstr ""
+msgstr "linia %d: linia zbyt długa! Maksimum to %d.\n"
 
 #: warnquota.c:881
 #, c-format
@@ -378,27 +379,27 @@ msgstr "Nie można przetworzyć czasu przy zmiennej CC_BEFORE (linia %d).\n"
 #, c-format
 msgid ""
 "line %d: LDAP variable in config file but LDAP support is not compiled.\n"
-msgstr ""
+msgstr "linia %d: zmienna LDAP w pliku konfiguracyjnym, ale obsługa LDAP nie została wkompilowana.\n"
 
 #: warnquota.c:949
 #, c-format
 msgid "line %d: Unknown variable %s in config file.\n"
-msgstr ""
+msgstr "linia %d: nieznana zmienna %s w pliku konfiguracyjnym.\n"
 
 #: warnquota.c:957
 #, c-format
 msgid "line %d: Missing '=' in config file.\n"
-msgstr ""
+msgstr "linia %d: brak '=' w pliku konfiguracyjnym.\n"
 
 #: warnquota.c:964
-#, fuzzy, c-format
+#, c-format
 msgid "line %d: Unterminated last line.\n"
-msgstr "Niezakończona ostatnia linia, zignorowano\n"
+msgstr "linia %d: niezakończona ostatnia linia.\n"
 
 #: warnquota.c:975
 #, c-format
 msgid "Could not format LDAP URI because it's longer than %d bytes.\n"
-msgstr ""
+msgstr "Nie udało się sformatować URI LDAP, ponieważ jest dłuższe niż %d bajtów.\n"
 
 #: warnquota.c:980
 #, c-format
@@ -435,7 +436,6 @@ msgstr ""
 "Błąd podczas analizy linii %d. Nadmiarowe znaki po nazwie administratora.\n"
 
 #: warnquota.c:1099
-#, fuzzy
 msgid ""
 "Usage:\n"
 "  warnquota [-ugsid] [-F quotaformat] [-c configfile] [-q quotatabfile] [-a "
@@ -470,14 +470,18 @@ msgstr ""
 "\n"
 "-u, --user                      ostrzeżenie użytkowników\n"
 "-g, --group                     ostrzeżenie grup\n"
-"-s, --human-readable            wysyłanie informacji w jednostkach bardziej\n"
-"                                przyjaznych dla człowieka\n"
+"-s, --human-readable[=jedn]     wyświetlanie liczb w jednostkach przyjaznych\n"
+"                                dla człowieka (MB, GB...); jednostki mogą być\n"
+"                                podane wprost argumentem opcjonalnym w formacie\n"
+"                                [kgt],[kgt] - gdzie pierwszy znak określa\n"
+"                                jednostkę miejsca, a drugi - jednostkę i-węzłów\n"
 "-i, --no-autofs                 pomijanie punktów montowania autofs\n"
 "-d, --no-details                bez wysyłania informacji o samych limitach\n"
 "-F, --format=format             użycie plików limitów o podanym formacie\n"
 "-c, --config=plik               inny niż domyślny plik konfiguracyjny\n"
 "-q, --quota-tab=plik            inny niż domyślny plik quotatab\n"
 "-a, --admins-file=plik          inny niż domyślny plik admins\n"
+"-I, --ignore-config-errors      ignorowanie nieznanych wpisów w konfiguracji\n"
 "-h, --help                      wyświetlenie tego opisu i zakończenie\n"
 "-v, --version                   wyświetlenie informacji o wersji i "
 "zakończenie\n"
@@ -486,7 +490,7 @@ msgstr ""
 #: warnquota.c:1174 repquota.c:134 quota.c:350
 #, c-format
 msgid "Bad output format units for human readable output: %s\n"
-msgstr ""
+msgstr "Błędne jednostki formatowania wyjścia czytelnego dla człowieka: %s\n"
 
 #: warnquota.c:1194
 #, c-format
@@ -616,12 +620,12 @@ msgid "Cannot stat directory %s: %s\n"
 msgstr "Nie można wykonać stat na katalogu %s: %s\n"
 
 #: quotacheck.c:522
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot chdir to %s: %s\n"
-msgstr "Nie można wykonać stat na katalogu %s: %s\n"
+msgstr "Nie można zmienić katalogu na %s: %s\n"
 
 #: quotacheck.c:527
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "\n"
 "Cannot open directory %s: %s\n"
@@ -984,6 +988,7 @@ msgid ""
 "external quota files on ext4 are deprecated. You can enable the feature by "
 "unmounting the file system and running 'tune2fs -O quota <device>'.\n"
 msgstr ""
+"To jądra prawdopodobnie obsługuje limity ext4, ale używane są zewnętrzne pliki limitów. Proszę przełączyć system plików, aby używał limitów ext4, ponieważ zewnętrzne pliki limitów na ext4 są przestarzałe. Opcję można włączyć odmontowując system plików i uruchamiając 'tune2fs -O quota <urządzenie>'.\n"
 
 #: quotacheck.c:1223
 msgid ""
@@ -1015,7 +1020,7 @@ msgstr ""
 "Stracono %d bajtów\n"
 
 #: quotasync.c:29
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "%1$s: Utility for syncing quotas.\n"
 "Usage: %1$s [-ugP] mount-point...\n"
@@ -1023,13 +1028,14 @@ msgid ""
 "   or: %1$s -h | -V\n"
 "\n"
 msgstr ""
-"Narzędzie do synchronizacji limitów.\n"
-"Składnia:\n"
-"%s [-ug] -a | punkt-montowania...\n"
+"%1$s: Narzędzie do synchronizacji limitów.\n"
+"Składnia: %1$s [-ugP] punkt-montowania...\n"
+"     lub: %1$s [-ugP] -a\n"
+"     lub: %1$s -h | -V\n"
 "\n"
 
 #: quotasync.c:36
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "Options:\n"
 "-u, --user     synchronize user quotas\n"
@@ -1040,16 +1046,19 @@ msgid ""
 "-V, --version  display version information and exit\n"
 "\n"
 msgstr ""
-"-t, --edit-period          zmiana okresu pobłażliwości\n"
-"-T, --edit-times           zmiana czasów pobłażliwości dla użytkownika/"
-"grupy\n"
-"-h, --help                 wyświetlenie tego opisu i zakończenie\n"
-"-V, --version              wyświetlenie informacji o wersji i zakończenie\n"
+"Opcje:\n"
+"-u, --user     synchronizacja limitów użytkowników\n"
+"-g, --group    synchronizacja limitów grup\n"
+"-P, --project  synchronizacja limitów projektów\n"
+"-a, --all      synchronizacja limitów dla wszystkich zamontowanych systemów plików\n"
+"-h, --help     wyświetlenie tego opisu i zakończenie\n"
+"-V, --version  wyświetlenie informacji o wersji i zakończenie\n"
+"\n"
 
 #: quotasync.c:45
-#, fuzzy, c-format
+#, c-format
 msgid "Report bugs to <%s>.\n"
-msgstr "Błędy na adres %s\n"
+msgstr "Błędy prosimy zgłaszać na adres <%s>.\n"
 
 #: quotasync.c:113
 #, c-format
@@ -1071,7 +1080,7 @@ msgstr "grupy"
 
 #: quota.h:24
 msgid "project"
-msgstr ""
+msgstr "projekt"
 
 #: quota.h:25
 msgid "undefined"
@@ -1123,9 +1132,8 @@ msgstr ""
 "Może narzędzia quota są za stare?\n"
 
 #: quota_nld.c:182
-#, fuzzy
 msgid "Cannot allocate netlink socket!\n"
-msgstr "Nie można przydzielić uchwytu netlink!\n"
+msgstr "Nie można przydzielić gniazda netlink!\n"
 
 #: quota_nld.c:188
 #, c-format
@@ -1274,12 +1282,12 @@ msgid "Could not store my PID %jd.\n"
 msgstr "Nie udało się zapisać własnego PID-u %jd.\n"
 
 #: quota_nld.c:489 rquota_svc.c:537
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to daemonize: %s\n"
-msgstr "Nie udało się usunąć limitów: %s\n"
+msgstr "Nie udało się zdemonizować: %s\n"
 
 #: repquota.c:51
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "Utility for reporting quotas.\n"
 "Usage:\n"
@@ -1315,23 +1323,29 @@ msgid ""
 msgstr ""
 "Narzędzie do raportowania o limitach.\n"
 "Składnia:\n"
-"%s [-vugsi] [-c|C] [-t|n] [-F format] (-a | punkt-montowania)\n"
+"%s [-vugsi] [-c|C] [-t|n] [-F format] [-O (default | xml | csv)] (-a | punkt-montowania)\n"
 "\n"
 "-v, --verbose               wyświetlanie także użytkowników/grup nie\n"
 "                            zajmujących miejsca\n"
 "-u, --user                  wyświetlanie informacji o użytkownikach\n"
 "-g, --group                 wyświetlanie informacji o grupach\n"
-"-s, --human-readable        wyświetlanie liczb w jednostkach przyjaznych "
+"-P, --project               wyświetlanie informacji o projektach\n"
+"-s, --human-readable[=jedn] wyświetlanie liczb w jednostkach przyjaznych "
 "dla\n"
-"                            człowieka (MB, GB...)\n"
+"                            człowieka (MB, GB...); jednostki mogą być podane\n"
+"                            wprost argumentem opcjonalnym w formacie\n"
+"                            [kgt],[kgt] - gdzie pierwszy znak określa jednostkę\n"
+"                            miejsca, a drugi - jednostkę i-węzłów\n"
 "-t, --truncate-names        obcinanie nazw do 9 znaków\n"
 "-p, --raw-grace             wypisywanie czasu pobłażliwości w sekundach od "
 "epoch\n"
 "-n, --no-names              bez tłumaczenia uidów/gidów na nazwy\n"
 "-i, --no-autofs             pomijanie punktów montowania autofs\n"
-"-c, --batch-translation     tłumaczenie dużej liczby identyfikatorów naraz\n"
-"-C, --no-batch-translation  tłumaczenie identyfikatorów po jednym\n"
+"-c, --cache                 tłumaczenie dużej liczby identyfikatorów naraz\n"
+"-C, --no-cache              tłumaczenie identyfikatorów po jednym\n"
 "-F, --format=format         raportowanie informacji dla podanego formatu\n"
+"-O, --output=format         formatowanie wyjścia jako xml lub csv\n"
+"-a, --all                   informacje dla wszystkich punktów montowania z limitami\n"
 "-h, --help                  wyświetlenie tego opisu i zakończenie\n"
 "-V, --version               wyświetlenie informacji o wersji i zakończenie\n"
 "\n"
@@ -1354,7 +1368,7 @@ msgstr "Grupa"
 
 #: repquota.c:379
 msgid "Project"
-msgstr ""
+msgstr "Projekt"
 
 #: repquota.c:382
 #, c-format
@@ -1560,9 +1574,8 @@ msgid "WARNING - Quota file %s has corrupted headers\n"
 msgstr "UWAGA - plik limitów %s ma uszkodzone nagłówki\n"
 
 #: quotacheck_v2.c:361
-#, fuzzy
 msgid "Continue checking assuming format from command line?"
-msgstr "Kontynuować sprawdzanie przy założeniu wersji podanej z linii poleceń?"
+msgstr "Kontynuować sprawdzanie przy założeniu formatu z linii poleceń?"
 
 #: quotacheck_v2.c:365
 #, c-format
@@ -1806,7 +1819,7 @@ msgstr ""
 
 #: quotaio_xfs.c:53
 msgid "Truncating kernel returned time stamp."
-msgstr ""
+msgstr "Ucięto znacznik czasu zwrócony przez jądro."
 
 #: quotaio_xfs.c:311
 #, c-format
@@ -1842,7 +1855,7 @@ msgid "Inode: #%llu (%llu blocks, %u extents)\n"
 msgstr "I-węzeł: #%llu (%llu bloków, %u ekstentów)\n"
 
 #: quotaon.c:37
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "Usage:\n"
 "\t%s [-guPvp] [-F quotaformat] [-x state] -a\n"
@@ -1861,13 +1874,14 @@ msgid ""
 "-V, --version            display version information and exit\n"
 msgstr ""
 "Skladnia:\n"
-"\t%s [-guvp] [-F format] [-x stan] -a\n"
-"\t%s [-guvp] [-F format] [-x stan] system-plików ...\n"
+"\t%s [-guPvp] [-F format] [-x stan] -a\n"
+"\t%s [-guPvp] [-F format] [-x stan] system-plików ...\n"
 "\n"
 "-a, --all                    %s\n"
 "-f, --off                    wyłączenie limitów\n"
 "-u, --user                   operowanie na limitach użytkowników\n"
 "-g, --group                  operowanie na limitach grup\n"
+"-P, --project                operowanie na limitach projektów\n"
 "-p, --print-state            wypisanie, czy limity są włączone czy "
 "wyłączone\n"
 "-x, --xfs-command=polecenie  wykonanie polecenia dla limitów XFS\n"
@@ -1960,13 +1974,12 @@ msgid "off"
 msgstr "wyłączone"
 
 #: quotaon.c:332
-#, fuzzy
 msgid "on (accounting)"
-msgstr "i podliczania "
+msgstr "włączone (podliczanie)"
 
 #: quotaon.c:334
 msgid "on (enforced)"
-msgstr ""
+msgstr "włączone (wymuszenie)"
 
 #: quotaon.c:346
 msgid "on"
@@ -2123,13 +2136,12 @@ msgid "%s (gid %d): Permission denied\n"
 msgstr "%s (gid %d): Brak uprawnień\n"
 
 #: quotaops.c:134
-#, fuzzy
 msgid "Cannot connect to RPC quota service"
-msgstr "Nie można połączyć się z gniazdem netlink: %s\n"
+msgstr "Nie można połączyć się z usługą RPC quota"
 
 #: quotaops.c:136
 msgid "Quota not enabled"
-msgstr ""
+msgstr "Limity nie są włączone."
 
 #: quotaops.c:141
 #, c-format
@@ -2142,9 +2154,9 @@ msgid "Cannot write quota for %u on %s: %s\n"
 msgstr "Nie można zapisać limitów dla %u na %s: %s\n"
 
 #: quotaops.c:204 quotaops.c:206
-#, fuzzy, c-format
+#, c-format
 msgid "%s failed: %s\n"
-msgstr "Synchronizacja limitów %s nie powiodła się: %s\n"
+msgstr "%s nie powiodło się: %s\n"
 
 #: quotaops.c:220
 msgid "Too many parameters to editor.\n"
@@ -2156,29 +2168,29 @@ msgid "Cannot exec %s\n"
 msgstr "Nie można uruchomić %s\n"
 
 #: quotaops.c:245
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot truncate a file: %s\n"
-msgstr "Nie można wykonać stat na pliku limitów %s: %s\n"
+msgstr "Nie można skrócić pliku: %s\n"
 
 #: quotaops.c:247
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot reset a file offset: %s\n"
-msgstr "Nie można odczytać pliku statystyk %s: %s\n"
+msgstr "Nie można zresetować pozycji w pliku: %s\n"
 
 #: quotaops.c:249
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot duplicate a file descriptor: %s\n"
-msgstr "Nie można powielić deskryptora: %s\n"
+msgstr "Nie można powielić deskryptora pliku: %s\n"
 
 #: quotaops.c:251
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot open a stream to write to: %s\n"
-msgstr "Nie można ponownie otworzyć pliku tymczasowego: %s\n"
+msgstr "Nie można otworzyć strumienia do zapisu: %s\n"
 
 #: quotaops.c:252
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot open a stream to read from: %s\n"
-msgstr "Nie można ponownie otworzyć pliku tymczasowego: %s\n"
+msgstr "Nie można otworzyć strumienia do odczytu: %s\n"
 
 #: quotaops.c:268
 #, c-format
@@ -2206,7 +2218,7 @@ msgstr "UWAGA - %s: nie można zmienić aktualnego przydziału i-węzłów\n"
 
 #: quotaops.c:334
 msgid "Bad format: two title lines assumed\n"
-msgstr ""
+msgstr "Błędny format: zakładane są dwa wiersze tytułowe\n"
 
 #: quotaops.c:345
 #, c-format
@@ -2218,34 +2230,34 @@ msgstr ""
 "%s\n"
 
 #: quotaops.c:351
-#, fuzzy, c-format
+#, c-format
 msgid "Bad block usage: %s: %s\n"
-msgstr "Nie można odczytać bloku %u: %s\n"
+msgstr "Błędne użycie bloku: %s: %s\n"
 
 #: quotaops.c:358
-#, fuzzy, c-format
+#, c-format
 msgid "Bad block soft limit: %s: %s\n"
-msgstr "Błędny miękki limit bloków"
+msgstr "Błędny miękki limit bloków: %s: %s\n"
 
 #: quotaops.c:365
-#, fuzzy, c-format
+#, c-format
 msgid "Bad block hard limit: %s: %s\n"
-msgstr "Błędny twardy limit bloków"
+msgstr "Błędny twardy limit bloków: %s: %s\n"
 
 #: quotaops.c:372
-#, fuzzy, c-format
+#, c-format
 msgid "Bad inode usage: %s: %s\n"
-msgstr "nie można otworzyć %s: %s\n"
+msgstr "Błędne użycie i-węzłów: %s: %s\n"
 
 #: quotaops.c:379
-#, fuzzy, c-format
+#, c-format
 msgid "Bad inode soft limit: %s: %s\n"
-msgstr "Błędny miękki limit i-węzłów"
+msgstr "Błędny miękki limit i-węzłów: %s: %s\n"
 
 #: quotaops.c:386
-#, fuzzy, c-format
+#, c-format
 msgid "Bad inode hard limit: %s: %s\n"
-msgstr "Błędny twardy limit i-węzłów"
+msgstr "Błędny twardy limit i-węzłów: %s: %s\n"
 
 #: quotaops.c:439
 #, c-format
@@ -2280,7 +2292,7 @@ msgstr "%u sekund"
 
 #: quotaops.c:485 quotaops.c:584
 msgid "Bad format: three title lines assumed\n"
-msgstr ""
+msgstr "Błędny format: zakładane są trzy wiersze tytułowe\n"
 
 #: quotaops.c:495 quotaops.c:592
 #, c-format
@@ -2378,7 +2390,7 @@ msgid "Number of in use dquot entries (user/group): %ld\n"
 msgstr "Liczba używanych wpisów dquot (użytkownik/grupa): %ld\n"
 
 #: setquota.c:59
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "Usage:\n"
 "  setquota [-u|-g|-P] %1$s[-F quotaformat] <user|group|project>\n"
@@ -2404,19 +2416,20 @@ msgid ""
 "-c, --continue-batch       continue in input processing in case of an error\n"
 msgstr ""
 "Składnia:\n"
-"  setquota [-u|-g] %1$s[-F format] <użytkownik|grupa>\n"
+"  setquota [-u|-g|-P] %1$s[-F format] <użytkownik|grupa|projekt>\n"
 "\t<miękki-limit-bloków> <twardy-limit-bloków> <miękki-limit-iwęzłów> <twardy-"
 "limit-iwęzłów> -a|<system-plików>...\n"
-"  setquota [-u|-g] %1$s[-F format] <-p wzorcowy-użytkownik|grupa> "
-"<użytkownik|grupa> -a|<system-plików>...\n"
-"  setquota [-u|-g] %1$s[-F format] -b [-c] -a|<system-plików>...\n"
-"  setquota [-u|-g] [-F format] -t <pobł-bloki> <pobł-iwęzły> -a|<system-"
+"  setquota [-u|-g|-P] %1$s[-F format] <-p wzorcowy-użytkownik|grupa|projekt> "
+"<użytkownik|grupa|projekt> -a|<system-plików>...\n"
+"  setquota [-u|-g|-P] %1$s[-F format] -b [-c] -a|<system-plików>...\n"
+"  setquota [-u|-g|-P] [-F format] -t <pobł-bloki> <pobł-iwęzły> -a|<system-"
 "plików>...\n"
-"  setquota [-u|-g] [-F format] <użytkownik|grupa> -T <pobł-bloki> <pobł-"
+"  setquota [-u|-g|-P] [-F format] <użytkownik|grupa|projekt> -T <pobł-bloki> <pobł-"
 "iwęzły> -a|<system-plików>...\n"
 "\n"
 "-u, --user                 ustawienie limitów dla użytkownika\n"
 "-g, --group                ustawienie limitów dla grupy\n"
+"-P, --project              ustawienie limitów dla projektu\n"
 "-a, --all                  ustawienie limitów dla wszystkich systemów "
 "plików\n"
 "    --always-resolve       próba rozwiązania nazwy zawsze, nawet jeśli "
@@ -2438,7 +2451,6 @@ msgstr ""
 "NFSv4\n"
 
 #: setquota.c:80
-#, fuzzy
 msgid ""
 "-t, --edit-period          edit grace period\n"
 "-T, --edit-times           edit grace times for user/group/project\n"
@@ -2448,14 +2460,14 @@ msgid ""
 msgstr ""
 "-t, --edit-period          zmiana okresu pobłażliwości\n"
 "-T, --edit-times           zmiana czasów pobłażliwości dla użytkownika/"
-"grupy\n"
+"grupy/projektu\n"
 "-h, --help                 wyświetlenie tego opisu i zakończenie\n"
 "-V, --version              wyświetlenie informacji o wersji i zakończenie\n"
 
 #: setquota.c:84 edquota.c:73 quota.c:94
 #, c-format
 msgid "Bugs to: %s\n"
-msgstr "Błędy na adres: %s\n"
+msgstr "Błędy prosimy zgłaszać na adres <%s>.\n"
 
 #: setquota.c:95
 #, c-format
@@ -2463,14 +2475,13 @@ msgid "%s: %s\n"
 msgstr "%s: %s\n"
 
 #: setquota.c:108 setquota.c:121
-#, fuzzy, c-format
+#, c-format
 msgid "%s: %s: %s\n"
-msgstr "%s: %s\n"
+msgstr "%s: %s: %s\n"
 
 #: setquota.c:229
-#, fuzzy
 msgid "Group/user/project quotas cannot be used together.\n"
-msgstr "Limity grupy i użytkownika nie mogą być użyte razem.\n"
+msgstr "Limity grupy/użytkownika/projektu nie mogą być użyte razem.\n"
 
 #: setquota.c:233
 msgid "Prototype user has no sense when editing grace times.\n"
@@ -2523,13 +2534,12 @@ msgid "Mountpoint not specified.\n"
 msgstr "Nie podano punktu montowania.\n"
 
 #: setquota.c:319 setquota.c:450 setquota.c:493
-#, fuzzy
 msgid "Error getting quota information to update.\n"
-msgstr "Nie można uzyskać informacji o limitach dla użytkownika %s.\n"
+msgstr "Błąd podczas pobierania informacji o limitach do uaktualnienia.\n"
 
 #: setquota.c:325
 msgid "Error getting prototype quota information.\n"
-msgstr ""
+msgstr "Błąd pobierania informacji o prototypie limitów.\n"
 
 #: setquota.c:372
 #, c-format
@@ -2557,24 +2567,24 @@ msgid "Unable to resolve name '%s' on line %d.\n"
 msgstr "Nie można rozwiązać nazwy '%s' w linii %d.\n"
 
 #: setquota.c:400
-#, fuzzy, c-format
+#, c-format
 msgid "Unable to parse block soft limit '%s' on line %d: %s\n"
-msgstr "Nie można rozwiązać nazwy '%s' w linii %d.\n"
+msgstr "Nie udało się przeanalizować miękkiego limitu bloków '%s' w linii %d: %s.\n"
 
 #: setquota.c:409
-#, fuzzy, c-format
+#, c-format
 msgid "Unable to parse block hard limit '%s' on line %d: %s\n"
-msgstr "Nie można rozwiązać nazwy '%s' w linii %d.\n"
+msgstr "Nie udało się przeanalizować twardego limitu bloków '%s' w linii %d: %s.\n"
 
 #: setquota.c:418
-#, fuzzy, c-format
+#, c-format
 msgid "Unable to parse inode soft limit '%s' on line %d: %s\n"
-msgstr "Nie można rozwiązać nazwy '%s' w linii %d.\n"
+msgstr "Nie udało się przeanalizować miękkiego limitu i-węzłów '%s' w linii %d: %s.\n"
 
 #: setquota.c:427
-#, fuzzy, c-format
+#, c-format
 msgid "Unable to parse inode hard limit '%s' on line %d: %s\n"
-msgstr "Nie można rozwiązać nazwy '%s' w linii %d.\n"
+msgstr "Nie udało się przeanalizować twardego limitu i-węzłów '%s' w linii %d: %s.\n"
 
 #: setquota.c:474
 #, c-format
@@ -2613,9 +2623,9 @@ msgid "group %s does not exist.\n"
 msgstr "grupa %s nie istnieje.\n"
 
 #: quotasys.c:249
-#, fuzzy, c-format
+#, c-format
 msgid "project %s does not exist.\n"
-msgstr "grupa %s nie istnieje.\n"
+msgstr "projekt %s nie istnieje.\n"
 
 #: quotasys.c:371
 #, c-format
@@ -2645,6 +2655,11 @@ msgid ""
 "  csv     - comma-separated values\n"
 "  xml     - simple XML\n"
 msgstr ""
+"Nieznany format wyjścia: %s\n"
+"Obsługiwane formaty to:\n"
+"  default - domyślny\n"
+"  csv     - wartości oddzielone przecinkami\n"
+"  xml     - prosty XML\n"
 
 #: quotasys.c:460 quota.c:282
 msgid "none"
@@ -2709,59 +2724,59 @@ msgstr "dni"
 
 #: quotasys.c:583
 msgid "Integer overflow while parsing space number."
-msgstr ""
+msgstr "Przepełnienie liczby całkowitej przy analizie ilości miejsca."
 
 #: quotasys.c:585
 msgid "K"
-msgstr ""
+msgstr "K"
 
 #: quotasys.c:587
 msgid "M"
-msgstr ""
+msgstr "M"
 
 #: quotasys.c:589
 msgid "G"
-msgstr ""
+msgstr "G"
 
 #: quotasys.c:591
 msgid "T"
-msgstr ""
+msgstr "T"
 
 #: quotasys.c:594
 msgid "Unknown space binary unit. Valid units are K, M, G, T."
-msgstr ""
+msgstr "Nieznana jednostka binarna miejsca. Poprawne jednostki to K, M, G, T."
 
 #: quotasys.c:598
 msgid "Integer overflow while interpreting space unit."
-msgstr ""
+msgstr "Przepełnienie liczby całkowitej przy interpretacji jednostki miejsca."
 
 #: quotasys.c:651
 msgid "Integer overflow while parsing number."
-msgstr ""
+msgstr "Przepełnienie liczby całkowitej przy analizie liczby."
 
 #: quotasys.c:655
 msgid "k"
-msgstr ""
+msgstr "k"
 
 #: quotasys.c:657
 msgid "m"
-msgstr ""
+msgstr "m"
 
 #: quotasys.c:659
 msgid "g"
-msgstr ""
+msgstr "g"
 
 #: quotasys.c:661
 msgid "t"
-msgstr ""
+msgstr "t"
 
 #: quotasys.c:664
 msgid "Unknown decimal unit. Valid units are k, m, g, t."
-msgstr ""
+msgstr "Nieznana jednostka dziesiętna. Poprawne jednostki to k, m, g, t."
 
 #: quotasys.c:668
 msgid "Integer overflow while interpreting decimal unit."
-msgstr ""
+msgstr "Przepełnienie liczby całkowitej przy interpretacji jednostki dziesiętnej."
 
 #: quotasys.c:827
 #, c-format
@@ -2950,12 +2965,12 @@ msgstr "Brak dostępu do podanego pliku xtab %s: %s\n"
 #: rquota_svc.c:189
 #, c-format
 msgid "unknown address family %u for RPC request\n"
-msgstr ""
+msgstr "nieznana rodzina adresu %u dla żądania RPC\n"
 
 #: rquota_svc.c:195
 #, c-format
 msgid "failed to translate address for RPC request: %s\n"
-msgstr ""
+msgstr "nie udało się przetłumaczyć adresu dla żądania RPC: %s\n"
 
 #: rquota_svc.c:204
 #, c-format
@@ -2986,24 +3001,24 @@ msgstr ""
 "Użycie '/' jako głównego katalogu pseudo systemu plików.\n"
 
 #: rquota_svc.c:474
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to access local netconfig database: %s\n"
-msgstr "Nie udało się usunąć limitów: %s\n"
+msgstr "Nie udało się uzyskać dostępu do lokalnej bazy danych netconfig: %s\n"
 
 #: rquota_svc.c:483
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to create %s service.\n"
-msgstr "nie można utworzyć usługi UDP.\n"
+msgstr "Nie udało się utworzyć usługi %s.\n"
 
 #: rquota_svc.c:488
-#, fuzzy, c-format
+#, c-format
 msgid "Unable to register (RQUOTAPROG, RQUOTAVERS, %s).\n"
-msgstr "nie można zarejestrować (RQUOTAPROG, RQUOTAVERS, UDP).\n"
+msgstr "Nie można zarejestrować (RQUOTAPROG, RQUOTAVERS, %s).\n"
 
 #: rquota_svc.c:494
-#, fuzzy, c-format
+#, c-format
 msgid "Unable to register (RQUOTAPROG, EXT_RQUOTAVERS, %s).\n"
-msgstr "nie można zarejestrować (RQUOTAPROG, EXT_RQUOTAVERS, UDP).\n"
+msgstr "Nie można zarejestrować (RQUOTAPROG, EXT_RQUOTAVERS, %s).\n"
 
 #: rquota_svc.c:542
 msgid "svc_run returned\n"
@@ -3040,32 +3055,32 @@ msgstr ""
 #: svc_socket.c:75
 #, c-format
 msgid "Unrecognized bind address family: %s\n"
-msgstr ""
+msgstr "Nieznana rodzina adresu do przypisania: %s\n"
 
 #: svc_socket.c:85
 #, c-format
 msgid "Unrecognized bind address protocol: %s\n"
-msgstr ""
+msgstr "Nieznany protokół adresu do przypisania: %s\n"
 
 #: svc_socket.c:95
 #, c-format
 msgid "Unrecognized address semantics: %lu\n"
-msgstr ""
+msgstr "Nieznana semantyka adresu: %lu\n"
 
 #: svc_socket.c:103
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to construct bind address: %s\n"
-msgstr "Nie można przypisać do podanego adresu: %s\n"
+msgstr "Nie udało się utworzyć adresu do przypisania: %s\n"
 
 #: svc_socket.c:117
-#, fuzzy, c-format
+#, c-format
 msgid "Error creating socket: %s\n"
-msgstr "Nie można utworzyć gniazda: %s\n"
+msgstr "Błąd podczas tworzenia gniazda: %s\n"
 
 #: svc_socket.c:124
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot set IPv6 socket options: %s\n"
-msgstr "Nie można ustawić opcji gniazda: %s\n"
+msgstr "Nie można ustawić opcji gniazda IPv6: %s\n"
 
 #: svc_socket.c:131
 #, c-format
@@ -3073,14 +3088,14 @@ msgid "Cannot set socket options: %s\n"
 msgstr "Nie można ustawić opcji gniazda: %s\n"
 
 #: svc_socket.c:137
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot bind to address: %s\n"
-msgstr "Nie można przypisać do podanego adresu: %s\n"
+msgstr "Nie można przypisać do adresu: %s\n"
 
 #: svc_socket.c:144
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot listen to address: %s\n"
-msgstr "Nie można przypisać do podanego adresu: %s\n"
+msgstr "Nie można nasłuchiwać na adresie: %s\n"
 
 #: xqmstats.c:32 xqmstats.c:37
 msgid "The running kernel does not support XFS\n"
@@ -3137,7 +3152,7 @@ msgid "Maximum %u dquots (currently %u incore, %u on freelist)\n"
 msgstr "Maksimum %u dquot (aktualnie %u w rdzeniu, %u na liście wolnych)\n"
 
 #: edquota.c:50
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "Usage:\n"
 "\tedquota %1$s[-u] [-F formatname] [-p username] [-f filesystem] "
@@ -3154,11 +3169,11 @@ msgstr ""
 "\tedquota %1$s[-u] [-F format] [-p użytkownik] [-f system-plików] "
 "użytkownik ...\n"
 "\tedquota %1$s-g [-F format] [-p grupa] [-f system-plików] grupa ...\n"
-"\tedquota [-u|g] [-F format] [-f system-plików] -t\n"
-"\tedquota [-u|g] [-F format] [-f system-plików] -T użytkownik|grupa ...\n"
+"\tedquota %1$s-P [-F format] [-p projekt] [-f system-plików] projekt ...\n"
+"\tedquota [-u|-g|-P] [-F format] [-f system-plików] -t\n"
+"\tedquota [-u|-g|-P] [-F format] [-f system-plików] -T użytkownik|grupa|projekt ...\n"
 
 #: edquota.c:55
-#, fuzzy
 msgid ""
 "\n"
 "-u, --user                    edit user data\n"
@@ -3168,6 +3183,7 @@ msgstr ""
 "\n"
 "-u, --user                    zmiana danych użytkownika\n"
 "-g, --group                   zmiana danych grupy\n"
+"-P, --project                 zmiana danych projektu\n"
 
 #: edquota.c:61
 msgid ""
@@ -3242,18 +3258,16 @@ msgid "Cannot write grace times to file.\n"
 msgstr "Nie można zapisać okresów pobłażliwości do pliku.\n"
 
 #: edquota.c:264 edquota.c:283 edquota.c:316 edquota.c:335
-#, fuzzy
 msgid "Cannot stat file with times.\n"
-msgstr "Nie można otworzyć żadnego pliku z punktami montowania.\n"
+msgstr "Nie można wykonać stat na pliku z czasami.\n"
 
 #: edquota.c:270
 msgid "Error while editing grace times.\n"
 msgstr "Błąd podczas edycji okresów pobłażliwości.\n"
 
 #: edquota.c:281 edquota.c:333
-#, fuzzy
 msgid "Cannot reopen!\n"
-msgstr "Nie można ponownie otworzyć!"
+msgstr "Nie można ponownie otworzyć!\n"
 
 #: edquota.c:291
 msgid "Failed to parse grace times file.\n"
@@ -3285,9 +3299,8 @@ msgid "Cannot read quotas from file.\n"
 msgstr "Nie można odczytać limitów z pliku.\n"
 
 #: quota.c:58
-#, fuzzy
 msgid "Usage: quota [-guPqvswim] [-l | [-Q | -A]] [-F quotaformat]\n"
-msgstr "Składnia: quota [-guqvswim] [-l | [-Q | -A]] [-F format]\n"
+msgstr "Składnia: quota [-guPqvswim] [-l | [-Q | -A]] [-F format]\n"
 
 #: quota.c:59
 msgid "\tquota [-qvswim] [-l | [-Q | -A]] [-F quotaformat] -u username ...\n"
@@ -3298,18 +3311,15 @@ msgid "\tquota [-qvswim] [-l | [-Q | -A]] [-F quotaformat] -g groupname ...\n"
 msgstr "\tquota [-qvswim] [-l | [-Q | -A]] [-F format] -g grupa ...\n"
 
 #: quota.c:61
-#, fuzzy
 msgid ""
 "\tquota [-qvswim] [-l | [-Q | -A]] [-F quotaformat] -P projectname ...\n"
-msgstr "\tquota [-qvswim] [-l | [-Q | -A]] [-F format] -g grupa ...\n"
+msgstr "\tquota [-qvswim] [-l | [-Q | -A]] [-F format] -P projekt ...\n"
 
 #: quota.c:62
-#, fuzzy
 msgid "\tquota [-qvswugPQm] [-F quotaformat] -f filesystem ...\n"
-msgstr "\tquota [-qvswugQm] [-F format] -f system-plików ...\n"
+msgstr "\tquota [-qvswugPQm] [-F format] -f system-plików ...\n"
 
 #: quota.c:63
-#, fuzzy
 msgid ""
 "\n"
 "-u, --user                    display quota for user\n"
@@ -3351,34 +3361,34 @@ msgid ""
 "\n"
 msgstr ""
 "\n"
-"-u, --user                wyświetlenie limitów dla użytkownika\n"
-"-g, --group               wyświetlenie limitów dla grupy\n"
-"-q, --quiet               wypisywanie bardziej zwięzłych komunikatów\n"
-"-v, --verbose             wypisywanie bardziej wyczerpujących komunikatów\n"
-"-s, --human-readable      wyświetlanie liczb w jednostkach przyjaznych dla\n"
-"                          człowieka (MB, GB...)\n"
-"    --always-resolve      próba rozwiązania nazwy zawsze, nawet jeśli "
-"składa\n"
-"                          się wyłącznie z cyfr\n"
-"-w, --no-wrap             niezawijanie długich linii\n"
-"-p, --raw-grace           wypisywanie czasu pobłażliwości w sekundach od "
-"epoch\n"
-"-l, --local-only          bez odpytywania serwera NFS\n"
-"-Q, --quiet-refuse        niewypisywanie komunikatów błędów jeśli serwer "
-"NFS\n"
-"                          nie odpowiada\n"
-"-i, --no-autofs           bez odpytywania punktów montowania autofs\n"
-"-F, --format=format       wyświetlenie limitów w podanym formacie\n"
-"-f, --filesystem-list     wyświetlenie informacji tylko dla podanych "
-"systemów\n"
-"                          plików\n"
-"-A, --nfs-all             wyświetlenie limitów dla wszystkich NFS-ów\n"
-"-m, --no-mixed-pathnames  usunięcie początkowych / z punktów montowania "
-"NFSv4\n"
-"    --show-mntpoint       wyświetlanie punktów montowania systemów plików\n"
-"    --hide-device         bez wyświetlania urządzeń systemów plików\n"
-"-h, --help                wyświetlenie tego opisu i zakończenie\n"
-"-V, --version             wyświetlenie informacji o wersji i zakończenie\n"
+"-u, --user                    wyświetlenie limitów dla użytkownika\n"
+"-g, --group                   wyświetlenie limitów dla grupy\n"
+"-P, --project                 wyświetlenie limitów dla projektu\n"
+"-q, --quiet                   wypisywanie bardziej zwięzłych komunikatów\n"
+"-v, --verbose                 wypisywanie bardziej wyczerpujących komunikatów\n"
+"-s, --human-readable[=jedn]   wyświetlanie liczb w jednostkach przyjaznych dla\n"
+"                              człowieka (MB, GB...); jednostki mogą być podane\n"
+"                              wprost argumentem opcjonalnym w formacie\n"
+"                              [kgt],[kgt] - gdzie pierwszy znak określa\n"
+"                              jednostkę miejsca, a drugi - jednostkę i-węzłów\n"
+"    --always-resolve          próba rozwiązania nazwy zawsze, nawet jeśli\n"
+"                              składa się wyłącznie z cyfr\n"
+"-w, --no-wrap                 niezawijanie długich linii\n"
+"-p, --raw-grace               wypisywanie czasu pobłażliwości w sekundach od\n"
+"                              epoch\n"
+"-l, --local-only              bez odpytywania serwera NFS\n"
+"-Q, --quiet-refuse            niewypisywanie komunikatów błędów jeśli serwer\n"
+"                              NFS nie odpowiada\n"
+"-i, --no-autofs               bez odpytywania punktów montowania autofs\n"
+"-F, --format=format           wyświetlenie limitów w podanym formacie\n"
+"-f, --filesystem-list         wyświetlenie informacji tylko dla podanych\n"
+"                              systemów plików\n"
+"-A, --all-nfs                 wyświetlenie limitów dla wszystkich NFS-ów\n"
+"-m, --no-mixed-pathnames      usunięcie początkowych / z pkt. montowania NFSv4\n"
+"    --show-mntpoint           wyświetlanie punktów montowania systemów plików\n"
+"    --hide-device             bez wyświetlania urządzeń systemów plików\n"
+"-h, --help                    wyświetlenie tego opisu i zakończenie\n"
+"-V, --version                 wyświetlenie informacji o wersji i zakończenie\n"
 "\n"
 
 #: quota.c:103
@@ -3440,12 +3450,11 @@ msgstr "Miękki limit dla bloków przekroczony na"
 
 #: quota.c:282
 msgid "no limited resources used"
-msgstr ""
+msgstr "bez użycia ograniczonych zasobów"
 
 #: quota.c:390
-#, fuzzy
 msgid "Not enough memory for filesystem names"
-msgstr "Za mało pamięci, aby zbudować nazwę pliku PID.\n"
+msgstr "Za mało pamięci na nazwy systemów plików"
 
 #: quota.c:407
 #, c-format
@@ -3467,9 +3476,8 @@ msgid "getgroups(): %s\n"
 msgstr "getgroups(): %s\n"
 
 #: quota.c:435
-#, fuzzy
 msgid "Project reports not supported without project name\n"
-msgstr "Format limitów nie obsługiwany przez jądro.\n"
+msgstr "Raporty projektu nie są obsługiwane bez nazwy projektu\n"
 
 #: common.c:129
 #, c-format
@@ -3480,37 +3488,3 @@ msgstr "Narzędzia Quota w wersji %s.\n"
 #, c-format
 msgid "Compiled with:%s\n"
 msgstr "Skompilowano z:%s\n"
-
-#~ msgid "Line %d too long. Truncating.\n"
-#~ msgstr "Linia %d zbyt długa. Ucięto.\n"
-
-#~ msgid "Error in config file (line %d), ignoring\n"
-#~ msgstr "Błąd w pliku konfiguracyjnym (linia %d), zignorowano\n"
-
-#~ msgid "Possible error in config file (line %d), ignoring\n"
-#~ msgstr "Możliwy błąd w pliku konfiguracyjnym (linia %d), zignorowano\n"
-
-#~ msgid "Cannot duplicate descriptor of file to write to: %s\n"
-#~ msgstr "Nie można powielić deskryptora pliku do zapisu: %s\n"
-
-#~ msgid "Cannot duplicate descriptor of temp file: %s\n"
-#~ msgstr "Nie można powielić deskryptora pliku tymczasowego: %s\n"
-
-#~ msgid "Cannot duplicate descriptor of file to edit: %s\n"
-#~ msgstr "Nie można powielić deskryptora pliku do edycji: %s\n"
-
-#~ msgid "cannot create TCP service.\n"
-#~ msgstr "nie można utworzyć usługi TCP.\n"
-
-#~ msgid "unable to register (RQUOTAPROG, RQUOTAVERS, TCP).\n"
-#~ msgstr "nie można zarejestrować (RQUOTAPROG, RQUOTAVERS, TCP).\n"
-
-#~ msgid "unable to register (RQUOTAPROG, EXT_RQUOTAVERS, TCP).\n"
-#~ msgstr "nie można zarejestrować (RQUOTAPROG, EXT_RQUOTAVERS, TCP).\n"
-
-#~ msgid "Error while editing individual grace times.\n"
-#~ msgstr "Błąd podczas edycji pojedynczych okresów pobłażliwości.\n"
-
-#~ msgid ""
-#~ "LDAP library does not support ldap_initialize() but URI is specified."
-#~ msgstr "Biblioteka LDAP nie obsługuje ldap_initialize(), ale podano URI."
