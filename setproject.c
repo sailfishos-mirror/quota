@@ -73,7 +73,7 @@ static void setproject_recurse(int dirfd, unsigned id, unsigned dev)
 		if (!S_ISDIR(st.st_mode) && !S_ISREG(st.st_mode))
 			continue;
 
-		int fd = openat(dirfd, d->d_name, AT_SYMLINK_NOFOLLOW);
+		int fd = openat(dirfd, d->d_name, O_NOFOLLOW);
 		if (fd < 0) {
 			errstr(_("error opening %s: %m"), d->d_name);
 			errno = 0;
