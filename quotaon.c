@@ -176,16 +176,22 @@ static int quotarsquashonoff(const char *quotadev, int type, int flags)
 /*
  *	Enable/disable VFS quota on given filesystem
  */
-static int quotaonoff(const char *quotadev, const char *quotadir, char *quotafile, int type, int fmt, int flags)
+static int quotaonoff(const char *fstype, const char *quotadev,
+		      const char *quotadir, char *quotafile, int type, int fmt,
+		      int flags)
 {
 	int qcmd, kqf;
+	const char *ctldev = quotadev;
+
+	if (!strcmp(fstype, MNTTYPE_TMPFS) || !strcmp(fstype, MNTTYPE_BCACHEFS))
+		ctldev = NULL;
 
 	if (flags & STATEFLAG_OFF) {
 		if (kernel_iface == IFACE_GENERIC)
 			qcmd = QCMD(Q_QUOTAOFF, type);
 		else
 			qcmd = QCMD(Q_6_5_QUOTAOFF, type);
-		if (do_quotactl(qcmd, quotadev, quotadir, 0, NULL) < 0) {
+		if (do_quotactl(qcmd, ctldev, quotadir, 0, NULL) < 0) {
 			errstr(_("quotactl on %s [%s]: %s\n"), quotadev, quotadir, strerror(errno));
 			return 1;
 		}
@@ -200,7 +206,7 @@ static int quotaonoff(const char *quotadev, const char *quotadir, char *quotafil
 		qcmd = QCMD(Q_6_5_QUOTAON, type);
 		kqf = 0;
 	}
-	if (do_quotactl(qcmd, quotadev, quotadir, kqf, (void *)quotafile) < 0) {
+	if (do_quotactl(qcmd, ctldev, quotadir, kqf, (void *)quotafile) < 0) {
 		if (errno == ENOENT)
 			errstr(_("cannot find %s on %s [%s]\n"), quotafile, quotadev, quotadir);
 		else
@@ -224,7 +230,7 @@ static int v1_newstate(struct mount_entry *mnt, int type, char *file, int flags,
 
 	if ((flags & STATEFLAG_OFF) && str_hasmntopt(mnt->me_opts, MNTOPT_RSQUASH))
 		errs += quotarsquashonoff(mnt->me_devname, type, flags);
-	errs += quotaonoff(mnt->me_devname, mnt->me_dir, file, type, QF_VFSOLD, flags);
+	errs += quotaonoff(mnt->me_type, mnt->me_devname, mnt->me_dir, file, type, QF_VFSOLD, flags);
 	if ((flags & STATEFLAG_ON) && str_hasmntopt(mnt->me_opts, MNTOPT_RSQUASH))
 		errs += quotarsquashonoff(mnt->me_devname, type, flags);
 	return errs;
@@ -235,7 +241,7 @@ static int v1_newstate(struct mount_entry *mnt, int type, char *file, int flags,
  */
 static int v2_newstate(struct mount_entry *mnt, int type, char *file, int flags, int fmt)
 {
-	return quotaonoff(mnt->me_devname, mnt->me_dir, file, type, fmt, flags);
+	return quotaonoff(mnt->me_type, mnt->me_devname, mnt->me_dir, file, type, fmt, flags);
 }
 
 /*
@@ -318,10 +324,15 @@ static int print_state(struct mount_entry *mnt, int type)
 	int on = 0;
 	char *state;
 
+	/*
+	 * XGETQSTAT provides more information than GETINFO so use it if
+	 * possible
+	 */
 	if (kern_qfmt_supp(QF_XFS)) {
-		on = kern_quota_state_xfs(mnt->me_devname, type);
-		if (!strcmp(mnt->me_type, MNTTYPE_XFS) ||
-		    !strcmp(mnt->me_type, MNTTYPE_GFS2) || on >= 0 ||
+		on = kern_quota_state_xfs(mnt, type);
+		if (on >= 0 ||
+		    !strcmp(mnt->me_type, MNTTYPE_XFS) ||
+		    !strcmp(mnt->me_type, MNTTYPE_GFS2) ||
 		    !strcmp(mnt->me_type, MNTTYPE_EXFS)) {
 			if (on < 0)
 				on = 0;

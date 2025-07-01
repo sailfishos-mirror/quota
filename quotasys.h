@@ -139,7 +139,7 @@ void init_kernel_interface(void);
  * Check whether is quota turned on on given device for given type. This
  * works for XFS for all kernels and for other filesystems since kernel 4.1.
  */
-int kern_quota_state_xfs(const char *dev, int type);
+int kern_quota_state_xfs(struct mount_entry *mnt, int type);
 
 /* Check whether is quota turned on on given device for given type */
 int kern_quota_on(struct mount_entry *mnt, int type, int fmt);

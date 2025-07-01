@@ -953,11 +953,15 @@ static int v2_kern_quota_on(const char *dev, int type)
  * on, and 2 when both accounting and enforcement is turned on. We return -1
  * on error.
  */
-int kern_quota_state_xfs(const char *dev, int type)
+int kern_quota_state_xfs(struct mount_entry *mnt, int type)
 {
 	struct xfs_mem_dqinfo info;
+	const char *ctldev = mnt->me_devname;
 
-	if (!do_quotactl(QCMD(Q_XFS_GETQSTAT, type), dev, NULL, 0, (void *)&info)) {
+	if (!strcmp(mnt->me_type, MNTTYPE_TMPFS) || !strcmp(mnt->me_type, MNTTYPE_BCACHEFS))
+		ctldev = NULL;
+
+	if (!do_quotactl(QCMD(Q_XFS_GETQSTAT, type), ctldev, mnt->me_dir, 0, (void *)&info)) {
 		if (type == USRQUOTA) {
 			return !!(info.qs_flags & XFS_QUOTA_UDQ_ACCT) +
 			       !!(info.qs_flags & XFS_QUOTA_UDQ_ENFD);
@@ -986,7 +990,7 @@ int kern_quota_on(struct mount_entry *mnt, int type, int fmt)
 		return -1;
 	if (mnt->me_qfmt[type] == QF_XFS) {
 		if ((fmt == -1 || fmt == QF_XFS) &&
-		    kern_quota_state_xfs(mnt->me_devname, type) > 0)
+		    kern_quota_state_xfs(mnt, type) > 0)
 			return QF_XFS;
 		return -1;
 	}
