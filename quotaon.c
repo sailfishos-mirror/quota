@@ -146,19 +146,11 @@ static int quotarsquashonoff(struct mount_entry *mnt, int type, int flags)
 {
 #if defined(MNTOPT_RSQUASH)
 	int ret;
+	struct if_dqinfo info;
 
-	if (kernel_iface == IFACE_GENERIC) {
-		struct if_dqinfo info;
-
-		info.dqi_flags = V1_DQF_RSQUASH;
-		info.dqi_valid = IIF_FLAGS;
-		ret = quotactl_mnt(Q_SETINFO, type, mnt, 0, (void *)&info);
-	}
-	else {
-		int mode = (flags & STATEFLAG_OFF) ? 0 : 1;
-
-		ret = quotactl_mnt(Q_V1_RSQUASH, type, mnt, 0, (void *)&mode);
-	}
+	info.dqi_flags = V1_DQF_RSQUASH;
+	info.dqi_valid = IIF_FLAGS;
+	ret = quotactl_mnt(Q_SETINFO, type, mnt, 0, (void *)&info);
 	if (ret < 0) {
 		errstr(_("set root_squash on %s: %s\n"), mnt->me_devname, strerror(errno));
 		return 1;
@@ -326,12 +318,7 @@ static int print_state(struct mount_entry *mnt, int type)
 			goto print;
 		}
 	}
-	if (kernel_iface == IFACE_GENERIC)
-		on = kern_quota_on(mnt, type, -1) != -1;
-	else if (kern_qfmt_supp(QF_VFSV0))
-		on = kern_quota_on(mnt, type, QF_VFSV0) != -1;
-	else if (kern_qfmt_supp(QF_VFSOLD))
-		on = kern_quota_on(mnt, type, QF_VFSOLD) != -1;
+	on = kern_quota_on(mnt, type, -1) != -1;
 
 print_state:
 	state = on ? _("on") : _("off");

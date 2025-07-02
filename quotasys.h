@@ -24,16 +24,8 @@
 #define IOI_INITSCAN	0x2	/* Prepare handle for scanning dquots */
 #define IOI_NFS_MIXED_PATHS	0x4	/* Trim leading / from NFSv4 mountpoints */
 
-/* Interface versions */
-#define IFACE_VFSOLD 1
-#define IFACE_VFSV0 2
-#define IFACE_GENERIC 3
-
 /* Path to export table of NFS daemon */
 #define NFSD_XTAB_PATH "/var/lib/nfs/etab"
-
-/* Supported kernel interface */
-extern int kernel_iface;
 
 struct mount_entry {
 	char *me_type;		/* Type of filesystem for given entry */

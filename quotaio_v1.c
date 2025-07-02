@@ -111,27 +111,9 @@ static int v1_check_file(int fd, int type, int fmt)
 static int v1_init_io(struct quota_handle *h)
 {
 	if (QIO_ENABLED(h)) {
-		if (kernel_iface == IFACE_GENERIC) {
-			if (vfs_get_info(h) < 0)
-				return -1;
-		}
-		else {
-			struct v1_kern_dqblk kdqblk;
-
-			if (quotactl_handle(Q_V1_GETQUOTA, h, 0, (void *)&kdqblk) < 0) {
-				if (errno == EPERM) {	/* We have no permission to get this information? */
-					h->qh_info.dqi_bgrace = h->qh_info.dqi_igrace = 0;	/* It hopefully won't be needed */
-				}
-				else
-					return -1;
-			}
-			else {
-				h->qh_info.dqi_bgrace = kdqblk.dqb_btime;
-				h->qh_info.dqi_igrace = kdqblk.dqb_itime;
-			}
-		}
-	}
-	else {
+		if (vfs_get_info(h) < 0)
+			return -1;
+	} else {
 		struct v1_disk_dqblk ddqblk;
 
 		lseek(h->qh_fd, 0, SEEK_SET);
@@ -186,22 +168,9 @@ static int v1_write_info(struct quota_handle *h)
 		return -1;
 	}
 	if (QIO_ENABLED(h)) {
-		if (kernel_iface == IFACE_GENERIC) {
-			if (vfs_set_info(h, IIF_BGRACE | IIF_IGRACE) < 0)
-				return -1;
-		}
-		else {
-			struct v1_kern_dqblk kdqblk;
-
-			if (quotactl_handle(Q_V1_GETQUOTA, h, 0, (void *)&kdqblk) < 0)
-				return -1;
-			kdqblk.dqb_btime = h->qh_info.dqi_bgrace;
-			kdqblk.dqb_itime = h->qh_info.dqi_igrace;
-			if (quotactl_handle(Q_V1_SETQUOTA, h, 0, (void *)&kdqblk) < 0)
-				return -1;
-		}
-	}
-	else {
+		if (vfs_set_info(h, IIF_BGRACE | IIF_IGRACE) < 0)
+			return -1;
+	} else {
 		struct v1_disk_dqblk ddqblk;
 
 		lseek(h->qh_fd, 0, SEEK_SET);
@@ -228,23 +197,11 @@ static struct dquot *v1_read_dquot(struct quota_handle *h, qid_t id)
 	dquot->dq_id = id;
 	dquot->dq_h = h;
 	if (QIO_ENABLED(h)) {	/* Does kernel use the file? */
-		if (kernel_iface == IFACE_GENERIC) {
-			if (vfs_get_dquot(dquot) < 0) {
-				free(dquot);
-				return NULL;
-			}
+		if (vfs_get_dquot(dquot) < 0) {
+			free(dquot);
+			return NULL;
 		}
-		else {
-			struct v1_kern_dqblk kdqblk;
-
-			if (quotactl_handle(Q_V1_GETQUOTA, h, id, (void *)&kdqblk) < 0) {
-				free(dquot);
-				return NULL;
-			}
-			v1_kern2utildqblk(&dquot->dq_dqb, &kdqblk);
-		}
-	}
-	else {
+	} else {
 		lseek(h->qh_fd, (long)V1_DQOFF(id), SEEK_SET);
 		switch (read(h->qh_fd, &ddqblk, sizeof(ddqblk))) {
 			case 0:	/* EOF */
@@ -280,30 +237,9 @@ static int v1_commit_dquot(struct dquot *dquot, int flags)
 		return -1;
 	}
 	if (QIO_ENABLED(h)) {	/* Kernel uses same file? */
-		if (kernel_iface == IFACE_GENERIC) {
-			if (vfs_set_dquot(dquot, flags) < 0)
-				return -1;
-		}
-		else {
-			struct v1_kern_dqblk kdqblk;
-			int cmd;
-
-			if (flags == COMMIT_USAGE)
-				cmd = Q_V1_SETUSE;
-			else if (flags == COMMIT_LIMITS)
-				cmd = Q_V1_SETQLIM;
-			else if (flags & COMMIT_TIMES) {
-				errno = EINVAL;
-				return -1;
-			}
-			else
-				cmd = Q_V1_SETQUOTA;
-			v1_util2kerndqblk(&kdqblk, &dquot->dq_dqb);
-			if (quotactl_handle(cmd, h, dquot->dq_id, (void *)&kdqblk) < 0)
-				return -1;
-		}
-	}
-	else {
+		if (vfs_set_dquot(dquot, flags) < 0)
+			return -1;
+	} else {
 		if (check_dquot_range(dquot) < 0) {
 			errno = ERANGE;
 			return -1;

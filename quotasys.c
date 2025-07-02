@@ -840,7 +840,6 @@ int devcmp_handles(struct quota_handle *a, struct quota_handle *b)
  *	Check kernel quota version
  */
 
-int kernel_iface;	/* Kernel interface type */
 static int kernel_qfmt_num;	/* Number of different supported formats */
 static int kernel_qfmt[QUOTAFORMATS]; /* Formats supported by kernel */
 
@@ -868,7 +867,6 @@ void init_kernel_interface(void)
 	kernel_qfmt_num = 0;
 	/* Detect new kernel interface; Assume generic interface unless we can prove there is not one... */
 	if (!stat("/proc/sys/fs/quota", &st) || errno != ENOENT) {
-		kernel_iface = IFACE_GENERIC;
 		kernel_qfmt[kernel_qfmt_num++] = QF_META;
 		kernel_qfmt[kernel_qfmt_num++] = QF_XFS;
 		kernel_qfmt[kernel_qfmt_num++] = QF_VFSOLD;
@@ -876,8 +874,6 @@ void init_kernel_interface(void)
 		kernel_qfmt[kernel_qfmt_num++] = QF_VFSV1;
 	}
 	else {
-		struct v2_dqstats v2_stats;
-
 		if (!stat("/proc/fs/xfs/stat", &st) ||
 		    !stat("/proc/fs/exfs/stat", &st))
 			kernel_qfmt[kernel_qfmt_num++] = QF_XFS;
@@ -887,35 +883,6 @@ void init_kernel_interface(void)
 			if (!do_quotactl(QCMD(Q_XGETQSTAT, 0), "/dev/root", NULL, 0, (void *)&dummy) ||
 			    (errno != EINVAL && errno != ENOSYS))
 				kernel_qfmt[kernel_qfmt_num++] = QF_XFS;
-		}
-		if (do_quotactl(QCMD(Q_V2_GETSTATS, 0), NULL, NULL, 0, (void *)&v2_stats) >= 0) {
-			kernel_qfmt[kernel_qfmt_num++] = QF_VFSV0;
-			kernel_iface = IFACE_VFSV0;
-		}
-		else if (errno != ENOSYS && errno != ENOTSUP) {
-			/* RedHat 7.1 (2.4.2-2) newquota check 
-			 * Q_V2_GETSTATS in it's old place, Q_GETQUOTA in the new place
-			 * (they haven't moved Q_GETSTATS to its new value) */
-			int err_stat = 0;
-			int err_quota = 0;
- 			char tmp[1024];         /* Just temporary buffer */
-
-			if (do_quotactl(QCMD(Q_V1_GETSTATS, 0), NULL, NULL, 0, tmp))
-				err_stat = errno;
-			if (do_quotactl(QCMD(Q_V1_GETQUOTA, 0), "/dev/null", NULL, 0, tmp))
-				err_quota = errno;
-
-			/* On a RedHat 2.4.2-2 	we expect 0, EINVAL
-			 * On a 2.4.x 		we expect 0, ENOENT
-			 * On a 2.4.x-ac	we wont get here */
-			if (err_stat == 0 && err_quota == EINVAL) {
-				kernel_qfmt[kernel_qfmt_num++] = QF_VFSV0;
-				kernel_iface = IFACE_VFSV0;
-			}
-			else {
-				kernel_qfmt[kernel_qfmt_num++] = QF_VFSOLD;
-				kernel_iface = IFACE_VFSOLD;
-			}
 		}
 	}
 	if (sigaction(SIGSEGV, &oldsig, NULL) < 0)
@@ -933,28 +900,6 @@ int kern_qfmt_supp(int fmt)
 	for (i = 0; i < kernel_qfmt_num; i++)
 		if (fmt == kernel_qfmt[i])
 			return 1;
-	return 0;
-}
-
-/* Check whether old quota is turned on on given device */
-static int v1_kern_quota_on(struct mount_entry *mnt, int type)
-{
-	char tmp[1024];		/* Just temporary buffer */
-	qid_t id = (type == USRQUOTA) ? getuid() : getgid();
-
-	if (!quotactl_mnt(Q_V1_GETQUOTA, type, mnt, id, tmp))	/* OK? */
-		return 1;
-	return 0;
-}
-
-/* Check whether new quota is turned on on given device */
-static int v2_kern_quota_on(struct mount_entry *mnt, int type)
-{
-	char tmp[1024];		/* Just temporary buffer */
-	qid_t id = (type == USRQUOTA) ? getuid() : getgid();
-
-	if (!quotactl_mnt(Q_V2_GETQUOTA, type, mnt, id, tmp))	/* OK? */
-		return 1;
 	return 0;
 }
 
@@ -993,6 +938,8 @@ int kern_quota_state_xfs(struct mount_entry *mnt, int type)
  */
 int kern_quota_on(struct mount_entry *mnt, int type, int fmt)
 {
+	int actfmt;
+
 	if (mnt->me_qfmt[type] < 0)
 		return -1;
 	if (fmt == QF_RPC)
@@ -1011,21 +958,10 @@ int kern_quota_on(struct mount_entry *mnt, int type, int fmt)
 		return QF_META;
 
 	/* Check whether quota is turned on... */
-	if (kernel_iface == IFACE_GENERIC) {
-		int actfmt;
-
-		if (quotactl_mnt(Q_GETFMT, type, mnt, 0, (void *)&actfmt) >= 0) {
-			actfmt = kern2utilfmt(actfmt);
-			if (actfmt >= 0)
-				return actfmt;
-		}
-	} else {
-		if ((fmt == -1 || fmt == QF_VFSV0) &&
-		    v2_kern_quota_on(mnt, type))
-			return QF_VFSV0;
-		if ((fmt == -1 || fmt == QF_VFSOLD) &&
-		    v1_kern_quota_on(mnt, type))
-			return QF_VFSOLD;
+	if (quotactl_mnt(Q_GETFMT, type, mnt, 0, (void *)&actfmt) >= 0) {
+		actfmt = kern2utilfmt(actfmt);
+		if (actfmt >= 0)
+			return actfmt;
 	}
 	return -1;
 }

@@ -23,10 +23,6 @@ static int meta_init_io(struct quota_handle *h)
 		errstr(_("Metadata init_io called when kernel support is not enabled.\n"));
 		return -1;
 	}
-	if (kernel_iface != IFACE_GENERIC) {
-		errstr(_("Metadata init_io called when kernel does not support generic quota interface!\n"));
-		return -1;
-	}
 	return vfs_get_info(h);
 }
 

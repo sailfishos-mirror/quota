@@ -268,26 +268,8 @@ static int v2_check_file(int fd, int type, int fmt)
 static int v2_init_io(struct quota_handle *h)
 {
 	if (QIO_ENABLED(h)) {
-		if (kernel_iface == IFACE_GENERIC) {
-			if (vfs_get_info(h) < 0)
-				return -1;
-		}
-		else {
-			struct v2_kern_dqinfo kdqinfo;
-
-			if (quotactl_handle(Q_V2_GETINFO, h, 0, (void *)&kdqinfo) < 0) {
-				/* Temporary check just before fix gets to kernel */
-				if (errno == EPERM)	/* Don't have permission to get information? */
-					return 0;
-				return -1;
-			}
-			h->qh_info.dqi_bgrace = kdqinfo.dqi_bgrace;
-			h->qh_info.dqi_igrace = kdqinfo.dqi_igrace;
-			h->qh_info.u.v2_mdqi.dqi_flags = kdqinfo.dqi_flags;
-			h->qh_info.u.v2_mdqi.dqi_qtree.dqi_blocks = kdqinfo.dqi_blocks;
-			h->qh_info.u.v2_mdqi.dqi_qtree.dqi_free_blk = kdqinfo.dqi_free_blk;
-			h->qh_info.u.v2_mdqi.dqi_qtree.dqi_free_entry = kdqinfo.dqi_free_entry;
-		}
+		if (vfs_get_info(h) < 0)
+			return -1;
 	}
 	if (h->qh_fd != -1) {
 		struct v2_disk_dqinfo ddqinfo;
@@ -390,25 +372,9 @@ static int v2_write_info(struct quota_handle *h)
 		return -1;
 	}
 	if (QIO_ENABLED(h)) {
-		if (kernel_iface == IFACE_GENERIC) {
-			if (vfs_set_info(h, IIF_BGRACE | IIF_IGRACE))
-				return -1;
-		}
-		else {
-			struct v2_kern_dqinfo kdqinfo;
-
-			kdqinfo.dqi_bgrace = h->qh_info.dqi_bgrace;
-			kdqinfo.dqi_igrace = h->qh_info.dqi_igrace;
-			kdqinfo.dqi_flags = h->qh_info.u.v2_mdqi.dqi_flags;
-			kdqinfo.dqi_blocks = h->qh_info.u.v2_mdqi.dqi_qtree.dqi_blocks;
-			kdqinfo.dqi_free_blk = h->qh_info.u.v2_mdqi.dqi_qtree.dqi_free_blk;
-			kdqinfo.dqi_free_entry = h->qh_info.u.v2_mdqi.dqi_qtree.dqi_free_entry;
-			if (quotactl_handle(Q_V2_SETGRACE, h, 0, (void *)&kdqinfo) < 0 ||
-			    quotactl_handle(Q_V2_SETFLAGS, h, 0, (void *)&kdqinfo) < 0)
-					return -1;
-		}
-	}
-	else {
+		if (vfs_set_info(h, IIF_BGRACE | IIF_IGRACE))
+			return -1;
+	} else {
 		struct v2_disk_dqinfo ddqinfo;
 
 		v2_mem2diskdqinfo(&ddqinfo, &h->qh_info);
@@ -432,20 +398,9 @@ static struct dquot *v2_read_dquot(struct quota_handle *h, qid_t id)
 		dquot->dq_h = h;
 		dquot->dq_dqb.u.v2_mdqb.dqb_off = 0;
 		memset(&dquot->dq_dqb, 0, sizeof(struct util_dqblk));
-		if (kernel_iface == IFACE_GENERIC) {
-			if (vfs_get_dquot(dquot) < 0) {
-				free(dquot);
-				return NULL;
-			}
-		}
-		else {
-			struct v2_kern_dqblk kdqblk;
-
-			if (quotactl_handle(Q_V2_GETQUOTA, h, id, (void *)&kdqblk) < 0) {
-				free(dquot);
-				return NULL;
-			}
-			v2_kern2utildqblk(&dquot->dq_dqb, &kdqblk);
+		if (vfs_get_dquot(dquot) < 0) {
+			free(dquot);
+			return NULL;
 		}
 		return dquot;
 	}
@@ -466,28 +421,8 @@ static int v2_commit_dquot(struct dquot *dquot, int flags)
 		return -1;
 	}
 	if (QIO_ENABLED(dquot->dq_h)) {
-		if (kernel_iface == IFACE_GENERIC) {
-			if (vfs_set_dquot(dquot, flags) < 0)
-				return -1;
-		}
-		else {
-			struct v2_kern_dqblk kdqblk;
-			int cmd;
-
-			if (flags == COMMIT_USAGE)
-				cmd = Q_V2_SETUSE;
-			else if (flags == COMMIT_LIMITS)
-				cmd = Q_V2_SETQLIM;
-			else if (flags & COMMIT_TIMES) {
-				errno = EINVAL;
-				return -1;
-			}
-			else
-				cmd = Q_V2_SETQUOTA;
-			v2_util2kerndqblk(&kdqblk, &dquot->dq_dqb);
-			if (quotactl_handle(cmd, dquot->dq_h, dquot->dq_id, (void *)&kdqblk) < 0)
-				return -1;
-		}
+		if (vfs_set_dquot(dquot, flags) < 0)
+			return -1;
 		return 0;
 	}
 	if (!b->dqb_curspace && !b->dqb_curinodes && !b->dqb_bsoftlimit && !b->dqb_isoftlimit
