@@ -97,20 +97,13 @@ static void parse_options(int argcnt, char **argstr)
 		flags |= FL_USER;
 }
 
-static int sync_one(int type, char *dev)
-{
-	int qcmd = QCMD(Q_SYNC, type);
-
-	return do_quotactl(qcmd, dev, NULL, 0, NULL);
-}
-
 static int syncquotas(int type)
 {
 	struct quota_handle **handles, *h;
 	int i, ret = 0;
 
 	if (flags & FL_ALL) {
-		if (sync_one(type, NULL) < 0) {
+		if (do_quotactl(QCMD(Q_SYNC, type), NULL, NULL, 0, NULL) < 0) {
 			errstr(_("%s quota sync failed: %s\n"), _(type2name(type)),
 					strerror(errno));
 			ret = -1;
@@ -123,7 +116,7 @@ static int syncquotas(int type)
 
 	for (i = 0; handles[i]; i++) {
 		h = handles[i];
-		if (sync_one(type, h->qh_quotadev)) {
+		if (quotactl_handle(Q_SYNC, h, 0, NULL)) {
 			errstr(_("%s quota sync failed for %s: %s\n"),
 				_(type2name(type)), h->qh_quotadev, strerror(errno));
 			ret = -1;

@@ -253,8 +253,7 @@ static int xfs_kernel_scan_dquots(struct quota_handle *h,
 
 	dquot->dq_h = h;
 	while (1) {
-		ret = do_quotactl(QCMD(Q_XGETNEXTQUOTA, h->qh_type),
-			       h->qh_quotadev, h->qh_dir, id, (void *)&xdqblk);
+		ret = quotactl_handle(Q_XGETNEXTQUOTA, h, id, (void *)&xdqblk);
 		if (ret < 0)
 			break;
 
@@ -285,8 +284,7 @@ static int xfs_scan_dquots(struct quota_handle *h, int (*process_dquot) (struct 
 	int ret;
 	struct xfs_kern_dqblk xdqblk;
 
-	ret = do_quotactl(QCMD(Q_XGETNEXTQUOTA, h->qh_type), h->qh_quotadev,
-			  h->qh_dir, 0, (void *)&xdqblk);
+	ret = quotactl_handle(Q_XGETNEXTQUOTA, h, 0, (void *)&xdqblk);
 	if (ret < 0 && (errno == ENOSYS || errno == EINVAL)) {
 		if (!XFS_USRQUOTA(h) && !XFS_GRPQUOTA(h) && !XFS_PRJQUOTA(h))
 			return 0;

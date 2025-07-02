@@ -22,7 +22,7 @@
  *	Ensure we don't attempt to go into a dodgey state.
  */
 
-static int xfs_state_check(int qcmd, int type, int flags, const char *dev, int roothack, int xopts)
+static int xfs_state_check(int qcmd, int type, int flags, struct mount_entry *mnt, int roothack, int xopts)
 {
 	struct xfs_mem_dqinfo info;
 	int state;
@@ -32,8 +32,8 @@ static int xfs_state_check(int qcmd, int type, int flags, const char *dev, int r
 	if (flags & STATEFLAG_ALL)
 		return 0;	/* noop */
 
-	if (do_quotactl(QCMD(Q_XFS_GETQSTAT, type), dev, NULL, 0, (void *)&info) < 0) {
-		errstr(_("quotactl() on %s: %s\n"), dev, strerror(errno));
+	if (quotactl_mnt(Q_XFS_GETQSTAT, type, mnt, 0, (void *)&info) < 0) {
+		errstr(_("quotactl() on %s: %s\n"), mnt->me_devname, strerror(errno));
 		return -1;
 	}
 
@@ -81,7 +81,7 @@ static int xfs_state_check(int qcmd, int type, int flags, const char *dev, int r
 		    case Q_XFS_QUOTARM:
 			    errstr(_("Cannot delete %s quota on %s - "
 					      "switch quota accounting off first\n"),
-				    _(type2name(type)), dev);
+				    _(type2name(type)), mnt->me_devname);
 			    return -1;
 		    case Q_XFS_QUOTAON:
 			    if (roothack) {
@@ -92,22 +92,23 @@ static int xfs_state_check(int qcmd, int type, int flags, const char *dev, int r
 			    if (xopts & XFS_QUOTA_UDQ_ENFD ||
 				xopts & XFS_QUOTA_GDQ_ENFD ||
 				xopts & XFS_QUOTA_PDQ_ENFD) {
-				    pinfo(_("Enabling %s quota enforcement on %s\n"), _(type2name(type)), dev);
+				    pinfo(_("Enabling %s quota enforcement on %s\n"), _(type2name(type)),
+					  mnt->me_devname);
 				    return 1;
 			    }
 			    errstr(_("Already accounting %s quota on %s\n"),
-					_(type2name(type)), dev);
+					_(type2name(type)), mnt->me_devname);
 			    return -1;
 		    case Q_XFS_QUOTAOFF:
 			    if (xopts & XFS_QUOTA_UDQ_ACCT ||
 				xopts & XFS_QUOTA_GDQ_ACCT ||
 				xopts & XFS_QUOTA_PDQ_ACCT) {
 				    pinfo(_("Disabling %s quota accounting on %s\n"),
-					   _(type2name(type)), dev);
+					   _(type2name(type)), mnt->me_devname);
 			    	    return 1;
 			    }
 			    errstr(_("Quota enforcement already disabled for %s on %s\n"),
-					_(type2name(type)), dev);
+					_(type2name(type)), mnt->me_devname);
 			    return -1;
 		  }
 		  break;
@@ -117,11 +118,11 @@ static int xfs_state_check(int qcmd, int type, int flags, const char *dev, int r
 		    case Q_XFS_QUOTARM:
 			    errstr(_("Cannot delete %s quota on %s - "
 				      "switch quota enforcement and accounting off first\n"),
-				    _(type2name(type)), dev);
+				    _(type2name(type)), mnt->me_devname);
 			    return -1;
 		    case Q_XFS_QUOTAON:
 			    errstr(_("Enforcing %s quota already on %s\n"),
-				    _(type2name(type)), dev);
+				    _(type2name(type)), mnt->me_devname);
 			    return -1;
 		    case Q_XFS_QUOTAOFF:
 			    if (xopts == XFS_QUOTA_UDQ_ACCT ||
@@ -129,7 +130,7 @@ static int xfs_state_check(int qcmd, int type, int flags, const char *dev, int r
 				xopts == XFS_QUOTA_PDQ_ACCT) {
 				    errstr(_("Cannot switch off %s quota "
 					"accounting on %s when enforcement is on\n"),
-					_(type2name(type)), dev);
+					_(type2name(type)), mnt->me_devname);
 				    return -1;
 			    }
 			    if (xopts & XFS_QUOTA_UDQ_ACCT ||
@@ -137,52 +138,53 @@ static int xfs_state_check(int qcmd, int type, int flags, const char *dev, int r
 				xopts & XFS_QUOTA_PDQ_ACCT)
 		    		    acctstr = _("and accounting ");
 			    pinfo(_("Disabling %s quota enforcement %son %s\n"),
-				  _(type2name(type)), acctstr, dev);
+				  _(type2name(type)), acctstr, mnt->me_devname);
 			    return 1;
 		  }
 		  break;
 	}
-	errstr(_("Unexpected XFS quota state sought on %s\n"), dev);
+	errstr(_("Unexpected XFS quota state sought on %s\n"), mnt->me_devname);
 	return -1;
 }
 
-static int xfs_onoff(const char *dev, int type, int flags, int roothack, int xopts)
+static int xfs_onoff(struct mount_entry *mnt, int type, int flags, int roothack, int xopts)
 {
 	int qoff, qcmd, check;
 
 	qoff = (flags & STATEFLAG_OFF);
 	qcmd = qoff ? Q_XFS_QUOTAOFF : Q_XFS_QUOTAON;
-	check = xfs_state_check(qcmd, type, flags, dev, roothack, xopts);
+	check = xfs_state_check(qcmd, type, flags, mnt, roothack, xopts);
 	if (check != 1)
 		return (check < 0);
 
-	if (do_quotactl(QCMD(qcmd, type), dev, NULL, 0, (void *)&xopts) < 0) {
-		errstr(_("quotactl on %s: %s\n"), dev, strerror(errno));
+	if (quotactl_mnt(qcmd, type, mnt, 0, (void *)&xopts) < 0) {
+		errstr(_("quotactl on %s: %s\n"), mnt->me_devname, strerror(errno));
 		return 1;
 	}
 	if (qoff)
-		pinfo(_("%s: %s quotas turned off\n"), dev, _(type2name(type)));
+		pinfo(_("%s: %s quotas turned off\n"), mnt->me_devname, _(type2name(type)));
 	else
-		pinfo(_("%s: %s quotas turned on\n"), dev, _(type2name(type)));
+		pinfo(_("%s: %s quotas turned on\n"), mnt->me_devname, _(type2name(type)));
 	return 0;
 }
 
-static int xfs_delete(const char *dev, int type, int flags, int roothack, int xopts)
+static int xfs_delete(struct mount_entry *mnt, int type, int flags, int roothack, int xopts)
 {
 	int qcmd, check;
 
 	qcmd = Q_XFS_QUOTARM;
-	check = xfs_state_check(qcmd, type, flags, dev, roothack, xopts);
+	check = xfs_state_check(qcmd, type, flags, mnt, roothack, xopts);
 	if (check != 1)
 		return (check < 0);
 
-	if (do_quotactl(QCMD(qcmd, type), dev, NULL, 0, (void *)&xopts) < 0) {
+	if (quotactl_mnt(qcmd, type, mnt, 0, (void *)&xopts) < 0) {
 		errstr(_("Failed to delete quota: %s\n"),
 			strerror(errno));
 		return 1;
 	}
 
-	pinfo(_("%s: deleted %s quota blocks\n"), dev, _(type2name(type)));
+	pinfo(_("%s: deleted %s quota blocks\n"), mnt->me_devname,
+	      _(type2name(type)));
 	return 0;
 }
 
@@ -208,8 +210,7 @@ int xfs_newstate(struct mount_entry *mnt, int type, char *xarg, int flags)
 		struct xfs_mem_dqinfo info;
 		u_int16_t sbflags = 0;
 
-		if (!quotactl(QCMD(Q_XFS_GETQSTAT, type), mnt->me_devname,
-			      mnt->me_dir, 0, (void *)&info))
+		if (!quotactl_mnt(Q_XFS_GETQSTAT, type, mnt, 0, (void *)&info))
 			sbflags = (info.qs_flags & 0xff00) >> 8;
 
 		if ((type == USRQUOTA && (sbflags & XFS_QUOTA_UDQ_ACCT)) &&
@@ -225,7 +226,7 @@ int xfs_newstate(struct mount_entry *mnt, int type, char *xarg, int flags)
 			xopts |= XFS_QUOTA_GDQ_ENFD;
 		else if (type == PRJQUOTA)
 			xopts |= XFS_QUOTA_PDQ_ENFD;
-		err = xfs_onoff(mnt->me_devname, type, flags, roothack, xopts);
+		err = xfs_onoff(mnt, type, flags, roothack, xopts);
 	}
 	else if (strcmp(xarg, "account") == 0) {
 		if (type == USRQUOTA)
@@ -234,7 +235,7 @@ int xfs_newstate(struct mount_entry *mnt, int type, char *xarg, int flags)
 			xopts |= XFS_QUOTA_GDQ_ACCT;
 		else if (type == PRJQUOTA)
 			xopts |= XFS_QUOTA_PDQ_ACCT;
-		err = xfs_onoff(mnt->me_devname, type, flags, roothack, xopts);
+		err = xfs_onoff(mnt, type, flags, roothack, xopts);
 	}
 	else if (strcmp(xarg, "delete") == 0) {
 		if (type == USRQUOTA)
@@ -243,7 +244,7 @@ int xfs_newstate(struct mount_entry *mnt, int type, char *xarg, int flags)
 			xopts |= XFS_GROUP_QUOTA;
 		else if (type == PRJQUOTA)
 			xopts |= XFS_PROJ_QUOTA;
-		err = xfs_delete(mnt->me_devname, type, flags, roothack, xopts);
+		err = xfs_delete(mnt, type, flags, roothack, xopts);
 	}
 	else
 		die(1, _("Invalid argument \"%s\"\n"), xarg);

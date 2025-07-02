@@ -170,6 +170,9 @@ int ext4_supports_quota_feature(void);
 /* Wrapper around quota syscalls, either call quotactl or quotactl_fd */
 int do_quotactl(int cmd, const char *dev, const char *mnt, int id, caddr_t addr);
 
+/* Helper to perform quotactl for a mount entry */
+int quotactl_mnt(int cmd, int type, struct mount_entry *mnt, int id, caddr_t addr);
+
 /* Quota output formats */
 #define QOF_ERROR	-1
 #define QOF_DEFAULT	0

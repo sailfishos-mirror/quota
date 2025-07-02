@@ -457,6 +457,19 @@ int do_quotactl(int cmd, const char *dev, const char *mnt, int id, caddr_t addr)
 }
 #endif
 
+/* Run quotactl for given mount */
+int quotactl_mnt(int cmd, int type, struct mount_entry *mnt, int id, caddr_t addr)
+{
+	const char *dev = mnt->me_devname;
+	const char *dir = mnt->me_dir;
+
+	if (!strcmp(mnt->me_type, MNTTYPE_TMPFS) ||
+	    !strcmp(mnt->me_type, MNTTYPE_BCACHEFS))
+		dev = NULL;
+
+	return do_quotactl(QCMD(cmd, type), dev, dir, id, addr);
+}
+
 /*
  *	Wrappers for mount options processing functions
  */
@@ -924,23 +937,23 @@ int kern_qfmt_supp(int fmt)
 }
 
 /* Check whether old quota is turned on on given device */
-static int v1_kern_quota_on(const char *dev, int type)
+static int v1_kern_quota_on(struct mount_entry *mnt, int type)
 {
 	char tmp[1024];		/* Just temporary buffer */
 	qid_t id = (type == USRQUOTA) ? getuid() : getgid();
 
-	if (!do_quotactl(QCMD(Q_V1_GETQUOTA, type), dev, NULL, id, tmp))	/* OK? */
+	if (!quotactl_mnt(Q_V1_GETQUOTA, type, mnt, id, tmp))	/* OK? */
 		return 1;
 	return 0;
 }
 
 /* Check whether new quota is turned on on given device */
-static int v2_kern_quota_on(const char *dev, int type)
+static int v2_kern_quota_on(struct mount_entry *mnt, int type)
 {
 	char tmp[1024];		/* Just temporary buffer */
 	qid_t id = (type == USRQUOTA) ? getuid() : getgid();
 
-	if (!do_quotactl(QCMD(Q_V2_GETQUOTA, type), dev, NULL, id, tmp))	/* OK? */
+	if (!quotactl_mnt(Q_V2_GETQUOTA, type, mnt, id, tmp))	/* OK? */
 		return 1;
 	return 0;
 }
@@ -956,12 +969,8 @@ static int v2_kern_quota_on(const char *dev, int type)
 int kern_quota_state_xfs(struct mount_entry *mnt, int type)
 {
 	struct xfs_mem_dqinfo info;
-	const char *ctldev = mnt->me_devname;
 
-	if (!strcmp(mnt->me_type, MNTTYPE_TMPFS) || !strcmp(mnt->me_type, MNTTYPE_BCACHEFS))
-		ctldev = NULL;
-
-	if (!do_quotactl(QCMD(Q_XFS_GETQSTAT, type), ctldev, mnt->me_dir, 0, (void *)&info)) {
+	if (!quotactl_mnt(Q_XFS_GETQSTAT, type, mnt, 0, (void *)&info)) {
 		if (type == USRQUOTA) {
 			return !!(info.qs_flags & XFS_QUOTA_UDQ_ACCT) +
 			       !!(info.qs_flags & XFS_QUOTA_UDQ_ENFD);
@@ -1005,18 +1014,17 @@ int kern_quota_on(struct mount_entry *mnt, int type, int fmt)
 	if (kernel_iface == IFACE_GENERIC) {
 		int actfmt;
 
-		if (do_quotactl(QCMD(Q_GETFMT, type), mnt->me_devname,
-				mnt->me_dir, 0, (void *)&actfmt) >= 0) {
+		if (quotactl_mnt(Q_GETFMT, type, mnt, 0, (void *)&actfmt) >= 0) {
 			actfmt = kern2utilfmt(actfmt);
 			if (actfmt >= 0)
 				return actfmt;
 		}
 	} else {
 		if ((fmt == -1 || fmt == QF_VFSV0) &&
-		    v2_kern_quota_on(mnt->me_devname, type))
+		    v2_kern_quota_on(mnt, type))
 			return QF_VFSV0;
 		if ((fmt == -1 || fmt == QF_VFSOLD) &&
-		    v1_kern_quota_on(mnt->me_devname, type))
+		    v1_kern_quota_on(mnt, type))
 			return QF_VFSOLD;
 	}
 	return -1;
