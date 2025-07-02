@@ -649,8 +649,7 @@ Please turn quotas off or use -f to force checking.\n"),
 				    type2name(type), mnt->me_dir);
 		}
 		/* At least sync quotas so damage will be smaller */
-		if (quotactl_mnt(kernel_iface == IFACE_GENERIC ? Q_SYNC : Q_6_5_SYNC,
-				 type, mnt, 0, NULL) < 0)
+		if (quotactl_mnt(Q_SYNC, type, mnt, 0, NULL) < 0)
 			die(4, _("Error while syncing quotas on %s: %s\n"), mnt->me_devname, strerror(errno));
 	}
 
@@ -849,8 +848,7 @@ static int dump_to_file(struct mount_entry *mnt, int type)
 		if (get_qf_name(mnt, type, cfmt, NF_FORMAT, &filename) < 0)
 			errstr(_("Cannot find checked quota file for %ss on %s!\n"), _(type2name(type)), mnt->me_devname);
 		else {
-			if (quotactl_mnt(kernel_iface == IFACE_GENERIC ? Q_QUOTAOFF : Q_6_5_QUOTAOFF,
-					 type, mnt, 0, NULL) < 0)
+			if (quotactl_mnt(Q_QUOTAOFF, type, mnt, 0, NULL) < 0)
 				errstr(_("Cannot turn %s quotas off on %s: %s\nKernel won't know about changes quotacheck did.\n"),
 					_(type2name(type)), mnt->me_devname, strerror(errno));
 			else {
@@ -859,10 +857,7 @@ static int dump_to_file(struct mount_entry *mnt, int type)
 				/* Rename files - if it fails we cannot do anything better than just turn on quotas again */
 				rename_files(mnt, type);
 
-				if (kernel_iface == IFACE_GENERIC)
-					ret = quotactl_mnt(Q_QUOTAON, type, mnt, util2kernfmt(cfmt), filename);
-				else
-					ret = quotactl_mnt(Q_6_5_QUOTAON, type, mnt, 0, filename);
+				ret = quotactl_mnt(Q_QUOTAON, type, mnt, util2kernfmt(cfmt), filename);
 				if (ret < 0)
 					errstr(_("Cannot turn %s quotas on on %s: %s\nKernel won't know about changes quotacheck did.\n"),
 						_(type2name(type)), mnt->me_devname, strerror(errno));

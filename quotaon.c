@@ -177,29 +177,15 @@ static int quotarsquashonoff(struct mount_entry *mnt, int type, int flags)
 static int quotaonoff(struct mount_entry *mnt, char *quotafile, int type,
 		      int fmt, int flags)
 {
-	int cmd, kqf;
-
 	if (flags & STATEFLAG_OFF) {
-		if (kernel_iface == IFACE_GENERIC)
-			cmd = Q_QUOTAOFF;
-		else
-			cmd = Q_6_5_QUOTAOFF;
-		if (quotactl_mnt(cmd, type, mnt, 0, NULL) < 0) {
+		if (quotactl_mnt(Q_QUOTAOFF, type, mnt, 0, NULL) < 0) {
 			errstr(_("quotactl on %s [%s]: %s\n"), mnt->me_devname, mnt->me_dir, strerror(errno));
 			return 1;
 		}
 		pinfo(_("%s [%s]: %s quotas turned off\n"), mnt->me_devname, mnt->me_dir, _(type2name(type)));
 		return 0;
 	}
-	if (kernel_iface == IFACE_GENERIC) {
-		cmd = Q_QUOTAON;
- 		kqf = util2kernfmt(fmt);
-	}
-	else {
-		cmd = Q_6_5_QUOTAON;
-		kqf = 0;
-	}
-	if (quotactl_mnt(cmd, type, mnt, kqf, (void *)quotafile) < 0) {
+	if (quotactl_mnt(Q_QUOTAON, type, mnt, util2kernfmt(fmt), (void *)quotafile) < 0) {
 		if (errno == ENOENT)
 			errstr(_("cannot find %s on %s [%s]\n"), quotafile, mnt->me_devname, mnt->me_dir);
 		else

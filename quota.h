@@ -52,10 +52,6 @@ typedef int64_t qsize_t;	/* Type in which we store size limitations */
 #define SUBCMDSHIFT 8
 #define QCMD(cmd, type)  (((cmd) << SUBCMDSHIFT) | ((type) & SUBCMDMASK))
 
-#define Q_6_5_QUOTAON  0x0100	/* enable quotas */
-#define Q_6_5_QUOTAOFF 0x0200	/* disable quotas */
-#define Q_6_5_SYNC     0x0600	/* sync disk copy of a filesystems quotas */
-
 #define Q_SYNC     0x800001	/* sync disk copy of a filesystems quotas */
 #define Q_QUOTAON  0x800002	/* turn quotas on */
 #define Q_QUOTAOFF 0x800003	/* turn quotas off */
