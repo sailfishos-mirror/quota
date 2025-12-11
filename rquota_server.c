@@ -60,14 +60,13 @@ extern char nfs_pseudoroot[PATH_MAX];
  */
 extern struct authunix_parms *unix_cred;
 
-int in_group(gid_t * gids, uint32_t len, gid_t gid)
+static int in_group(gid_t *gids, uint32_t len, gid_t gid)
 {
-	gid_t *gidsp = gids + len;
+	int i;
 
-	while (gidsp > gids)
-		if (*(--gids) == gid)
+	for (i = 0; i < len; i++)
+		if (gids[i] == gid)
 			return 1;
-
 	return 0;
 }
 
