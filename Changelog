@@ -1,3 +1,12 @@
+Changes in quota-tools from 4.10 to 4.11
+* rquota_server: Fix group presence checking (Jan Kara)
+* Drop support for V0 and V1 kernel interfaces (Jan Kara)
+* Drop support for old quotactl(2) syscall (Jan Kara)
+* Provide quotactl_mnt() helper and use it where possible (Jan Kara)
+* quotaon: Fix handling of filesystems without single device (Jan Kara)
+* setproject: Fix openWRT build (Jan Kara)
+* setproject: fix openat() call (Konstantin Demin)
+
 Changes in quota-tools from 4.09 to 4.10
 * Update Polish translation (Jan Kara)
 * quotasys: Make detection of QF_META format work for bcachefs (Jan Kara)
